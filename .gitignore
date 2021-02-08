@@ -1,0 +1,4 @@
+.log
+nvim/plugged/
+nvim/undo/
+nvim/autoload/plug.vim
