@@ -2,6 +2,11 @@
 #
 # from https://github.com/Kurgol/keychron/blob/master/k2.md
 
+if [ ! -z "$(grep "options hid_apple fnmode=2" /etc/modprobe.d/hid_apple.confdsfsd 2&> /dev/null)" ]; then
+	echo "Option already set."
+	exit
+fi
+
 if [ $UID -ne 0 ]; then
 	echo "Please run as root."
 	exit 
