@@ -1,7 +1,5 @@
-" Enviroment Variables {{{
-let $VIMCONFDIR = '~/.vim'
-let $NVIMCONFDIR = '~/.config/nvim'
-let $PLUGINS = '~/.config/nvim/plugins.vim'
+" Variables {{{
+
 if executable('nvr') | let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'" | endif
 " }}}
 
@@ -111,10 +109,18 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Autocmd {{{
 
 " config_files {{{
-augroup filetype_config
+" get config directory {{{
+if filereadable(expand('~/.dotfiles/nvim/init.vim'))
+	let g:config_dir = expand('~/.dotfiles/')
+else
+	let g:config_dir = expand('~/.config/')
+endif
+" }}}
+augroup config_files
 	autocmd!
-	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
+	execute "autocmd BufWritePost " . g:config_dir . "nvim/\*.\{vim,lua\} source $MYVIMRC"
 	autocmd FileType vim setlocal foldmethod=marker
+	autocmd FileType tmux setlocal foldmethod=marker
 augroup END
 "" }}}
 
