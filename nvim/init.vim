@@ -1,5 +1,5 @@
 " Variables {{{
-
+let $MYVIMRC = "~/.config/nvim/init.vim"
 if executable('nvr') | let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'" | endif
 " }}}
 
@@ -43,15 +43,49 @@ tnoremap <C-v><Esc> <Esc>
 "nnoremap <silent> <C-K> <C-w>k
 "nnoremap <silent> <C-L> <C-w>l
 
-nnoremap <leader>ev :split $MYVIMRC<CR>
+nnoremap <leader>ev :split ~/.config/nvim/init.vim<CR>
 " }}}
 
 " Load plugins {{{
+" Preload settings {{{
 let g:tmux_navigator_no_mappings = 1
+" }}}
 
-if filereadable(expand("~/.config/nvim/plugins.vim"))
-	source ~/.config/nvim/plugins.vim
-endif
+call plug#begin('~/.config/nvim/plugged')
+
+"Plug 'SirVer/ultisnips'
+"Plug 'honza/vim-snippets' " snippet collection for ultisnips
+"Plug 'ludovicchabant/vim-gutentags'
+
+"Plug 'sheerun/vim-polyglot'
+" Themes
+"Plug 'morhetz/gruvbox'
+"Plug 'arcticicestudio/nord-vim'
+"Plug 'joshdick/onedark.vim'
+
+"Plug 'vim-airline/vim-airline' 
+"Plug 'lervag/vimtex'
+"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"Plug 'junegunn/fzf.vim'
+Plug 'takac/vim-hardtime'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'preservim/nerdcommenter'
+Plug 'preservim/nerdtree' |
+			\ Plug 'Xuyuanp/nerdtree-git-plugin' 
+			" \ Plug 'ryanoasis/vim-devicons' |
+			" \ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/nvim-compe'
+"Plug 'nvim-lua/completion-nvim'
+"Plug 'pierreglaser/folding-nvim'
+
+"Plug 'jackguo380/vim-lsp-cxx-highlight'
+
+call plug#end()
 " }}}
 
 " Configure LSP {{{
@@ -109,16 +143,9 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " Autocmd {{{
 
 " config_files {{{
-" get config directory {{{
-if filereadable(expand('~/.dotfiles/nvim/init.vim'))
-	let g:config_dir = expand('~/.dotfiles/')
-else
-	let g:config_dir = expand('~/.config/')
-endif
-" }}}
 augroup config_files
 	autocmd!
-	execute "autocmd BufWritePost " . g:config_dir . "nvim/\*.\{vim,lua\} source $MYVIMRC"
+	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
 augroup END
@@ -126,6 +153,7 @@ augroup END
 
 " tex_files {{{
 "augroup filetype_tex
+	"atocmd!
 	"autocmd FileType tex let b:surround_105 = "\\[\r\\]" " \[ \] on i
 	"autocmd FileType tex nmap \pad %i<Enter><Esc>%a<Enter><Esc>k%ge
 	"autocmd Filetype tex set conceallevel=2
