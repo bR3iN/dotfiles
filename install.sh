@@ -1,7 +1,13 @@
-INSTALLER_DIR=$(dirname $(readlink -f "$0"))
-CONF="${INSTALLER_DIR}/test.ini"
-declare -A INSTALLED
+#!/bin/bash
 
+#This file's directory.
+INSTALLER_DIR=$(dirname $(readlink -f "$0")) 
+
+#Path to config file.
+CONF="${INSTALLER_DIR}/test.ini" 
+
+#Seperator used internally. Is not allowed in keys.
+OUTPUT_SEPERATOR=":" 
 
 function main {
 
@@ -9,52 +15,75 @@ function main {
 		listTargets
 	fi
 
+	declare -A INSTALLED
+
 	for target in "$@"; do 
-		echo
-		echo
-		echo "target: '${target}'"
-		if [ ! ${INSTALLED["$target"]} ];then
-			installTarget
-			INSTALLED+=(["$target"]=true)
-		else
-			echo "target already installed"
-		fi
+			installTarget "$target"
 	done
+
 }
 
 
 function listTargets {
 	echo "Available targets:"
 	echo "=================="
-	awk -f "${INSTALLER_DIR}/getsections.awk" "$CONF"
-	exit
+	awk -f - "$CONF" << EOF
+	$0 ~ "^\[.*\]" { 
+	gsub(/(\[( |	)*|( |	)*\])/,"")
+	print
+}
+EOF
+exit
 }
 
 
 function installTarget { 
 
-	keys=$(awk -F= -v TARGET_SECTION="$target" -f \
-		"getkeys.awk" "$CONF")
+	local target="$1"
 
-	IFS=$'\n' 
+	if [ ${INSTALLED["$target"]} ]; then
+		return 0
+	else
+		INSTALLED+=(["$target"]=true)
+	fi
+
+	#local keys=$(awk -F= -v TARGET_SECTION="$target" -f \
+		#"getkeys.awk" "$CONF")
+	local keys=$(getKeys)
+
+	if [ -z "$keys" ]; then
+		echo "Target '$target' was not found."
+		return 1
+	fi
+
+	local IFS=$'\n' 
 	for key in $keys; do
+
+		#split key into name and value
 		if [ ! -z "$key" ]; then
-			IFS=':' read -ra _key <<< "$key"
+			IFS="$OUTPUT_SEPERATOR" read -ra _key <<< "$key"
 			name="${_key[0]}"
 			value="${_key[1]}"
-
-			echo "'$name'='$value'"
 		fi
 
 		if [ "$name" = "cmd" ]; then
 			eval "$value"
+
 		elif [ "$name" = "hook" ];then
 			("${INSTALLER_DIR}/hooks/${value}")
+
+		elif [ "$name" = "target" ];then
+			#local target="$value"
+			installTarget "$value"
+
 		else
 			createSymlink
+
 		fi
 
 	done
+
+	echo "Installed '$target'"
 
 }
 
@@ -75,8 +104,12 @@ function createSymlink {
 
 		mkdir -p "$(dirname "$path")"
 		file="${INSTALLER_DIR}/${name}"
-		echo "symlink '$file' to '$path'"
 		[ -e "$file" ] && ln -s "$file" "$path"
+		
+		if [ "$?" -eq 0 ]; then
+			echo "Created the symbolic link"
+			echo "$file --> $path"
+		fi
 
 	fi
 	}
@@ -118,12 +151,47 @@ function getPath {
 
 	if [[ "$value" =~ ^~/ ]]; then
 		path="${HOME}/${value#"~/"}"
-	elif [[ ! "$path" =~ ^/ ]]; then
+	elif [[ ! "$value" =~ ^/ ]]; then
 		path="${HOME}/${value}"
 	else
 		path="$value"
 	fi
 
+}
+
+
+function getKeys {
+	awk -F= -v TARGET_SECTION="$target" \
+		-v OUTPUT_SEPERATOR="$OUTPUT_SEPERATOR" \
+		-f - "$CONF" << EOF
+			BEGIN {
+			in_target_section = 0 
+			OUTPUT_SEPERATOR = ":"
+			s = "( |	)*"
+		}
+
+# Matches non-target header
+\$0 ~ "^\[.*\]" \
+	&& \$0 !~ "^\["s TARGET_SECTION s"\]" \
+	{
+		in_target_section = 0 
+	}
+
+in_target_section \
+	&& \$0 !~ "^"s"\;" \
+	&& \$0 ~ s"[^ 	]" \
+	{
+		gsub(/(^(	| )+|(	| )+\$)/,"",\$1)
+		gsub(/(^(	| )+|(	| )+\$)/,"",\$2)
+		print \$1 OUTPUT_SEPERATOR \$2
+	}
+
+# Matches target header
+\$0 ~ "^\["s TARGET_SECTION s"\]" \
+	{
+		in_target_section = 1 
+	}
+EOF
 }
 
 
