@@ -192,6 +192,8 @@ endfunction
 " Mappings {{{
 nnoremap <silent> <leader>ot <cmd>call OpenTerminal()<CR>
 nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+nnoremap <leader>w :<c-u>w<cr>
+inoremap <c-u> <esc>viwUea
 " }}}
 
 " Appearence {{{

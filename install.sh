@@ -1,96 +1,130 @@
-#!/bin/bash
+INSTALLER_DIR=$(dirname $(readlink -f "$0"))
+CONF="${INSTALLER_DIR}/test.ini"
+declare -A INSTALLED
 
-set -e
-#DOT_DIR=$(dirname $(readlink -f "$0"))
-DOT_DIR="$HOME/.dotfiles"
-LOG_FILE="${DOT_DIR}/.log"
-DEBUG=true
-
-# Set targets
-TARGETS=(\
-	alacritty:.alacritty.yml
-)
 
 function main {
-		for target in ${TARGETS[@]}; do
-			InstallTarget $target
-		done
-	}	
 
-function InstallTarget {
-
-	local target
-	IFS=':' read -ra target <<< "$1" 
-	file=${target[0]}
-	path=${target[1]}
-
-	ParsePath "$path"
-
-	if [ -e "$file" ]; then
-		Symlink "$file" "$path"
+	if [ "$1" = "list" ]; then
+		listTargets
 	fi
+
+	for target in "$@"; do 
+		echo
+		echo
+		echo "target: '${target}'"
+		if [ ! ${INSTALLED["$target"]} ];then
+			installTarget
+			INSTALLED+=(["$target"]=true)
+		else
+			echo "target already installed"
+		fi
+	done
 }
 
 
-function Symlink {
-
-	local file="$1"
-	local path="$2"
-
-	if [ -e "$path" ] && [ ! -h "$path" ]; then
-
-		ConfirmAndDelete "$path"
-		# Returns non-zero exit code if $path is not deleted
-
-	elif [ -h "$path" ]; then
-
-		rm -rf "$path" && Log "Removed symbolic link at ${path}."
-		# Current exit code is the one from rm -rf $path
-
-	fi
-
-	if [ "$?" = 0 ]; then
-
-		mkdir -p $(dirname "$path")
-		ln -s ${DOT_DIR}/$file $path
-		Log "Symlinked $path to $file" 
-
-	fi
+function listTargets {
+	echo "Available targets:"
+	echo "=================="
+	awk -f "${INSTALLER_DIR}/getsections.awk" "$CONF"
+	exit
 }
 
-function ParsePath {
 
-	if [[ "$path" =~ ^~/ ]]; then
-		path="${HOME}/${path#"~/"}"
-	elif [[ ! "$path" =~ ^/ ]]; then
-		path="${HOME}/${path}"
-	fi
+function installTarget { 
+
+	keys=$(awk -F= -v TARGET_SECTION="$target" -f \
+		"getkeys.awk" "$CONF")
+
+	IFS=$'\n' 
+	for key in $keys; do
+		if [ ! -z "$key" ]; then
+			IFS=':' read -ra _key <<< "$key"
+			name="${_key[0]}"
+			value="${_key[1]}"
+
+			echo "'$name'='$value'"
+		fi
+
+		if [ "$name" = "cmd" ]; then
+			eval "$value"
+		elif [ "$name" = "hook" ];then
+			("${INSTALLER_DIR}/hooks/${value}")
+		else
+			createSymlink
+		fi
+
+	done
 
 }
 
-function ConfirmAndDelete {
 
-	local path="$1"
+function createSymlink {
 
-	echo "The file ${path} alread exists. Do you want to delete it [yN]?"
+	getPath
+
+	if [ -e "$path" ]; then
+		if [ ! -h "$path" ]; then
+			confirmAndDelete 
+		else
+			rm -rf "$path"
+		fi
+	fi
+
+	if [ "$?" -eq 0 ]; then
+
+		mkdir -p "$(dirname "$path")"
+		file="${INSTALLER_DIR}/${name}"
+		echo "symlink '$file' to '$path'"
+		[ -e "$file" ] && ln -s "$file" "$path"
+
+	fi
+	}
+
+
+function confirmAndDelete {
+	echo
+	echo "The file/directory"
+	echo
+	echo "		'$path'"
+	echo
+	echo -n "already exists. Do you want to delete it? [y|N] "
 
 	while true; do
 
 		read confirm
 		
 		case "$confirm" in
-			y|Y) rm -rf "$path" && Log "Removed $1" && return 0
-				return 1;;
-			n|N) return 1;;
+			y|Y) rm -rf "$path" && return 0
+				return 1
+				;;
+			n|N) 
+				echo "not deleted"
+				return 1
+				;;
+			"") 
+				echo "not deleted"
+				return 1
+				;;
+			*)
+				echo "Please anwser 'y' or 'n'."
+				;;
 		esac
-		echo "Please anwser 'y' or 'n'."
 	done
-	
 }
 
-function Log {
-	echo "[$(date +"%F %T")] $@" >> $LOG_FILE
-	echo "$@"
+
+function getPath {
+
+	if [[ "$value" =~ ^~/ ]]; then
+		path="${HOME}/${value#"~/"}"
+	elif [[ ! "$path" =~ ^/ ]]; then
+		path="${HOME}/${value}"
+	else
+		path="$value"
+	fi
+
 }
 
-main
+
+main "$@"
