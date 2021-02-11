@@ -4,7 +4,7 @@
 INSTALLER_DIR=$(dirname $(readlink -f "$0")) 
 
 #Path to config file.
-CONF="${INSTALLER_DIR}/test.ini" 
+CONF="${INSTALLER_DIR}/dotfiles.ini" 
 
 #Seperator used internally. Is not allowed in keys.
 OUTPUT_SEPERATOR=":" 
@@ -92,6 +92,10 @@ function createSymlink {
 
 	getPath
 
+	if [ ! -e "${INSTALLER_DIR}/${name}" ]; then
+		echo "WARNING: Link destination '${INSTALLER_DIR}/${name}' was not found."
+	fi
+
 	if [ -e "$path" ]; then
 		if [ ! -h "$path" ]; then
 			confirmAndDelete 
@@ -105,14 +109,14 @@ function createSymlink {
 		mkdir -p "$(dirname "$path")"
 		file="${INSTALLER_DIR}/${name}"
 		[ -e "$file" ] && ln -s "$file" "$path"
-		
+
 		if [ "$?" -eq 0 ]; then
 			echo "Created the symbolic link"
 			echo "$file --> $path"
 		fi
 
 	fi
-	}
+}
 
 
 function confirmAndDelete {
@@ -126,7 +130,7 @@ function confirmAndDelete {
 	while true; do
 
 		read confirm
-		
+
 		case "$confirm" in
 			y|Y) rm -rf "$path" && return 0
 				return 1

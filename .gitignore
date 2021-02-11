@@ -1,6 +1,9 @@
-# log files
-.log
-
 # neovim
 nvim/plugged/
 nvim/undo/
+
+# vim
+.netrwhist
+vim/plugged/
+vim/spell/
+vim/autoload/plug.vim

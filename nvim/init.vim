@@ -1,4 +1,5 @@
 " Variables {{{
+let mapleader = " "
 let $MYVIMRC = "~/.config/nvim/init.vim"
 if executable('nvr') | let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'" | endif
 " }}}
@@ -38,6 +39,7 @@ tnoremap <silent> <M-l> <C-\><C-n><C-w>l
 tnoremap <Esc> <C-\><C-n>
 tnoremap <C-v><Esc> <Esc>
 
+nnoremap <F1> <nop>
 "nnoremap <silent> <C-H> <C-w>h
 "nnoremap <silent> <C-J> <C-w>j
 "nnoremap <silent> <C-K> <C-w>k
@@ -99,6 +101,7 @@ lua require('completion')
 " NERDCommenter {{{
 nmap <silent>  <Plug>NERDCommenterToggle
 vmap <silent>  <Plug>NERDCommenterToggle
+imap <silent>  <Esc>a
 " }}}
 
 " NERDTree {{{
@@ -148,6 +151,7 @@ augroup config_files
 	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
+	autocmd BufRead,BufNewFile dotfiles.conf set filetype=dosini
 augroup END
 "" }}}
 
@@ -193,7 +197,9 @@ endfunction
 nnoremap <silent> <leader>ot <cmd>call OpenTerminal()<CR>
 nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 nnoremap <leader>w :<c-u>w<cr>
+nnoremap <leader>qq :<c-u>q<cr>
 inoremap <c-u> <esc>viwUea
+nnoremap Y y$
 " }}}
 
 " Appearence {{{
