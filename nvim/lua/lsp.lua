@@ -78,20 +78,39 @@ lspconfig.ccls.setup{
 
 	root_dir = util.root_pattern("compile_commands.json", "compile_flags.txt", ".git", ".ccls"),
 
-	init_options = {
+	--init_options = {
 
 		--highlight = { -- needed for vim-lsp-cxx-highlight
 			--lsRanges = true;
 		--}
 
-	}
+	--}
 }
 
+--lspconfig.texlab.setup{
+
+	--on_attach = custom_lsp_attach("texlab"),
+
+	--settings = {
+		--latex = {
+			--build = {
+				--onSave = true
+			--},
+
+			--forwardSearch = {
+				--executable = "zathura",
+				--args = {"--synctex-forward",
+					--"%l:1:%f", 
+					--"%p"},
+			--},
+		--}
+	--}
+--}
 
 local servers = { 
 	--"pyls", 
 	"bashls", 
-	"texlab",
+	--"texlab",
 	"tsserver",
 }
 

@@ -1,4 +1,5 @@
 " Variables {{{
+let maplocalleader = " "
 let mapleader = " "
 let $MYVIMRC = "~/.config/nvim/init.vim"
 if executable('nvr') | let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'" | endif
@@ -28,28 +29,29 @@ set wrap
 " Default tab behaviour
 set shiftwidth=4
 set tabstop=4
+set expandtab
 " }}}
 
 " Navigation {{{
-tnoremap <silent> <M-h> <C-\><C-n><C-w>h
-tnoremap <silent> <M-j> <C-\><C-n><C-w>j
-tnoremap <silent> <M-k> <C-\><C-n><C-w>k
-tnoremap <silent> <M-l> <C-\><C-n><C-w>l
+nnoremap <leader>b  :<c-u>ls<cr>:<c-u>b 
+nnoremap <leader>sb	:<c-u>ls<cr>:<c-u>sb 
+nnoremap <leader>vb	:<c-u>ls<cr>:<c-u>vert sb 
+
 
 tnoremap <Esc> <C-\><C-n>
 tnoremap <C-v><Esc> <Esc>
 
 nnoremap <F1> <nop>
-"nnoremap <silent> <C-H> <C-w>h
-"nnoremap <silent> <C-J> <C-w>j
-"nnoremap <silent> <C-K> <C-w>k
-"nnoremap <silent> <C-L> <C-w>l
 
-nnoremap <leader>ev :split ~/.config/nvim/init.vim<CR>
+nnoremap <leader>ev :<c-u>edit   ~/.config/nvim/init.vim<CR>
+nnoremap <leader>sv :<c-u>split  ~/.config/nvim/init.vim<CR>
+nnoremap <leader>vv :<c-u>vsplit ~/.config/nvim/init.vim<CR>
+nnoremap <leader>co :<c-u>copen<cr>/error<cr>
+nnoremap <leader>cc :<c-u>cclose<cr>
 " }}}
 
-" Load plugins {{{
-" Preload settings {{{
+" Load Plugins {{{
+" Preload Settings {{{
 let g:tmux_navigator_no_mappings = 1
 " }}}
 
@@ -66,7 +68,7 @@ call plug#begin('~/.config/nvim/plugged')
 "Plug 'joshdick/onedark.vim'
 
 "Plug 'vim-airline/vim-airline' 
-"Plug 'lervag/vimtex'
+Plug 'lervag/vimtex'
 "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 "Plug 'junegunn/fzf.vim'
 Plug 'takac/vim-hardtime'
@@ -96,17 +98,17 @@ lua require('treesitter')
 lua require('completion')
 " }}}
 
-" Configure plugins {{{
+" Configure Plugins {{{
 
 " NERDCommenter {{{
 nmap <silent>  <Plug>NERDCommenterToggle
 vmap <silent>  <Plug>NERDCommenterToggle
-imap <silent>  <Esc>a
+inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
 " }}}
 
 " NERDTree {{{
-"nnoremap <silent> <C-t> :NERDTreeToggle<CR>
-"nnoremap <silent> <C-n> :NERDTreeFind<CR>
+"nnoremap <silent> <C-t> :<c-u>NERDTreeToggle<CR>
+"nnoremap <silent> <C-n> :<c-u>NERDTreeFind<CR>
 	" Exit Vim if NERDTree is the only window left.
 "augroup plugin_NERDTree
 	"autocmd!
@@ -116,10 +118,15 @@ imap <silent>  <Esc>a
 " }}}
 
 " Tmux Navigator {{{
-nnoremap <silent> <M-h> :TmuxNavigateLeft<cr>
-nnoremap <silent> <M-j> :TmuxNavigateDown<cr>
-nnoremap <silent> <M-k> :TmuxNavigateUp<cr>
-nnoremap <silent> <M-l> :TmuxNavigateRight<cr>
+nnoremap <silent> <M-h> :<c-u>TmuxNavigateLeft<cr>
+nnoremap <silent> <M-j> :<c-u>TmuxNavigateDown<cr>
+nnoremap <silent> <M-k> :<c-u>TmuxNavigateUp<cr>
+nnoremap <silent> <M-l> :<c-u>TmuxNavigateRight<cr>
+
+tnoremap <silent> <M-h> <C-\><C-n>:TmuxNavigateLeft<cr>
+tnoremap <silent> <M-j> <C-\><C-n>:TmuxNavigateDown<cr>
+tnoremap <silent> <M-k> <C-\><C-n>:TmuxNavigateUp<cr>
+tnoremap <silent> <M-l> <C-\><C-n>:TmuxNavigateRight<cr>
 " }}}
 
 " nvim-compe {{{
@@ -136,44 +143,31 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " }}}
 
 " Vimtex {{{
-"let g:vimtex_view_method = 'zathura'
-"let g:vimtex_quickfix_mode = 0
-"let g:tex_flavor='latex'
+let g:vimtex_view_method='zathura'
+let g:vimtex_quickfix_mode = 0
+let g:tex_flavor='latex'
+let g:vimtex_format_enabled = 1
 " }}}
 
 " }}}
 
 " Autocmd {{{
 
-" config_files {{{
-augroup config_files
+augroup config_files " {{{
 	autocmd!
 	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
-	autocmd BufRead,BufNewFile dotfiles.conf set filetype=dosini
 augroup END
 "" }}}
 
-" tex_files {{{
-"augroup filetype_tex
-	"atocmd!
-	"autocmd FileType tex let b:surround_105 = "\\[\r\\]" " \[ \] on i
-	"autocmd FileType tex nmap \pad %i<Enter><Esc>%a<Enter><Esc>k%ge
-	"autocmd Filetype tex set conceallevel=2
-	"autocmd BufRead main.tex VimtexCompile	
-"augroup END
-" }}}
-
-" init_misc {{{
-augroup init_misc
+augroup init_misc " {{{
 	autocmd!
 	autocmd BufWritePre /tmp/* setlocal noundofile
 augroup END
 " }}}
 
-" terminal {{{
-augroup terminal
+augroup terminal " {{{
 	autocmd!
 	autocmd TermOpen * setlocal nonumber norelativenumber | startinsert
 	autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif
@@ -193,9 +187,9 @@ endfunction
 
 " }}}
 
-" Mappings {{{
+" Misc Mappings {{{
 nnoremap <silent> <leader>ot <cmd>call OpenTerminal()<CR>
-nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+nnoremap <silent> <C-L> :<c-u>nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 nnoremap <leader>w :<c-u>w<cr>
 nnoremap <leader>qq :<c-u>q<cr>
 inoremap <c-u> <esc>viwUea

@@ -1,3 +1,9 @@
+" Variables {{{
+"if filereadable(expand("~/.dotfiles/vim/vimrc"))
+	"let $MYVIMRC = "~/.vim/vimrc"
+"endif
+" }}}
+
 " General Options {{{
 set autoindent
 set autoread
@@ -35,9 +41,6 @@ let maplocalleader = " "
 
 syntax on
 filetype indent plugin on 
-" }}}
-
-" Vimtex {{{
 " }}}
 
 " Navigation {{{
@@ -109,6 +112,7 @@ augroup filetype_tex
 	" autocmd Filetype tex set conceallevel=2
 	autocmd FileType tex vmap <leader>em c\emph{"}
 	autocmd FileType tex vmap <leader>op S}i\mathop
+	autocmd FileType tex vmap <leader>it S}i\textit
 	autocmd FileType tex nnoremap <leader>tt :VimtexTocToggle<CR>
 augroup END
 let g:vimtex_view_method = 'zathura'
@@ -120,7 +124,7 @@ let g:vimtex_quickfix_mode = 0
 " Misc Autocmd{{{
 augroup vimrc
 	autocmd!
-	autocmd BufWritePost ~/.vim/* source $MYVIMRC
+	autocmd BufWritePost ~/.dotfiles/vim/* source $MYVIMRC
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
 	" Exit Vim if NERDTree is the only window left.
@@ -133,10 +137,27 @@ augroup END
 nnoremap Y y$
 nnoremap <leader>w :<c-u>w<cr>
 nnoremap <leader>qq :<c-u>q<cr>
-nnoremap <leader>u ~
+nnoremap <leader>u ~h
 nnoremap <silent> <C-l> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-l>
 " }}}
 
 " Appearance {{{
 color ron
 " }}}
+
+nnoremap <leader>f gqq
+vnoremap <leader>f gq
+if empty(v:servername) && exists('*remote_startserver')
+	call remote_startserver('VIM')
+endif
+let g:vimtex_format_enabled = 1
+
+set textwidth=80
+nnoremap <leader>o mqo<Esc>`q
+nnoremap <leader>O mqO<Esc>`q
+nnoremap <leader>b :<c-u>ls<cr>:<c-u>b 
+nnoremap <leader>sb :<c-u>ls<cr>:<c-u>sb 
+nnoremap <leader>vb :<c-u>ls<cr>:<c-u>vert sb 
+set splitbelow
+set splitright
+nnoremap <leader>st /<c-u>TODO<cr>

@@ -112,6 +112,9 @@ font:
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
     #family: monospace
+    #family: ubuntu mono
+    #family: JetBrainsMono Nerd Font
+    #family: Hack NF
     family: fira mono
     #family: liberation mono
 
