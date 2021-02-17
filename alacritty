@@ -1,3 +1,7 @@
+#
+# https://github.com/alacritty/alacritty/blob/master/alacritty.yml
+#
+#
 # Configuration for Alacritty, the GPU enhanced terminal emulator.
 
 # Import additional configuration files
@@ -97,8 +101,7 @@ scrolling:
   # Maximum number of lines in the scrollback buffer.
   # Specifying '0' will disable scrolling.
   history: 10000
-
-  # Scrolling distance multiplier.
+# Scrolling distance multiplier.
   #multiplier: 3
 
 # Font configuration
@@ -111,11 +114,16 @@ font:
     #   - (macOS) Menlo
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
+    #
+    # check 'fc-list : family style'
+    #
     #family: monospace
     #family: ubuntu mono
     #family: JetBrainsMono Nerd Font
     #family: Hack NF
-    family: fira mono
+    #family: fira mono
+    #family: fira mono nerd font
+    family: firacode nf
     #family: liberation mono
 
     # The `style` can be specified to pick a specific face.
@@ -155,6 +163,7 @@ font:
     #style: Bold Italic
 
   # Point size
+  #size: 11.0
   size: 12.0
 
   # Offset is the extra space around each character. `offset.y` can be thought

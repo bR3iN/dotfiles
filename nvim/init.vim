@@ -46,22 +46,22 @@ nnoremap <F1> <nop>
 nnoremap <leader>ev :<c-u>edit   ~/.config/nvim/init.vim<CR>
 nnoremap <leader>sv :<c-u>split  ~/.config/nvim/init.vim<CR>
 nnoremap <leader>vv :<c-u>vsplit ~/.config/nvim/init.vim<CR>
-nnoremap <leader>co :<c-u>copen<cr>/error<cr>
+
+nnoremap <leader>co :<c-u>copen<cr>
 nnoremap <leader>cc :<c-u>cclose<cr>
 " }}}
 
 " Load Plugins {{{
 " Preload Settings {{{
 let g:tmux_navigator_no_mappings = 1
+let g:NERDCreateDefaultMappings = 0
 " }}}
 
 call plug#begin('~/.config/nvim/plugged')
 
 "Plug 'SirVer/ultisnips'
 "Plug 'honza/vim-snippets' " snippet collection for ultisnips
-"Plug 'ludovicchabant/vim-gutentags'
 
-"Plug 'sheerun/vim-polyglot'
 " Themes
 "Plug 'morhetz/gruvbox'
 "Plug 'arcticicestudio/nord-vim'
@@ -76,16 +76,14 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/nerdtree' |
-			\ Plug 'Xuyuanp/nerdtree-git-plugin' 
-			" \ Plug 'ryanoasis/vim-devicons' |
+             "\ Plug 'Xuyuanp/nerdtree-git-plugin' |
+             \ Plug 'ryanoasis/vim-devicons' |
 			" \ Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/nvim-compe'
-"Plug 'nvim-lua/completion-nvim'
-"Plug 'pierreglaser/folding-nvim'
 
 "Plug 'jackguo380/vim-lsp-cxx-highlight'
 
@@ -107,14 +105,15 @@ inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
 " }}}
 
 " NERDTree {{{
-"nnoremap <silent> <C-t> :<c-u>NERDTreeToggle<CR>
-"nnoremap <silent> <C-n> :<c-u>NERDTreeFind<CR>
+nnoremap <silent> <leader>nt :<c-u>NERDTreeToggle<CR>
+nnoremap <silent> <leader>nf  :<c-u>NERDTreeFind<CR>
 	" Exit Vim if NERDTree is the only window left.
-"augroup plugin_NERDTree
-	"autocmd!
-	"autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
-				"\ quit | endif
-"augroup END
+augroup plugin_NERDTree
+    autocmd!
+    "autocmd BufEnter * NERDTreeFind | wincmd p
+    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+                \ quit | endif
+augroup END
 " }}}
 
 " Tmux Navigator {{{
@@ -139,7 +138,7 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 " }}}
 
 " FZF {{{
-"nnoremap <silent> <C-p> :<C-u>FZF<CR>
+"nnoremap <silent> <leader>p :<C-u>FZF<CR>
 " }}}
 
 " Vimtex {{{
@@ -147,6 +146,9 @@ let g:vimtex_view_method='zathura'
 let g:vimtex_quickfix_mode = 0
 let g:tex_flavor='latex'
 let g:vimtex_format_enabled = 1
+augroup vimtex_config
+    autocmd BufRead main.tex VimtexCompile  
+augroup END
 " }}}
 
 " }}}
@@ -156,6 +158,7 @@ let g:vimtex_format_enabled = 1
 augroup config_files " {{{
 	autocmd!
 	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
+	autocmd BufWritePost ~/.dotfiles/nvim/*.{vim,lua} source $MYVIMRC
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
 augroup END
@@ -164,6 +167,7 @@ augroup END
 augroup init_misc " {{{
 	autocmd!
 	autocmd BufWritePre /tmp/* setlocal noundofile
+    "autocmd FileType help autocmd BufWinEnter <buffer> wincmd L
 augroup END
 " }}}
 
@@ -179,8 +183,8 @@ augroup END
 " Commands {{{
 
 " Terminal {{{
-function! OpenTerminal()
-	split term://bash 
+function OpenTerminal()
+	:below split term://bash 
 	resize 10
 endfunction
 " }}}
@@ -203,7 +207,7 @@ hi StatusLine ctermbg=8 ctermfg=green cterm=bold
 hi StatusLineNC ctermbg=8 ctermfg=green cterm=NONE
 hi VertSplit cterm=None ctermfg=8 ctermbg=NONE
 hi LineNr ctermfg=7
-hi CursorLineNr ctermfg=7
+"hi CursorLineNr ctermfg=7
 hi Pmenu ctermbg=8 ctermfg=11
 hi PmenuSel ctermbg=0 ctermfg=14
 hi PmenuThump ctermbg=7
@@ -211,6 +215,8 @@ hi LspDiagnosticsDefaultError ctermfg=9
 hi LspDiagnosticsDefaultWarning ctermfg=11
 hi LspDiagnosticsDefaultHint ctermfg=13
 hi LspDiagnosticsDefaultInformation ctermfg=10
+hi CursorLine ctermfg=14
 
 set fillchars+=vert:\│
 " }}}
+

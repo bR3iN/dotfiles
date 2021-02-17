@@ -1,13 +1,21 @@
+" Options {{{
+set textwidth=80
+" }}}
+
 " Misc Mappings{{{
 nnoremap <buffer> <leader>f gqq
 vnoremap <buffer> <leader>f gq
 nnoremap <buffer> <leader>u ~h
 
-nmap <buffer> <leader>pad f$%i<Enter><Esc>%a<Enter><Esc>k%ge
-nmap <buffer> <leader>Pad \padds$ySSi
+inoremap <buffer> <plug>cr <cr>
+nmap <buffer> <leader>pad f$%i<plug>cr<Esc>%a<plug>cr<Esc>k%ge
+nmap <buffer> <leader>Pad <leader>padds$ySSi
 
 nnoremap <buffer> <leader>tt :VimtexTocToggle<CR>
 nnoremap <buffer> <leader>td <Esc>o%TODO: 
+
+" overwrites mapping from init.vim
+nnoremap <buffer> <leader>co :<c-u>copen<cr>/error<cr>
 " }}}
 
 " Cmd Surround {{{
@@ -22,9 +30,3 @@ vnoremap <buffer> <leader>it c\textit{<c-r>"}<Esc>
 let b:surround_66 = "\\{\r\\}" " \{ \} on B
 let b:surround_105 = "\\[\r\\]" " \[ \] on i
 " }}}
-
-augroup ftplugin_tex " {{{
-    autocmd BufRead <buffer> main.tex VimtexCompile  
-augroup END
-"}}}
-
