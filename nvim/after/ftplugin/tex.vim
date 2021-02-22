@@ -10,6 +10,7 @@ nnoremap <buffer> <leader>u ~h
 inoremap <buffer> <plug>cr <cr>
 nmap <buffer> <leader>pad f$%i<plug>cr<Esc>%a<plug>cr<Esc>k%ge
 nmap <buffer> <leader>Pad <leader>padds$ySSi
+nmap <buffer> <leader>PPad cs$$<cr><leader>Pad
 
 nnoremap <buffer> <leader>tt :VimtexTocToggle<CR>
 nnoremap <buffer> <leader>td <Esc>o%TODO: 
