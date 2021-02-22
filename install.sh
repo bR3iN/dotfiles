@@ -28,7 +28,7 @@ function listTargets {
 	echo "Available targets:"
 	echo "=================="
 	awk -f - "$CONF" << EOF
-	$0 ~ "^\[.*\]" { 
+	\$0 ~ "^\[.*\]" { 
 	gsub(/(\[( |	)*|( |	)*\])/,"")
 	print
 }
