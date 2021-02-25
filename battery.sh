@@ -7,9 +7,9 @@ NOW=$(cat "${BATPATH}/energy_now")
 CURRENT=$(( 100 * ${NOW} / ${FULL} ))
 
 if [ "x${STATUS}" == "xCharging" ]; then
-	echo "{${CURRENT}%}"
-else
 	echo "[${CURRENT}%]"
+else
+	echo " ${CURRENT}% "
 fi
 
 

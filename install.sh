@@ -106,7 +106,9 @@ function createSymlink {
 
 	if [ "$?" -eq 0 ]; then
 
+        [ -h "$path" ] && rm -rf "$path"
 		mkdir -p "$(dirname "$path")"
+
 		file="${INSTALLER_DIR}/${name}"
 		[ -e "$file" ] && ln -s "$file" "$path"
 
