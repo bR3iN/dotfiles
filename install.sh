@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 #This file's directory.
 INSTALLER_DIR=$(dirname $(readlink -f "$0")) 
@@ -28,7 +29,7 @@ function listTargets {
 	echo "Available targets:"
 	echo "=================="
 	awk -f - "$CONF" << EOF
-	\$0 ~ "^\[.*\]" { 
+	/^\[.*\]/ { 
 	gsub(/(\[( |	)*|( |	)*\])/,"")
 	print
 }
@@ -60,26 +61,25 @@ function installTarget {
 	for key in $keys; do
 
 		#split key into name and value
-		if [ ! -z "$key" ]; then
-			IFS="$OUTPUT_SEPERATOR" read -ra _key <<< "$key"
-			name="${_key[0]}"
-			value="${_key[1]}"
-		fi
+        if [ "$key" != "$OUTPUT_SEPERATOR" ]; then
+            IFS="$OUTPUT_SEPERATOR" read -ra _key <<< "$key"
+            name="${_key[0]}"
+            value="${_key[1]}"
 
-		if [ "$name" = "cmd" ]; then
-			eval "$value"
+            if [ "$name" = "cmd" ]; then
+                eval "$value"
 
-		elif [ "$name" = "hook" ];then
-			("${INSTALLER_DIR}/hooks/${value}")
+            elif [ "$name" = "hook" ]; then
+                ("${INSTALLER_DIR}/hooks/${value}")
 
-		elif [ "$name" = "target" ];then
-			#local target="$value"
-			installTarget "$value"
+            elif [ "$name" = "target" ]; then
+                installTarget "$value"
 
-		else
-			createSymlink
+            elif [ ! -z "$value" ]; then
+                createSymlink
 
-		fi
+            fi
+        fi
 
 	done
 
@@ -127,7 +127,7 @@ function confirmAndDelete {
 	echo
 	echo "		'$path'"
 	echo
-	echo -n "already exists. Do you want to delete it? [y|N] "
+	echo -n "already exists. Do you want to delete it? [yN] "
 
 	while true; do
 
@@ -167,25 +167,24 @@ function getPath {
 
 
 function getKeys {
-	awk -F= -v TARGET_SECTION="$target" \
+	mawk -F= -v TARGET_SECTION="$target" \
 		-v OUTPUT_SEPERATOR="$OUTPUT_SEPERATOR" \
 		-f - "$CONF" << EOF
 			BEGIN {
 			in_target_section = 0 
-			OUTPUT_SEPERATOR = ":"
-			s = "( |	)*"
+			ws = "( |	)*"
 		}
 
 # Matches non-target header
-\$0 ~ "^\[.*\]" \
-	&& \$0 !~ "^\["s TARGET_SECTION s"\]" \
-	{
-		in_target_section = 0 
-	}
+/^\[.*\]/ \
+    && \$0 !~ "^\\\\[" ws TARGET_SECTION ws "\\\\]" \
+    {
+        in_target_section = 0 
+    }
 
 in_target_section \
-	&& \$0 !~ "^"s"\;" \
-	&& \$0 ~ s"[^ 	]" \
+	&& \$0 !~ "^" ws ";" \
+	&& \$0 ~ ws "[^ 	]" \
 	{
 		gsub(/(^(	| )+|(	| )+\$)/,"",\$1)
 		gsub(/(^(	| )+|(	| )+\$)/,"",\$2)
@@ -193,7 +192,7 @@ in_target_section \
 	}
 
 # Matches target header
-\$0 ~ "^\["s TARGET_SECTION s"\]" \
+\$0 ~ "^\\\\[" ws TARGET_SECTION ws"\\\\]" \
 	{
 		in_target_section = 1 
 	}

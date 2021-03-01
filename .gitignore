@@ -1,6 +1,7 @@
 # neovim
 nvim/plugged/
 nvim/undo/
+nvim/spell/
 
 # vim
 .netrwhist

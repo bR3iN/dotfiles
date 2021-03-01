@@ -40,7 +40,8 @@ colors:
     #foreground: '#F7F7F7'
 
   cursor:
-    text: '#49B9C7'
+    text: '#333333'
+    #text: '#49B9C7'
     cursor: '#DCDCDC'
 
   selection:

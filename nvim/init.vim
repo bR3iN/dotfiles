@@ -220,3 +220,6 @@ hi CursorLine ctermfg=14
 set fillchars+=vert:\│
 " }}}
 
+hi Search ctermfg=232
+"hi Search ctermbg=yellow
+"hi Search ctermbg=green
