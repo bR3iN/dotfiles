@@ -20,9 +20,9 @@ font:
     #
     #family: JetBrainsMono Nerd Font
     #family: Hack NF
-    #family: fira mono
+    family: fira mono
     #family: fira mono nerd font
-    family: firacode nf
+    #family: firacode nf
 
     style: Regular
 

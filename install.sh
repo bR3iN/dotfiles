@@ -1,203 +1,217 @@
 #!/bin/bash
-set -e
+set -o errexit
+set -o nounset
+set -o pipefail
 
-#This file's directory.
-INSTALLER_DIR=$(dirname $(readlink -f "$0")) 
+INSTALLER_DIR=$(dirname $(readlink -f "$0"))
+CONF="${INSTALLER_DIR}/dotfiles.ini"
 
-#Path to config file.
-CONF="${INSTALLER_DIR}/dotfiles.ini" 
-
-#Seperator used internally. Is not allowed in keys.
-OUTPUT_SEPERATOR=":" 
+declare -A INSTALLED
 
 function main {
+    while [[ "${1-}" =~ ^- ]]; do
+        case "${1-}" in
+            -c|--copy)
+                NO_SYMLINKS="true"
+                ;;
 
-	if [ "$1" = "list" ]; then
-		listTargets
-	fi
+            -l|--list)
+                listTargets
+                exit
+                ;;
 
-	declare -A INSTALLED
+            -h|--help)
+                usage
+                exit
+                ;;
 
-	for target in "$@"; do 
-			installTarget "$target"
-	done
+            -f|--file)
+                if [[ ! -z "$2" ]]; then
+                    CONF="$2"
+                    shift
+                else
+                    usage
+                    exit
+                fi
+                ;;
+        esac
+        shift
+    done
 
+    if [[ -z "${1+x}" ]]; then
+        usage
+        exit
+    fi
+
+    for target in "$@"; do
+        installTarget "$target"
+    done
 }
 
+function usage {
+    echo "usage... WIP"
+}
 
 function listTargets {
-	echo "Available targets:"
-	echo "=================="
-	awk -f - "$CONF" << EOF
-	/^\[.*\]/ { 
-	gsub(/(\[( |	)*|( |	)*\])/,"")
-	print
+    echo "Available targets:"
+    echo "=================="
+    awk -f - "$CONF" << EOF
+    /^\[.*\]/ {
+    gsub(/(\[( |\t)*|( |\t)*\])/,"")
+    print
 }
 EOF
 exit
 }
 
+function installTarget {
+    local target="$1" # allows for recursion
 
-function installTarget { 
+    if [ ! -z "${INSTALLED["$target"]-}" ]; then
+        return 0
+    else
+        INSTALLED["$target"]="true"
+    fi
 
-	local target="$1"
+    local keys=$(getKeys)
+    if [ -z "$keys" ]; then
+        echo "Section '$target' was not found or contains no keys."
+        return 1
+    fi
 
-	if [ ${INSTALLED["$target"]} ]; then
-		return 0
-	else
-		INSTALLED+=(["$target"]=true)
-	fi
+    local IFS=$'\n'
+    for key in $keys; do
 
-	#local keys=$(awk -F= -v TARGET_SECTION="$target" -f \
-		#"getkeys.awk" "$CONF")
-	local keys=$(getKeys)
+        #split `key` into name and value
+        IFS=":" read -ra _key <<< "$key"
+        local name="${_key[0]-}"
+        local value="${_key[1]-}"
 
-	if [ -z "$keys" ]; then
-		echo "Target '$target' was not found."
-		return 1
-	fi
-
-	local IFS=$'\n' 
-	for key in $keys; do
-
-		#split key into name and value
-        if [ "$key" != "$OUTPUT_SEPERATOR" ]; then
-            IFS="$OUTPUT_SEPERATOR" read -ra _key <<< "$key"
-            name="${_key[0]}"
-            value="${_key[1]}"
-
-            if [ "$name" = "cmd" ]; then
-                eval "$value"
-
-            elif [ "$name" = "hook" ]; then
-                ("${INSTALLER_DIR}/hooks/${value}")
-
-            elif [ "$name" = "target" ]; then
-                installTarget "$value"
-
-            elif [ ! -z "$value" ]; then
-                createSymlink
-
-            fi
+        if [[ -z "$name" ]] || [[ -z "$value" ]]; then
+            echo "WARNING: '${name} = ${value}' is not a valid key."
+            continue
         fi
 
-	done
+        if [[ ! "$name" =~ ^@ ]]; then
+            createSymlink
+        else
+            case "${name#[@]}" in
+                cmd)
+                    eval "$value"
+                    ;;
 
-	echo "Installed '$target'"
+                hook)
+                    echo "Running hook 'hooks/${value}':"
+                    ("${INSTALLER_DIR}/hooks/${value}") 2>&1 | sed "s/^/    /g"
+                    ;;
 
+                target)
+                    installTarget "$value"
+                    ;;
+            esac
+        fi
+    done
 }
 
 
 function createSymlink {
 
-	getPath
+    getPath # parses `value` and defines `path`
 
-	if [ ! -e "${INSTALLER_DIR}/${name}" ]; then
-		echo "WARNING: Link destination '${INSTALLER_DIR}/${name}' was not found."
-	fi
+    dest="${INSTALLER_DIR}/${name}"
 
-	if [ -e "$path" ]; then
-		if [ ! -h "$path" ]; then
-			confirmAndDelete 
-		else
-			rm -rf "$path"
-		fi
-	fi
+    if [ ! -e "$dest" ]; then
+        echo "WARNING: Link destination `${dest}` was not found."
+        return 1
+    fi
 
-	if [ "$?" -eq 0 ]; then
+    if [ -h "$path" ]; then
+        rm -rf "path"
+    elif [ -e "$path" ]; then
+        confirmAndDelete
+    fi
 
-        [ -h "$path" ] && rm -rf "$path"
-		mkdir -p "$(dirname "$path")"
+    if [ "$?" -eq 0 ]; then
+        mkdir -p "$(dirname "$path")"
+        ln -s "$dest" "$path"
 
-		file="${INSTALLER_DIR}/${name}"
-		[ -e "$file" ] && ln -s "$file" "$path"
-
-		if [ "$?" -eq 0 ]; then
-			echo "Created the symbolic link"
-			echo "$file --> $path"
-		fi
-
-	fi
+        if [ "$?" -eq 0 ]; then
+            echo "Created the symbolic link"
+            echo "    $path --> $dest"
+        fi
+    fi
 }
 
 
 function confirmAndDelete {
-	echo
-	echo "The file/directory"
-	echo
-	echo "		'$path'"
-	echo
-	echo -n "already exists. Do you want to delete it? [yN] "
+    echo
+    echo "The file/directory"
+    echo
+    echo "  '$path'"
+    echo
+    echo -n "already exists. Do you want to delete it? [y|N] "
 
-	while true; do
-
-		read confirm
-
-		case "$confirm" in
-			y|Y) rm -rf "$path" && return 0
-				return 1
-				;;
-			n|N) 
-				echo "not deleted"
-				return 1
-				;;
-			"") 
-				echo "not deleted"
-				return 1
-				;;
-			*)
-				echo "Please anwser 'y' or 'n'."
-				;;
-		esac
-	done
+    while true; do
+        read confirm
+        case "$confirm" in
+            y|Y) rm -rf "$path" && return 0
+                return 1
+                ;;
+            n|N)
+                return 1
+                ;;
+            "")
+                return 1
+                ;;
+            *)
+                echo "Please anwser 'y' or 'n'."
+                ;;
+        esac
+    done
 }
 
 
 function getPath {
-
-	if [[ "$value" =~ ^~/ ]]; then
-		path="${HOME}/${value#"~/"}"
-	elif [[ ! "$value" =~ ^/ ]]; then
-		path="${HOME}/${value}"
-	else
-		path="$value"
-	fi
-
+    if [[ "$value" =~ ^~/ ]]; then
+        path="${HOME}/${value#"~/"}"
+    elif [[ ! "$value" =~ ^/ ]]; then
+        path="${HOME}/${value}"
+    else
+        path="$value"
+    fi
 }
 
 
 function getKeys {
-	mawk -F= -v TARGET_SECTION="$target" \
-		-v OUTPUT_SEPERATOR="$OUTPUT_SEPERATOR" \
-		-f - "$CONF" << EOF
-			BEGIN {
-			in_target_section = 0 
-			ws = "( |	)*"
-		}
+    awk -F= -v TARGET_SECTION="$target" \
+        -f - "$CONF" << EOF
+            BEGIN {
+            in_target_section = 0
+            ws = "( |\t)*"
+        }
 
 # Matches non-target header
 /^\[.*\]/ \
     && \$0 !~ "^\\\\[" ws TARGET_SECTION ws "\\\\]" \
     {
-        in_target_section = 0 
+        in_target_section = 0
     }
 
 in_target_section \
-	&& \$0 !~ "^" ws ";" \
-	&& \$0 ~ ws "[^ 	]" \
-	{
-		gsub(/(^(	| )+|(	| )+\$)/,"",\$1)
-		gsub(/(^(	| )+|(	| )+\$)/,"",\$2)
-		print \$1 OUTPUT_SEPERATOR \$2
-	}
+    && \$0 !~ "^" ws ";" \
+    && \$0 ~ ws "[^ \t]" \
+    {
+        gsub(/(^(\t| )+|(\t| )+\$)/,"",\$1)
+        gsub(/(^(\t| )+|(\t| )+\$)/,"",\$2)
+        print \$1 ":" \$2
+    }
 
 # Matches target header
 \$0 ~ "^\\\\[" ws TARGET_SECTION ws"\\\\]" \
-	{
-		in_target_section = 1 
-	}
+    {
+        in_target_section = 1
+    }
 EOF
 }
-
 
 main "$@"
