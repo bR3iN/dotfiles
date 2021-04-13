@@ -1,0 +1,190 @@
+" Variables {{{
+" Set Leader Keys
+let maplocalleader = " "
+let mapleader = " "
+
+" For Plugins
+let g:tmux_navigator_no_mappings = 1
+let g:NERDCreateDefaultMappings = 0
+
+if has("nvim") && executable('nvr')
+    let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+endif
+" }}}
+
+" General Options {{{
+
+" Vim only {{{
+if !has("nvim")
+    set nocompatible
+    syntax on
+    filetype indent plugin on 
+
+    set autoindent
+    set autoread
+    set backspace=indent,eol,start
+    set display=lastline
+    set history=10000
+    set hlsearch
+    set incsearch
+    set laststatus=2 
+    set wildmenu
+endif
+" }}}
+
+set cmdheight=2
+set confirm
+set hidden 
+set ignorecase
+set mouse=a
+set number
+set relativenumber
+set ruler
+set scrolloff=1
+set showcmd
+set smartcase " requires ignorecase
+set splitbelow
+set splitright
+set wildmode=longest:full,full
+
+" Undo behaviour
+set undofile
+let &undodir=$HOME . "/.local/share/" . (has("nvim") ? "nvim" : "vim") . "/undo"
+
+"" Wrap behaviour
+set breakindent
+set wrap
+
+" Default tab behaviour
+set shiftwidth=4
+set tabstop=4
+set expandtab
+" }}}
+
+" Navigation {{{
+nnoremap <leader>b  :<c-u>ls<cr>:<c-u>b 
+nnoremap <leader>sb	:<c-u>ls<cr>:<c-u>sb 
+nnoremap <leader>vb	:<c-u>ls<cr>:<c-u>vert sb 
+nnoremap <leader>db	:<c-u>ls<cr>:<c-u>bd 
+
+tnoremap <Esc> <C-\><C-n>
+tnoremap <C-v><Esc> <Esc>
+
+nnoremap <silent> <leader>ev :<c-u>edit   $MYVIMRC<CR>
+nnoremap <silent> <leader>sv :<c-u>split  $MYVIMRC<CR>
+nnoremap <silent> <leader>vv :<c-u>vsplit $MYVIMRC<CR>
+
+nnoremap <leader>co :<c-u>copen<cr>
+nnoremap <leader>cc :<c-u>cclose<cr>
+" }}}
+
+" Configure Shared Plugins {{{
+
+" NERDCommenter {{{
+nmap <silent>  <Plug>NERDCommenterToggle
+vmap <silent>  <Plug>NERDCommenterToggle
+inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
+" }}}
+
+" NERDTree {{{
+"nnoremap <silent> <leader>nt :<c-u>NERDTreeToggle<CR>
+"nnoremap <silent> <leader>nf  :<c-u>NERDTreeFind<CR>
+	"" Exit Vim if NERDTree is the only window left.
+"augroup plugin_NERDTree
+    "autocmd!
+    ""autocmd BufEnter * NERDTreeFind | wincmd p
+    "autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+                "\ quit | endif
+"augroup END
+" }}}
+
+" Tmux Navigator {{{
+nnoremap <silent> <M-h> 	:<c-u>TmuxNavigateLeft<cr>
+nnoremap <silent> <M-j> 	:<c-u>TmuxNavigateDown<cr>
+nnoremap <silent> <M-k> 	:<c-u>TmuxNavigateUp<cr>
+nnoremap <silent> <M-l> 	:<c-u>TmuxNavigateRight<cr>
+nnoremap <silent> <M-left> 	:<c-u>TmuxNavigateLeft<cr>
+nnoremap <silent> <M-down> 	:<c-u>TmuxNavigateDown<cr>
+nnoremap <silent> <M-up> 	:<c-u>TmuxNavigateUp<cr>
+nnoremap <silent> <M-right> :<c-u>TmuxNavigateRight<cr>
+
+tnoremap <silent> <M-h> 	<C-\><C-n>:TmuxNavigateLeft<cr>
+tnoremap <silent> <M-j> 	<C-\><C-n>:TmuxNavigateDown<cr>
+tnoremap <silent> <M-k> 	<C-\><C-n>:TmuxNavigateUp<cr>
+tnoremap <silent> <M-l> 	<C-\><C-n>:TmuxNavigateRight<cr>
+tnoremap <silent> <M-left> 	<C-\><C-n>:TmuxNavigateLeft<cr>
+tnoremap <silent> <M-down> 	<C-\><C-n>:TmuxNavigateDown<cr>
+tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<cr>
+tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<cr>
+" }}}
+
+" }}}
+
+" Autocmd {{{
+
+augroup config_files " {{{
+    autocmd!
+    if has("nvim")
+        autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
+    else
+        autocmd BufWritePost ~/.vim/{*.vim,vimrc} source $MYVIMRC
+    endif
+    autocmd FileType vim  setlocal foldmethod=marker
+    autocmd FileType tmux setlocal foldmethod=marker
+    autocmd BufRead ~/.{config,dotfiles}/* setlocal foldmethod=marker
+augroup END
+"" }}}
+
+augroup vimrc_misc " {{{
+	autocmd!
+	autocmd BufWritePre /tmp/* setlocal noundofile
+augroup END
+" }}}
+
+" }}}
+
+" General Mappings {{{
+nnoremap <silent> <C-L> :<c-u>nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+nnoremap <leader>w :<c-u>w<cr>
+nnoremap <leader>qq :<c-u>q<cr>
+
+nnoremap Y y$
+
+inoremap <c-u> <esc>viwUea
+nnoremap <leader>u ~h
+nnoremap <leader>U viwU
+
+nnoremap <F1> <nop>
+" }}}
+
+" Appearence {{{
+hi StatusLine ctermbg=8 ctermfg=green cterm=bold
+hi StatusLineNC ctermbg=8 ctermfg=green cterm=NONE
+hi VertSplit cterm=None ctermfg=8 ctermbg=NONE
+hi LineNr ctermfg=7
+"hi CursorLineNr ctermfg=7
+hi Pmenu ctermbg=8 ctermfg=11
+hi PmenuSel ctermbg=black ctermfg=11 cterm=bold
+hi PmenuThump ctermbg=7
+hi LspDiagnosticsDefaultError ctermfg=9
+hi LspDiagnosticsDefaultWarning ctermfg=11
+hi LspDiagnosticsDefaultHint ctermfg=13
+hi LspDiagnosticsDefaultInformation ctermfg=10
+hi CursorLine ctermfg=14
+
+set fillchars+=vert:\│
+
+if !has("nvim") | colorscheme ron | endif
+" }}}
+
+" Load Vim Plugins {{{
+if !has("nvim")
+    call plug#begin('~/.vim/plugged')
+    Plug 'lervag/vimtex'
+    Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-repeat'
+    Plug 'preservim/nerdcommenter'
+    Plug 'christoomey/vim-tmux-navigator'
+    call plug#end()
+endif
+" }}}
