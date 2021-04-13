@@ -159,6 +159,7 @@ augroup config_files " {{{
 	autocmd!
 	autocmd BufWritePost ~/.config/nvim/*.{vim,lua} source $MYVIMRC
 	autocmd BufWritePost ~/.dotfiles/nvim/*.{vim,lua} source $MYVIMRC
+    autocmd BufEnter ~/.config/awesome/* setlocal foldmethod=marker
 	autocmd FileType vim setlocal foldmethod=marker
 	autocmd FileType tmux setlocal foldmethod=marker
 augroup END
@@ -201,15 +202,13 @@ nnoremap Y y$
 " }}}
 
 " Appearence {{{
-"colorscheme nord
-"set termguicolors
 hi StatusLine ctermbg=8 ctermfg=green cterm=bold
-hi StatusLineNC ctermbg=8 ctermfg=green cterm=NONE
+hi StatusLineNC ctermbg=8 ctermfg=green cterm=none
 hi VertSplit cterm=None ctermfg=8 ctermbg=NONE
 hi LineNr ctermfg=7
 "hi CursorLineNr ctermfg=7
 hi Pmenu ctermbg=8 ctermfg=11
-hi PmenuSel ctermbg=0 ctermfg=14
+hi PmenuSel ctermbg=0 ctermfg=11 cterm=bold
 hi PmenuThump ctermbg=7
 hi LspDiagnosticsDefaultError ctermfg=9
 hi LspDiagnosticsDefaultWarning ctermfg=11
@@ -220,6 +219,4 @@ hi CursorLine ctermfg=14
 set fillchars+=vert:\│
 " }}}
 
-hi Search ctermfg=232
-"hi Search ctermbg=yellow
-"hi Search ctermbg=green
+"hi Search ctermfg=232
