@@ -1,7 +1,7 @@
 local map       = require'utils'.map
 
---vim.g.completeopt = 'menu,menuone,noselect,noinsert,preview'
-vim.g.completeopt = 'menuone,noselect'
+--vim.o.completeopt = 'menu,menuone,noselect,noinsert,preview'
+vim.o.completeopt = 'menuone,noselect'
 
 map('i', '<C-Space>', 'compe#complete()'       , {expr = true})
 map('i', '<CR>',      'compe#confirm(\'<CR>\')', {expr = true})
