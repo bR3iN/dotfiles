@@ -8,3 +8,6 @@ nvim/spell/
 vim/plugged/
 vim/spell/
 vim/autoload/plug.vim
+
+# zsh
+.zhistory

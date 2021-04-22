@@ -188,3 +188,6 @@ if !has("nvim")
     call plug#end()
 endif
 " }}}
+
+" [c]hange to [c]urrent directory
+command! CC cd %:h

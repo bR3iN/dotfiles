@@ -18,11 +18,7 @@ font:
     #
     # check 'fc-list : family style'
     #
-    #family: JetBrainsMono Nerd Font
-    #family: Hack NF
     family: fira mono
-    #family: fira mono nerd font
-    #family: firacode nf
 
     style: Regular
 
@@ -35,43 +31,33 @@ draw_bold_text_with_bright_colors: true
 colors:
   primary:
     background: '#303030'
-    #foreground: '#D3D7CF'
     foreground: '#E3E7EF'
-    #foreground: '#F7F7F7'
 
   cursor:
     text: '#333333'
-    #text: '#49B9C7'
     cursor: '#DCDCDC'
 
   selection:
     text: '#FFCE51'
     background: '#06989A'
 
-  normal:
-    #black:   '#2A2A2A' #Dark background in other apps
-    black:   '#333333' #From PopOS colorscheme
+    black:   '#333333'
     red:     '#CF3B1A'
-    #red:     '#CC0000' #From PopOS colorscheme
     green:   '#069A38'
-    #green:   '#4E9A06' #From PopOS colorscheme
-    yellow:  '#C4A000' #From PopOS colorscheme
-    blue:    '#3465A4' #From PopOS colorscheme
-    magenta: '#75507B' #From PopOS colorscheme
-    cyan:    '#06989A' #From PopOS colorscheme
-    white:   '#D3D7CF' #From PopOS colorscheme
+    yellow:  '#C4A000'
+    blue:    '#3465A4'
+    magenta: '#75507B'
+    cyan:    '#06989A'
+    white:   '#D3D7CF'
 
   bright:
-    #black:   '#88807C' #From PopOS colorscheme
-    black:   '#4D4D4D' #Wallpaper grey
-    #black:   '#303030' #Background color in other apps
-    red:     '#F15D22' #From PopOS colorscheme
-    green:   '#73C48F' #From PopOS colorscheme
-    #green:   '#70AD0E'
-    yellow:  '#FFCE51' #From PopOS colorscheme
-    blue:    '#48B9C7' #From PopOS colorscheme
-    magenta: '#AD7FA8' #From PopOS colorscheme
-    cyan:    '#34E2E2' #From PopOS colorscheme
-    white:   '#EEEEEC' #From PopOS colorscheme
+    black:   '#4D4D4D'
+    red:     '#F15D22'
+    green:   '#73C48F'
+    yellow:  '#FFCE51'
+    blue:    '#48B9C7'
+    magenta: '#AD7FA8'
+    cyan:    '#34E2E2'
+    white:   '#EEEEEC'
 
 background_opacity: 0.9
