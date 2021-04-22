@@ -41,6 +41,7 @@ colors:
     text: '#FFCE51'
     background: '#06989A'
 
+  normal:
     black:   '#333333'
     red:     '#CF3B1A'
     green:   '#069A38'
