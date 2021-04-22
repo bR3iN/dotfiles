@@ -116,24 +116,25 @@ function installTarget {
 
 function createSymlink {
 
-    getPath # parses `value` and defines `path`
+    # parses `value` and defines `path`
+    getPath
 
     dest="${INSTALLER_DIR}/${name}"
 
     if [ ! -e "$dest" ]; then
-        echo "WARNING: Link destination `${dest}` was not found."
-        return 1
+        echo "WARNING: Link destination '${dest}' was not found. Skipping..."
+        return 0
     fi
 
     if [ -h "$path" ]; then
-        rm -rf "path"
+        rm -f "$path" || local exit_code=$?
     elif [ -e "$path" ]; then
-        confirmAndDelete
+        confirmAndDelete || local exit_code=$?
     fi
 
-    if [ "$?" -eq 0 ]; then
+    if [ "${exit_code:-0}" -eq 0 ]; then
         mkdir -p "$(dirname "$path")"
-        ln -s "$dest" "$path"
+        ln -sT "$dest" "$path"
 
         if [ "$?" -eq 0 ]; then
             echo "Created the symbolic link"
