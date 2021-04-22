@@ -29,7 +29,7 @@ paq 'christoomey/vim-tmux-navigator'
 
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
-prequire('lsp.ccls')
+--prequire('lsp.ccls')
 if prequire('lsp') then
     local with_defaults = require'lsp'.with_defaults
     with_defaults 'bashls'
