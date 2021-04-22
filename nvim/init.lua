@@ -27,6 +27,10 @@ paq 'christoomey/vim-tmux-navigator'
     --paq 'tiagofumo/vim-nerdtree-syntax-highlight'
 --end
 
+paq { 'junegunn/fzf', run = vim.fn['fzf#install'] } do
+    --paq 'junegunn/fzf.vim'
+end
+
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
 prequire('lsp.ccls')
@@ -54,7 +58,9 @@ prequire('terminal')
 
 map('i', '<Tab>',   'pumvisible() ? "\\<C-n>" : "\\<Tab>"',   {expr = true})
 map('i', '<S-Tab>', 'pumvisible() ? "\\<C-p>" : "\\<S-Tab>"', {expr = true})
+map('n', '<leader>ed', ':FZF<CR>')
 
 augroup 'filetype_lua' [[
     autocmd FileType lua nnoremap <buffer> <leader>r :lua dofile(vim.fn.expand('%'))<cr>
+    autocmd FileType lua let b:surround_66 = "{\r}\1\1"
 ]]
