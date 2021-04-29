@@ -33,12 +33,16 @@ end
 
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
---prequire('lsp.ccls')
-if prequire('lsp') then
-    local with_defaults = require'lsp'.with_defaults
-    with_defaults 'bashls'
-    with_defaults 'vimls'
-    with_defaults 'tsserver'
+local lsps = {
+    'ccls',
+    'sumneko_lua',
+    'bashls',
+    'vimls',
+    'tsserver',
+}
+
+for _, lsp in ipairs(lsps) do
+    require('lsp.'..lsp)
 end
 -- }}}
 
@@ -59,6 +63,10 @@ prequire('terminal')
 map('i', '<Tab>',   'pumvisible() ? "\\<C-n>" : "\\<Tab>"',   {expr = true})
 map('i', '<S-Tab>', 'pumvisible() ? "\\<C-p>" : "\\<S-Tab>"', {expr = true})
 map('n', '<leader>ed', ':FZF<CR>')
+
+augroup 'init.lua' [[
+    au TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150}
+]]
 
 augroup 'filetype_lua' [[
     autocmd FileType lua nnoremap <buffer> <leader>r :lua dofile(vim.fn.expand('%'))<cr>
