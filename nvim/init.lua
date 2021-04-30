@@ -42,7 +42,7 @@ local lsps = {
 }
 
 for _, lsp in ipairs(lsps) do
-    require('lsp.'..lsp)
+    prequire('lsp.'..lsp)
 end
 -- }}}
 

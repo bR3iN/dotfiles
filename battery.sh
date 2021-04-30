@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BATPATH=/sys/class/power_supply/BAT1
+BATPATH=/sys/class/power_supply/BAT0
 STATUS=$(cat "${BATPATH}/status")
 FULL=$(cat "${BATPATH}/energy_full")
 NOW=$(cat "${BATPATH}/energy_now")
