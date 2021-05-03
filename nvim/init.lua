@@ -32,10 +32,6 @@ paq { 'junegunn/fzf', run = vim.fn['fzf#install'] } do
     --paq 'junegunn/fzf.vim'
 end
 
-paq 'hrsh7th/vim-vsnip'
-paq 'rafamadriz/friendly-snippets'
-paq 'hrsh7th/vim-vsnip-integ'
-
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
 local lsps = {
@@ -55,6 +51,11 @@ prequire('vimtex')
 
 paq 'hrsh7th/nvim-compe'
 prequire('nvim-compe')
+
+paq 'hrsh7th/vim-vsnip'
+paq 'rafamadriz/friendly-snippets'
+paq 'hrsh7th/vim-vsnip-integ'
+vim.g.vsnip_snippet_dir = vim.fn.stdpath('config') .. '/vsnip'
 
 paq 'nvim-treesitter/nvim-treesitter' do
     paq 'nvim-treesitter/nvim-treesitter-textobjects'
