@@ -33,6 +33,7 @@ endif
 " }}}
 
 set cmdheight=2
+set clipboard+=unnamedplus
 set confirm
 set hidden 
 set ignorecase
