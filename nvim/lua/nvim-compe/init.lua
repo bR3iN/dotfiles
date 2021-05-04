@@ -3,10 +3,6 @@ local map       = require'utils'.map
 --vim.o.completeopt = 'menu,menuone,noselect,noinsert,preview'
 vim.o.completeopt = 'menuone,noselect'
 
-map('i', '<C-Space>', 'compe#complete()'       , {expr = true})
-map('i', '<CR>',      'compe#confirm(\'<CR>\')', {expr = true})
-map('i', '<C-e>',     'compe#close(\'<C-e>\')' , {expr = true})
-
 require'compe'.setup {
 	enabled              = true;
 	autocomplete         = true;
@@ -23,14 +19,21 @@ require'compe'.setup {
 	documentation        = true;
 
 	source = {
-		path            = true;
 		buffer          = true;
 		calc            = true;
 		nvim_lsp        = true;
 		nvim_lua        = true;
+		nvim_treesitter = true;
+		path            = true;
 		spell           = true;
 		tags            = true;
-		nvim_treesitter = true;
         omni            = true;   
+        vsnip           = true;
 	};
 }
+
+local keybindings = require("nvim-compe/keybindings")
+keybindings.tab_role('<Tab>')
+keybindings.stab_role('<S-Tab>')
+keybindings.confirm('<CR>')
+keybindings.cancel('<C-e>')

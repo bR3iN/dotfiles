@@ -8,13 +8,14 @@ local prequire        = require'utils'.prequire -- pcall require
 -- Load shared vimrc
 cmd 'runtime vimrc'
 
--- Initialize paq-nvim
+-- Load and configure plugins {{{
+
+-- Initialize paq-nvim {{{
 cmd 'packadd paq-nvim'
 unrequire 'paq-nvim'
 local paq = require'paq-nvim'.paq
 paq { 'savq/paq-nvim', opt=true }
-
--- Load and configure plugins {{{
+-- }}}
 
 paq 'tpope/vim-surround'
 paq 'tpope/vim-repeat'
@@ -40,7 +41,6 @@ local lsps = {
     'vimls',
     'tsserver',
 }
-
 for _, lsp in ipairs(lsps) do
     prequire('lsp.'..lsp)
 end
@@ -52,6 +52,11 @@ prequire('vimtex')
 paq 'hrsh7th/nvim-compe'
 prequire('nvim-compe')
 
+paq 'hrsh7th/vim-vsnip'
+paq 'rafamadriz/friendly-snippets'
+paq 'hrsh7th/vim-vsnip-integ'
+vim.g.vsnip_snippet_dir = vim.fn.stdpath('config') .. '/vsnip'
+
 paq 'nvim-treesitter/nvim-treesitter' do
     paq 'nvim-treesitter/nvim-treesitter-textobjects'
 end
@@ -60,8 +65,6 @@ prequire('treesitter')
 
 prequire('terminal')
 
-map('i', '<Tab>',   'pumvisible() ? "\\<C-n>" : "\\<Tab>"',   {expr = true})
-map('i', '<S-Tab>', 'pumvisible() ? "\\<C-p>" : "\\<S-Tab>"', {expr = true})
 map('n', '<leader>ed', ':FZF<CR>')
 
 augroup 'init.lua' [[

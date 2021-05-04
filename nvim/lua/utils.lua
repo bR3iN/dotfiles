@@ -7,8 +7,8 @@ function M.prequire(name)
 end
 
 function M.map(mode, lhs, rhs, opts)
-    --local default = {noremap = true, silent = true}
-    local default = {noremap = true}
+    local default = {noremap = true, silent = true}
+    --local default = {noremap = true}
     local options = vim.tbl_extend('keep', opts or {}, default)
     vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
