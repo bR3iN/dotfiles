@@ -8,4 +8,4 @@ function main {
     fi
 }
 
-main $($HOME/.local/bin/battery.sh)
+main $($HOME/.local/scripts/battery.sh)
