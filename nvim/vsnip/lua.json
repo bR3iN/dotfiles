@@ -1,0 +1,37 @@
+{
+    "Awesome Background": {
+        "prefix": ["container"],
+        "body": [
+            "widget = wibox.widget.container,", "$0"
+        ],
+        "description": "Wibox container 'margin'."
+    },
+    "Awesome Margins": {
+        "prefix": ["margins"],
+        "body": [
+            "widget = wibox.widget.margins,", "$0"
+        ],
+        "description": "Wibox container 'margin'."
+    },
+    "Awesome Layout Align": {
+        "prefix": ["align"],
+        "body": [
+            "layout = wibox.layout.align.horizontal,", "$0"
+        ],
+        "description": "Wibox layout 'align.horizontal'."
+    },
+    "Awesome Layout Fixed": {
+        "prefix": ["fixed"],
+        "body": [
+            "layout = wibox.layout.fixed.horizontal,", "$0"
+        ],
+        "description": "Wibox layout 'fixed.horizontal'."
+    },
+    "Awesome Layout Flex": {
+        "prefix": ["flex"],
+        "body": [
+            "layout = wibox.layout.flex.horizontal,", "$0"
+        ],
+        "description": "Wibox layout 'flex.horizontal'."
+    }
+}
