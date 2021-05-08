@@ -194,16 +194,16 @@ endif
 command! CC cd %:h
 
 " 'g{' and 'g}' {{{
-xnoremap g} <esc>:<c-u>call MoveInParagraph(1, 0)<cr>
-xnoremap g{ <esc>:<c-u>call MoveInParagraph(1, 1)<cr>
+xnoremap <silent><expr>g} '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 0)<cr>'
+xnoremap <silent><expr>g{ '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 1)<cr>'
 nnoremap <silent>g} :<c-u>call MoveInParagraph(0, 0)<cr>
 nnoremap <silent>g{ :<c-u>call MoveInParagraph(0, 1)<cr>
-onoremap g} :<c-u>call MoveInParagraph(0, 0)<cr>
-onoremap g{ :<c-u>call MoveInParagraph(0, 1)<cr>
+onoremap <silent>g} :<c-u>call MoveInParagraph(0, 0)<cr>
+onoremap <silent>g{ :<c-u>call MoveInParagraph(0, 1)<cr>
 
 function! MoveInParagraph(visual, backwards)
     let to_column = (col('.') == 1) ? '' : col('.') - 1.'l'
-    exec 'normal! '.(a:visual ? 'gv' : '').(a:backwards == 0 ? '}' : '{')
+    exec 'normal! '.(a:visual ? 'gv' : '').v:count1.(a:backwards == 0 ? '}' : '{')
     if a:backwards
         exec 'normal! '.(line('.') == 1         ? '^' : 'j').to_column
     else
