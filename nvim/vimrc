@@ -19,6 +19,7 @@ if !has("nvim")
     set nocompatible
     syntax on
     filetype indent plugin on 
+    runtime ftplugin/man.vim
 
     set autoindent
     set autoread
