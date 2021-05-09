@@ -7,8 +7,8 @@ function update
     flatpak update
 end
 
-if      which bat    > /dev/null; alias cat bat
-else if which batcat > /dev/null; alias cat batcat; end
+if      which bat    > /dev/null; alias cat 'bat'
+else if which batcat > /dev/null; alias cat 'batcat'; end
 alias less 'less --mouse'
 alias ll 'ls -AhlF'
 alias gs 'git status'
@@ -25,6 +25,8 @@ set -x VISUAL nvim
 set -x CPATH . ~
 set -x MANPAGER 'nvim +Man!'
 set -x PAGER 'cat' # Is really bat, see alias above
+
+bind \e, history-token-search-forward
 
 if test -f "$HOME/.fish_private"
     source "$HOME/.fish_private"
