@@ -15,6 +15,7 @@ end
 
 alias cat $batcmd
 
+alias igrep 'grep -i'
 alias less 'less --mouse'
 alias ll 'ls -AhlF'
 alias gs 'git status'
