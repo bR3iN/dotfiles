@@ -22,7 +22,7 @@ set fish_prompt_pwd_dir_length 0
 set -x GCC_COLORS 'error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 set -x EDITOR nvim
 set -x VISUAL nvim
-set -x CPATH . ~
+set -x CDPATH . ~
 set -x MANPAGER 'nvim +Man!'
 set -x PAGER 'cat' # Is really bat, see alias above
 

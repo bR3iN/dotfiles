@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+
+DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
+
+OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="$DOC_DIR" '{sub(del, ""); print}' | rofi -dmenu)
+
+# if rofi was interrupted, exit
+if [ -z "$OUTPUT" ]; then
+    exit
+fi
+
+xdg-open "${DOC_DIR}/${OUTPUT}"
