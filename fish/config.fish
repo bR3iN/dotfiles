@@ -7,8 +7,14 @@ function update
     flatpak update
 end
 
-if      which bat    > /dev/null; alias cat 'bat'
-else if which batcat > /dev/null; alias cat 'batcat'; end
+if which bat > /dev/null
+    set batcmd 'bat'
+else if which batcat > /dev/null
+    set batcmd 'batcat'
+end
+
+alias cat $batcmd
+
 alias less 'less --mouse'
 alias ll 'ls -AhlF'
 alias gs 'git status'
@@ -24,7 +30,8 @@ set -x EDITOR nvim
 set -x VISUAL nvim
 set -x CDPATH . ~
 set -x MANPAGER 'nvim +Man!'
-set -x PAGER 'cat' # Is really bat, see alias above
+set -x PAGER "$batcmd"
+set -x BAT_PAGER "less"
 
 bind \e, history-token-search-forward
 
