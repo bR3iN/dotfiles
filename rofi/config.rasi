@@ -3,7 +3,7 @@ configuration {
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/
-    font: "FiraCode NF 18";
+    /*font: "DejaVu Sans 18";*/
 /*	bw: 1;*/
 /*	location: 0;*/
     padding: 5;
@@ -27,7 +27,7 @@ configuration {
 /*	ignored-prefixes: "";*/
     sort: true;
     sorting-method: "fzf";
-/*	case-sensitive: false;*/
+    case-sensitive: false;
 /*	cycle: true;*/
 /*	sidebar-mode: false;*/
 /*	eh: 1;*/
@@ -59,7 +59,7 @@ configuration {
 /*	color-active: ;*/
 /*	color-window: ;*/
 /*	max-history-size: 25;*/
-/*	combi-hide-mode-prefix: false;*/
+    combi-hide-mode-prefix: true;
 /*	matching-negate-char: '-' /* unsupported */;*/
 /*	cache-dir: ;*/
 /*	pid: "/run/user/1000/rofi.pid";*/

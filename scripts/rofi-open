@@ -2,7 +2,7 @@
 
 DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
 
-OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="$DOC_DIR" '{sub(del, ""); print}' | rofi -dmenu)
+OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="$DOC_DIR" '{sub(del, ""); print}' | rofi -dmenu -i)
 
 # if rofi was interrupted, exit
 if [ -z "$OUTPUT" ]; then
