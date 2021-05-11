@@ -12,7 +12,7 @@ set fish_color_search_match -r
 set fish_color_operator normal
 set fish_color_escape magenta
 set fish_color_cwd brcyan --bold
-set fish_color_autosuggestion brblack
+set fish_color_autosuggestion magenta
 set fish_color_user 'brgreen'
 set fish_color_host normal
 set fish_color_host_remote bryellow --bold

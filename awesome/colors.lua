@@ -1,0 +1,1 @@
+/home/ben/.config/awesome/colors.d/colors.lua
