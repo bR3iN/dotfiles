@@ -5,10 +5,11 @@ local wibox         = require("wibox")
 local utils         = require("wibar.utils")
 
 local widgets = {}
---local default_font = 'Symbols Nerd Font '..tostring(beautiful.font_size + 3)
-local default_font = beautiful.nerd_font.." "..beautiful.font_size
+local default_font = 'Symbols Nerd Font '..beautiful.font_size 
 
 local template = function(tbl) 
+    local icon_font_size = tbl.font_size or beautiful.font_size
+    local icon_font = tbl.icon_font or beautiful.nerd_font..' '..icon_font_size
     local widget = utils.statusbar_widget {
         layout = wibox.layout.fixed.horizontal, 
         {
@@ -22,7 +23,7 @@ local template = function(tbl)
             widget = wibox.widget.textbox,
             id = 'icon',
             text = '?',
-            font = tbl.icon_font or default_font,
+            font = icon_font,
         },
     }
     widget:set_fg(tbl.color)
@@ -48,7 +49,8 @@ local function create_system_widget(tbl)
     local widget = template {
         icon_font = tbl.font,
         color = tbl.color,
-        text_font = tbl.text_font
+        text_font = tbl.text_font,
+        font_size = tbl.font_size,
     }
     if tbl.text then widget:set_icon(tbl.text) end
     local parser = tbl.parser or function(str) return str end
@@ -91,6 +93,7 @@ local function create_battery()
             return perc:gsub('\n', '')..'%', icon
         end,
         time = 10,
+        font_size = beautiful.font_size + 3,
     }
 end
 

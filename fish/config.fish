@@ -7,10 +7,10 @@ function update
     flatpak update
 end
 
-if which bat > /dev/null
-    set batcmd 'bat'
-else if which batcat > /dev/null
+if which batcat &> /dev/null
     set batcmd 'batcat'
+else
+    set batcmd 'bat'
 end
 
 alias cat $batcmd
@@ -33,6 +33,7 @@ set -x CDPATH . ~
 set -x MANPAGER 'nvim +Man!'
 set -x PAGER "$batcmd"
 set -x BAT_PAGER "less"
+set -ax PATH "$HOME/.local/bin"
 
 bind \e, history-token-search-forward
 

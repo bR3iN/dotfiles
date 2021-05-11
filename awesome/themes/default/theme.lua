@@ -24,7 +24,6 @@ theme.fullscreen_hide_border = true
 theme.font_size     = 13
 theme.font          = "Fira Medium "..tostring(theme.font_size)
 theme.nerd_font     = "Symbols Nerd Font"
-theme.taglist_font  = theme.nerd_font.." "..tostring(theme.font_size)
 
 theme.bg_normal     = theme.color0
 theme.bg_focus      = theme.foreground
@@ -64,6 +63,7 @@ theme.tasklist_fg_focus    = theme.tasklist_bg_normal
 theme.tasklist_bg_minimize = theme.color0
 theme.tasklist_separator_color = theme.fg_normal
 
+theme.taglist_font        = theme.nerd_font.." "..tostring(theme.font_size)
 theme.taglist_fg_empty    = theme.fg_normal
 theme.taglist_fg_focus    = theme.color10
 theme.taglist_fg_occupied = theme.color14

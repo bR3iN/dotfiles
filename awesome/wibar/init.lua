@@ -59,7 +59,7 @@ local powermenu = awful.menu{
 local power_button = utils.statusbar_widget {
     buttons = awful.button({ }, 1, function() powermenu:show() end),
     widget = wibox.widget.textbox,
-    font = beautiful.nerd_font.." "..beautiful.font_size,
+    font = beautiful.taglist_font,
     text = "",
 }
 
@@ -86,6 +86,7 @@ local function create_wibar(s)
     local tray = utils.statusbar_widget(nil, -2)
     tray:setup {
         layout = wibox.layout.fixed.horizontal,
+        spacing = 3,
         keyboardlayout,
         redshift,
         nogaps,
@@ -95,7 +96,7 @@ local function create_wibar(s)
     s.wibar = awful.wibar {
         position = 'top',
         screen = s,
-        opacity = 0.85,
+        --opacity = 0.85,
     }
 
     s.wibar:setup {

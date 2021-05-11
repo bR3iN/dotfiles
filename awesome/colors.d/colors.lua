@@ -22,7 +22,7 @@ theme.foreground        = "#E5EFF9"
 theme.background_bright = "#014A81"
 theme.background        = "#181F3B"
 theme.background_dark   = "#010618"
-theme.grey              = "#8F969C"
+--theme.grey              = "#8F969C"
 
 theme.wallpaper = os.getenv('HOME').."/Pictures/wallpaper.jpg"
 
