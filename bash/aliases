@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+alias cat='batcat'
+alias ll='ls -hAlF'
+alias update='sudo apt-get update && sudo apt-get upgrade -y && \
+		 sudo apt autoremove && flatpak update'
+alias less='less --mouse'
+
+open () {
+    xdg-open "`__fzf_select__ | xargs`"
+    exit
+}

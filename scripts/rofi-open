@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
+ROFI_FLAGS=('-i' '-p' 'Open Document' '-no-show-icons')
+
+OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}' | rofi -dmenu "${ROFI_FLAGS[@]}")
+
+xdg-open "${DOC_DIR}/${OUTPUT:?}"
