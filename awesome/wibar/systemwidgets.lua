@@ -85,7 +85,7 @@ local function create_battery()
         return ""
     end
     widgets.battery = create_system_widget {
-        cmd = os.getenv('HOME')..'/.local/scripts/battery.sh',
+        cmd = os.getenv('HOME')..'/.local/share/scripts/battery.sh',
         parser = function(stdout) 
             local output = gears.string.split(stdout, ' ')
             local perc = output[1]

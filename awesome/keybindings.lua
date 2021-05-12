@@ -6,6 +6,18 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- }}}
 
 globalkeys = gears.table.join(
+    awful.key({ modkey }, "d", function()
+        awful.spawn('rofi-open')
+    end, {}),
+    awful.key({ modkey }, "/", function()
+        awful.spawn('rofi -show combi')
+    end, {}),
+    awful.key({ }, "XF86MonBrightnessDown", function()
+        awful.spawn('brightnessctl set 1%-')
+    end, {}),
+    awful.key({ }, "XF86MonBrightnessUp", function()
+        awful.spawn('brightnessctl set +1%')
+    end, {}),
 
     awful.key({ modkey, "Control" }, "n", function()
         if client.focus then

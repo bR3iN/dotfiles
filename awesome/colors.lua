@@ -1,1 +1,1 @@
-/home/ben/.config/awesome/colors.d/colors.lua
+/home/ben/.config/awesome/colors.d/pop-os.lua

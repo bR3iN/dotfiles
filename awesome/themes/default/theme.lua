@@ -46,10 +46,12 @@ theme.border_focus  = '#215C64'
 
 --theme.widget_shape = gears.shape.rounded_bar
 theme.widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
-theme.widget_bg = theme.color0
+--theme.widget_bg = theme.color0
+theme.widget_bg = theme.background_dark
+--theme.statusbar_color = "#232121"
 theme.widget_fg = theme.foreground
 theme.widget_separator_color = theme.color7
-theme.widget_border_color = theme.color7
+theme.widget_border_color = theme.foreground
 theme.widget_outer_margin = 8
 theme.widget_inner_spacing = 18 -- should be even
 theme.widget_outer_spacing = 5

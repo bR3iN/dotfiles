@@ -96,6 +96,7 @@ local function create_wibar(s)
     s.wibar = awful.wibar {
         position = 'top',
         screen = s,
+        bg = beautiful.widget_bg,
         --opacity = 0.85,
     }
 
