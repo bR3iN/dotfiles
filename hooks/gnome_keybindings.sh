@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 set -e
 
+DOTFILES="$(dirname "$(dirname "$(readlink -f "$0")")")"
 SCHEMA="org.gnome.settings-daemon.plugins.media-keys"
 DCONF_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 
@@ -16,7 +17,8 @@ function dconf_dump {
 function get_count {
     local current_count="$(echo "${DCONF_DUMP:="$(dconf_dump)"}" \
         | grep '\[custom' \
-        | tail -1 | sed 's/\[custom\([0-9]*\)\]/\1/g')"
+        | tail -1 \
+        | sed 's/\[custom\([0-9]*\)\]/\1/g')"
 
     if [ -n "$current_path" ]; then
         echo 0
@@ -45,7 +47,7 @@ function add_keybinding {
 }
 
 function parse_config {
-    awk -f - ~/.dotfiles/keybindings.ini << EOF
+    awk -f - "$DOTFILES"/keybindings.ini << EOF
 /\[.*\]/ {
     dump(name, binding, command)
     gsub(/(\[|\])/,"")

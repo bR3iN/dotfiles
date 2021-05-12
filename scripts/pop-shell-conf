@@ -2,6 +2,16 @@
 
 GAPS=12
 
+function main {
+    case "$1" in
+        toggle_gaps)
+            toggle_gaps;
+            return 0;;
+        *)
+            return 1;;
+    esac
+}
+
 function set {
     gsettings set org.gnome.shell.extensions.pop-shell "$1" "$2"
 }
@@ -18,10 +28,4 @@ function toggle_gaps {
     fi
 }
 
-case "$1" in
-    toggle_gaps)
-        toggle_gaps;
-        return 0;;
-    *)
-        return 1;;
-esac
+main $@
