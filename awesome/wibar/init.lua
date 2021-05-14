@@ -52,7 +52,7 @@ local nogaps = utils.toggle {
 }
 
 local powermenu = awful.menu{
-    { "Log out" },
+    { "Log out", awesome.quit},
     { "Reboot", 'reboot' },
     { "Poweroff", 'poweroff' },
 }
