@@ -29,6 +29,11 @@ end)
 
 local tab_shape = function(cr,w,h) gears.shape.rounded_rect(cr,w,h,2) end
 
+local default_icon = wibox.widget {
+    widget = wibox.widget.imagebox,
+    image = "/usr/share/icons/Pop/128x128/categories/org.gnome.Settings.png",
+}
+
 local tab_template = {
     widget = wibox.container.background,
     id = 'background_role',
@@ -41,9 +46,10 @@ local tab_template = {
             {
                 widget = wibox.container.margin,
                 margins = 2,
+                id = 'icon_wrapper',
                 {
-                    widget = awful.widget.clienticon,
-                    id = 'clienticon',
+                        widget = awful.widget.clienticon,
+                        id = 'clienticon',
                 },
             },
             utils.empty_space(3),
@@ -55,6 +61,11 @@ local tab_template = {
     },
     create_callback = function(self, c)
         self:get_children_by_id('clienticon')[1].client = c
+        awful.spawn.easy_async_with_shell("sleep 0.2", function()
+            if c and c.valid and not c.icon then
+                self:get_children_by_id('icon_wrapper')[1].widget = default_icon
+            end
+        end)
     end,
 }
 
@@ -95,6 +106,7 @@ local icon_template = {
         top = 3,
         left = 5,
         right = 5,
+        id = 'icon_wrapper',
         {
             widget = awful.widget.clienticon,
             id = 'clienticon',
@@ -102,6 +114,11 @@ local icon_template = {
     },
     create_callback = function(self, c)
         self:get_children_by_id('clienticon')[1].client = c
+        awful.spawn.easy_async_with_shell("sleep 0.2", function()
+            if c and c.valid and not c.icon then
+                self:get_children_by_id('icon_wrapper')[1].widget = default_icon
+            end
+        end)
     end,
 }
 

@@ -21,7 +21,7 @@ local theme = gears.table.join(default_theme, require'colors')
 theme.maximized_hide_border = true
 theme.fullscreen_hide_border = true
 
-theme.font_size     = 13
+theme.font_size     = 11
 theme.font          = "Fira Medium "..tostring(theme.font_size)
 theme.nerd_font     = "Symbols Nerd Font"
 
@@ -46,10 +46,12 @@ theme.border_focus  = '#215C64'
 
 --theme.widget_shape = gears.shape.rounded_bar
 theme.widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
-theme.widget_bg = theme.color0
+--theme.widget_bg = theme.color0
+theme.widget_bg = theme.background_dark
+--theme.statusbar_color = "#232121"
 theme.widget_fg = theme.foreground
 theme.widget_separator_color = theme.color7
-theme.widget_border_color = theme.color7
+theme.widget_border_color = theme.foreground
 theme.widget_outer_margin = 8
 theme.widget_inner_spacing = 18 -- should be even
 theme.widget_outer_spacing = 5
@@ -66,7 +68,7 @@ theme.tasklist_separator_color = theme.fg_normal
 theme.taglist_font        = theme.nerd_font.." "..tostring(theme.font_size)
 theme.taglist_fg_empty    = theme.fg_normal
 theme.taglist_fg_focus    = theme.color10
-theme.taglist_fg_occupied = theme.color14
+theme.taglist_fg_occupied = theme.color13
 theme.taglist_fg_urgent   = theme.color9
 theme.taglist_bg_focus    = theme.color8
 theme.taglist_bg_volatile = theme.color8
@@ -165,7 +167,7 @@ theme.taglist_bg_volatile = theme.color8
 
 ---- Define the icon theme for application icons. If not set then the icons
 ---- from /usr/share/icons and /usr/share/icons/hicolor will be used.
---theme.icon_theme = nil
+theme.icon_theme = "Pop"
 
 return theme
 

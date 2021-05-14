@@ -52,7 +52,7 @@ local nogaps = utils.toggle {
 }
 
 local powermenu = awful.menu{
-    { "Log out", awesome.quit},
+    { "Log out", function() awesome.quit() end },
     { "Reboot", 'reboot' },
     { "Poweroff", 'poweroff' },
 }
@@ -87,15 +87,17 @@ local function create_wibar(s)
     tray:setup {
         layout = wibox.layout.fixed.horizontal,
         spacing = 3,
-        keyboardlayout,
+        --keyboardlayout,
         redshift,
         nogaps,
         caffeine,
+        --wibox.widget.systray(),
     }
 
     s.wibar = awful.wibar {
         position = 'top',
         screen = s,
+        bg = beautiful.widget_bg,
         --opacity = 0.85,
     }
 
