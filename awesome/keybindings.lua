@@ -12,12 +12,12 @@ globalkeys = gears.table.join(
     awful.key({ modkey }, "/", function()
         awful.spawn('rofi -show combi')
     end, {}),
-    awful.key({ }, "XF86MonBrightnessDown", function()
-        awful.spawn('brightnessctl set 1%-')
-    end, {}),
-    awful.key({ }, "XF86MonBrightnessUp", function()
-        awful.spawn('brightnessctl set +1%')
-    end, {}),
+    --awful.key({ }, "XF86MonBrightnessDown", function()
+        --awful.spawn('brightnessctl set 2%-')
+    --end, {}),
+    --awful.key({ }, "XF86MonBrightnessUp", function()
+        --awful.spawn('brightnessctl set +2%')
+    --end, {}),
 
     awful.key({ modkey, "Control" }, "n", function()
         if client.focus then
@@ -30,18 +30,18 @@ globalkeys = gears.table.join(
     awful.key({ modkey            }, "g", function()
         awful.screen.focused().nogaps:toggle()
     end,      {description = "toggle gaps", group = "awesome"}),
-    awful.key({ modkey, "Control" }, "s", function()
-        local s = awful.screen.focused()
-        if s.wibar.visible then
-            s.nogaps:toggle_on()
-        else
-            s.nogaps:toggle_off()
-        end
-        s.wibar.visible = not s.wibar.visible
-    end,      {description = "toggle gaps and statusbar", group = "awesome"}),
-    awful.key({ modkey,           }, "i", function()
-        awful.screen.focused().keyboardlayout:toggle()
-    end,      {description = "toggle redshift", group = "awesome"}),
+    --awful.key({ modkey, "Control" }, "s", function()
+        --local s = awful.screen.focused()
+        --if s.wibar.visible then
+            --s.nogaps:toggle_on()
+        --else
+            --s.nogaps:toggle_off()
+        --end
+        --s.wibar.visible = not s.wibar.visible
+    --end,      {description = "toggle gaps and statusbar", group = "awesome"}),
+    --awful.key({ modkey,           }, "i", function()
+        --awful.screen.focused().keyboardlayout:toggle()
+    --end,      {description = "toggle keyboardlayout", group = "awesome"}),
     awful.key({ modkey,           }, "r", function()
         awful.screen.focused().redshift:toggle()
     end,      {description = "toggle redshift", group = "awesome"}),
@@ -51,6 +51,8 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Control", "Shift" }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
 
+    awful.key({ modkey, "Control", "Shift" }, "e", function () awful.spawn(editor_cmd .. " " .. awesome.conffile) end,
+              {description = "edit config", group = "awesome"}),
     awful.key({ modkey, "Control" }, "e", function () awful.spawn(editor_cmd .. " " .. awesome.conffile) end,
               {description = "edit config", group = "awesome"}),
 
@@ -299,8 +301,8 @@ clientkeys = gears.table.join( -- {{{
               {description = "move to master", group = "client"}),
     awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
               {description = "move to screen", group = "client"}),
-    --awful.key({ modkey,           }, "t",      function (c) c.sticky = not c.sticky            end,
-              --{description = "toggle sticky", group = "client"}),
+    awful.key({ modkey, "Control" }, "s",      function (c) c.sticky = not c.sticky          end,
+              {description = "toggle sticky", group = "client"}),
     --awful.key({ modkey, "Control" }, "t",      function (c) c.ontop = not c.ontop            end,
               --{description = "toggle keep on top", group = "client"}),
     awful.key({ modkey,           }, "n",
@@ -322,7 +324,7 @@ clientkeys = gears.table.join( -- {{{
             c:raise()
         end ,
         {description = "(un)maximize vertically", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "m",
+    awful.key({ modkey, "Control", "Shift" }, "m",
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
             c:raise()

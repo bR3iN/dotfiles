@@ -12,7 +12,7 @@ function disable {
 
 QUERY=$(gnome-extensions show "$EXTENSION")
 
-if grep -q 'State: DISABLED' <<< "$QUERY" && [ "$2" != "off" ]; then
+if grep -q -e 'State: DISABLED' -e 'State: INITIALIZED' <<< "$QUERY" && [ "$2" != "off" ]; then
     enable
 elif grep -q 'State: ENABLED' <<< "$QUERY" && [ "$2" != "on" ]; then
     disable

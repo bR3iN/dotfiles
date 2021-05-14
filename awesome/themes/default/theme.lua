@@ -21,7 +21,7 @@ local theme = gears.table.join(default_theme, require'colors')
 theme.maximized_hide_border = true
 theme.fullscreen_hide_border = true
 
-theme.font_size     = 13
+theme.font_size     = 11
 theme.font          = "Fira Medium "..tostring(theme.font_size)
 theme.nerd_font     = "Symbols Nerd Font"
 
@@ -68,7 +68,7 @@ theme.tasklist_separator_color = theme.fg_normal
 theme.taglist_font        = theme.nerd_font.." "..tostring(theme.font_size)
 theme.taglist_fg_empty    = theme.fg_normal
 theme.taglist_fg_focus    = theme.color10
-theme.taglist_fg_occupied = theme.color14
+theme.taglist_fg_occupied = theme.color13
 theme.taglist_fg_urgent   = theme.color9
 theme.taglist_bg_focus    = theme.color8
 theme.taglist_bg_volatile = theme.color8
@@ -167,7 +167,7 @@ theme.taglist_bg_volatile = theme.color8
 
 ---- Define the icon theme for application icons. If not set then the icons
 ---- from /usr/share/icons and /usr/share/icons/hicolor will be used.
---theme.icon_theme = nil
+theme.icon_theme = "Pop"
 
 return theme
 
