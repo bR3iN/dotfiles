@@ -42,7 +42,8 @@ theme.useless_gap   = dpi(20)
 
 theme.border_width  = dpi(1)
 theme.border_normal = theme.color0
-theme.border_focus  = '#215C64'
+theme.border_focus  = '#55B19B'
+--theme.border_focus  = theme.color10
 
 --theme.widget_shape = gears.shape.rounded_bar
 theme.widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end

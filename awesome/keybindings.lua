@@ -1,4 +1,3 @@
-
 -- Imports {{{
 local gears = require("gears")
 local awful = require("awful")
@@ -6,18 +5,21 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- }}}
 
 globalkeys = gears.table.join(
+    awful.key({ modkey,           }, "Escape", function() awful.spawn.with_shell('sleep 0.3; xset dpms force off') end,
+              {description = "lock screen", group = "awesome"}),
+
     awful.key({ modkey }, "d", function()
         awful.spawn('rofi-open')
     end, {}),
     awful.key({ modkey }, "/", function()
         awful.spawn('rofi -show combi')
     end, {}),
-    --awful.key({ }, "XF86MonBrightnessDown", function()
-        --awful.spawn('brightnessctl set 2%-')
-    --end, {}),
-    --awful.key({ }, "XF86MonBrightnessUp", function()
-        --awful.spawn('brightnessctl set +2%')
-    --end, {}),
+    awful.key({ }, "XF86MonBrightnessDown", function()
+        awful.spawn('brightnessctl set -n 3%-')
+    end, {}),
+    awful.key({ }, "XF86MonBrightnessUp", function()
+        awful.spawn('brightnessctl set -n +3%')
+    end, {}),
 
     awful.key({ modkey, "Control" }, "n", function()
         if client.focus then
@@ -39,9 +41,9 @@ globalkeys = gears.table.join(
         --end
         --s.wibar.visible = not s.wibar.visible
     --end,      {description = "toggle gaps and statusbar", group = "awesome"}),
-    --awful.key({ modkey,           }, "i", function()
-        --awful.screen.focused().keyboardlayout:toggle()
-    --end,      {description = "toggle keyboardlayout", group = "awesome"}),
+    awful.key({ modkey,           }, "i", function()
+        awful.screen.focused().keyboardlayout:toggle()
+    end,      {description = "toggle keyboardlayout", group = "awesome"}),
     awful.key({ modkey,           }, "r", function()
         awful.screen.focused().redshift:toggle()
     end,      {description = "toggle redshift", group = "awesome"}),
@@ -53,8 +55,8 @@ globalkeys = gears.table.join(
 
     awful.key({ modkey, "Control", "Shift" }, "e", function () awful.spawn(editor_cmd .. " " .. awesome.conffile) end,
               {description = "edit config", group = "awesome"}),
-    awful.key({ modkey, "Control" }, "e", function () awful.spawn(editor_cmd .. " " .. awesome.conffile) end,
-              {description = "edit config", group = "awesome"}),
+    awful.key({ modkey, "Control" }, "e", function () awful.spawn('rofi-emoji') end,
+              {description = "launch emoji picker", group = "awesome"}),
 
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
@@ -212,8 +214,8 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "b", function () awful.spawn("firefox") end,
               {description = "Start Firefox", group = "launcher"}),
 
-    awful.key({ modkey, "Shift"   }, "b", function () awful.spawn("firefox -p default") end,
-              {description = "Start Firefox (default profile)", group = "launcher"}),
+    awful.key({ modkey, "Control" }, "b", function () awful.spawn.with_shell("rofi-ff") end,
+              {description = "Choose firefox profile", group = "launcher"}),
 
     awful.key({ modkey,           }, "t", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
@@ -270,9 +272,6 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"})
     -- }}}
-
-    --awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
-              --{description = "go back", group = "tag"}),
 
     --awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
               --{description = "show main menu", group = "awesome"}),

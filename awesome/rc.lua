@@ -88,7 +88,7 @@ screen.connect_signal("property::geometry", set_wallpaper)
 awful.screen.connect_for_each_screen(function(s)
 
     -- Set wallpaper
-    gears.wallpaper.maximized(beautiful.wallpaper, s, true)
+    gears.wallpaper.maximized(beautiful.wallpaper, s)
 
     -- Set tags
     awful.tag({ "", "", "", "ﱘ", "漣"}, s, awful.layout.layouts[1])
@@ -166,5 +166,5 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
-awful.spawn("setxkbmap -option altwin:prtsc_rwin")
-awful.spawn.easy_async("picom -b")
+--awful.spawn.easy_async("setxkbmap -option altwin:prtsc_rwin")
+--awful.spawn.easy_async("picom -b")

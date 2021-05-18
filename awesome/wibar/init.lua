@@ -4,7 +4,7 @@ local gears         = require("gears")
 local wibox         = require("wibox")
 local utils         = require("wibar.utils")
 
--- Screen independent widgets
+-- Screen independent widgets {{{
 local clock = utils.statusbar_widget()
 clock:setup {
     layout = wibox.layout.fixed.horizontal,
@@ -18,15 +18,20 @@ clock:setup {
 local redshift = utils.toggle {
     text_on   = '',
     text_off  = '',
-    cmd_on    = 'redshift -P',
+    cmd_on    = 'redshift -x && redshift',
     cmd_off   = 'killall redshift',
+}
+
+local caffeine_timer = gears.timer {
+    callback = function() awful.spawn('xset s reset') end,
+    timeout = 3,
 }
 
 local caffeine = utils.toggle {
     text_off = '',
     text_on  = '',
-    cmd_on = '',
-    cmd_off = '',
+    func_on  = function() caffeine_timer:start() end,
+    func_off = function() caffeine_timer:stop()  end,
 }
 
 local xkbmap_flags = os.getenv('XKBMAP_FLAGS') and " "..os.getenv('XKBMAP_FLAGS') or ""
@@ -51,6 +56,17 @@ local nogaps = utils.toggle {
     end,
 }
 
+local tray = utils.statusbar_widget(nil, -2)
+tray:setup {
+    layout = wibox.layout.fixed.horizontal,
+    spacing = 3,
+    keyboardlayout,
+    redshift,
+    nogaps,
+    caffeine,
+    --wibox.widget.systray(),
+}
+
 local powermenu = awful.menu{
     { "Log out", function() awesome.quit() end },
     { "Reboot", 'reboot' },
@@ -62,6 +78,7 @@ local power_button = utils.statusbar_widget {
     font = beautiful.taglist_font,
     text = "",
 }
+-- }}}
 
 local function create_wibar(s)
     -- Create a promptbox for each screen
@@ -73,7 +90,7 @@ local function create_wibar(s)
     awful.button({ }, 3, function () awful.layout.inc(-1) end)
     ))
 
-    s.taglist        = require('wibar.taglist')(s)
+    s.taglist        = require('wibar.taglist').create(s)
     s.tasklist_tabs  = require('wibar.tasklist').new_tabs(s)
     s.tasklist_icons = require('wibar.tasklist').new_icons(s)
 
@@ -81,41 +98,28 @@ local function create_wibar(s)
     s.redshift       = redshift
     s.keyboardlayout = keyboardlayout
     s.caffeine       = caffeine
-    s.nogaps           = nogaps
+    s.nogaps         = nogaps
 
-    local tray = utils.statusbar_widget(nil, -2)
-    tray:setup {
+    local lhs = wibox.widget {
         layout = wibox.layout.fixed.horizontal,
-        spacing = 3,
-        --keyboardlayout,
-        redshift,
-        nogaps,
-        caffeine,
-        --wibox.widget.systray(),
+        s.taglist,
+        s.mypromptbox,
     }
 
-    s.wibar = awful.wibar {
-        position = 'top',
-        screen = s,
-        bg = beautiful.widget_bg,
-        --opacity = 0.85,
-    }
-
-    s.wibar:setup {
+    local rhs = wibox.widget {
         layout = wibox.layout.align.horizontal,
-        spacing = beautiful.widget_outer_margin,
-        {
-            layout = wibox.layout.fixed.horizontal,
-            --mylauncher,
-            s.taglist,
-            s.mypromptbox,
-        },
-        s.tasklist_icons,
+        nil,
+        nil,
         {
             layout = wibox.layout.fixed.horizontal,
             spacing = beautiful.widget_outer_margin,
-            require'wibar.systemwidgets'.cpu(),
-            require'wibar.systemwidgets'.ram(),
+            {
+                layout = wibox.layout.fixed.horizontal,
+                spacing = beautiful.widget_outer_margin,
+                require'wibar.systemwidgets'.cpu(),
+                require'wibar.systemwidgets'.ram(),
+                id = 'hide',
+            },
             require'wibar.systemwidgets'.battery(),
             tray,
             clock,
@@ -123,17 +127,49 @@ local function create_wibar(s)
         },
     }
 
+    local middle_with_tabs  = wibox.widget {
+        layout = wibox.layout.align.horizontal,
+        utils.empty_space(beautiful.widget_outer_margin),
+        s.tasklist_tabs,
+        utils.empty_space(beautiful.widget_outer_margin),
+    }
+
+    local middle_with_icons  = wibox.widget {
+        layout = wibox.layout.align.horizontal,
+        utils.empty_space(beautiful.widget_outer_margin),
+        s.tasklist_icons,
+        utils.empty_space(beautiful.widget_outer_margin),
+    }
+
+    s.wibar = awful.wibar {
+        position = 'top',
+        screen = s,
+        bg = beautiful.widget_bg,
+    }
+
+    s.wibar:setup {
+        layout = wibox.layout.align.horizontal,
+        expand = 'outside',
+        lhs,
+        middle_with_icons,
+        rhs,
+    }
+
     function s.wibar:set_tasklist(widget)
         self.widget.second = widget
     end
 
     function s.update_tasklist()
-        local new_tasklist = nil
+        local new_tasklist
         if s.clients and #s.clients >= 1 then
             if awful.layout.get(s) == awful.layout.suit.max then
-                new_tasklist = s.tasklist_tabs
+                new_tasklist = middle_with_tabs
+                s.wibar.widget.expand = 'inside'
+                rhs:get_children_by_id('hide')[1].visible = false
             else
-                new_tasklist = s.tasklist_icons
+                new_tasklist = middle_with_icons
+                s.wibar.widget.expand = 'outside'
+                rhs:get_children_by_id('hide')[1].visible = true
             end
         end
         s.wibar:set_tasklist(new_tasklist)

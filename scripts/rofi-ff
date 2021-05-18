@@ -1,14 +1,5 @@
 #!/usr/bin/bash
 
-#ROFI_FLAGS+=(-matching normal)
-
-#rofi -show emoji -modi emoji "${ROFI_FLAGS[@]}"
-
-#ROFI_FLAGS=('-i' '-p' 'Open Document' '-no-show-icons')
-
-
-#xdg-open "${DOC_DIR}/${OUTPUT:?}"
-
 FF_DIR="$HOME/.mozilla/firefox"
 
 ROFI_FLAGS=()

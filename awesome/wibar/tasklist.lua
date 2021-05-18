@@ -84,16 +84,11 @@ local function new_tasklist_tabs(screen)
     }
 
     return wibox.widget {
-        layout = wibox.layout.align.horizontal,
-        utils.empty_space(beautiful.widget_outer_margin),
-        {
             widget     = wibox.container.background,
             shape      = tab_shape,
             bg         = beautiful.tasklist_bg_normal,
             shape_clip = true,
             tasklist,
-        },
-        utils.empty_space(beautiful.widget_outer_margin),
     }
 end
 

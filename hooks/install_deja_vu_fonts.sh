@@ -11,8 +11,6 @@ if ! ls "$FONT_PATH" | egrep -i -q 'Deja.*Vu.*Sans'; then
     echo "Downloading $FONT_NAME to $HOME/.local/share/fonts..."
     wget "$URL" -O "$FONT_PATH/tmp.zip" &>> /dev/null
     echo "Extracting fonts..."
-    unzip -d "$FONT_PATH/tmp" "$TMP" &>> /dev/null
-    cp "$FONT_PATH/tmp/dejavu-fonts-ttf-2.37/ttf/"* "$FONT_PATH/"
+    unzip -d "$FONT_PATH" "$TMP" &>> /dev/null
     rm "$TMP"
-    rm -r "$FONT_PATH/tmp"
 fi

@@ -79,4 +79,4 @@ local function create_taglist(screen)
     return widget
 end
 
-return create_taglist
+return { create = create_taglist }

@@ -24,6 +24,6 @@ theme.background_dark = "#2A2A2A"
 --theme.background      = "#001542"
 --theme.grey            = "#8F969C"
 
-theme.wallpaper = os.getenv('HOME').."/Pictures/wallpaper.jpg"
+theme.wallpaper = "/usr/share/backgrounds/mywallpaper.png"
 
 return theme
