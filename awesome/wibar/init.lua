@@ -56,15 +56,17 @@ local nogaps = utils.toggle {
     end,
 }
 
-local tray = utils.statusbar_widget(nil, -2)
-tray:setup {
-    layout = wibox.layout.fixed.horizontal,
-    spacing = 3,
-    keyboardlayout,
-    redshift,
-    nogaps,
-    caffeine,
-    --wibox.widget.systray(),
+local tray = utils.statusbar_widget {
+    widget = utils.margins(0),
+    {
+        layout = wibox.layout.fixed.horizontal,
+        spacing = 3,
+        keyboardlayout,
+        redshift,
+        nogaps,
+        caffeine,
+        --wibox.widget.systray(),
+    },
 }
 
 local powermenu = awful.menu{
@@ -72,12 +74,14 @@ local powermenu = awful.menu{
     { "Reboot", 'reboot' },
     { "Poweroff", 'poweroff' },
 }
-local power_button = utils.statusbar_widget {
+
+local power_button = utils.statusbar_widget({
     buttons = awful.button({ }, 1, function() powermenu:show() end),
     widget = wibox.widget.textbox,
     font = beautiful.taglist_font,
     text = "",
-}
+}, -5)
+power_button:get_children_by_id('background')[1].shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
 -- }}}
 
 local function create_wibar(s)
@@ -106,16 +110,17 @@ local function create_wibar(s)
         s.mypromptbox,
     }
 
+    local spacing = beautiful.widget_outer_margin - 10
     local rhs = wibox.widget {
         layout = wibox.layout.align.horizontal,
         nil,
         nil,
         {
             layout = wibox.layout.fixed.horizontal,
-            spacing = beautiful.widget_outer_margin,
+            spacing = spacing,
             {
                 layout = wibox.layout.fixed.horizontal,
-                spacing = beautiful.widget_outer_margin,
+                spacing = spacing,
                 require'wibar.systemwidgets'.cpu(),
                 require'wibar.systemwidgets'.ram(),
                 id = 'hide',
@@ -129,22 +134,22 @@ local function create_wibar(s)
 
     local middle_with_tabs  = wibox.widget {
         layout = wibox.layout.align.horizontal,
-        utils.empty_space(beautiful.widget_outer_margin),
+        utils.empty_space(beautiful.widget_outer_spacing + 3),
         s.tasklist_tabs,
-        utils.empty_space(beautiful.widget_outer_margin),
+        utils.empty_space(beautiful.widget_outer_spacing),
     }
 
     local middle_with_icons  = wibox.widget {
         layout = wibox.layout.align.horizontal,
-        utils.empty_space(beautiful.widget_outer_margin),
+        utils.empty_space(beautiful.widget_outer_spacing),
         s.tasklist_icons,
-        utils.empty_space(beautiful.widget_outer_margin),
+        utils.empty_space(beautiful.widget_outer_spacing),
     }
 
     s.wibar = awful.wibar {
         position = 'top',
         screen = s,
-        bg = beautiful.widget_bg,
+        bg = beautiful.bg_wibar,
     }
 
     s.wibar:setup {

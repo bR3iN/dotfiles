@@ -1,7 +1,3 @@
----------------------------
--- Default awesome theme --
----------------------------
-
 local gears = require'gears'
 local theme_assets = require("beautiful.theme_assets")
 local xresources = require("beautiful.xresources")
@@ -12,8 +8,6 @@ local gfs = require("gears.filesystem")
 local themes_path = gfs.get_themes_dir()
 
 -- Inherit from default theme and source colors.
--- The latter defines the keys color0,...,color15,
--- background, background_dark, foreground and grey
 local default_theme = dofile(themes_path.."default/theme.lua")
 local theme = gears.table.join(default_theme, require'colors')
 
@@ -21,7 +15,7 @@ local theme = gears.table.join(default_theme, require'colors')
 theme.maximized_hide_border = true
 theme.fullscreen_hide_border = true
 
-theme.font_size     = 11
+theme.font_size     = 10
 theme.font          = "Fira Medium "..tostring(theme.font_size)
 theme.nerd_font     = "Symbols Nerd Font"
 
@@ -35,7 +29,6 @@ theme.fg_normal     = theme.foreground
 theme.fg_focus      = theme.background_dark
 theme.fg_urgent     = theme.foreground
 theme.fg_minimize   = theme.foreground
---theme.fg_systray = theme.foreground
 
 theme.gap_single_client = false
 theme.useless_gap   = dpi(20)
@@ -43,131 +36,48 @@ theme.useless_gap   = dpi(20)
 theme.border_width  = dpi(1)
 theme.border_normal = theme.color0
 theme.border_focus  = '#55B19B'
---theme.border_focus  = theme.color10
 
---theme.widget_shape = gears.shape.rounded_bar
-theme.widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
---theme.widget_bg = theme.color0
-theme.widget_bg = theme.background_dark
---theme.statusbar_color = "#232121"
-theme.widget_fg = theme.foreground
+-- statusbar widgets {{{
+theme.widget_shape = gears.shape.rounded_bar
+theme.bg_wibar = theme.background_dark
+theme.widget_bg = theme.background
+theme.widget_fg = theme.color7
 theme.widget_separator_color = theme.color7
-theme.widget_border_color = theme.foreground
-theme.widget_outer_margin = 8
+theme.widget_border_color = theme.grey
+theme.widget_border_width = 1
+theme.widget_outer_margin = 10
 theme.widget_inner_spacing = 18 -- should be even
-theme.widget_outer_spacing = 5
+theme.widget_outer_spacing = 3
+-- }}}
 
-theme.tasklist_shape = theme.widget_shape
---theme.tasklist_bg_normal   = theme.color8
-theme.tasklist_bg_normal   = theme.bg_normal
-theme.tasklist_fg_normal   = theme.fg_normal
+-- tasklist {{{
+theme.tasklist_bg_normal   = theme.widget_bg
+theme.tasklist_fg_normal   = theme.widget_fg
 theme.tasklist_bg_focus    = theme.tasklist_fg_normal
 theme.tasklist_fg_focus    = theme.tasklist_bg_normal
-theme.tasklist_bg_minimize = theme.color0
-theme.tasklist_separator_color = theme.fg_normal
+theme.tasklist_bg_minimize = theme.background_dark
+theme.tasklist_separator_color = theme.widget_separator_color
+theme.tasklist_widget_border_width = theme.widget_border_width
+theme.tasklist_widget_border_color = theme.widget_border_color
+theme.tasklist_widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
+theme.tasklist_shape = theme.tasklist_widget_shape
+theme.tasklist_tab_shape = function(cr,w,h) gears.shape.rounded_rect(cr, w, h, 2) end
+-- }}}
 
+-- taglist {{{
 theme.taglist_font        = theme.nerd_font.." "..tostring(theme.font_size)
-theme.taglist_fg_empty    = theme.fg_normal
+theme.taglist_fg_empty    = theme.widget_fg
 theme.taglist_fg_focus    = theme.color10
 theme.taglist_fg_occupied = theme.color13
 theme.taglist_fg_urgent   = theme.color9
 theme.taglist_bg_focus    = theme.color8
 theme.taglist_bg_volatile = theme.color8
+theme.taglist_widget_shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
+theme.taglist_widget_bg = theme.widget_bg
+theme.taglist_widget_border_width = theme.widget_border_width
+theme.taglist_widget_border_color = theme.grey
+-- }}}
 
--- There are other variable sets
--- overriding the default one when
--- defined, the sets are:
--- taglist_[bg|fg]_[focus|urgent|occupied|empty|volatile]
--- tasklist_[bg|fg]_[focus|urgent]
--- titlebar_[bg|fg]_[normal|focus]
--- tooltip_[font|opacity|fg_color|bg_color|border_width|border_color]
--- mouse_finder_[color|timeout|animate_timeout|radius|factor]
--- prompt_[fg|bg|fg_cursor|bg_cursor|font]
--- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
--- Example:
---theme.taglist_bg_focus = "#ff0000"
-
--- Generate taglist squares:
---local taglist_square_size = dpi(4)
---theme.taglist_squares_sel = theme_assets.taglist_squares_sel(
-    --taglist_square_size, theme.fg_normal
---)
---theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(
-    --taglist_square_size, theme.fg_normal
---)
-
--- Variables set for theming notifications:
--- notification_font
--- notification_[bg|fg]
--- notification_[width|height|margin]
--- notification_[border_color|border_width|shape|opacity]
-
--- Variables set for theming the menu:
--- menu_[bg|fg]_[normal|focus]
--- menu_[border_color|border_width]
---theme.menu_submenu_icon = themes_path.."default/submenu.png"
---theme.menu_height       = dpi(25)
---theme.menu_width        = dpi(150)
-
--- You can add as many variables as
--- you wish and access them by using
--- beautiful.variable in your rc.lua
---theme.bg_widget = "#cc0000"
-
--- Define the image to load
---theme.titlebar_close_button_normal = themes_path.."default/titlebar/close_normal.png"
---theme.titlebar_close_button_focus  = themes_path.."default/titlebar/close_focus.png"
-
---theme.titlebar_minimize_button_normal = themes_path.."default/titlebar/minimize_normal.png"
---theme.titlebar_minimize_button_focus  = themes_path.."default/titlebar/minimize_focus.png"
-
---theme.titlebar_ontop_button_normal_inactive = themes_path.."default/titlebar/ontop_normal_inactive.png"
---theme.titlebar_ontop_button_focus_inactive  = themes_path.."default/titlebar/ontop_focus_inactive.png"
---theme.titlebar_ontop_button_normal_active = themes_path.."default/titlebar/ontop_normal_active.png"
---theme.titlebar_ontop_button_focus_active  = themes_path.."default/titlebar/ontop_focus_active.png"
-
---theme.titlebar_sticky_button_normal_inactive = themes_path.."default/titlebar/sticky_normal_inactive.png"
---theme.titlebar_sticky_button_focus_inactive  = themes_path.."default/titlebar/sticky_focus_inactive.png"
---theme.titlebar_sticky_button_normal_active = themes_path.."default/titlebar/sticky_normal_active.png"
---theme.titlebar_sticky_button_focus_active  = themes_path.."default/titlebar/sticky_focus_active.png"
-
---theme.titlebar_floating_button_normal_inactive = themes_path.."default/titlebar/floating_normal_inactive.png"
---theme.titlebar_floating_button_focus_inactive  = themes_path.."default/titlebar/floating_focus_inactive.png"
---theme.titlebar_floating_button_normal_active = themes_path.."default/titlebar/floating_normal_active.png"
---theme.titlebar_floating_button_focus_active  = themes_path.."default/titlebar/floating_focus_active.png"
-
---theme.titlebar_maximized_button_normal_inactive = themes_path.."default/titlebar/maximized_normal_inactive.png"
---theme.titlebar_maximized_button_focus_inactive  = themes_path.."default/titlebar/maximized_focus_inactive.png"
---theme.titlebar_maximized_button_normal_active = themes_path.."default/titlebar/maximized_normal_active.png"
---theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/maximized_focus_active.png"
-
---theme.wallpaper = themes_path.."default/background.png"
-
----- You can use your own layout icons like this:
---theme.layout_fairh      = themes_path.."default/layouts/fairhw.png"
---theme.layout_fairv      = themes_path.."default/layouts/fairvw.png"
---theme.layout_floating   = themes_path.."default/layouts/floatingw.png"
---theme.layout_magnifier  = themes_path.."default/layouts/magnifierw.png"
---theme.layout_max        = themes_path.."default/layouts/maxw.png"
---theme.layout_fullscreen = themes_path.."default/layouts/fullscreenw.png"
---theme.layout_tilebottom = themes_path.."default/layouts/tilebottomw.png"
---theme.layout_tileleft   = themes_path.."default/layouts/tileleftw.png"
---theme.layout_tile       = themes_path.."default/layouts/tilew.png"
---theme.layout_tiletop    = themes_path.."default/layouts/tiletopw.png"
---theme.layout_spiral     = themes_path.."default/layouts/spiralw.png"
---theme.layout_dwindle    = themes_path.."default/layouts/dwindlew.png"
---theme.layout_cornernw   = themes_path.."default/layouts/cornernww.png"
---theme.layout_cornerne   = themes_path.."default/layouts/cornernew.png"
---theme.layout_cornersw   = themes_path.."default/layouts/cornersww.png"
---theme.layout_cornerse   = themes_path.."default/layouts/cornersew.png"
-
----- Generate Awesome icon:
---theme.awesome_icon = theme_assets.awesome_icon(
-    --theme.menu_height, theme.bg_focus, theme.fg_focus
---)
-
----- Define the icon theme for application icons. If not set then the icons
----- from /usr/share/icons and /usr/share/icons/hicolor will be used.
 theme.icon_theme = "Pop"
 
 return theme

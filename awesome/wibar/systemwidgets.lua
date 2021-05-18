@@ -8,20 +8,6 @@ local widgets = {}
 local default_font = 'Symbols Nerd Font '..beautiful.font_size 
 
 local template = function(tbl) 
-    --local icon_font_size = tbl.font_size or beautiful.font_size
-    --local icon_font = tbl.icon_font or beautiful.nerd_font..' '..icon_font_size
-    --widget.text_widget = wibox.widget {
-        --widget = wibox.widget.textbox,
-        --id = 'text',
-        --text = '?',
-        --font = icon_font,
-    --}
-    --widget.icon_widget = wibox.widget {
-        --widget = wibox.widget.textbox,
-        --id = 'icon',
-        --text = '?',
-        --font = icon_font,
-    --}
 
     local widget = utils.statusbar_widget {
         layout = wibox.layout.fixed.horizontal, 
@@ -32,7 +18,7 @@ local template = function(tbl)
         id = 'template',
         --widget.widget,
     }
-    --widget:set_fg(tbl.color)
+
     function widget:set_text_widget(text_widget)
         self:get_children_by_id('template')[1]:set(1, text_widget)
     end
@@ -46,17 +32,14 @@ local function create_system_widget(tbl)
     --   tbl    : table with the following keys
     --   cb     : function called on output of 'cmd'; if 
     --            a string is returned, set it as the new text
-    --   cmd    : shell command to call; returns percentage or output to be
-    --            parsed with `parser`
-    --   text   : text to be displayed (optional)
-    --   parser : computes percentage and displayed text from `cmd`s 
-    --            stdout (optional)
+    --   cmd    : shell command to call; returns percentage or 
+    --            output to be parsed by 'cb'
+    --   icon_widget
     --   time
-    --   font
     --   color
 
     local widget = template()
-    widget:set_fg(tbl.color)
+    widget:set_fg(tbl.color or beautiful.widget_fg)
 
     local text_widget = wibox.widget {
         widget = wibox.widget.textbox,
@@ -87,18 +70,6 @@ local function create_system_widget(tbl)
 end
 
 local function create_battery()
-
-    --local function icon_from_perc(perc, is_charging)
-        --local prefix = '/usr/share/icons/Pop/scalable/status/battery-'
-        --local suffix = '-symbolic.svg'
-        --local charging = is_chargins and '-charging' or ''
-        --for i=0,100,10 do
-            --if perc <= i + 5 then
-                --return prefix..'level-'..i..charging..suffix
-            --end
-        --end
-        --return prefix..'missing'..suffix
-    --end
 
     local function icon_from_perc(perc, is_charging)
         local icons = { '', '', '', '', '', '', '', '', '', '', '' }

@@ -27,8 +27,6 @@ awful.button({ }, 5, function ()
 end)
 )
 
-local tab_shape = function(cr,w,h) gears.shape.rounded_rect(cr,w,h,2) end
-
 local default_icon = wibox.widget {
     widget = wibox.widget.imagebox,
     image = "/usr/share/icons/Pop/128x128/categories/org.gnome.Settings.png",
@@ -75,7 +73,7 @@ local function new_tasklist_tabs(screen)
         filter  = awful.widget.tasklist.filter.currenttags,
         buttons = tasklist_buttons,
         style = {
-            shape = tab_shape,
+            shape = beautiful.tasklist_tab_shape,
         },
         layout = {
             layout = wibox.layout.flex.horizontal,
@@ -85,7 +83,7 @@ local function new_tasklist_tabs(screen)
 
     return wibox.widget {
             widget     = wibox.container.background,
-            shape      = tab_shape,
+            shape      = beautiful.tasklist_tab_shape,
             bg         = beautiful.tasklist_bg_normal,
             shape_clip = true,
             tasklist,
@@ -97,10 +95,10 @@ local icon_template = {
     id = 'background_role',
     {
         widget = wibox.container.margin,
-        bottom = 3,
+        left = 4,
+        right = 4,
         top = 3,
-        left = 5,
-        right = 5,
+        bottom = 3,
         id = 'icon_wrapper',
         {
             widget = awful.widget.clienticon,
@@ -135,10 +133,10 @@ local function new_tasklist_icons(screen)
             margins = 1,
             {
                 widget = wibox.container.background,
-                shape_border_width = 1,
-                shape_border_color = beautiful.widget_border_color,
+                shape_border_width = beautiful.tasklist_widget_border_width,
+                shape_border_color = beautiful.tasklist_widget_border_color,
                 bg = beautiful.tasklist_bg_normal,
-                shape = beautiful.tasklist_shape,
+                shape = beautiful.tasklist_widget_shape,
                 shape_clip = true,
                 tasklist,
             },

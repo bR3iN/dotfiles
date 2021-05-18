@@ -9,13 +9,14 @@ M.statusbar_widget = function(tbl, correction)
     local margin = (correction or 0) + beautiful.widget_outer_margin
     local widget = wibox.widget {
         widget  = wibox.container.margin,
-        margins = 2,
+        margins = 3,
         {
             widget     = wibox.container.background,
             shape      = beautiful.widget_shape,
             bg         = beautiful.widget_bg,
+            fg         = beautiful.widget_fg,
             shape_clip = true,
-            shape_border_width = 1,
+            shape_border_width = beautiful.widget_border_width,
             shape_border_color = beautiful.widget_border_color,
             id = 'background',
             {
@@ -88,7 +89,7 @@ M.toggle = function(tbl)
         {
             widget = wibox.container.background,
             id = 'background',
-            shape = beautiful.widget_shape,
+            shape = function(cr,w,h) gears.shape.rounded_rect(cr, w, h, 2) end,
             bg = tbl.bg or beautiful.widget_bg,
             fg = tbl.fg or beautiful.widget_fg,
             {
@@ -153,15 +154,16 @@ M.toggle = function(tbl)
     return button
 end
 
---M.inner_margin = function(tbl, correction)
-    --local margin = (correction or 0) + beautiful.widget_inner_margin
-    --local widget =  wibox.widget {
-        --widget = wibox.container.margin,
-        --left = margin,
-        --right = margin,
-        --tbl,
-    --}
-    --return widget
---end
+M.margins = function(margin)
+    return function(tbl)
+        local widget =  wibox.widget {
+            widget = wibox.container.margin,
+            left = margin,
+            right = margin,
+            tbl,
+        }
+        return widget
+    end
+end
 
 return M
