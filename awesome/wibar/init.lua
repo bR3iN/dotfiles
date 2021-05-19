@@ -65,7 +65,7 @@ local tray = utils.statusbar_widget {
         redshift,
         nogaps,
         caffeine,
-        --wibox.widget.systray(),
+        wibox.widget.systray(),
     },
 }
 
@@ -110,7 +110,7 @@ local function create_wibar(s)
         s.mypromptbox,
     }
 
-    local spacing = beautiful.widget_outer_margin - 10
+    local spacing = beautiful.widget_outer_margin - 8
     local rhs = wibox.widget {
         layout = wibox.layout.align.horizontal,
         nil,
@@ -150,6 +150,7 @@ local function create_wibar(s)
         position = 'top',
         screen = s,
         bg = beautiful.bg_wibar,
+        --opacity = 0.9,
     }
 
     s.wibar:setup {

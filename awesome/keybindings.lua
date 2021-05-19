@@ -217,6 +217,9 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Control" }, "b", function () awful.spawn.with_shell("rofi-ff") end,
               {description = "Choose firefox profile", group = "launcher"}),
 
+    awful.key({ modkey,           }, "e", function () awful.spawn('thunderbird') end,
+              {description = "open thunderbird", group = "launcher"}),
+
     awful.key({ modkey,           }, "t", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
 
@@ -286,12 +289,12 @@ globalkeys = gears.table.join(
 )
 
 clientkeys = gears.table.join( -- {{{
-    --awful.key({ modkey,           }, "f",
-        --function (c)
-            --c.fullscreen = not c.fullscreen
-            --c:raise()
-        --end,
-        --{description = "toggle fullscreen", group = "client"}),
+    awful.key({ modkey, "Control" }, "f",
+        function (c)
+            c.fullscreen = not c.fullscreen
+            c:raise()
+        end,
+        {description = "toggle fullscreen", group = "client"}),
     awful.key({ modkey,           }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
