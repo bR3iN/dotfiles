@@ -2,14 +2,14 @@
     "Awesome Background": {
         "prefix": ["container"],
         "body": [
-            "widget = wibox.widget.container,", "$0"
+            "widget = wibox.container.background,", "$0"
         ],
         "description": "Wibox container 'margin'."
     },
     "Awesome Margins": {
-        "prefix": ["margins"],
+        "prefix": ["margin"],
         "body": [
-            "widget = wibox.widget.margins,", "$0"
+            "widget = wibox.container.margin,", "$0"
         ],
         "description": "Wibox container 'margin'."
     },

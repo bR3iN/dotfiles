@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+EXTENSION="$1"
+
+function enable {
+    gnome-extensions enable "$EXTENSION"
+}
+
+function disable {
+    gnome-extensions disable "$EXTENSION"
+}
+
+QUERY=$(gnome-extensions show "$EXTENSION")
+
+if grep -q -e 'State: DISABLED' -e 'State: INITIALIZED' <<< "$QUERY" && [ "$2" != "off" ]; then
+    enable
+elif grep -q 'State: ENABLED' <<< "$QUERY" && [ "$2" != "on" ]; then
+    disable
+fi

@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+ROFI_FLAGS=(-no-show-icons)
+ROFI_FLAGS+=(-sorting-method normal)
+ROFI_FLAGS+=(-matching normal)
+
+rofi -show emoji -modi emoji "${ROFI_FLAGS[@]}"
