@@ -52,7 +52,7 @@ theme.widget_outer_spacing = 3
 
 -- tasklist {{{
 theme.tasklist_bg_normal   = theme.widget_bg
-theme.tasklist_fg_normal   = theme.widget_fg
+theme.tasklist_fg_normal   = theme.color15
 theme.tasklist_bg_focus    = theme.tasklist_fg_normal
 theme.tasklist_fg_focus    = theme.tasklist_bg_normal
 theme.tasklist_bg_minimize = theme.background_dark
