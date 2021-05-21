@@ -35,7 +35,7 @@ end
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
 local lsps = {
-    'ccls',
+    --'ccls',
     'sumneko_lua',
     'bashls',
     'vimls',

@@ -97,12 +97,20 @@ function installTarget {
         else
             case "${name#[@]}" in
                 cmd)
-                    eval "$value"
+                    echo "Running command '${value}'"
+                    eval "$value" 2>&1 | sed "s/^/    /" || local exit_code="$?"
+                    if [ ! "${exit_code:-0}" -eq 0 ]; then
+                        echo "ERROR: Command '${value}' failed with exit code ${exit_code}"
+                    fi
                     ;;
 
                 hook)
-                    echo "Running hook 'hooks/${value}':"
-                    ("${INSTALLER_DIR}/hooks/${value}") 2>&1 | sed "s/^/    /g"
+                    echo "Running hook '${value}'"
+                    ("${INSTALLER_DIR}/hooks/${value}") 2>&1 | sed "s/^/    /" \
+                        || local exit_code="$?"
+                    if [ ! "${exit_code:-0}" -eq 0 ]; then
+                        echo "ERROR: Hook '${value}' failed with exit code ${exit_code}"
+                    fi
                     ;;
 
                 target)
@@ -145,12 +153,11 @@ function createSymlink {
 
 
 function confirmAndDelete {
-    echo
-    echo "The file/directory"
+    echo "WARNING: The file/directory"
     echo
     echo "  '$path'"
     echo
-    echo -n "already exists. Do you want to delete it? [y|N] "
+    echo -n "already exists. Do you want to delete it? (y|N) "
 
     while true; do
         read confirm
