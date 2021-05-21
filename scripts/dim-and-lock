@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+
+set() {
+    brightnessctl set $1 >> /dev/null
+}
+
+get() {
+    brightnessctl get
+}
+
+fade_out() {
+    for level in $(eval echo {$(get)..0..15}); do
+        set $level
+        sleep 0.01
+    done
+    set 0
+}
+
+dim() {
+    set $(expr $(get) / 10)
+}
+
+CURRENT=$(get)
+
+trap 'exit 0' TERM INT
+trap "set $CURRENT; kill %%" EXIT
+
+#fade_out &
+dim && sleep 5 &
+wait
+
+set $CURRENT
+xset dpms force off

@@ -1,0 +1,69 @@
+#!/usr/bin/bash
+
+pre_lock() {
+    xset +dpms dpms 5 5 5
+}
+
+post_lock() {
+    xset dpms 0 0 0
+}
+
+trap post_lock SIGHUP SIGINT SIGTERM
+
+RED='#cf3b1a'
+GREEN='#73C48F'
+#YELLOW='#FFCE51'
+#BLUE='#48B9C7'
+#MAGENTA='#AD7FA8'
+#CYAN='#34E2E2'
+BLACK='#333333'
+GREY='#4d4d4d'
+
+CLEAR='#00000000'
+BG=$GREY'cc'
+RING=$BLACK
+TEXT=$GREEN
+HL=$GREEN'bb'
+WRONG=$RED'bb'
+WALLPAPER="/usr/share/backgrounds/mywallpaper-blurred.png"
+
+pre_lock
+
+i3lock \
+-n \
+--pass-media-keys \
+--pass-screen-keys \
+--pass-volume-keys \
+--timecolor=$TEXT \
+--datecolor=$TEXT \
+--screen 1 \
+--clock \
+--indicator \
+--timestr="%H:%M:%S" \
+--datestr="%A, %m %Y" \
+\
+--insidecolor=$BG \
+--ringcolor=$RING \
+--linecolor=$CLEAR \
+--separatorcolor=$CLEAR \
+\
+--veriftext="" \
+--verifcolor=$TEXT \
+--insidevercolor=$BG \
+--ringvercolor=$HL \
+\
+--wrongtext="" \
+--wrongcolor=$WRONG \
+--insidewrongcolor=$BG \
+--ringwrongcolor=$WRONG \
+\
+--keyhlcolor=$HL \
+--bshlcolor=$HL \
+\
+--noinputtext="" \
+-i "$WALLPAPER" \
+$@
+
+# --blur 10
+
+post_lock
