@@ -6,5 +6,5 @@ URL='https://github.com/ryanoasis/nerd-fonts/raw/master/src/glyphs/Symbols-1000-
 if ! ls "$FONT_PATH" | egrep -q -i 'Symbols.*Nerd.*Font'; then
     mkdir -p "$FONT_PATH"
     echo "Downloading $FONT_NAME to $HOME/.local/share/fonts..."
-    wget "$URL" -P "$FONT_PATH" &>> /dev/null
+    wget "$URL" -P "$FONT_PATH"
 fi

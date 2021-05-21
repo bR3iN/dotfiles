@@ -3,7 +3,7 @@ configuration {
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/
-    font: "Fira Sans Light 18";
+    font: "Fira Sans Light 11";
 /*	bw: 1;*/
 /*	location: 0;*/
     /*padding: 5;*/
@@ -45,7 +45,7 @@ configuration {
 /*	hide-scrollbar: false;*/
 /*	fullscreen: false;*/
 /*	fake-transparency: false;*/
-/*	dpi: -1;*/
+    dpi: 1;
 /*	threads: 0;*/
 /*	scrollbar-width: 8;*/
 /*	scroll-method: 0;*/

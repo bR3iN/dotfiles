@@ -5,6 +5,7 @@ set -o pipefail
 
 INSTALLER_DIR=$(dirname $(readlink -f "$0"))
 CONF="${INSTALLER_DIR}/dotfiles.ini"
+OUTPUT_SEPARATOR=':'
 
 declare -A INSTALLED
 
@@ -83,7 +84,7 @@ function installTarget {
     for key in $keys; do
 
         #split `key` into name and value
-        IFS=":" read -ra _key <<< "$key"
+        IFS="$OUTPUT_SEPARATOR" read -ra _key <<< "$key"
         local name="${_key[0]-}"
         local value="${_key[1]-}"
 
@@ -211,7 +212,7 @@ in_target_section \
     {
         gsub(/(^(\t| )+|(\t| )+\$)/,"",\$1)
         gsub(/(^(\t| )+|(\t| )+\$)/,"",\$2)
-        print \$1 ":" \$2
+        print \$1 "$OUTPUT_SEPARATOR" \$2
     }
 
 # Matches target header
