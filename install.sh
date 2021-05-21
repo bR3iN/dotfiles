@@ -55,7 +55,7 @@ function usage {
 function listTargets {
     echo "Available targets:"
     echo "=================="
-    awk -f - "$CONF" << EOF
+    (awk -f - "$CONF" | sort) << EOF
     /^\[.*\]/ {
     gsub(/(\[( |\t)*|( |\t)*\])/,"")
     print
