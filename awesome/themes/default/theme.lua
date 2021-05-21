@@ -40,7 +40,8 @@ theme.border_focus  = '#55B19B'
 -- statusbar widgets {{{
 theme.widget_shape = gears.shape.rounded_bar
 theme.bg_wibar = theme.background_dark
-theme.widget_bg = theme.background
+--theme.widget_bg = theme.background
+theme.widget_bg = theme.color8
 theme.widget_fg = theme.color7
 theme.widget_separator_color = theme.color7
 theme.widget_border_color = theme.grey
