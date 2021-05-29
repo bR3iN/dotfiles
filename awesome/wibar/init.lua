@@ -5,9 +5,15 @@ local wibox         = require("wibox")
 local utils         = require("wibar.utils")
 
 -- Screen independent widgets {{{
+local powermenu = awful.menu{
+    { "Log out", function() awesome.quit() end },
+    { "Reboot", 'systemctl reboot' },
+    { "Poweroff", 'systemctl poweroff' },
+}
 local clock = utils.statusbar_widget()
 clock:setup {
     layout = wibox.layout.fixed.horizontal,
+    buttons = awful.button({ }, 1, function() powermenu:show() end),
     {
         layout = utils.layout_separated(),
         wibox.widget.textclock('%d/%m'),
@@ -18,27 +24,30 @@ clock:setup {
 local redshift = utils.toggle {
     text_on   = '',
     text_off  = '',
-    cmd_on    = 'redshift -x && redshift',
+    cmd_on    = 'redshift',
     cmd_off   = 'killall redshift',
+    init      = 'killall redshift',
 }
 
-local caffeine_timer = gears.timer {
-    callback = function() awful.spawn('xset s reset') end,
-    timeout = 3,
-}
+--local caffeine_timer = gears.timer {
+    --callback = function() awful.spawn('xset s reset') end,
+    --timeout = 3,
+--}
 
 local caffeine = utils.toggle {
     text_off = '',
     text_on  = '',
-    func_on  = function() caffeine_timer:start() end,
-    func_off = function() caffeine_timer:stop()  end,
+    --func_on  = function() caffeine_timer:start() end,
+    --func_off = function() caffeine_timer:stop()  end,
+    cmd_on  = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s true',
+    cmd_off = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false',
+    init    = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false',
 }
 
-local xkbmap_flags = os.getenv('XKBMAP_FLAGS') and " "..os.getenv('XKBMAP_FLAGS') or ""
 local keyboardlayout = utils.toggle {
     text_off = "",
-    cmd_on = 'setxkbmap -layout us -variant intl' .. xkbmap_flags,
-    cmd_off = 'setxkbmap -layout us' .. xkbmap_flags,
+    cmd_on = 'setxkbmap -layout us -variant intl',
+    cmd_off = 'setxkbmap -layout us',
     reverse = true,
 }
 
@@ -57,7 +66,7 @@ local nogaps = utils.toggle {
 }
 
 local tray = utils.statusbar_widget {
-    widget = utils.margins(0),
+    layout = wibox.layout.fixed.horizontal,
     {
         layout = wibox.layout.fixed.horizontal,
         spacing = 3,
@@ -65,23 +74,78 @@ local tray = utils.statusbar_widget {
         redshift,
         nogaps,
         caffeine,
+    },
+    utils.empty_space(5),
+    {
+        widget = wibox.container.margin,
+        --top = 1,
+        --bottom = 1,
         wibox.widget.systray(),
     },
 }
 
-local powermenu = awful.menu{
-    { "Log out", function() awesome.quit() end },
-    { "Reboot", 'reboot' },
-    { "Poweroff", 'poweroff' },
-}
+--local powermenu = awful.menu{
+    --{ "Log out", function() awesome.quit() end },
+    --{ "Reboot", 'systemctl reboot' },
+    --{ "Poweroff", 'systemctl poweroff' },
+--}
 
-local power_button = utils.statusbar_widget({
-    buttons = awful.button({ }, 1, function() powermenu:show() end),
-    widget = wibox.widget.textbox,
-    font = beautiful.taglist_font,
-    text = "",
-}, -5)
-power_button:get_children_by_id('background')[1].shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
+--local power_button = wibox.widget {
+    --widget = wibox.container.background,
+    --bg = beautiful.widget_bg,
+    --{
+        --widget = wibox.container.margin,
+        --left = 10,
+        --right = 10,
+        --{
+            --buttons = awful.button({ }, 1, function() powermenu:show() end),
+            --widget = wibox.widget.textbox,
+            --font = beautiful.taglist_font,
+            --text = "",
+        --},
+    --},
+--}
+
+--local power_button = wibox.widget {
+    --widget = wibox.container.margin,
+    --left = 2,
+    --{
+        --widget     = wibox.container.background,
+        --shape      = beautiful.taglist_widget_shape,
+        ----shape      = gears.shape.circle,
+        --bg         = beautiful.taglist_widget_bg,
+        --fg         = beautiful.taglist_fg_empty,
+        --shape_clip = true,
+        --shape_border_width = beautiful.taglist_widget_border_width,
+        --shape_border_color = beautiful.taglist_widget_border_color,
+        --id = 'background',
+        --{
+            --layout = wibox.layout.fixed.horizontal,
+            --{
+                --widget = wibox.container.margin,
+                --left = 6,
+                --right = 2,
+                --top = 2,
+                --bottom = 2,
+            --},
+            --{
+                --widget = wibox.container.margin,
+                --id     = 'inner',
+                ----left = 8,
+                --right = 8,
+                --top = 4,
+                --bottom = 4,
+                --{
+                    --buttons = awful.button({ }, 1, function() powermenu:show() end),
+                    --widget = wibox.widget.textbox,
+                    --font = beautiful.nerd_font..' '..beautiful.font_size+1,
+                    --text = "",
+                --},
+            --},
+        --},
+    --},
+--}
+--power_button:get_children_by_id('background')[1].shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
 -- }}}
 
 local function create_wibar(s)

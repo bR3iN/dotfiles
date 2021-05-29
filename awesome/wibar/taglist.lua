@@ -27,7 +27,7 @@ local function taglist_widget(tbl)
     local margin = beautiful.widget_outer_margin
     local widget = wibox.widget {
         widget  = wibox.container.margin,
-        margins = 1,
+        margins = 0,
         {
             widget     = wibox.container.background,
             shape      = beautiful.taglist_widget_shape,
@@ -99,20 +99,24 @@ local function create_taglist(screen)
     local widget = wibox.widget {
         layout = wibox.layout.fixed.horizontal,
         spacing = beautiful.widget_outer_spacing,
-        taglist_widget(layoutbox),
-        taglist_widget{
+        {
+            widget = wibox.container.margin,
+            right = 2,
+            taglist_widget(layoutbox),
+        },
+        utils.statusbar_widget {
             widget = utils.margins(2),
             new_taglist(screen) 
         },
-        taglist_widget {
-            widget = utils.margins(2),
-            buttons = awful.button({ }, 1, screen.add_volatile),
-            {
-                widget = wibox.widget.textbox,
-                font = beautiful.taglist_font,
-                text = "",
-            }
-        },
+        --taglist_widget {
+            --widget = utils.margins(2),
+            --buttons = awful.button({ }, 1, screen.add_volatile),
+            --{
+                --widget = wibox.widget.textbox,
+                --font = beautiful.taglist_font,
+                --text = "",
+            --}
+        --},
     }
     return widget
 end

@@ -77,16 +77,17 @@ local function new_tasklist_tabs(screen)
         },
         layout = {
             layout = wibox.layout.flex.horizontal,
+            spacing = 1,
         },
         widget_template = tab_template,
     }
 
     return wibox.widget {
-            widget     = wibox.container.background,
-            shape      = beautiful.tasklist_tab_shape,
-            bg         = beautiful.tasklist_bg_normal,
-            shape_clip = true,
-            tasklist,
+        widget     = wibox.container.background,
+        shape      = beautiful.tasklist_tab_shape,
+        bg         = beautiful.bg_wibar,
+        shape_clip = true,
+        tasklist,
     }
 end
 
@@ -130,7 +131,7 @@ local function new_tasklist_icons(screen)
         nil,
         {
             widget = wibox.container.margin,
-            margins = 1,
+            margins = 0,
             {
                 widget = wibox.container.background,
                 shape_border_width = beautiful.tasklist_widget_border_width,

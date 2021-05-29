@@ -9,8 +9,10 @@ end
 
 if which batcat &> /dev/null
     set batcmd 'batcat'
-else
+else if which bat &> /dev/null
     set batcmd 'bat'
+else
+    set batcmd 'cat'
 end
 
 alias cat $batcmd

@@ -131,7 +131,7 @@ M.toggle = function(tbl)
     end
 
     function button:toggle()
-        if self.on then tbl:func_off() else tbl:func_on() end
+        if self.on then tbl.func_off(button) else tbl.func_on(button) end
         self:set_text(self.on and tbl.text_off or tbl.text_on)
         self.on = not self.on
         if tbl.reverse then
@@ -151,6 +151,12 @@ M.toggle = function(tbl)
 
     if tbl.toggle_on_init then button:toggle() end
 
+    if tbl.init then
+        local func = type(tbl.init) == 'function' and tbl.init or function()
+            awful.spawn.with_shell(tbl.init)
+        end
+        func(button)
+    end
     return button
 end
 
