@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
-FONT_NAME="Fira Fonts"
-URL='https://github.com/mozilla/Fira/archive/refs/tags/4.202.zip'
-REGEX='Fira-.*'
+FONT_NAME=''
+URL=''
+REGEX=''
 
 ROOT_FONT_DIR="/usr/local/share/fonts"
 USER_FONT_DIR="$HOME/.local/share/fonts"

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ ! -f /etc/lightdm/Xsession ]; then
+    if [ -f "$HOME/.xprofile" ]; then
+        source "$HOME/.xprofile"
+    fi
+    if [ -f "$HOME/.Xresources" ]; then
+        xrdb -merge "$HOME/.Xresources"
+    fi
+fi
+
+procs=(
+    "xfsettingsd"
+    "xss-lock -- lock -n --debug >> /tmp/i3log"
+    "xfce4-power-manager"
+    "sleep 0.1 && /usr/libexec/xfce-polkit"
+    "sleep 0.1 && thunar --daemon"
+    "sleep 2 && volumeicon"
+    "/usr/lib/blueberry/blueberry-tray.py"
+    "picom"
+)
+
+for (( i=0; i < ${#procs[@]}; i++ )); do
+    eval "${procs[$i]} &"
+    pids[$i]=$!
+done
+
+sleep 0.1 # wait for xsettingsd to start
+awesome &>> "$HOME/.awesome.log"
+
+for pid in ${pids[@]}; do
+    kill $pid
+done

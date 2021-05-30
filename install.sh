@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/bash
 set -o errexit
 set -o nounset
 set -o pipefail
 
 INSTALLER_DIR=$(dirname $(readlink -f "$0"))
 CONF="${INSTALLER_DIR}/dotfiles.ini"
-OUTPUT_SEPARATOR=':'
+OUTPUT_SEPARATOR='='
 
 declare -A INSTALLED
 
@@ -14,6 +14,10 @@ function main {
         case "${1-}" in
             -c|--copy)
                 NO_SYMLINKS="true"
+                ;;
+
+            -y|--always-yes)
+                ALWAYS_YES="true"
                 ;;
 
             -l|--list)
@@ -49,9 +53,11 @@ function main {
     done
 }
 
+
 function usage {
     echo "usage... WIP"
 }
+
 
 function listTargets {
     echo "Available targets:"
@@ -65,16 +71,16 @@ EOF
 exit
 }
 
-function installTarget {
-    local target="$1" # allows for recursion
 
-    if [ ! -z "${INSTALLED["$target"]-}" ]; then
+function installTarget {
+    local target="$1"
+    if [ ! -z "${INSTALLED[$target]-}" ]; then
         return 0
     else
         INSTALLED["$target"]="true"
     fi
 
-    local keys=$(getKeys)
+    local keys=$(getKeys "$target")
     if [ -z "$keys" ]; then
         echo "Section '$target' was not found or contains no keys."
         return 1
@@ -82,6 +88,7 @@ function installTarget {
 
     local IFS=$'\n'
     for key in $keys; do
+        local IFS=' '
 
         #split `key` into name and value
         IFS="$OUTPUT_SEPARATOR" read -ra _key <<< "$key"
@@ -89,61 +96,97 @@ function installTarget {
         local value="${_key[1]-}"
 
         if [[ -z "$name" ]] || [[ -z "$value" ]]; then
-            echo "WARNING: '${name} = ${value}' is not a valid key."
+            echo "WARNING: '$key' is not a valid key."
             continue
         fi
 
         if [[ ! "$name" =~ ^@ ]]; then
-            createSymlink
+            createSymlink "$name" "$value"
         else
             case "${name#[@]}" in
                 cmd)
-                    echo "Running command '${value}'"
-                    eval "$value" 2>&1 | sed "s/^/    /" || local exit_code="$?"
-                    if [ ! "${exit_code:-0}" -eq 0 ]; then
-                        echo "ERROR: Command '${value}' failed with exit code ${exit_code}"
-                    fi
+                    runCommand "$value"
                     ;;
 
                 hook)
-                    echo "Running hook '${value}'"
-                    ("${INSTALLER_DIR}/hooks/${value}") 2>&1 | sed "s/^/    /" \
-                        || local exit_code="$?"
-                    if [ ! "${exit_code:-0}" -eq 0 ]; then
-                        echo "ERROR: Hook '${value}' failed with exit code ${exit_code}"
-                    fi
+                    runHook "$value"
                     ;;
 
                 target)
                     installTarget "$value"
                     ;;
+                install)
+                    installFile "$value"
             esac
         fi
     done
 }
 
 
+function runHook {
+    echo "Running hook '$1'"
+    local hook_cmd="${INSTALLER_DIR}/hooks/$1"
+    eval "($hook_cmd)" 2>&1 | sed "s/^/    /" || local exit_code="$?"
+    if [ ! "${exit_code:-0}" -eq 0 ]; then
+        echo "ERROR: Hook '$1' failed with exit code ${exit_code}"
+    fi
+}
+
+
+function runCommand {
+    echo "Running command '$1'"
+    return
+    eval "($1)" 2>&1 | sed "s/^/    /" || local exit_code="$?"
+    if [ ! "${exit_code:-0}" -eq 0 ]; then
+        echo "ERROR: Command '$1' failed with exit code ${exit_code}"
+    fi
+}
+
+
+function installFile {
+    local file="$1"
+
+    if [[ "$file" =~ ^root: ]]; then
+        file="${file#root:}"
+        as_root=true
+    fi
+
+    if [ -f "$INSTALLER_DIR/$file" ]; then
+        if [ -n "${as_root-}" ]; then
+            sudo install -D -m=0755 -t "/usr/local/bin" "$file"
+        else
+            createSymlink "$file" "$HOME/.local/bin/$(basename $file)"
+        fi
+    elif [ -d "$INSTALLER_DIR/$file" ]; then
+        (cd "$INSTALLER_DIR/$file"; ${as_root:+sudo} make install)
+    fi
+}
+
+
 function createSymlink {
-
-    # parses `value` and defines `path`
-    getPath
-
-    dest="${INSTALLER_DIR}/${name}"
-
+    local dest="${INSTALLER_DIR}/$1"
     if [ ! -e "$dest" ]; then
         echo "WARNING: Link destination '${dest}' was not found. Skipping..."
         return 0
     fi
 
+    if [[ "$2" =~ ^root: ]]; then
+        local as_root=true
+        local path=$(getPath "${2#root:}")
+    else
+        local path=$(getPath "$2")
+    fi
+
     if [ -h "$path" ]; then
         rm -f "$path" || local exit_code=$?
     elif [ -e "$path" ]; then
-        confirmAndDelete || local exit_code=$?
+        confirmAndDelete "$path" ${as_root-} || local exit_code=$?
     fi
 
     if [ "${exit_code:-0}" -eq 0 ]; then
+        local cmd=$([ -z ${NO_SYMLINKS-} ] && echo 'ln -sT' || echo 'cp -rT')
         mkdir -p "$(dirname "$path")"
-        ln -sT "$dest" "$path"
+        ${as_root:+sudo} $cmd "$dest" "$path"
 
         if [ "$?" -eq 0 ]; then
             echo "Created the symbolic link"
@@ -154,16 +197,21 @@ function createSymlink {
 
 
 function confirmAndDelete {
+    if [ "$ALWAYS_YES" = true ]; then
+        ${2+sudo} rm -rf "$1" && return 0
+        return 1
+    fi
+
     echo "WARNING: The file/directory"
     echo
-    echo "  '$path'"
+    echo "  '$1'"
     echo
     echo -n "already exists. Do you want to delete it? (y|N) "
 
     while true; do
         read confirm
         case "$confirm" in
-            y|Y) rm -rf "$path" && return 0
+            y|Y) ${2+sudo} rm -rf "$1" && return 0
                 return 1
                 ;;
             n|N)
@@ -181,18 +229,18 @@ function confirmAndDelete {
 
 
 function getPath {
-    if [[ "$value" =~ ^~/ ]]; then
-        path="${HOME}/${value#"~/"}"
-    elif [[ ! "$value" =~ ^/ ]]; then
-        path="${HOME}/${value}"
+    if [[ "$1" =~ ^~/ ]]; then
+        echo "$HOME/${1#"~/"}"
+    elif [[ ! "$1" =~ ^/ ]]; then
+        echo "$HOME/$1"
     else
-        path="$value"
+        echo "$1"
     fi
 }
 
 
 function getKeys {
-    awk -F= -v TARGET_SECTION="$target" \
+    awk -F= -v TARGET_SECTION="$1" \
         -f - "$CONF" << EOF
             BEGIN {
             in_target_section = 0
@@ -222,5 +270,6 @@ in_target_section \
     }
 EOF
 }
+
 
 main "$@"
