@@ -1,0 +1,2 @@
+setxkbmap -option altwin:prtsc_rwin
+export QT_SCALE_FACTOR=1.25

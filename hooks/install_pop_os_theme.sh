@@ -18,5 +18,5 @@ install_icon_theme() {
     sudo ninja -C "build" install
 }
 
-[ ! -d /usr/share/theme/Pop ] && install_gtk_theme
-[ ! -d /usr/share/icons/Pop ] && install_icon_theme
+[ ! -d /usr/share/themes/Pop ] && install_gtk_theme || true
+[ ! -d /usr/share/icons/Pop ] && install_icon_theme || true
