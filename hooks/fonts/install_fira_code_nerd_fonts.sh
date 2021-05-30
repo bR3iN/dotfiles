@@ -2,7 +2,7 @@
 
 FONT_NAME="Fira Code Nerd Fonts"
 URL='https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip'
-REGEX= 'Fira.*Code.*Nerd Font'
+REGEX='Fira.*Code.*Nerd Font'
 
 ROOT_FONT_DIR="/usr/local/share/fonts"
 USER_FONT_DIR="$HOME/.local/share/fonts"

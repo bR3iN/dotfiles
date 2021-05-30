@@ -203,6 +203,10 @@ globalkeys = gears.table.join(
     -- }}}
 
     -- Launcher {{{
+    awful.key({ modkey            }, "f", function()
+        awful.spawn('thunar')
+    end, {description = "open files", group = "launcher"}),
+
     awful.key({ modkey            }, "d", function()
         awful.spawn('rofi-open')
     end, {description = "open document", group = "launcher"}),

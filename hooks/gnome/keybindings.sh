@@ -47,7 +47,7 @@ function add_keybinding {
 }
 
 function parse_config {
-    awk -f - "$DOTFILES"/keybindings.ini << EOF
+    awk -f - "$DOTFILES"/gnome_keybindings.ini << EOF
 /\[.*\]/ {
     dump(name, binding, command)
     gsub(/(\[|\])/,"")
@@ -77,6 +77,7 @@ EOF
 
 function main {
     if [ "$1" = "--reset-all" ]; then
+        echo "Resetting all custom keybindings"
         reset
     fi
     local COUNT="$(get_count)"
