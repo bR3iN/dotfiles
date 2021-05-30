@@ -36,6 +36,7 @@ pkgs=(
     meson
     ninja-build
     sassc
+    glib2-devel
 )
 
 groups=(

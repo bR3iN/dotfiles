@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-CP_FLAG="-n"
 DATA_DIR="$HOME/.local/share/applications"
 mkdir -p "$DATA_DIR"
 
