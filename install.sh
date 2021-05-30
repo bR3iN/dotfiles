@@ -135,7 +135,6 @@ function runHook {
 
 function runCommand {
     echo "Running command '$1'"
-    return
     eval "($1)" 2>&1 | sed "s/^/    /" || local exit_code="$?"
     if [ ! "${exit_code:-0}" -eq 0 ]; then
         echo "ERROR: Command '$1' failed with exit code ${exit_code}"
@@ -197,7 +196,7 @@ function createSymlink {
 
 
 function confirmAndDelete {
-    if [ "$ALWAYS_YES" = true ]; then
+    if [ "${ALWAYS_YES-}" = true ]; then
         ${2+sudo} rm -rf "$1" && return 0
         return 1
     fi

@@ -17,11 +17,14 @@ pkgs=(
     kitty
     firefox
     qutebrowser
+    gnome-shell-extension-user-theme
+    gnome-extensions-app
     ImageMagick
     zathura
     meson
     ninja-build
     sassc
+    glib2-devel
 )
 
 sudo dnf install "${pkgs[@]}"

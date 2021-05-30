@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 set -e
 
-DOTFILES="$(dirname "$(dirname "$(readlink -f "$0")")")"
+DOTFILES=$(dirname $(dirname $(dirname $(readlink -f "$0"))))
 SCHEMA="org.gnome.settings-daemon.plugins.media-keys"
 DCONF_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 
