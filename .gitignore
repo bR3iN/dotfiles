@@ -1,5 +1,6 @@
+local.*
+
 # neovim
-nvim/plugged/
 nvim/undo/
 nvim/spell/
 
@@ -8,6 +9,3 @@ nvim/spell/
 vim/plugged/
 vim/spell/
 vim/autoload/plug.vim
-
-# zsh
-.zhistory
