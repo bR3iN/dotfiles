@@ -3,7 +3,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-INSTALLER_DIR=$(dirname $(readlink -f "$0"))
+export INSTALLER_DIR=$(dirname $(readlink -f "$0"))
 CONF="${INSTALLER_DIR}/dotfiles.ini"
 OUTPUT_SEPARATOR='='
 
