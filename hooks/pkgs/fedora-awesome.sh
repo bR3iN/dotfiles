@@ -6,6 +6,7 @@ sudo dnf copr enable -y agriffis/neovim-nightly &>> /dev/null
 pkgs=(
     awesome
     blueberry
+    bat
     firefox
     fish
     google-noto-emoji-color-fonts
