@@ -7,7 +7,7 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-alias cat='batcat'
+#alias cat='batcat'
 alias ll='ls -hAlF'
 alias update='sudo apt-get update && sudo apt-get upgrade -y && \
 		 sudo apt autoremove && flatpak update'

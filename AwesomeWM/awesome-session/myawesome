@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 if [ ! -f /etc/lightdm/Xsession ]; then
-    for file in "$HOME/.profile" "$HOME/.xprofile"; do
+    for file in "$HOME/.xprofile"; do
         if [ -f "$file" ]; then
             source "$file"
         fi
