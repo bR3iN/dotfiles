@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if [ ! -f /etc/lightdm/Xsession ]; then
-    if [ -f "$HOME/.xprofile" ]; then
-        source "$HOME/.xprofile"
-    fi
+    for file in "$HOME/.profile" "$HOME/.xprofile"; do
+        if [ -f "$file" ]; then
+            source "$file"
+        fi
+    done
     if [ -f "$HOME/.Xresources" ]; then
         xrdb -merge "$HOME/.Xresources"
     fi

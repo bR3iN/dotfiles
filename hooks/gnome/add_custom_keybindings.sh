@@ -28,7 +28,7 @@ function main {
     done
 
     local count=$(get_count)
-    local config=$(parse_config "${CONF-gnome_custom_keybindings.ini}")
+    local config=$(parse_config "${CONF-gnome/custom_keybindings.ini}")
     echo "Adding the following keybindings:"
 
     local IFS=$'\n'

@@ -35,8 +35,8 @@ set -x  CDPATH . ~
 set -x  MANPAGER 'nvim +Man!'
 set -x  PAGER "$batcmd"
 set -x  BAT_PAGER "less"
-set -xa PATH "$HOME/.node_modules/bin"
-set -ax PATH "$HOME/.local/bin"
+#set -xa PATH "$HOME/.node_modules/bin"
+#set -xa PATH "$HOME/.local/bin"
 
 bind \e, history-token-search-forward
 
