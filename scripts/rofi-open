@@ -1,7 +1,13 @@
 #!/usr/bin/bash
 
 DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
-ROFI_FLAGS=('-i' '-p' 'Open Document' '-no-show-icons')
+ROFI_FLAGS=(
+    '-i'
+    '-p' 'Open Document'
+    '-no-show-icons'
+    '-sorting-method' 'levenshtein'
+    '-matching' 'normal'
+)
 
 OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}' | rofi -dmenu "${ROFI_FLAGS[@]}")
 
