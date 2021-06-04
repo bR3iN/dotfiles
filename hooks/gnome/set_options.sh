@@ -17,4 +17,4 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>f']"
 gsettings set org.gnome.settings-daemon.plugins.media-keys logout "[]"
 gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "['<Super>Escape']"
 gsettings set org.gnome.settings-daemon.plugins.media-keys www "[]"
-gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "[]"
+gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "[]" || true
