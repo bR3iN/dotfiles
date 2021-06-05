@@ -1,14 +1,22 @@
 #!/usr/bin/bash
 
-if [ ! -f /etc/lightdm/Xsession ]; then
+# Lightdm on Arch ships with its own Xsession file that
+# does not start a login $SHELL session but sources ~/.xprofile
+if [ -f /etc/lightdm/Xsession ]; then
+    for file in "$HOME/.bash_profile" do
+        if [ -f "$file" ]; then
+            source "$file"
+        fi
+    done
+else
     for file in "$HOME/.xprofile"; do
         if [ -f "$file" ]; then
             source "$file"
         fi
     done
-    if [ -f "$HOME/.Xresources" ]; then
-        xrdb -merge "$HOME/.Xresources"
-    fi
+    #if [ -f "$HOME/.Xresources" ]; then
+        #xrdb -merge "$HOME/.Xresources"
+    #fi
 fi
 
 procs=(
