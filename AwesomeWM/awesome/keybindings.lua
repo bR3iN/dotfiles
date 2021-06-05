@@ -8,7 +8,7 @@ local naughty = require("naughty")
 globalkeys = gears.table.join(
     -- Awesome stuff {{{
     awful.key({ modkey,           }, "Escape", function() 
-        awful.spawn.with_shell('sleep 0.3; xset dpms force off') 
+        awful.spawn.with_shell('sleep 0.5; xset dpms force off') 
     end, {description = "lock screen", group = "awesome"}),
 
     awful.key({ modkey            }, "c", function()
@@ -212,7 +212,7 @@ globalkeys = gears.table.join(
     end, {description = "open document", group = "launcher"}),
 
     awful.key({ modkey            }, "/", function()
-        awful.spawn.with_shell('rofi $ROFI_FLAGS -show combi')
+        awful.spawn.with_shell('rofi '..(os.getenv('ROFI_FLAGS') or '')..' -show combi')
     end, {description = "launch rofi", group = "launcher"}),
 
     awful.key({ modkey, "Control" }, "e", function () awful.spawn('rofi-emoji') end,

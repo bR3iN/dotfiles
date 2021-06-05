@@ -3,7 +3,7 @@
 # Lightdm on Arch ships with its own Xsession file that
 # does not start a login $SHELL session but sources ~/.xprofile
 if [ -f /etc/lightdm/Xsession ]; then
-    for file in "$HOME/.bash_profile" do
+    for file in "$HOME/.bash_profile"; do
         if [ -f "$file" ]; then
             source "$file"
         fi
@@ -26,6 +26,7 @@ procs=(
     "sleep 0.1 && /usr/libexec/xfce-polkit"
     "sleep 0.1 && thunar --daemon"
     "sleep 2 && volumeicon"
+    "seapplet"
     "/usr/lib/blueberry/blueberry-tray.py"
     "picom"
 )

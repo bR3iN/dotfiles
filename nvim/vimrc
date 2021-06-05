@@ -212,3 +212,5 @@ function! MoveInParagraph(visual, backwards)
     endif
 endfunction
 " }}}
+
+nnoremap <leader>mk :make<CR>
