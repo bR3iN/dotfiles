@@ -2,7 +2,7 @@
 
 FF_DIR="$HOME/.mozilla/firefox"
 
-ROFI_FLAGS=()
+ROFI_FLAGS=($ROFI_FLAGS)
 ROFI_FLAGS+=(-no-sorting -no-show-icons)
 ROFI_FLAGS+=(-i -p 'Choose Firefox Profile')
 

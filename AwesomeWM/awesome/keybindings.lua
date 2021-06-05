@@ -212,7 +212,7 @@ globalkeys = gears.table.join(
     end, {description = "open document", group = "launcher"}),
 
     awful.key({ modkey            }, "/", function()
-        awful.spawn('rofi -show combi')
+        awful.spawn.with_shell('rofi $ROFI_FLAGS -show combi')
     end, {description = "launch rofi", group = "launcher"}),
 
     awful.key({ modkey, "Control" }, "e", function () awful.spawn('rofi-emoji') end,

@@ -1,1 +1,4 @@
 export QT_SCALE_FACTOR=1.25
+export ROFI_FLAGS='-dpi 120'
+
+# vim: filetype=sh

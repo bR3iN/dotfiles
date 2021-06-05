@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
-ROFI_FLAGS=(-no-show-icons)
+ROFI_FLAGS=($ROFI_FLAGS)
+ROFI_FLAGS+=(-no-show-icons)
 ROFI_FLAGS+=(-sorting-method normal)
 ROFI_FLAGS+=(-matching normal)
 
