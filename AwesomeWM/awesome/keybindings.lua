@@ -227,7 +227,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "e", function () awful.spawn('thunderbird') end,
               {description = "open e-mail client", group = "launcher"}),
 
-    awful.key({ modkey,           }, "t", function () awful.spawn(terminal) end,
+    awful.key({ modkey,           }, "t", function () awful.spawn(terminal .. " -e fish") end,
               {description = "open a terminal", group = "launcher"}),
 
     awful.key({ modkey, "Shift"   }, "t", function () awful.spawn(terminal .. " -e tmux") end,
