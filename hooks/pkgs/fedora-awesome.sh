@@ -19,6 +19,7 @@ pkgs=(
     pavucontrol
     picom
     pragha
+    neovim
     qutebrowser
     redshift
     rofi
@@ -42,9 +43,8 @@ pkgs=(
     glib2-devel
 )
 
+# Groups to install on top of group 'Fedora Server Edition'
 groups=(
-    "Core"
-    "Standard"
     "Multimedia"
     "Printing Support"
     "base-x"
@@ -53,5 +53,5 @@ groups=(
     "C Development Tools and Libraries"
 )
 
-sudo dnf install "${pkgs[@]}"
-sudo dnf group install "${groups[@]}"
+sudo dnf install -y "${pkgs[@]}"
+sudo dnf group install -y "${groups[@]}"

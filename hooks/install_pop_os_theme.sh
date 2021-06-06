@@ -8,15 +8,15 @@ install_gtk_theme() {
     cd "$TMP/pop-gtk"
     meson build && cd build
     ninja
-    ninja install
+    sudo ninja install >> /dev/null
 }
 
 install_icon_theme() {
     git clone https://github.com/pop-os/icon-theme "$TMP/pop-icons"
     cd "$TMP/pop-icons"
     meson build
-    sudo ninja -C "build" install
+    sudo ninja -C "build" install >> /dev/null
 }
 
 [ ! -d /usr/share/themes/Pop ] && install_gtk_theme || true
-[ ! -d /usr/share/icons/Pop ] && install_icon_theme || true
+[ ! -d /usr/share/icons/Pop  ] && install_icon_theme || true
