@@ -134,6 +134,7 @@ augroup config_files " {{{
     autocmd FileType vim  setlocal foldmethod=marker
     autocmd FileType tmux setlocal foldmethod=marker
     autocmd BufRead ~/.{config,dotfiles}/* setlocal foldmethod=marker
+    "autocmd BufRead *.fish setlocal filetype=sh
 augroup END
 "" }}}
 
@@ -214,3 +215,4 @@ endfunction
 " }}}
 
 nnoremap <leader>mk :make<CR>
+nnoremap <expr><silent> <leader>eV ':e  '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'

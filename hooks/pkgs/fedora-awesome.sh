@@ -13,21 +13,23 @@ pkgs=(
     ImageMagick
     kitty
     lightdm-gtk
+    neovim
     NetworkManager-tui
     npm
     parole
     pavucontrol
     picom
     pragha
-    neovim
     qutebrowser
     redshift
     rofi
+    setxkbmap
     Thunar
     thunar-volman
     thunderbird
     tmux
     tumbler
+    volumeicon
     xfce-polkit
     xfce4-power-manager
     xfce4-settings

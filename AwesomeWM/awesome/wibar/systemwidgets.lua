@@ -59,10 +59,9 @@ local function create_system_widget(tbl)
         awful.spawn.easy_async_with_shell(tbl.cmd, callback)
     end
 
-    gears.timer {
+    widget.timer = gears.timer {
         timeout = tbl.time or 1,
         callback = widget.update,
-        autostart = true,
         call_now = true,
     }
 
@@ -100,6 +99,17 @@ local function create_battery()
         end,
         time = 10,
     }
+
+    widgets.battery.visible = false
+
+    awful.spawn.easy_async_with_shell('test -d /sys/class/power_supply/BAT0 && test -f ~/.local/share/scripts/battery.sh',
+    function(stdout, stderr, exitreason, exitcode)
+        if exitcode == 0 then
+            widgets.battery.timer:start()
+            widgets.battery.visible = true
+        end
+    end)
+
 end
 
 local function create_ram()
@@ -112,6 +122,7 @@ local function create_ram()
         cmd  = "free --mega | awk '/Mem/{ print $3\"MB\"  }'",
         time = 2,
     }
+    widgets.ram.timer:start()
 end
 
 local function create_cpu()
@@ -124,6 +135,7 @@ local function create_cpu()
         cmd = "top -b -n1 | awk '/%Cpu/{printf \"%.2d%%\", 100-$8}'",
         time = 2,
     }
+    widgets.cpu.timer:start()
 end
 
 return {
