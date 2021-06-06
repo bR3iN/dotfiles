@@ -147,7 +147,7 @@ function installFile {
 
     if [[ "$file" =~ ^root: ]]; then
         file="${file#root:}"
-        as_root=true
+        local as_root=sudo
     fi
 
     if [ -f "$INSTALLER_DIR/$file" ]; then
@@ -157,7 +157,7 @@ function installFile {
             createSymlink "$file" "$HOME/.local/bin/$(basename $file)"
         fi
     elif [ -d "$INSTALLER_DIR/$file" ]; then
-        (cd "$INSTALLER_DIR/$file"; ${as_root:+sudo} make install)
+        (cd "$INSTALLER_DIR/$file"; "${as_root:-}" make install)
     fi
 }
 
