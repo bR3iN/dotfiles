@@ -38,11 +38,13 @@ pkgs=(
     xss-lock
     zathura
 
-    # For compiling rofi-emoji
+    # For building rofi-emoji
     meson
     ninja-build
     sassc
     glib2-devel
+    cairo-devel
+    rofi-devel
 )
 
 # Groups to install on top of group 'Fedora Server Edition'
