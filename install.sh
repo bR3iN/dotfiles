@@ -152,7 +152,7 @@ function installFile {
 
     if [ -f "$INSTALLER_DIR/$file" ]; then
         if [ -n "${as_root-}" ]; then
-            sudo install -D -m=0755 -t "/usr/local/bin" "$file"
+            sudo install -D -m=0755 -t "/usr/local/bin" "$INSTALLER_DIR/$file"
         else
             createSymlink "$file" "$HOME/.local/bin/$(basename $file)"
         fi
