@@ -5,8 +5,8 @@ sudo dnf copr enable -y agriffis/neovim-nightly &>> /dev/null
 #gvfs
 pkgs=(
     awesome
-    blueberry
     bat
+    blueberry
     firefox
     fish
     google-noto-emoji-color-fonts
@@ -34,6 +34,8 @@ pkgs=(
     xfconf
     xss-lock
     zathura
+
+    # For compiling rofi-emoji
     meson
     ninja-build
     sassc

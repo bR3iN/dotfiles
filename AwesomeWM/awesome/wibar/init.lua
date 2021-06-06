@@ -78,8 +78,8 @@ local tray = utils.statusbar_widget {
     utils.empty_space(5),
     {
         widget = wibox.container.margin,
-        --top = 1,
-        --bottom = 1,
+        top = 1,
+        bottom = 1,
         wibox.widget.systray(),
     },
 }

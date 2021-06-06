@@ -9,7 +9,7 @@ M.statusbar_widget = function(tbl, correction)
     local margin = (correction or 0) + beautiful.widget_outer_margin
     local widget = wibox.widget {
         widget  = wibox.container.margin,
-        margins = 3,
+        margins = 2,
         {
             widget     = wibox.container.background,
             shape      = beautiful.widget_shape,

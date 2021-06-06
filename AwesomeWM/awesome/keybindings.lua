@@ -33,7 +33,12 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Control", "Shift" }, "s", hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
 
-    awful.key({ modkey, "Control", "Shift" }, "e", function () awful.spawn(editor_cmd .. " " .. awesome.conffile) end,
+    awful.key({ modkey, "Control", "Shift" }, "e", function()
+        awful.spawn(editor_cmd .. " " .. awesome.conffile, {
+            tag = '漣',
+            switch_to_tags = true,
+        })
+    end,
               {description = "edit config", group = "awesome"}),
 
     awful.key({ modkey, "Control" }, "r", awesome.restart,
@@ -224,8 +229,9 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Control" }, "b", function () awful.spawn.with_shell("rofi-ff") end,
               {description = "open firefox", group = "launcher"}),
 
-    awful.key({ modkey,           }, "e", function () awful.spawn('thunderbird') end,
-              {description = "open e-mail client", group = "launcher"}),
+    awful.key({ modkey,           }, "e", function()
+        awful.spawn('thunderbird', { tag = "" })
+    end,      {description = "open e-mail client", group = "launcher"}),
 
     awful.key({ modkey,           }, "t", function () awful.spawn(terminal .. " -e fish") end,
               {description = "open a terminal", group = "launcher"}),

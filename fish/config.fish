@@ -43,3 +43,15 @@ bind \e, history-token-search-forward
 if test -f "$HOME/.fish_private"
     source "$HOME/.fish_private"
 end
+
+# Output of `kitty + complete setup fish`
+function __kitty_completions
+    # Send all words up to the one before the cursor
+    commandline -cop | kitty +complete fish
+end
+
+complete -f -c kitty -a "(__kitty_completions)"
+
+if [ $TERM = xterm-kitty ]
+    alias ssh 'kitty +kitten ssh'
+end
