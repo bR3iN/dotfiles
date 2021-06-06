@@ -170,25 +170,36 @@ function createSymlink {
     fi
 
     if [[ "$2" =~ ^root: ]]; then
-        local as_root=true
+        local as_root=sudo
         local path=$(getPath "${2#root:}")
     else
         local path=$(getPath "$2")
     fi
 
-    if [ -h "$path" ]; then
-        rm -f "$path" || local exit_code=$?
-    elif [ -e "$path" ]; then
+    if [ -n "${NO_SYMLINKS-}" ] || [ -n "${as_root-}" ]; then
+        local cmd='cp -rT' 
+        local on_success='Created the copy'
+    else
+        local cmd='ln -sT'
+        local on_success='Created the symbolic link'
+    fi
+
+    echo $path
+
+    if ${as_root-} [ -h "$path" ]; then
+        ${as_root-} rm -f "$path" || local exit_code=$?
+        echo 0
+    elif ${as_root-} [ -e "$path" ]; then
         confirmAndDelete "$path" ${as_root-} || local exit_code=$?
+        echo 1
     fi
 
     if [ "${exit_code:-0}" -eq 0 ]; then
-        local cmd=$([ -z ${NO_SYMLINKS-} ] && echo 'ln -sT' || echo 'cp -rT')
-        mkdir -p "$(dirname "$path")"
+        ${as_root:+sudo} mkdir -p "$(dirname "$path")"
         ${as_root:+sudo} $cmd "$dest" "$path"
 
         if [ "$?" -eq 0 ]; then
-            echo "Created the symbolic link"
+            echo "Created the symbolic link or copy"
             echo "    $path --> $dest"
         fi
     fi
@@ -196,8 +207,10 @@ function createSymlink {
 
 
 function confirmAndDelete {
+    # $1 is path of file/dir to remove; $2 is 'sudo' or empty
+
     if [ "${ALWAYS_YES-}" = true ]; then
-        ${2+sudo} rm -rf "$1" && return 0
+        ${2-} rm -rf "$1" && return 0
         return 1
     fi
 
@@ -210,7 +223,7 @@ function confirmAndDelete {
     while true; do
         read confirm
         case "$confirm" in
-            y|Y) ${2+sudo} rm -rf "$1" && return 0
+            y|Y) ${2-} rm -rf "$1" && return 0
                 return 1
                 ;;
             n|N)

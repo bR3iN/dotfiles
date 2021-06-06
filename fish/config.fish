@@ -19,7 +19,6 @@ else
     set -x PAGER 'less'
 end
 
-
 alias igrep 'grep -i'
 alias less 'less --mouse'
 alias ll 'ls -AhlF'

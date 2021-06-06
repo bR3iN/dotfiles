@@ -216,3 +216,5 @@ endfunction
 
 nnoremap <leader>mk :make<CR>
 nnoremap <expr><silent> <leader>eV ':e  '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
+cnoremap <M-p> <up>
+cnoremap <M-n> <down>
