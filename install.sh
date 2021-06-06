@@ -184,14 +184,10 @@ function createSymlink {
         local on_success='Created the symbolic link'
     fi
 
-    echo $path
-
     if ${as_root-} [ -h "$path" ]; then
         ${as_root-} rm -f "$path" || local exit_code=$?
-        echo 0
     elif ${as_root-} [ -e "$path" ]; then
         confirmAndDelete "$path" ${as_root-} || local exit_code=$?
-        echo 1
     fi
 
     if [ "${exit_code:-0}" -eq 0 ]; then
