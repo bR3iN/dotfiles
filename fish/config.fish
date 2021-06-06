@@ -41,8 +41,8 @@ set -x  MANPAGER 'nvim +Man!'
 
 bind \e, history-token-search-forward
 
-if test -f "$HOME/.fish_private"
-    source "$HOME/.fish_private"
+if test -f "$HOME/.config/fish/fish.local"
+    source "$HOME/.config/fish/fish.local"
 end
 
 if [ $TERM = xterm-kitty ]
