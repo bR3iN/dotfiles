@@ -38,7 +38,7 @@ pkgs=(
     xss-lock
     zathura
 
-    # For building rofi-emoji
+    # For building the pop-os gtk themes and rofi-emoji
     meson
     ninja-build
     sassc
@@ -49,6 +49,8 @@ pkgs=(
 
 # Groups to install on top of group 'Fedora Server Edition'
 groups=(
+    "Core"
+    "Standard"
     "Multimedia"
     "Printing Support"
     "base-x"

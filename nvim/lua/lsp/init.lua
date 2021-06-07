@@ -32,17 +32,17 @@ local function custom_on_attach(lsp, client, bufnr)
 	end
 
 	-- Autocommands: {{{
-	cmd('augroup lsp_autocmd_' .. lsp) 
-	cmd 'autocmd!'
-    if cap.document_formatting then
-        cmd 'autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)'
-    end
-	if cap.document_highlight then
-		cmd 'autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()'
-		cmd 'autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()'
-		cmd 'autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()'
-	end
-	cmd 'augroup END'
+	--cmd('augroup lsp_autocmd_' .. lsp) 
+	--cmd 'autocmd!'
+    --if cap.document_formatting then
+        --cmd 'autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)'
+    --end
+	--if cap.document_highlight then
+		--cmd 'autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()'
+		--cmd 'autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()'
+		--cmd 'autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()'
+	--end
+	--cmd 'augroup END'
     -- }}}
 
 	buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
