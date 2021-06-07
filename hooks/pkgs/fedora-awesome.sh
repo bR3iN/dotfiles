@@ -23,6 +23,7 @@ pkgs=(
     qutebrowser
     redshift
     rofi
+    setroubleshoot
     setxkbmap
     Thunar
     thunar-volman
