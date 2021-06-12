@@ -1,5 +1,6 @@
 local awful         = require("awful")
 local beautiful     = require("beautiful")
+--Tags for reference: "", "", "", "ﱘ", "漣"
 
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
@@ -11,8 +12,8 @@ awful.rules.rules = {
             border_color = beautiful.border_normal,
             focus = awful.client.focus.filter,
             raise = true,
-            keys = clientkeys,
-            buttons = clientbuttons,
+            keys = require'keybindings'.clientkeys,
+            buttons = require'keybindings'.clientbuttons,
             screen = awful.screen.preferred,
             placement = awful.placement.no_overlap+awful.placement.no_offscreen
         }
@@ -20,6 +21,10 @@ awful.rules.rules = {
     {
         rule = { instance = "zathura" },
         properties = { tag = "", switchtotag = true },
+    },
+    {
+        rule = { class = "FreeTube" },
+        properties = { tag = "ﱘ", switchtotag = true },
     },
 
     -- Floating clients.
@@ -32,13 +37,17 @@ awful.rules.rules = {
         class = {
             "Arandr",
             "Blueman-manager",
+            "Blueberry.py",
+            "Picture in picture",
             "Gpick",
+            "Pavucontrol",
             "Kruler",
             "MessageWin",  -- kalarm.
             "Sxiv",
             "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
             "Wpa_gui",
             "veromix",
+            "Setroubleshoot",
             "Settings",
             "settings",
             "xtightvncviewer"},
@@ -47,6 +56,7 @@ awful.rules.rules = {
             -- and the name shown there might not match defined rules here.
             name = {
                 "Event Tester",  -- xev.
+                "galculator",
                 "Settings",
                 "LightDM GTK+ Greeter: settings",
             },
@@ -58,9 +68,8 @@ awful.rules.rules = {
         }, properties = { floating = true }},
 
         -- Add titlebars to normal clients and dialogs
-        { rule_any = {type = { "normal", "dialog" }
-        --}, properties = { titlebars_enabled = true }
-    }, properties = { titlebars_enabled = false }
+        { rule_any = {type = { "normal", "dialog" } }, 
+        properties = { titlebars_enabled = false }
 },
 
 -- Set Firefox to always map on the tag named "2" on screen 1.

@@ -15,26 +15,26 @@ require("awful.autofocus")
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
-if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
-end
+--if awesome.startup_errors then
+    --naughty.notify({ preset = naughty.config.presets.critical,
+                     --title = "Oops, there were errors during startup!",
+                     --text = awesome.startup_errors })
+--end
 
--- Handle runtime errors after startup
-do
-    local in_error = false
-    awesome.connect_signal("debug::error", function (err)
-        -- Make sure we don't go into an endless error loop
-        if in_error then return end
-        in_error = true
+---- Handle runtime errors after startup
+--do
+    --local in_error = false
+    --awesome.connect_signal("debug::error", function (err)
+        ---- Make sure we don't go into an endless error loop
+        --if in_error then return end
+        --in_error = true
 
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Oops, an error happened!",
-                         text = tostring(err) })
-        in_error = false
-    end)
-end
+        --naughty.notify({ preset = naughty.config.presets.critical,
+                         --title = "Oops, an error happened!",
+                         --text = tostring(err) })
+        --in_error = false
+    --end)
+--end
 -- }}}
 
 -- {{{ Variable definitions
@@ -44,12 +44,20 @@ beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv
 
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
-editor = os.getenv("EDITOR") or "nvim"
+editor = os.getenv("EDITOR") or "vim"
 if editor == 'nvim' or editor == 'vim' then
     editor = editor .. " '+cd %:h'"
 end
 editor_cmd = terminal .. " -e " .. editor
+
+-- Shell
 awful.util.shell = 'bash'
+fish_available = false
+awful.spawn.easy_async('[ -x /usr/bin/fish ]', function(_, _, exitreason, exitcode)
+    if exitreason == 'exit' and exitcode == 0 then
+        fish_available = true
+    end
+end)
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -99,7 +107,7 @@ awful.screen.connect_for_each_screen(function(s)
 end)
 -- }}}
 
-require("keybindings")
+root.keys(require("keybindings").globalkeys)
 
 require("rules")
 
