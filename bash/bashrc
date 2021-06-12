@@ -21,11 +21,11 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-#if [ -f /usr/share/bash-completion/bash_completion ]; then
-    #. /usr/share/bash-completion/bash_completion
-#elif [ -f /etc/bash_completion ]; then
-    #. /etc/bash_completion
-#fi
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
 
 if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
     source /usr/share/doc/fzf/examples/key-bindings.bash
@@ -33,9 +33,12 @@ fi
 if [ -f /usr/share/doc/fzf/examples/completion.bash ]; then
     source /usr/share/doc/fzf/examples/completion.bash
 fi
+if [ -f /usr/share/fzf/shell/key-bindings.bash ]; then
+    source /usr/share/fzf/shell/key-bindings.bash
+fi
 
 if [ -f ~/.bash.local ]; then
-    . ~/.bash.local
+    source ~/.bash.local
 fi
 
 #Output of `kitty + complete setup bash`

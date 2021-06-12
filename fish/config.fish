@@ -19,6 +19,10 @@ else
     set -x PAGER 'less'
 end
 
+if [ -x /usr/bin/fish ]
+    alias tmux='SHELL=/usr/bin/fish command tmux'
+end
+
 alias igrep 'grep -i'
 alias less 'less --mouse'
 alias ll 'ls -AhlF'

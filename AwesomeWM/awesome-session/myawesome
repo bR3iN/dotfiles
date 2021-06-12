@@ -14,9 +14,6 @@ else
             source "$file"
         fi
     done
-    #if [ -f "$HOME/.Xresources" ]; then
-        #xrdb -merge "$HOME/.Xresources"
-    #fi
 fi
 
 procs=(
@@ -27,7 +24,7 @@ procs=(
     "sleep 0.1 && thunar --daemon"
     "sleep 2 && volumeicon"
     "seapplet"
-    "/usr/lib/blueberry/blueberry-tray.py"
+    #"/usr/lib/blueberry/blueberry-tray.py"
     "picom"
 )
 
@@ -36,7 +33,7 @@ for (( i=0; i < ${#procs[@]}; i++ )); do
     pids[$i]=$!
 done
 
-sleep 0.1 # wait for xsettingsd to start
+sleep 0.2 # wait for xsettingsd to start
 awesome &>> "$HOME/.awesome.log"
 
 for pid in ${pids[@]}; do

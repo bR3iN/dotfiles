@@ -2,6 +2,10 @@ PATH="$PATH:$HOME/.node_modules/bin:$HOME/.local/bin"
 export EDITOR=nvim
 export VISUAL=nvim
 
+if [ -x /usr/bin/fish ]; then
+    alias tmux='SHELL=/usr/bin/fish tmux'
+fi
+
 # Load machine specific configuration
 [ -f ~/.local_profile ] && . ~/.local_profile
 

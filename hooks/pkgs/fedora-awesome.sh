@@ -13,21 +13,25 @@ pkgs=(
     ImageMagick
     kitty
     lightdm-gtk
+    lightdm-gtk-greeter-settings
     neovim
     NetworkManager-tui
     npm
     parole
     pavucontrol
     picom
+    powertop
     pragha
     qutebrowser
     redshift
+    ristretto
     rofi
     setroubleshoot
     setxkbmap
     Thunar
     thunar-volman
     thunderbird
+    tlp
     tmux
     tumbler
     volumeicon
@@ -36,8 +40,10 @@ pkgs=(
     xfce4-settings
     xfce4-taskmanager
     xfconf
+    xset
     xss-lock
     zathura
+    zathura-pdf-mupdf
 
     # For building the pop-os gtk themes and rofi-emoji
     meson
