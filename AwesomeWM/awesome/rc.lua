@@ -69,6 +69,7 @@ modkey = "Mod4"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
     awful.layout.suit.tile,
+    awful.layout.suit.tile.bottom,
     awful.layout.suit.fair,
      awful.layout.suit.max,
     --awful.layout.suit.max.fullscreen,
@@ -96,6 +97,10 @@ screen.connect_signal("property::geometry", set_wallpaper)
 -- Set up screen
 awful.screen.connect_for_each_screen(function(s)
 
+    --screen.connect_signal("tag::history::update", function(v,t)
+        --naughty.notify { text = type(t)}
+    --end)
+
     -- Set wallpaper
     gears.wallpaper.maximized(beautiful.wallpaper, s)
 
@@ -107,7 +112,7 @@ awful.screen.connect_for_each_screen(function(s)
 end)
 -- }}}
 
-root.keys(require("keybindings").globalkeys)
+root.keys( require("keybindings").globalkeys )
 
 require("rules")
 

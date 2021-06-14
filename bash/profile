@@ -1,4 +1,4 @@
-PATH="$PATH:$HOME/.node_modules/bin:$HOME/.local/bin"
+PATH="$PATH:$HOME/.local/bin:$HOME/.node_modules/bin:$HOME/.cargo/bin"
 export EDITOR=nvim
 export VISUAL=nvim
 

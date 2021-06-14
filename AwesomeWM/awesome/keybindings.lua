@@ -87,13 +87,8 @@ gears.table.map(add_key_g, {
         end
     end, {description = "move client to new tag", group = "navigation"}),
 
-    awful.key({ modkey,           }, "Tab",
-    function ()
-        awful.client.focus.history.previous()
-        if client.focus then
-            client.focus:raise()
-        end
-    end, {description = "go back", group = "navigation"}),
+    awful.key({ modkey,           }, "Tab", awful.tag.history.restore,
+    {description = "go back", group = "navigation"}),
 })
 
 local function add_navigation_keys(left, down, up, right) --{{{
@@ -149,7 +144,7 @@ local function add_navigation_keys(left, down, up, right) --{{{
 end --}}}
 
 add_navigation_keys('h', 'j', 'k', 'l')
-add_navigation_keys('left', 'down', 'up', 'right')
+add_navigation_keys('Left', 'Down', 'Up', 'Right')
 -- }}}
 
 -- Launcher {{{
@@ -191,20 +186,20 @@ gears.table.map(add_key_g, {
         --awful.spawn(terminal .. " -e tmux")
     --end, {description = "open tmux", group = "launcher"}),
 
-    awful.key({ modkey, "Control" }, "t", function ()
-        awful.spawn('torbrowser-launcher')
-    end, {description = "open tor browser", group = "launcher"}),
+    --awful.key({ modkey, "Control" }, "t", function ()
+        --awful.spawn('torbrowser-launcher')
+    --end, {description = "open tor browser", group = "launcher"}),
 })
 -- }}}
 
 -- Layout {{{
 gears.table.map(add_key_g, {
     awful.key({ modkey            }, ".", function ()
-        awful.tag.incmwfact( 0.05)
+        awful.tag.incmwfact(-0.05)
     end, {description = "increase master width factor", group = "layout"}),
 
     awful.key({ modkey            }, ",", function ()
-        awful.tag.incmwfact(-0.05)
+        awful.tag.incmwfact( 0.05)
     end, {description = "decrease master width factor", group = "layout"}),
 
     awful.key({modkey, "Control"}, ".", function() 
@@ -243,16 +238,19 @@ local function add_layout_keys(left, down, up, right) --{{{
 end --}}}
 
 add_layout_keys('h', 'j', 'k', 'l')
-add_layout_keys('left', 'down', 'up', 'right')
+add_layout_keys('Left', 'Down', 'Up', 'Right')
 --}}}
 
 -- Media keys {{{
---awful.key({ }, "XF86MonBrightnessDown", function()
+--add_key_g(awful.key({ modkey }, "XF86MonBrightnessDown", function()
+    --naughty.notify{ text = 'hi' }
+--end, {}))
+--add_key_g(awful.key({ }, "XF86MonBrightnessDown", function()
 --awful.spawn('brightnessctl set -n 3%-')
---end, {}),
---awful.key({ }, "XF86MonBrightnessUp", function()
+--end, {}))
+--add_key_g(awful.key({ }, "XF86MonBrightnessUp", function()
 --awful.spawn('brightnessctl set -n +3%')
---end, {}),
+--end, {}))
 -- }}}
 
 -- Clientkeys {{{
@@ -296,8 +294,9 @@ gears.table.map(add_key_c, {
         c.sticky = not c.sticky
     end, {description = "toggle sticky", group = "client"}),
 
-    --awful.key({ modkey, "Control" }, "t", function (c) c.ontop = not c.ontop            end,
-    --{description = "toggle keep on top", group = "client"}),
+    awful.key({ modkey, "Control" }, "t", function (c)
+        c.ontop = not c.ontop
+    end, {description = "toggle keep on top", group = "client"}),
 
     awful.key({ modkey,           }, "n", function (c)
         c.minimized = true
@@ -323,7 +322,6 @@ gears.table.map(add_key_c, {
 -- Numbers {{{
 for i = 1, 9 do
     gears.table.map(add_key_g, {
-
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
         function ()

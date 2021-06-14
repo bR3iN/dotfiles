@@ -1,12 +1,5 @@
 #!/usr/bin/fish
 
-function update
-    sudo apt update
-    sudo apt upgrade -y
-    sudo apt autoremove
-    flatpak update
-end
-
 if which bat &> /dev/null
     alias cat 'bat'
     set -x PAGER 'bat'
@@ -49,13 +42,6 @@ if test -f "$HOME/.config/fish/fish.local"
 end
 
 if [ $TERM = xterm-kitty ]
-    # Output of `kitty + complete setup fish`
-    function __kitty_completions
-        # Send all words up to the one before the cursor
-        commandline -cop | kitty +complete fish
-    end
-    complete -f -c kitty -a "(__kitty_completions)"
-
     alias ssh 'kitty +kitten ssh'
 end
 
