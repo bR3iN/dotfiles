@@ -1,4 +1,6 @@
+local.*
 *.local
+flavours.*
 
 # neovim
 nvim/undo/

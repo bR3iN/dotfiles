@@ -1,31 +1,32 @@
 theme = {}
 
---theme.color0  = "#363636"
-theme.color0  = "#333333"
-theme.color1  = "#CF3B1A"
-theme.color2  = "#069A38"
-theme.color3  = "#C4A000"
-theme.color4  = "#3465A4"
-theme.color5  = "#75507B"
-theme.color6  = "#06989A"
-theme.color7  = "#D3D7CF"
---theme.color8  = "#4D4D4D"
-theme.color8  = "#4E4E4E"
-theme.color9  = "#F15D22"
-theme.color10 = "#73C48F"
-theme.color11 = "#FFCE51"
-theme.color12 = "#48B9C7"
-theme.color13 = "#AD7FA8"
-theme.color14 = "#34E2E2"
-theme.color15 = "#EEEEEC"
+-- Start flavours
+-- Base16 Nord - kitty color config
+-- Scheme by arcticicestudio
+theme.color0  = "#2E3440"
+theme.color1  = "#3B4252"
+theme.color2  = "#434C5E"
+theme.color3  = "#4C566A"
+theme.color4  = "#D8DEE9"
+theme.color5  = "#E5E9F0"
+theme.color6  = "#ECEFF4"
+theme.color7  = "#8FBCBB"
+theme.color8  = "#BF616A"
+theme.color9  = "#D08770"
+theme.color10 = "#EBCB8B"
+theme.color11 = "#A3BE8C"
+theme.color12 = "#88C0D0"
+theme.color13 = "#81A1C1"
+theme.color14 = "#B48EAD"
+theme.color15 = "#5E81AC"
+-- End flavours
 
-theme.foreground      = "#F2F2F2"
-theme.background      = "#3D3D3D"
-theme.background_dark = "#2A2A2A"
---theme.background_dark = "#2b2929"
-theme.grey            = "#88807C"
---theme.grey            = "#616161"
---theme.grey            = "#555555"
+theme.red     = theme.color8
+theme.yellow  = theme.color10
+theme.green   = theme.color11
+theme.cyan    = theme.color12
+theme.blue    = theme.color13
+theme.magenta = theme.color14
 
 theme.wallpaper = "/usr/share/backgrounds/mywallpaper.png"
 

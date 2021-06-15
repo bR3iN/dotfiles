@@ -1,0 +1,42 @@
+[[item]]
+template = "custom"
+subtemplate = "zathura"
+file = "~/.config/zathura/zathurarc"
+hook = "echo $@ >> ~/.test"
+rewrite = true
+
+[[item]]
+template = "vim"
+file = "~/.config/nvim/colors/flavours.vim"
+rewrite = true
+
+[[item]]
+template = "kitty"
+subtemplate = "default-256"
+file = "~/.config/kitty/flavours.conf"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+file = "~/.config/gtk-3.0/gtk.css"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-2"
+file = "~/.config/gtk-2.0/gtkrc"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+file = "~/.config/gtk-3.20/gtk.css"
+rewrite = true
+
+[[item]]
+template = "custom"
+subtemplate = "awesome"
+file = "~/.config/awesome/colors.lua"
+start = "-- Start flavours"
+end = "-- End flavours"

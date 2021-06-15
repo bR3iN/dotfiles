@@ -6,6 +6,7 @@ let mapleader = " "
 " For Plugins
 let g:tmux_navigator_no_mappings = 1
 let g:NERDCreateDefaultMappings = 0
+let b:surround_66 = "{\r}\1\1"
 
 if has("nvim") && executable('nvr')
     let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
@@ -127,7 +128,7 @@ tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<cr>
 augroup config_files " {{{
     autocmd!
     if has("nvim")
-        autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
+        "autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
     else
         autocmd BufWritePost ~/.vim/{*.vim,vimrc} source $MYVIMRC
     endif
@@ -177,7 +178,15 @@ hi CursorLine ctermfg=14
 
 set fillchars+=vert:\│
 
-if !has("nvim") | colorscheme ron | endif
+if !has("nvim")
+    colorscheme ron
+else
+    try
+        "colorscheme flavours
+        "set termguicolors
+    catch
+    endtry
+endif
 " }}}
 
 " Load Vim Plugins {{{

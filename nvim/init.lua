@@ -69,7 +69,6 @@ map('n', '<leader>ed', ':FZF<CR>')
 
 augroup 'init.lua' [[
     au TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150}
-    autocmd FileType lua let b:surround_66 = "{\r}\1\1"
     autocmd FileType lua nnoremap <buffer> <leader>rr :lua dofile(vim.fn.expand('%'))<cr>
     autocmd FileType sh  nnoremap <buffer> <leader>rr :w !bash<cr>
 ]]
