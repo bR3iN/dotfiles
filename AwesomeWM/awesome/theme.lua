@@ -8,9 +8,8 @@ local gfs = require("gears.filesystem")
 local themes_path = gfs.get_themes_dir()
 
 -- Inherit from default theme and source colors.
---local default_theme = dofile(themes_path.."default/theme.lua")
 local default_theme = dofile(themes_path.."default/theme.lua")
-local colors = require'colors'
+local colors = require'flavours'
 local theme = gears.table.join(default_theme, colors)
 
 
@@ -59,7 +58,7 @@ theme.systray_icon_spacing = 8
 theme.tasklist_bg_normal   = theme.widget_bg
 theme.tasklist_fg_normal   = theme.color4
 theme.tasklist_bg_focus    = theme.tasklist_fg_normal
-theme.tasklist_fg_focus    = theme.tasklist_bg_normal
+theme.tasklist_fg_focus    = theme.color0
 theme.tasklist_bg_minimize = theme.color3
 theme.tasklist_separator_color = theme.widget_separator_color
 theme.tasklist_widget_border_width = theme.widget_border_width
