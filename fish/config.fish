@@ -45,4 +45,8 @@ if [ $TERM = xterm-kitty ]
     alias ssh 'kitty +kitten ssh'
 end
 
+if [ -f /usr/share/fzf/shell/key-bindings.fish ]
+    source /usr/share/fzf/shell/key-bindings.fish
+end
+
 # vim: filetype=sh

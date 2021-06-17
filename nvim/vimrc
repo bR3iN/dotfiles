@@ -128,7 +128,7 @@ tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<cr>
 augroup config_files " {{{
     autocmd!
     if has("nvim")
-        "autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
+        autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
     else
         autocmd BufWritePost ~/.vim/{*.vim,vimrc} source $MYVIMRC
     endif
@@ -182,8 +182,9 @@ if !has("nvim")
     colorscheme ron
 else
     try
-        "colorscheme flavours
-        "set termguicolors
+        syntax on
+        colorscheme flavours
+        set termguicolors
     catch
     endtry
 endif

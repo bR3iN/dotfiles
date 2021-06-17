@@ -40,3 +40,14 @@ subtemplate = "awesome"
 file = "~/.config/awesome/colors.lua"
 start = "-- Start flavours"
 end = "-- End flavours"
+
+[[item]]
+template = "qutebrowser"
+file = "~/.config/qutebrowser/colors.py"
+rewrite = true
+
+[[item]]
+template = "fzf"
+subtemplate = "fish"
+file = "~/.config/fish/conf.d/fzf_colors.fish"
+rewrite = true
