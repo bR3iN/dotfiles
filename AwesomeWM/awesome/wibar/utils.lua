@@ -69,17 +69,15 @@ end
 M.toggle = function(tbl)
     tbl.text_on = tbl.text_on or tbl.text_off
 
-    -- convert cmd strings into lua functions
-    for _, state in ipairs{ 'on', 'off' } do
-        if tbl['cmd_'..state] then
-            tbl['func_'..state] = function()
-                awful.spawn.with_shell(tbl['cmd_'..state])
-            end
+    for _, arg in ipairs{ 'cb_on', 'cb_off', 'cb_init' } do
+        -- convert callback cmds into into functions if neccessary
+        if type(tbl[arg]) == 'string' then
+            local cmd = tbl[arg]
+            tbl[arg] = function() awful.spawn.with_shell(cmd) end
         end
     end
 
     local default_font = beautiful.nerd_font.." "..beautiful.font_size
-
     local button = wibox.widget {
         widget = wibox.container.margin,
         top = 2,
@@ -105,33 +103,39 @@ M.toggle = function(tbl)
             },
         },
     }
-    button.on = false
 
-    local widget_text = button:get_children_by_id('text')[1]
+    button.on          = false
+    button.text_widget = button:get_children_by_id('text')[1]
+    button.bg_widget   = button:get_children_by_id('background')[1]
+    button.cb_on       = tbl.cb_on
+    button.cb_off      = tbl.cb_off
+
     function button:set_text(text)
-        widget_text.text = text
+        self.text_widget.text = text
     end
 
-    local widget_bg = button:get_children_by_id('background')[1]
-    function button:set_bg(color)
-        local current = self:get_bg()
-        widget_bg.bg = color
-        return current
-    end
-    function button:set_fg(color)
-        local current = self:get_fg()
-        widget_bg.fg = color
-        return current
-    end
     function button:get_bg()
-        return widget_bg.bg
+        return self.bg_widget.bg
     end
+
     function button:get_fg()
-        return widget_bg.fg
+        return self.bg_widget.fg
+    end
+
+    function button:set_bg(color)
+        local current_bg = self:get_bg()
+        self.bg_widget.bg = color
+        return current_bg
+    end
+
+    function button:set_fg(color)
+        local current_fg = self:get_fg()
+        self.bg_widget.fg = color
+        return current_fg
     end
 
     function button:toggle()
-        if self.on then tbl.func_off(button) else tbl.func_on(button) end
+        if self.on then self:cb_off() else self:cb_on() end
         self:set_text(self.on and tbl.text_off or tbl.text_on)
         self.on = not self.on
         if tbl.reverse then
@@ -149,14 +153,8 @@ M.toggle = function(tbl)
 
     button:buttons(awful.button({ }, 1, function() button:toggle() end))
 
-    if tbl.toggle_on_init then button:toggle() end
+    if tbl.cb_init then tbl.cb_init(button) end
 
-    if tbl.init then
-        local func = type(tbl.init) == 'function' and tbl.init or function()
-            awful.spawn.with_shell(tbl.init)
-        end
-        func(button)
-    end
     return button
 end
 
@@ -171,5 +169,24 @@ M.margins = function(margin)
         return widget
     end
 end
+
+M.all = function(tbl)
+    for _, v in pairs(tbl) do
+        if not v then
+            return false
+        end
+    end
+    return true
+end
+
+M.any = function(tbl)
+    for _, v in pairs(tbl) do
+        if v then
+            return true
+        end
+    end
+    return false
+end
+
 
 return M

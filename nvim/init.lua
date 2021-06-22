@@ -32,6 +32,12 @@ paq { 'junegunn/fzf', run = vim.fn['fzf#install'] } do
     --paq 'junegunn/fzf.vim'
 end
 
+--paq 'Soares/base16.nvim'
+
+--paq 'RRethy/nvim-base16'
+--paq 'norcalli/nvim-base16.lua'
+--require'flavours'
+
 -- LSP {{{
 paq 'neovim/nvim-lspconfig'
 local lsps = {
@@ -50,7 +56,7 @@ paq 'lervag/vimtex'
 prequire('vimtex')
 
 paq 'hrsh7th/nvim-compe'
-prequire('nvim-compe')
+require('nvim-compe')
 
 paq 'hrsh7th/vim-vsnip'
 paq 'rafamadriz/friendly-snippets'
@@ -69,7 +75,6 @@ map('n', '<leader>ed', ':FZF<CR>')
 
 augroup 'init.lua' [[
     au TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150}
-    autocmd FileType lua let b:surround_66 = "{\r}\1\1"
     autocmd FileType lua nnoremap <buffer> <leader>rr :lua dofile(vim.fn.expand('%'))<cr>
     autocmd FileType sh  nnoremap <buffer> <leader>rr :w !bash<cr>
 ]]

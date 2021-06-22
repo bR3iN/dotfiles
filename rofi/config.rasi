@@ -1,5 +1,5 @@
 configuration {
-    modi: "window,run,drun,combi";
+    modi: "drun";
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/
@@ -19,7 +19,7 @@ configuration {
 /*	run-shell-command: "{terminal} -e {cmd}";*/
 /*	window-command: "wmctrl -i -R {window}";*/
 /*	window-match-fields: "all";*/
-    icon-theme: "Pop";
+    /*icon-theme: "Pop";*/
 /*	drun-match-fields: "name,generic,exec,categories";*/
 /*	drun-show-actions: false;*/
 /*	drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";*/
@@ -34,7 +34,7 @@ configuration {
 /*	auto-select: false;*/
 /*	parse-hosts: false;*/
 /*	parse-known-hosts: true;*/
-    combi-modi: "window,drun";
+    combi-modi: "drun";
     matching: "fuzzy";
 /*	tokenize: true;*/
 /*	m: "-5";*/
@@ -42,7 +42,7 @@ configuration {
 /*	line-padding: 1;*/
 /*	filter: ;*/
 /*	separator-style: "dash";*/
-/*	hide-scrollbar: false;*/
+    /*hide-scrollbar: true;*/
 /*	fullscreen: false;*/
 /*	fake-transparency: false;*/
     /*dpi: -1;*/
@@ -53,7 +53,8 @@ configuration {
 /*	window-format: "{w}    {c}   {t}";*/
 /*	click-to-exit: true;*/
 /*	show-match: true;*/
-    theme: "Pop-Dark";
+    theme: "theme";
+    /*theme: "flavours";*/
 /*	color-normal: ;*/
 /*	color-urgent: ;*/
 /*	color-active: ;*/

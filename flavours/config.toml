@@ -1,0 +1,93 @@
+[[item]]
+template = "zathura"
+subtemplate = "recolor"
+file = "~/.config/zathura/flavours"
+rewrite = true
+
+[[item]]
+template = "vim"
+file = "~/.config/nvim/colors/flavours.vim"
+rewrite = true
+
+[[item]]
+template = "kitty"
+subtemplate = "default-256"
+file = "~/.config/kitty/flavours.conf"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+file = "~/.config/gtk-3.0/gtk.css"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-2"
+file = "~/.config/gtk-2.0/gtkrc"
+rewrite = true
+
+[[item]]
+template = "gtk-flatcolor"
+subtemplate = "gtk-3"
+file = "~/.config/gtk-3.20/gtk.css"
+rewrite = true
+
+#[[item]]
+#template = "custom"
+#subtemplate = "awesome"
+#file = "~/.config/awesome/flavours.lua"
+#start = "-- Start flavours"
+#end = "-- End flavours"
+
+[[item]]
+template = "qutebrowser"
+file = "~/.config/qutebrowser/colors.py"
+rewrite = true
+
+[[item]]
+template = "fzf"
+subtemplate = "fish"
+file = "~/.config/fish/conf.d/flavours_fzf.fish"
+rewrite = true
+
+[[item]]
+template = "alacritty"
+subtemplate = "default-256"
+file = "~/.config/alacritty/flavours.yml"
+rewrite = true
+
+[[item]]
+template = "waybar"
+file = "~/.config/waybar/flavours.css"
+hook = "killall -USR2 waybar"
+rewrite = true
+
+[[item]]
+template = "sway"
+subtemplate = "colors"
+file = "~/.config/sway/flavours"
+rewrite = true
+
+#[[item]]
+#template = "wofi"
+#file = "~/.config/wofi/flavours.css"
+#rewrite = true
+
+[[item]]
+template = "custom"
+subtemplate = "rofi"
+file = "~/.config/rofi/flavours.rasi"
+rewrite = true
+
+#[[item]]
+#template = "custom"
+#subtemplate = "nvim-base16"
+#file = "~/.config/nvim/lua/nvim-base16.lua"
+#rewrite = true
+
+#[[item]]
+#template = "custom"
+#subtemplate = "nvim-fork"
+#file = "~/.config/nvim/colors/flavours.vim"
+#rewrite = true

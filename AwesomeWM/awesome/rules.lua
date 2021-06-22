@@ -57,6 +57,7 @@ awful.rules.rules = {
             name = {
                 "Event Tester",  -- xev.
                 "galculator",
+                "Picture in picture",
                 "Settings",
                 "LightDM GTK+ Greeter: settings",
             },

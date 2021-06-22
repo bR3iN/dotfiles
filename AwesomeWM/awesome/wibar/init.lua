@@ -1,8 +1,9 @@
-local awful         = require("awful")
-local beautiful     = require("beautiful")
-local gears         = require("gears")
-local wibox         = require("wibox")
-local utils         = require("wibar.utils")
+local awful     = require("awful")
+local beautiful = require("beautiful")
+local gears     = require("gears")
+local wibox     = require("wibox")
+local utils     = require("wibar.utils")
+local naughty   = require("naughty")
 
 -- Screen independent widgets {{{
 local powermenu = awful.menu{
@@ -24,8 +25,8 @@ clock:setup {
 local redshift = utils.toggle {
     text_on   = '',
     text_off  = '',
-    cmd_on    = 'redshift',
-    cmd_off   = 'killall redshift',
+    cb_on    = 'redshift',
+    cb_off   = 'killall redshift',
     init      = 'killall redshift',
 }
 
@@ -37,31 +38,35 @@ local redshift = utils.toggle {
 local caffeine = utils.toggle {
     text_off = '',
     text_on  = '',
-    --func_on  = function() caffeine_timer:start() end,
-    --func_off = function() caffeine_timer:stop()  end,
-    cmd_on  = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s true',
-    cmd_off = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false',
-    init    = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false',
+    --cb_on  = function() caffeine_timer:start() end,
+    --cb_off = function() caffeine_timer:stop()  end,
+    cb_on  = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s true',
+    cb_off = 'xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/presentation-mode -s false',
+    cb_init = function(self) self:toggle_off() end,
 }
 
 local keyboardlayout = utils.toggle {
     text_off = "",
-    cmd_on = 'setxkbmap -layout us -variant intl',
-    cmd_off = 'setxkbmap -layout us',
+    cb_on   = function() awesome.xkb_set_layout_group(1) end,
+    cb_off  = function() awesome.xkb_set_layout_group(0) end,
+    cb_init = function(self) self:toggle_off() end,
     reverse = true,
 }
 
 local nogaps = utils.toggle {
     text_on = '',
     text_off = '',
-    func_off = function(self)
+    cb_off = function(self)
         beautiful.useless_gap = self.gap
         if client.focus then client.focus:emit_signal("raised") end
     end,
-    func_on = function(self)
-        self.gap = self.gap or beautiful.useless_gap
+    cb_on = function(self)
         beautiful.useless_gap = 0
         if client.focus then client.focus:emit_signal("raised") end
+    end,
+    cb_init = function(self)
+        self.gap = beautiful.useless_gap
+        self:toggle_on()
     end,
 }
 
@@ -83,71 +88,9 @@ local tray = utils.statusbar_widget {
         wibox.widget.systray(),
     },
 }
+--}}}
 
---local powermenu = awful.menu{
-    --{ "Log out", function() awesome.quit() end },
-    --{ "Reboot", 'systemctl reboot' },
-    --{ "Poweroff", 'systemctl poweroff' },
---}
-
---local power_button = wibox.widget {
-    --widget = wibox.container.background,
-    --bg = beautiful.widget_bg,
-    --{
-        --widget = wibox.container.margin,
-        --left = 10,
-        --right = 10,
-        --{
-            --buttons = awful.button({ }, 1, function() powermenu:show() end),
-            --widget = wibox.widget.textbox,
-            --font = beautiful.taglist_font,
-            --text = "",
-        --},
-    --},
---}
-
---local power_button = wibox.widget {
-    --widget = wibox.container.margin,
-    --left = 2,
-    --{
-        --widget     = wibox.container.background,
-        --shape      = beautiful.taglist_widget_shape,
-        ----shape      = gears.shape.circle,
-        --bg         = beautiful.taglist_widget_bg,
-        --fg         = beautiful.taglist_fg_empty,
-        --shape_clip = true,
-        --shape_border_width = beautiful.taglist_widget_border_width,
-        --shape_border_color = beautiful.taglist_widget_border_color,
-        --id = 'background',
-        --{
-            --layout = wibox.layout.fixed.horizontal,
-            --{
-                --widget = wibox.container.margin,
-                --left = 6,
-                --right = 2,
-                --top = 2,
-                --bottom = 2,
-            --},
-            --{
-                --widget = wibox.container.margin,
-                --id     = 'inner',
-                ----left = 8,
-                --right = 8,
-                --top = 4,
-                --bottom = 4,
-                --{
-                    --buttons = awful.button({ }, 1, function() powermenu:show() end),
-                    --widget = wibox.widget.textbox,
-                    --font = beautiful.nerd_font..' '..beautiful.font_size+1,
-                    --text = "",
-                --},
-            --},
-        --},
-    --},
---}
---power_button:get_children_by_id('background')[1].shape = function(cr, w, h) gears.shape.rounded_rect(cr, w, h, 4) end
--- }}}
-
+spotify = require'wibar.systemwidgets'.spotify()
 local function create_wibar(s)
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -171,6 +114,7 @@ local function create_wibar(s)
     local lhs = wibox.widget {
         layout = wibox.layout.fixed.horizontal,
         s.taglist,
+        spotify,
         s.mypromptbox,
     }
 
@@ -214,7 +158,6 @@ local function create_wibar(s)
         position = 'top',
         screen = s,
         bg = beautiful.bg_wibar,
-        --opacity = 0.9,
     }
 
     s.wibar:setup {
@@ -231,15 +174,19 @@ local function create_wibar(s)
 
     function s.update_tasklist()
         local new_tasklist
-        if s.clients and #s.clients >= 1 then
-            if awful.layout.get(s) == awful.layout.suit.max then
-                new_tasklist = middle_with_tabs
-                s.wibar.widget.expand = 'inside'
-                rhs:get_children_by_id('hide')[1].visible = false
-            else
-                new_tasklist = middle_with_icons
-                s.wibar.widget.expand = 'outside'
-                rhs:get_children_by_id('hide')[1].visible = true
+        if awful.layout.get(s) == awful.layout.suit.max then
+            new_tasklist = middle_with_tabs
+            s.wibar.widget.expand = 'inside'
+            rhs:get_children_by_id('hide')[1].visible = false
+            spotify.hidden = true
+            spotify.visible = false
+        else
+            new_tasklist = middle_with_icons
+            s.wibar.widget.expand = 'outside'
+            rhs:get_children_by_id('hide')[1].visible = true
+            spotify.hidden = false
+            if spotify.playing then
+                spotify.visible = true
             end
         end
         s.wibar:set_tasklist(new_tasklist)
