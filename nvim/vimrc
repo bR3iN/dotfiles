@@ -162,32 +162,35 @@ nnoremap <F1> <nop>
 " }}}
 
 " Appearence {{{
+if !has("nvim")
+    colorscheme ron
+else
+    "try
+        "syntax enable
+        "colorscheme flavours
+        "set termguicolors
+
+        "hi Normal guibg=NONE
+        "hi LineNr guibg=NONE
+    "catch
+    "endtry
+endif
+
 hi StatusLine ctermbg=8 ctermfg=green cterm=bold
 hi StatusLineNC ctermbg=8 ctermfg=green cterm=NONE
 hi VertSplit cterm=None ctermfg=8 ctermbg=NONE
 hi LineNr ctermfg=7
-"hi CursorLineNr ctermfg=7
+hi CursorLineNr ctermfg=11
 hi Pmenu ctermbg=8 ctermfg=11
 hi PmenuSel ctermbg=0 ctermfg=11 cterm=bold
 hi PmenuThump ctermbg=7
-hi LspDiagnosticsDefaultError ctermfg=9
-hi LspDiagnosticsDefaultWarning ctermfg=11
-hi LspDiagnosticsDefaultHint ctermfg=13
-hi LspDiagnosticsDefaultInformation ctermfg=10
+"hi LspDiagnosticsDefaultError ctermfg=9
+"hi LspDiagnosticsDefaultWarning ctermfg=11
+"hi LspDiagnosticsDefaultHint ctermfg=13
+"hi LspDiagnosticsDefaultInformation ctermfg=10
 hi CursorLine ctermfg=14
 
 set fillchars+=vert:\│
-
-if !has("nvim")
-    colorscheme ron
-else
-    try
-        syntax on
-        colorscheme flavours
-        set termguicolors
-    catch
-    endtry
-endif
 " }}}
 
 " Load Vim Plugins {{{

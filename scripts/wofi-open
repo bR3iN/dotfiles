@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
+WOFI_FLAGS=(
+    $WOFI_FLAGS
+    -i
+    --prompt 'Open Document'
+    --matching contains
+)
+
+OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}' | wofi --dmenu "${WOFI_FLAGS[@]}")
+
+xdg-open "${DOC_DIR}/${OUTPUT:?}"

@@ -242,8 +242,11 @@ add_layout_keys('Left', 'Down', 'Up', 'Right')
 --}}}
 
 -- Media keys {{{
+--add_key_g(awful.key({ modkey }, "XF86MonBrightnessUp", function()
+    --awful.spawn('kbbacklight_toggle on')
+--end, {}))
 --add_key_g(awful.key({ modkey }, "XF86MonBrightnessDown", function()
-    --naughty.notify{ text = 'hi' }
+    --awful.spawn('kbbacklight_toggle off')
 --end, {}))
 --add_key_g(awful.key({ }, "XF86MonBrightnessDown", function()
 --awful.spawn('brightnessctl set -n 3%-')

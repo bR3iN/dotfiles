@@ -49,4 +49,12 @@ if [ -f /usr/share/fzf/shell/key-bindings.fish ]
     source /usr/share/fzf/shell/key-bindings.fish
 end
 
+function run_and_close
+    $argv &
+    disown
+    exit
+end
+
+bind \e\r "commandline -a ' & disown; exit'"
+
 # vim: filetype=sh

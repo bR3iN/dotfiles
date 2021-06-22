@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+FF_DIR="$HOME/.mozilla/firefox"
+
+WOFI_FLAGS=(
+    $WOFI_FLAGS
+    --matching contains
+    -i
+    --prompt 'Choose Firefox Profile'
+)
+
+OUTPUT=$(awk '/Name=/{sub("Name=",""); print}' "$FF_DIR/profiles.ini" | wofi --dmenu "${WOFI_FLAGS[@]}")
+firefox -p "${OUTPUT:?}"
