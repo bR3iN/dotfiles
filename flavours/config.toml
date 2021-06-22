@@ -37,12 +37,11 @@ rewrite = true
 #template = "custom"
 #subtemplate = "awesome"
 #file = "~/.config/awesome/flavours.lua"
-#start = "-- Start flavours"
-#end = "-- End flavours"
+#rewrite = true
 
 [[item]]
 template = "qutebrowser"
-file = "~/.config/qutebrowser/colors.py"
+file = "~/.config/qutebrowser/flavours.py"
 rewrite = true
 
 [[item]]
@@ -79,15 +78,3 @@ template = "custom"
 subtemplate = "rofi"
 file = "~/.config/rofi/flavours.rasi"
 rewrite = true
-
-#[[item]]
-#template = "custom"
-#subtemplate = "nvim-base16"
-#file = "~/.config/nvim/lua/nvim-base16.lua"
-#rewrite = true
-
-#[[item]]
-#template = "custom"
-#subtemplate = "nvim-fork"
-#file = "~/.config/nvim/colors/flavours.vim"
-#rewrite = true

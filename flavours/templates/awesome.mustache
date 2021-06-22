@@ -1,4 +1,6 @@
--- Base16 {{scheme-name}} - kitty color config
+theme = {}
+
+-- Base16 {{scheme-name}}
 -- Scheme by {{scheme-author}}
 theme.color0  = "#{{base00-hex}}"
 theme.color1  = "#{{base01-hex}}"
@@ -16,3 +18,14 @@ theme.color12 = "#{{base0C-hex}}"
 theme.color13 = "#{{base0D-hex}}"
 theme.color14 = "#{{base0E-hex}}"
 theme.color15 = "#{{base0F-hex}}"
+
+theme.red     = theme.color8
+theme.yellow  = theme.color10
+theme.green   = theme.color11
+theme.cyan    = theme.color12
+theme.blue    = theme.color13
+theme.magenta = theme.color14
+
+theme.wallpaper = os.getenv('HOME').."/Wallpaper/current"
+
+return theme
