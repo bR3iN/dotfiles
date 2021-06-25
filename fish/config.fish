@@ -54,7 +54,3 @@ function run_and_close
     disown
     exit
 end
-
-bind \e\r "commandline -a ' & disown; exit'"
-
-# vim: filetype=sh

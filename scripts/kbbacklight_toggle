@@ -1,0 +1,48 @@
+#!/usr/bin/bash
+
+get_current() {
+    dbus-send --print-reply --system --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower/KbdBacklight \
+        org.freedesktop.UPower.KbdBacklight.GetBrightness \
+        | awk 'NR==2 { print $2 }'
+}
+
+get_max() {
+    dbus-send --print-reply --system --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower/KbdBacklight \
+        org.freedesktop.UPower.KbdBacklight.GetMaxBrightness \
+        | awk 'NR==2 { print $2 }'
+}
+
+set_new() {
+    dbus-send --print-reply --system --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower/KbdBacklight \
+        org.freedesktop.UPower.KbdBacklight.SetBrightness \
+        "int32:$1" &>> /dev/null
+}
+
+cycle() {
+    max=$(get_max)
+    current=$(get_current)
+
+    if [ $current -lt $max ]; then
+        let new=++current
+    else
+        new=0
+    fi
+
+    set_new $new
+}
+
+if [ -z "$1" ];then
+    cycle
+else
+    case "$1" in
+        on)
+            set_new 1
+            ;;
+        off)
+            set_new 0
+            ;;
+    esac
+fi

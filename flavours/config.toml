@@ -1,4 +1,11 @@
 [[item]]
+template = "custom"
+subtemplate = "wallpaper"
+file = "/tmp/current_wallpaper"
+rewrite = true
+hook = "~/Wallpaper/set"
+
+[[item]]
 template = "zathura"
 subtemplate = "recolor"
 file = "~/.config/zathura/flavours"
@@ -33,11 +40,11 @@ subtemplate = "gtk-3"
 file = "~/.config/gtk-3.20/gtk.css"
 rewrite = true
 
-#[[item]]
-#template = "custom"
-#subtemplate = "awesome"
-#file = "~/.config/awesome/flavours.lua"
-#rewrite = true
+[[item]]
+template = "custom"
+subtemplate = "awesome"
+file = "~/.config/awesome/flavours.lua"
+rewrite = true
 
 [[item]]
 template = "qutebrowser"
@@ -59,13 +66,14 @@ rewrite = true
 [[item]]
 template = "waybar"
 file = "~/.config/waybar/flavours.css"
-hook = "killall -USR2 waybar"
+#hook = "killall -USR2 waybar"
 rewrite = true
 
 [[item]]
 template = "sway"
 subtemplate = "colors"
 file = "~/.config/sway/flavours"
+hook = "swaymsg reload"
 rewrite = true
 
 #[[item]]

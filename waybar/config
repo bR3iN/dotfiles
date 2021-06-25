@@ -88,7 +88,7 @@
         "tooltip-format": "{essid} ({signalStrength}%)",
         "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
         "format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "Disconnected ⚠",
+        "format-disconnected": "⚠",
     },
 
     "pulseaudio": {
@@ -102,7 +102,7 @@
         "format-icons": {
             "headphone": "",
             "hands-free": "",
-            "headset": "",
+            "headset": "",
             "phone": "",
             "portable": "",
             "car": "",

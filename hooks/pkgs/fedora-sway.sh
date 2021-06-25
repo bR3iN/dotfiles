@@ -15,11 +15,13 @@ pkgs=(
     playerctl
     rofi-wayland
     sway
+    swayidle
     Thunar
     thunar-volman
     torbrowser-launcher
     tumbler
     wl-clipboard
+    wlsunset
 )
 
 sudo dnf install -y "${pkgs[@]}"

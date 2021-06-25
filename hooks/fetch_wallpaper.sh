@@ -87,4 +87,4 @@ install_wallpaper() {
 
 install_wallpaper "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
 install_wallpaper "nord1" "https://www.itl.cat/pngfile/big/293-2936366_3840x2160-knstlerisch-minimalist-wallpaper-mountain.jpg"
-install_wallpaper "nord-fedora" "https://i.redd.it/jkxvgyorlk051.png"
+install_wallpaper "nord" "https://i.redd.it/jkxvgyorlk051.png"

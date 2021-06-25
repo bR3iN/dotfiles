@@ -6,6 +6,7 @@ set $up k
 set $right l
 
 set $term alacritty
+#set $term kitty -e fish
 set $menu rofi -show drun | xargs swaymsg exec --
 #set $menu wofi | xargs swaymsg exec --
 
@@ -38,7 +39,7 @@ client.urgent           $base08 $base08 $base00 $base08 $base08
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 #output * bg /usr/share/backgrounds/default.png fill
-output * bg ~/Wallpaper/nord-fedora.png fill
+output * bg ~/Wallpaper/current fill
 #
 # Example configuration:
 #
@@ -49,7 +50,12 @@ output eDP-1 scale 1.25
 # }}}
 
 ### Idle configuration {{{
-#
+
+exec swayidle -w timeout 180 'swaymsg "output * dpms off"' \
+                    resume 'swaymsg "output * dpms on"' \
+                 timeout 185 'swaylock -f' \
+                 before-sleep 'swaylock -f'
+
 # Example configuration:
 #
 # exec swayidle -w \
@@ -268,6 +274,10 @@ for_window {
     [class="Thunderbird"] move conatiner to workspace 5
 }
 ### }}}
+
+# Autostart {{{
+exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
+# }}}
 
 include /etc/sway/config.d/*
 
