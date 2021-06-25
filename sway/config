@@ -96,6 +96,9 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
 ## Sway stuff {{{
 floating_modifier $mod normal
 
+# Lock screen
+bindsym $mod+Escape exec wlock
+
 # Hide Waybar
 bindsym $mod+o exec killall -SIGUSR1 waybar; smart_gaps toggle
 
