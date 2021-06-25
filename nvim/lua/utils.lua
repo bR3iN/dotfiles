@@ -17,7 +17,7 @@ function M.augroup(name)
     return function(cmds)
         cmd('augroup ' .. name)
         cmd 'autocmd!'
-        vim.api.nvim_exec(cmds,false)
+        vim.api.nvim_exec(cmds, false)
         cmd 'augroup END'
     end
 end

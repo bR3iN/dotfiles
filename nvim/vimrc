@@ -1,4 +1,4 @@
-" Variables {{{
+"  Variables {{{
 " Set Leader Keys
 let maplocalleader = " "
 let mapleader = " "
@@ -34,7 +34,7 @@ if !has("nvim")
 endif
 " }}}
 
-set cmdheight=2
+set cmdheight=1
 "set clipboard+=unnamedplus
 set confirm
 set hidden 
@@ -45,7 +45,7 @@ set relativenumber
 set ruler
 set scrolloff=1
 set showcmd
-set smartcase " requires ignorecase
+set smartcase "requires ignorecase
 set splitbelow
 set splitright
 set wildmode=longest:full,full
@@ -65,27 +65,90 @@ set expandtab
 " }}}
 
 " Navigation {{{
-nnoremap <leader>b  :<c-u>ls<cr>:<c-u>b 
-nnoremap <leader>sb	:<c-u>ls<cr>:<c-u>sb 
-nnoremap <leader>vb	:<c-u>ls<cr>:<c-u>vert sb 
-nnoremap <leader>db	:<c-u>ls<cr>:<c-u>bd 
+" Open init.lua and vimrc
+nnoremap <silent> <leader>ev :<c-u>edit   $MYVIMRC<CR>
+nnoremap <silent> <leader>sv :<c-u>split  $MYVIMRC<CR>
+nnoremap <silent> <leader>vv :<c-u>vsplit $MYVIMRC<CR>
+if has('nvim')
+    nnoremap <expr><silent> <leader>eV ':edit   '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
+    nnoremap <expr><silent> <leader>sV ':split  '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
+    nnoremap <expr><silent> <leader>vV ':vsplit '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
+endif
+
+" Buffer navigation
+nnoremap <leader>b  :<C-u>ls<cr>:<c-u>b<space>
+nnoremap <leader>sb	:<C-u>ls<cr>:<c-u>sb<space>
+nnoremap <leader>vb	:<C-u>ls<cr>:<c-u>vert sb<space>
+nnoremap <leader>db	:<C-u>ls<cr>:<c-u>bd<space>
+
+nnoremap ]b :<C-u>bnext<CR>
+nnoremap [b :<C-u>bprev<CR>
+nnoremap ]B :<C-u>blast<CR>
+nnoremap [B :<C-u>bfirst<CR>
+
+" Navigate quickfix and location lists
+nnoremap ]q         :<C-u>cnext<CR>
+nnoremap [q         :<C-u>cprev<CR>
+nnoremap ]Q         :<C-u>clast<CR>
+nnoremap [Q         :<C-u>cfirst<CR>
+nnoremap <leader>qo :<C-u>copen<CR>
+nnoremap <leader>qc :<C-u>cclose<CR>
+
+nnoremap ]l         :<C-u>lnext<CR>
+nnoremap [l         :<C-u>lprev<CR>
+nnoremap ]L         :<C-u>llast<CR>
+nnoremap [L         :<C-u>lfirst<CR>
+nnoremap <leader>lo :<C-u>lopen<CR>
+nnoremap <leader>lc :<C-u>lclose<CR>
+" }}}
+
+" Miscellaneous mappings {{{
+nnoremap Y y$
+
+nnoremap <silent> <C-L> :<c-u>nohlsearch<CR><C-L>
 
 tnoremap <Esc> <C-\><C-n>
 tnoremap <C-v><Esc> <Esc>
 
-nnoremap <silent> <leader>ev :<c-u>edit   $MYVIMRC<CR>
-nnoremap <silent> <leader>sv :<c-u>split  $MYVIMRC<CR>
-nnoremap <silent> <leader>vv :<c-u>vsplit $MYVIMRC<CR>
+nnoremap <leader>w  :<c-u>w<cr>
+nnoremap <leader>qq :<c-u>q<cr>
 
-nnoremap <leader>co :<c-u>copen<cr>
-nnoremap <leader>cc :<c-u>cclose<cr>
+nnoremap <leader>mk :make<CR>
+
+cnoremap <M-p> <up>
+cnoremap <M-n> <down>
+cnoremap <M-f> <C-right>
+cnoremap <M-b> <C-left>
+
+inoremap <c-u> <esc>viwUea
+"nnoremap <leader>ul ~h
+"nnoremap <leader>uw viwU
+
+" (c)hange cwd to the directory containing the (c)urrent file
+nnoremap <leader>cc :cd %:h<CR>
+
+" Resize windows
+nnoremap <M-,> <C-w>+
+nnoremap <M-.> <C-w>-
+nnoremap <M-<> <C-w><
+nnoremap <M->> <C-w>>
+
+" 'g{' and 'g}' {{{
+xnoremap <expr><silent>g} '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 0)<cr>'
+xnoremap <expr><silent>g{ '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 1)<cr>'
+nnoremap       <silent>g}                   :<c-u>call MoveInParagraph(0, 0)<cr>
+nnoremap       <silent>g{                   :<c-u>call MoveInParagraph(0, 1)<cr>
+onoremap       <silent>g}                   :<c-u>call MoveInParagraph(0, 0)<cr>
+onoremap       <silent>g{                   :<c-u>call MoveInParagraph(0, 1)<cr>
+" }}}
+
 " }}}
 
 " Configure Shared Plugins {{{
 
-" NERDCommenter {{{
-nmap <silent>  <Plug>NERDCommenterToggle
-vmap <silent>  <Plug>NERDCommenterToggle
+ "NERDCommenter {{{
+nmap     <silent>  <Plug>NERDCommenterToggle
+vmap     <silent>  <Plug>NERDCommenterToggle
 inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
 " }}}
 
@@ -102,101 +165,87 @@ inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
 " }}}
 
 " Tmux Navigator {{{
-nnoremap <silent> <M-h> 	:<c-u>TmuxNavigateLeft<cr>
-nnoremap <silent> <M-j> 	:<c-u>TmuxNavigateDown<cr>
-nnoremap <silent> <M-k> 	:<c-u>TmuxNavigateUp<cr>
-nnoremap <silent> <M-l> 	:<c-u>TmuxNavigateRight<cr>
-nnoremap <silent> <M-left> 	:<c-u>TmuxNavigateLeft<cr>
-nnoremap <silent> <M-down> 	:<c-u>TmuxNavigateDown<cr>
-nnoremap <silent> <M-up> 	:<c-u>TmuxNavigateUp<cr>
-nnoremap <silent> <M-right> :<c-u>TmuxNavigateRight<cr>
+nnoremap <silent> <M-h> 	:<C-u>TmuxNavigateLeft<CR>
+nnoremap <silent> <M-j> 	:<C-u>TmuxNavigateDown<CR>
+nnoremap <silent> <M-k> 	:<C-u>TmuxNavigateUp<CR>
+nnoremap <silent> <M-l> 	:<C-u>TmuxNavigateRight<CR>
+nnoremap <silent> <M-left> 	:<C-u>TmuxNavigateLeft<CR>
+nnoremap <silent> <M-down> 	:<C-u>TmuxNavigateDown<CR>
+nnoremap <silent> <M-up> 	:<C-u>TmuxNavigateUp<CR>
+nnoremap <silent> <M-right> :<C-u>TmuxNavigateRight<CR>
 
-tnoremap <silent> <M-h> 	<C-\><C-n>:TmuxNavigateLeft<cr>
-tnoremap <silent> <M-j> 	<C-\><C-n>:TmuxNavigateDown<cr>
-tnoremap <silent> <M-k> 	<C-\><C-n>:TmuxNavigateUp<cr>
-tnoremap <silent> <M-l> 	<C-\><C-n>:TmuxNavigateRight<cr>
-tnoremap <silent> <M-left> 	<C-\><C-n>:TmuxNavigateLeft<cr>
-tnoremap <silent> <M-down> 	<C-\><C-n>:TmuxNavigateDown<cr>
-tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<cr>
-tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<cr>
+tnoremap <silent> <M-h> 	<C-\><C-n>:TmuxNavigateLeft<CR>
+tnoremap <silent> <M-j> 	<C-\><C-n>:TmuxNavigateDown<CR>
+tnoremap <silent> <M-k> 	<C-\><C-n>:TmuxNavigateUp<CR>
+tnoremap <silent> <M-l> 	<C-\><C-n>:TmuxNavigateRight<CR>
+tnoremap <silent> <M-left> 	<C-\><C-n>:TmuxNavigateLeft<CR>
+tnoremap <silent> <M-down> 	<C-\><C-n>:TmuxNavigateDown<CR>
+tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<CR>
+tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<CR>
 " }}}
 
 " }}}
 
 " Autocmd {{{
-
-augroup config_files " {{{
+augroup vimrc
     autocmd!
+
+    " Autoload config files on save
     if has("nvim")
         autocmd BufWritePost ~/.{dotfiles,config}/nvim/{*.{vim,lua},vimrc} lua dofile(vim.env.MYVIMRC)
     else
         autocmd BufWritePost ~/.vim/{*.vim,vimrc} source $MYVIMRC
     endif
-    autocmd FileType vim  setlocal foldmethod=marker
-    autocmd FileType tmux setlocal foldmethod=marker
-    autocmd BufRead ~/.{config,dotfiles}/* setlocal foldmethod=marker
-    "autocmd BufRead *.fish setlocal filetype=sh
-augroup END
-"" }}}
 
-augroup vimrc_misc " {{{
-	autocmd!
+    autocmd FileType vim                    setlocal foldmethod=marker
+    autocmd FileType tmux                   setlocal foldmethod=marker
+    autocmd BufRead  ~/.{config,dotfiles}/* setlocal foldmethod=marker
+
+    autocmd FileType lua   nnoremap <buffer> <leader>rr :lua dofile(vim.fn.expand('%'))<cr>
+    "autocmd FileType lua   nnoremap <buffer> <leader>rr :w !lua
+    autocmd FileType sh    nnoremap <buffer> <leader>rr :w !bash<cr>
+    autocmd FileType fish  nnoremap <buffer> <leader>rr :w !fish<cr>
+
 	autocmd BufWritePre /tmp/* setlocal noundofile
 augroup END
-" }}}
-
-" }}}
-
-" General Mappings {{{
-nnoremap <silent> <C-L> :<c-u>nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
-nnoremap <leader>w :<c-u>w<cr>
-nnoremap <leader>qq :<c-u>q<cr>
-
-nnoremap Y y$
-
-inoremap <c-u> <esc>viwUea
-nnoremap <leader>u ~h
-nnoremap <leader>U viwU
-
-nnoremap <F1> <nop>
 " }}}
 
 " Appearence {{{
 if !has("nvim")
     colorscheme ron
-else
-    "try
-        "syntax enable
-        "colorscheme flavours
-        "set termguicolors
-
-        "hi Normal guibg=NONE
-        "hi LineNr guibg=NONE
-    "catch
-    "endtry
 endif
 
-hi StatusLine ctermbg=8 ctermfg=green cterm=bold
-hi StatusLineNC ctermbg=8 ctermfg=green cterm=NONE
+" Otherwise set in /usr/share/nvim/runtime/syntax/syncolor.vim
+hi Comment ctermfg=8
+hi Constant ctermfg=5
+hi Special ctermfg=16
+hi Identifier ctermfg=6
+hi Statement ctermfg=3
+hi PreProc ctermfg=12
+hi Type ctermfg=10
+hi Underlined ctermfg=12
+hi Ignore ctermfg=17
+
+hi CursorLineNr ctermfg=7
+hi LineNr ctermfg=8
+hi StatusLine ctermbg=8 ctermfg=2 cterm=bold
+hi StatusLineNC ctermbg=8 ctermfg=2 cterm=NONE
 hi VertSplit cterm=None ctermfg=8 ctermbg=NONE
-hi LineNr ctermfg=7
-hi CursorLineNr ctermfg=11
+set fillchars+=vert:\│
+
 hi Pmenu ctermbg=8 ctermfg=11
 hi PmenuSel ctermbg=0 ctermfg=11 cterm=bold
 hi PmenuThump ctermbg=7
-"hi LspDiagnosticsDefaultError ctermfg=9
-"hi LspDiagnosticsDefaultWarning ctermfg=11
-"hi LspDiagnosticsDefaultHint ctermfg=13
-"hi LspDiagnosticsDefaultInformation ctermfg=10
-hi CursorLine ctermfg=14
 
-set fillchars+=vert:\│
+hi LspDiagnosticsDefaultError ctermfg=9
+hi LspDiagnosticsDefaultHint ctermfg=13
+hi LspDiagnosticsDefaultInformation ctermfg=10
+hi LspDiagnosticsDefaultWarning ctermfg=11
 " }}}
 
 " Load Vim Plugins {{{
 if !has("nvim")
     call plug#begin('~/.vim/plugged')
-    Plug 'lervag/vimtex'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-repeat'
     Plug 'preservim/nerdcommenter'
@@ -205,17 +254,8 @@ if !has("nvim")
 endif
 " }}}
 
-" [c]hange to [c]urrent directory
-command! CC cd %:h
-
-" 'g{' and 'g}' {{{
-xnoremap <silent><expr>g} '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 0)<cr>'
-xnoremap <silent><expr>g{ '<esc>'.v:count1.':<c-u>call MoveInParagraph(1, 1)<cr>'
-nnoremap <silent>g} :<c-u>call MoveInParagraph(0, 0)<cr>
-nnoremap <silent>g{ :<c-u>call MoveInParagraph(0, 1)<cr>
-onoremap <silent>g} :<c-u>call MoveInParagraph(0, 0)<cr>
-onoremap <silent>g{ :<c-u>call MoveInParagraph(0, 1)<cr>
-
+" Functions {{{
+" Used in g} and g{ keybingings
 function! MoveInParagraph(visual, backwards)
     let to_column = (col('.') == 1) ? '' : col('.') - 1.'l'
     exec 'normal! '.(a:visual ? 'gv' : '').v:count1.(a:backwards == 0 ? '}' : '{')
@@ -226,8 +266,3 @@ function! MoveInParagraph(visual, backwards)
     endif
 endfunction
 " }}}
-
-nnoremap <leader>mk :make<CR>
-nnoremap <expr><silent> <leader>eV ':e  '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
-cnoremap <M-p> <up>
-cnoremap <M-n> <down>

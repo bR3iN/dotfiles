@@ -13,7 +13,7 @@ nmap <buffer> <leader>Pad <leader>padds$ySSi
 nmap <buffer> <leader>PPad cs$$<cr><leader>Pad
 
 nnoremap <buffer> <leader>tt :VimtexTocToggle<CR>
-nnoremap <buffer> <leader>td <Esc>o%TODO: 
+nnoremap <buffer> <leader>td <Esc>o%TODO:<space>
 
 " overwrites mapping from init.vim
 nnoremap <buffer> <leader>co :<c-u>copen<cr>/error<cr>
