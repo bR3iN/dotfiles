@@ -275,6 +275,11 @@ for_window {
     #[app_id="zathura"] move container to workspace 2
     [app_id="zathura"] layout tabbed
     [class="Thunderbird"] move conatiner to workspace 5
+    [app_id="pavucontrol"] floating enable
+    [app_id="system-config-printer"] floating enable
+    [app_id="setroubleshoot"] floating enable
+    [app_id="blueberry.py"] floating enable
+    [app_id="gpick"] floating enable
 }
 ### }}}
 

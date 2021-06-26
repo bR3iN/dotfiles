@@ -2,13 +2,13 @@ local cmd             = vim.cmd
 local augroup         = require'utils'.augroup
 local map             = require'utils'.map
 local unrequire       = require'utils'.unrequire -- unload module
---local prequire        = require'utils'.prequire  -- pcall require
-local prequire        = require                -- for debugging
+local prequire        = require'utils'.prequire  -- pcall require
+--local prequire        = require                -- for debugging
 
 -- Load shared vimrc
 cmd 'runtime vimrc'
 
--- Load and configure plugins {{{
+-- Load and configure plugins
 cmd 'packadd paq-nvim'
 unrequire 'paq-nvim'
 paq = require'paq-nvim'.paq
@@ -42,12 +42,14 @@ paq { 'junegunn/fzf', run = vim.fn['fzf#install'] } do
 end
 
 paq 'neovim/nvim-lspconfig' do
-    prequire('lsp.ccls')
-    prequire('lsp.sumneko_lua')
-    prequire('lsp.texlab')
-    prequire('lsp').with_defaults('bashls')
-    prequire('lsp').with_defaults('vimls')
-    prequire('lsp').with_defaults('tsserver')
+    prequire'lsp.ccls'
+    prequire'lsp.sumneko_lua'
+    prequire'lsp.texlab'
+    if prequire'lsp' then
+        require'lsp'.with_defaults('bashls')
+        require'lsp'.with_defaults('vimls')
+        require'lsp'.with_defaults('tsserver')
+    end
 end
 
 paq 'lervag/vimtex' do
@@ -58,11 +60,12 @@ paq 'lervag/vimtex' do
 end
 
 paq 'hrsh7th/nvim-compe' do
-    prequire'nvim-compe'.setup()
-    prequire'nvim-compe'.tab_role('<Tab>')
-    prequire'nvim-compe'.stab_role('<S-Tab>')
-    prequire'nvim-compe'.confirm('<CR>')
-    prequire'nvim-compe'.cancel('<C-e>')
+    if prequire'nvim-compe' then
+        require'nvim-compe'.tab_role('<Tab>')
+        require'nvim-compe'.stab_role('<S-Tab>')
+        require'nvim-compe'.confirm('<CR>')
+        require'nvim-compe'.cancel('<C-e>')
+    end
 end
 
 paq 'hrsh7th/vim-vsnip' do
@@ -75,7 +78,6 @@ paq 'nvim-treesitter/nvim-treesitter' do
     paq 'nvim-treesitter/nvim-treesitter-textobjects'
     prequire('treesitter')
 end
--- }}}
 
 --map('n', '<leader>ot', ':below split term://fish | resize 10<CR>')
 augroup 'terminal' [[

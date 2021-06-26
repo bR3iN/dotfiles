@@ -1,4 +1,5 @@
-local map = require'utils'.map
+local utils = require'utils'
+local map   = utils.map
 
 local M = {}
 
@@ -44,7 +45,7 @@ M.confirm = function(str)
     map('i', str, 'compe#confirm(\'<CR>\')', {expr = true})
 end
 
-M.setup = function()
+local function setup()
     --vim.o.completeopt = 'menu,menuone,noselect,noinsert,preview'
     vim.o.completeopt = 'menuone,noselect'
 
@@ -77,4 +78,5 @@ M.setup = function()
     }
 end
 
+setup()
 return M
