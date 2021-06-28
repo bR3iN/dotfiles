@@ -157,7 +157,7 @@ function installFile {
             createSymlink "$file" "$HOME/.local/bin/$(basename $file)"
         fi
     elif [ -d "$INSTALLER_DIR/$file" ]; then
-        (cd "$INSTALLER_DIR/$file"; "${as_root:-}" make install)
+        (cd "$INSTALLER_DIR/$file"; ${as_root-} make install)
     fi
 }
 
