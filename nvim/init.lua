@@ -42,7 +42,7 @@ paq { 'junegunn/fzf', run = vim.fn['fzf#install'] } do
 end
 
 paq 'neovim/nvim-lspconfig' do
-    prequire'lsp.ccls'
+    --prequire'lsp.ccls'
     prequire'lsp.sumneko_lua'
     prequire'lsp.texlab'
     if prequire'lsp' then

@@ -142,6 +142,8 @@ bindsym XF86MonBrightnessUp \
     exec brightnessctl -n=1 set +5%
 bindsym Mod4+Home \
     exec kbbacklight_toggle
+bindsym Mod4+End \
+    exec backlight_toggle
 # }}}
 
 ## Navigation {{{
@@ -225,6 +227,8 @@ bindsym $mod+e layout toggle split
 # Move focus to the parent container
 bindsym $mod+a focus parent
 bindsym $mod+c focus child
+bindsym $mod+Shift+k focus parent
+bindsym $mod+Shift+j focus child
 # }}}
 
 # Resize mode {{{

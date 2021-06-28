@@ -34,7 +34,7 @@ if !has("nvim")
 endif
 " }}}
 
-set cmdheight=1
+set cmdheight=2
 "set clipboard+=unnamedplus
 set confirm
 set hidden 

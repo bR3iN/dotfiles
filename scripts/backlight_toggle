@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+
+TMP_FILE=/tmp/backlight_toggle_current
+FALLBACK="50%"
+
+main ()
+{
+    local current=$(get)
+    if [ "$current" != "0" ]; then
+        echo "$current" > "$TMP_FILE"
+        set 0
+    else
+        old=$(cat "$TMP_FILE" 2>/dev/null)
+        if [ -n "$old" ]; then
+            set "$old"
+        else
+            set "$FALLBACK"
+        fi
+    fi
+}
+
+set ()
+{
+    brightnessctl set "$1"
+}
+
+get ()
+{
+    brightnessctl get
+}
+
+main "$@"
