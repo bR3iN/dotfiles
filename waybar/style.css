@@ -47,7 +47,7 @@ window#waybar.hidden {
 }
 
 #mode {
-    background-color: shade(@base0B, 0.7);
+    background-color: shade(@base0B, 0.6);
     color: @base04;
     padding: 0 14px;
     border-bottom: 3px solid @base07;
@@ -143,8 +143,9 @@ window#waybar.hidden {
 }
 
 #custom-media {
-    background-color: alpha(@base0B, 0.2);
-    min-width: 100px;
+    background-color: alpha(@base0B, 0.3);
+    border-bottom: 3px solid shade(@base0B, 0.7);
+    min-width: 0px;
 }
 
 #clock {

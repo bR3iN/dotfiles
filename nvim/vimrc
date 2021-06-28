@@ -75,6 +75,8 @@ if has('nvim')
     nnoremap <expr><silent> <leader>vV ':vsplit '. fnamemodify($MYVIMRC, ':p:h').'/vimrc<CR>'
 endif
 
+nnoremap <leader>ee :!ls<cr>:e<space>
+
 " Buffer navigation
 nnoremap <leader>b  :<C-u>ls<cr>:<c-u>b<space>
 nnoremap <leader>sb	:<C-u>ls<cr>:<c-u>sb<space>
@@ -104,6 +106,7 @@ nnoremap <leader>lc :<C-u>lclose<CR>
 
 " Miscellaneous mappings {{{
 nnoremap Y y$
+nnoremap <C-c> <C-^>
 
 nnoremap <silent> <C-L> :<c-u>nohlsearch<CR><C-L>
 

@@ -6,6 +6,8 @@ pkgs=(
     brightnessctl
     d-feet
     google-noto-emoji-color-fonts
+    gnome-keyring
+    seahorse
     htop
     lxappearance
     NetworkManager-tui

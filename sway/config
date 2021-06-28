@@ -137,9 +137,21 @@ bindsym $mod+Control+e exec kitty -e nvim '+cd %:h' ~/.config/sway/config
 
 ## Media keys {{{
 bindsym XF86MonBrightnessDown \
-    exec brightnessctl -n=1 set 5%-
+    exec brightnessctl set 5%-
 bindsym XF86MonBrightnessUp \
-    exec brightnessctl -n=1 set +5%
+    exec brightnessctl set +5%
+bindsym XF86AudioLowerVolume \
+    exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioRaiseVolume \
+    exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioMicMute \
+    exec pactl set-source-mute 0 toggle
+bindsym XF86AudioMute \
+    exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioPlay \
+    exec playerctl play
+bindsym XF86AudioPause \
+    exec playerctl pause
 bindsym Mod4+Home \
     exec kbbacklight_toggle
 bindsym Mod4+End \
@@ -284,11 +296,17 @@ for_window {
     [app_id="setroubleshoot"] floating enable
     [app_id="blueberry.py"] floating enable
     [app_id="gpick"] floating enable
+    [app_id="d-feet"] floating enable
+    [app_id="seahorse"] floating enable
+    [class="GParted"] floating enable
+    [app_id="polkit"] floating enable
 }
 ### }}}
 
 # Autostart {{{
 exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
+exec /usr/libexec/xfce-polkit
+#exec gnome-keyring-daemon
 # }}}
 
 include /etc/sway/config.d/*
