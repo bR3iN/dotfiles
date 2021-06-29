@@ -7,7 +7,7 @@ set $right l
 
 set $term alacritty
 #set $term kitty -e fish
-set $menu rofi -show drun | xargs swaymsg exec --
+set $menu rofi -show drun $ROFI_FLAGS | xargs swaymsg exec --
 #set $menu wofi | xargs swaymsg exec --
 
 # Load colors
