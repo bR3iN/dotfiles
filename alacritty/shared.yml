@@ -1,5 +1,5 @@
-import:
-  - ~/.config/alacritty/flavours.yml
+shell:
+  program: /usr/bin/fish
 
 window:
   dynamic_title:  true
