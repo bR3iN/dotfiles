@@ -1,2 +1,4 @@
-PATH="$PATH:$HOME/.node_modules/bin:$HOME/.local/bin"
-QT_SCALE_FACTOR=1.25
+# gdm doesn't source .bash_profile
+source ~/.bash_profile
+
+# vim: filetype=sh
