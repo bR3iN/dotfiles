@@ -5,7 +5,7 @@ WALLPAPER_DIR="$HOME/Wallpaper"
 if [ -n "$1" ]; then
     wallpaper="$1"
 else
-    wallpaper=$(cat /tmp/current_wallpaper 2>/dev/null)
+    wallpaper=$(cat /tmp/current_scheme 2>/dev/null)
 fi
 
 file_normal=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}\.")

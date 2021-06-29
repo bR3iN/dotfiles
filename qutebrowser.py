@@ -32,10 +32,11 @@ c.tabs.title.format = '{current_title}'
 config.source('flavours.py')
 base04 = c.colors.contextmenu.disabled.fg
 base00 = c.colors.tabs.even.bg
-c.colors.tabs.selected.odd.bg  = base04
-c.colors.tabs.selected.odd.fg  = base00
-c.colors.tabs.selected.even.bg = base04
-c.colors.tabs.selected.even.fg = base00
+if base00 != None and base04 != None:
+    c.colors.tabs.selected.odd.bg  = base04
+    c.colors.tabs.selected.odd.fg  = base00
+    c.colors.tabs.selected.even.bg = base04
+    c.colors.tabs.selected.even.fg = base00
 
 # Load autoconfig to allow for local overrides
 config.load_autoconfig()
