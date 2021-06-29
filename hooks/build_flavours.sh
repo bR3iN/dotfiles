@@ -8,7 +8,8 @@ build_and_install ()
     git clone "$URL" ~/Github/flavours
     cd ~/Github/flavours
     cargo install flavours
-    ~/.cargo/bin/flavours update all &
+    echo "Updating flavours templates"
+    ~/.cargo/bin/flavours update all
 }
 
 if [ ! -d ~/Github/flavours ]; then

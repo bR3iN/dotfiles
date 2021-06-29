@@ -138,10 +138,11 @@ function runHook {
 
 
 function runCommand {
-    echo "Running command '$1'"
-    eval "($1)" 2>&1 | sed "s/^/    /" || local exit_code="$?"
+    local command=$(sed 's/%eq%/=/g' <<< "$1")
+    echo "Running command '${command}'"
+    eval "(${command})" 2>&1 | sed "s/^/    /" || local exit_code="$?"
     if [ ! "${exit_code:-0}" -eq 0 ]; then
-        echo "ERROR: Command '$1' failed with exit code ${exit_code}"
+        echo "ERROR: Command '${command}' failed with exit code ${exit_code}"
     fi
 }
 

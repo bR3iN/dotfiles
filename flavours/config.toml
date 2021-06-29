@@ -1,9 +1,9 @@
 [[item]]
 template = "custom"
 subtemplate = "wallpaper"
-file = "/tmp/current_wallpaper"
+file = "/tmp/current_scheme"
 rewrite = true
-hook = "~/Wallpaper/set"
+hook = "[ -x ~/Wallpaper/set] && ~/Wallpaper/set"
 
 [[item]]
 template = "zathura"
