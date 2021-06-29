@@ -15,22 +15,22 @@ pkgs=(
     qutebrowser
     redshift
     ristretto
-    rofi
+    #rofi
     setroubleshoot
     setxkbmap
-    swaylock
-    waybar
     thunderbird
     tlp
     tmux
 
+    # Order matters
     zathura
     zathura-pdf-poppler
     zathura-plugins-all
+
+    # For building flavours
+    cargo
 )
 
-
-# Groups to install on top of group 'Fedora Server Edition'
 groups=(
     "Core"
     "Standard"

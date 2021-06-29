@@ -13,7 +13,6 @@ pkgs=(
     NetworkManager-tui
     nnn
     pavucontrol
-    picom
     playerctl
     rofi-wayland
     sway
@@ -22,6 +21,8 @@ pkgs=(
     thunar-volman
     torbrowser-launcher
     tumbler
+    swaylock
+    waybar
     wl-clipboard
     wlsunset
 )

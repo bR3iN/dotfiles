@@ -2,7 +2,11 @@
 
 WALLPAPER_DIR="$HOME/Wallpaper"
 
-wallpaper=$(cat /tmp/current_wallpaper 2>/dev/null)
+if [ -n "$1" ]; then
+    wallpaper="$1"
+else
+    wallpaper=$(cat /tmp/current_wallpaper 2>/dev/null)
+fi
 
 file_normal=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}\.")
 file_blurred=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}_blurred\.")

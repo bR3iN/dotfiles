@@ -12,11 +12,6 @@ file = "~/.config/zathura/flavours"
 rewrite = true
 
 [[item]]
-template = "vim"
-file = "~/.config/nvim/colors/flavours.vim"
-rewrite = true
-
-[[item]]
 template = "kitty"
 subtemplate = "default-256"
 file = "~/.config/kitty/flavours.conf"
@@ -41,12 +36,6 @@ file = "~/.config/gtk-3.20/gtk.css"
 rewrite = true
 
 [[item]]
-template = "custom"
-subtemplate = "awesome"
-file = "~/.config/awesome/flavours.lua"
-rewrite = true
-
-[[item]]
 template = "qutebrowser"
 file = "~/.config/qutebrowser/flavours.py"
 rewrite = true
@@ -54,8 +43,9 @@ rewrite = true
 [[item]]
 template = "fzf"
 subtemplate = "fish"
-file = "~/.config/fish/conf.d/flavours_fzf.fish"
+file = "/tmp/flavours.fzf"
 rewrite = true
+hook = "sed 's/set -U/set -x/' /tmp/flavours.fzf > ~/.config/fish/conf.d/flavours_fzf.fish"
 
 [[item]]
 template = "alacritty"
