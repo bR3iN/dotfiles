@@ -43,9 +43,8 @@ rewrite = true
 [[item]]
 template = "fzf"
 subtemplate = "fish"
-file = "/tmp/flavours.fzf"
+file = "~/.config/fish/conf.d/flavours_fzf.fish"
 rewrite = true
-hook = "sed 's/set -U/set -x/' /tmp/flavours.fzf > ~/.config/fish/conf.d/flavours_fzf.fish"
 
 [[item]]
 template = "alacritty"
