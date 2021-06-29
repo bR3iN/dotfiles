@@ -6,7 +6,10 @@ if [ -x /usr/bin/fish ]; then
     alias tmux='SHELL=/usr/bin/fish tmux'
 fi
 
-# Load machine specific configuration
-[ -f ~/.local_profile ] && . ~/.local_profile
+if [ -d ~/.profile.d ]; then
+    for file in ~/.profile.d/*; do
+        source "$file" 2> /dev/null
+    done
+fi
 
 # vim: filetype=sh

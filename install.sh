@@ -16,6 +16,10 @@ function main {
                 NO_SYMLINKS="true"
                 ;;
 
+            -n|--no-deletion) # Do not delete files or directories that aren't symlinks
+                NO_DELETION="true"
+                ;;
+
             -y|--always-yes)
                 ALWAYS_YES="true"
                 ;;
@@ -31,7 +35,7 @@ function main {
                 ;;
 
             -f|--file)
-                if [[ ! -z "$2" ]]; then
+                if [[ -n "$2" ]]; then
                     CONF="$2"
                     shift
                 else
@@ -74,7 +78,7 @@ exit
 
 function installTarget {
     local target="$1"
-    if [ ! -z "${INSTALLED[$target]-}" ]; then
+    if [ -n "${INSTALLED[$target]-}" ]; then
         return 0
     else
         INSTALLED["$target"]="true"
@@ -154,7 +158,7 @@ function installFile {
         if [ -n "${as_root-}" ]; then
             sudo install -D -m=0755 -t "/usr/local/bin" "$INSTALLER_DIR/$file"
         else
-            createSymlink "$file" "$HOME/.local/bin/$(basename $file)"
+            createSymlink "$file" "$HOME/.local/bin/$(basename "$file")"
         fi
     elif [ -d "$INSTALLER_DIR/$file" ]; then
         (cd "$INSTALLER_DIR/$file"; ${as_root-} make install)
@@ -205,7 +209,10 @@ function createSymlink {
 function confirmAndDelete {
     # $1 is path of file/dir to remove; $2 is 'sudo' or empty
 
-    if [ "${ALWAYS_YES-}" = true ]; then
+    if [ "${NO_DELETION-}" = true ]; then
+        echo "'$path' is not removed due to '-n|--no-deletion' option"
+        return 1
+    elif [ "${ALWAYS_YES-}" = true ]; then
         ${2-} rm -rf "$1" && return 0
         return 1
     fi
