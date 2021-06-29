@@ -3,7 +3,7 @@ template = "custom"
 subtemplate = "wallpaper"
 file = "/tmp/current_scheme"
 rewrite = true
-hook = "[ -x ~/Wallpaper/set] && ~/Wallpaper/set"
+hook = "~/Wallpaper/set"
 
 [[item]]
 template = "zathura"
@@ -43,9 +43,8 @@ rewrite = true
 [[item]]
 template = "fzf"
 subtemplate = "fish"
-file = "/tmp/flavours.fzf"
+file = "~/.config/fish/conf.d/flavours_fzf.fish"
 rewrite = true
-hook = "sed 's/set -U/set -x/' /tmp/flavours.fzf > ~/.config/fish/conf.d/flavours_fzf.fish"
 
 [[item]]
 template = "alacritty"
