@@ -6,7 +6,7 @@ set $up k
 set $right l
 
 set $term alacritty
-#set $term kitty -e fish
+#set $term kitty
 set $menu rofi -show drun $ROFI_FLAGS | xargs swaymsg exec --
 #set $menu wofi | xargs swaymsg exec --
 
