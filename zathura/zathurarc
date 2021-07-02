@@ -1,0 +1,10 @@
+set window-title-basename true
+set selection-clipboard clipboard
+set font "Fira Sans Regular 10"
+map <C-l> nohlsearch
+
+# For vimtex backward search
+set synctex-editor-command "nvr --remote +%{line} %{input}"
+
+# Load flavours generated colors
+include flavours
