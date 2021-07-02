@@ -7,6 +7,7 @@ pkgs=(
     imagemagick
     docker
     npm
+    youtube-dl
     rofi
     tmux
     zathura

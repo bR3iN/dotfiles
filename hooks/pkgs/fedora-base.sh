@@ -6,6 +6,7 @@ pkgs=(
     bat
     docker
     firefox
+    youtube-dl
     fish
     ImageMagick
     kitty
