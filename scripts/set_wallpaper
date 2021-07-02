@@ -19,8 +19,10 @@ if [ -n "$file_blurred" ]; then
     ln -fs "$WALLPAPER_DIR/$file_blurred" "$WALLPAPER_DIR/current_blurred"
 fi
 
-case "$DESKTOP_SESSION" in
-    sway)
-        #swaymsg -- output '*' bg ~/Wallpaper/current fill
-        ;;
-esac
+if [ -n "$1" ]; then
+    case "$DESKTOP_SESSION" in
+        sway)
+            swaymsg -- output '*' bg ~/Wallpaper/current fill
+            ;;
+    esac
+fi

@@ -18,8 +18,9 @@ pkgs=(
     sway
     swayidle
     Thunar
+    greetd
+    greetd-gtkgreet
     thunar-volman
-    torbrowser-launcher
     tumbler
     swaylock
     waybar
@@ -29,3 +30,5 @@ pkgs=(
 
 sudo dnf install -y "${pkgs[@]}"
 sudo dnf group install -y "${groups[@]}"
+
+sudo systemctl enable greetd

@@ -52,8 +52,9 @@ install_wallpaper() {
     if [ ! "${as_root-}" = true ]; then
         local directory="$LOCAL_WALLPAPER_DIR"
     else
-        local tmp_dir="$(mktemp -d)"
-        local directory=$tmp_dir
+        local tmp_dir
+        tmp_dir="$(mktemp -d)"
+        local directory="$tmp_dir"
     fi
 
     download_wallpaper "$name" "$url" "$directory"
@@ -71,20 +72,5 @@ install_wallpaper() {
     fi
 }
 
-
-#echo "Download wallpaper..."
-
-#echo "Convert wallpaper to PNG, crop wallpaper and blur wallpaper for login and lock screen..."
-#convert -resize "${TARGET_SIZE%%x*}" "$TEMP_DIR/original.$EXTENSION" "$TEMP_DIR/mywallpaper.png"
-#convert -crop "${TARGET_SIZE}+${X_OFFSET}+${Y_OFFSET}" "$TEMP_DIR/mywallpaper.png" "$TEMP_DIR/mywallpaper.png"
-#convert -blur 0x30 "$TEMP_DIR/mywallpaper.png" "$TEMP_DIR/mywallpaper-blurred.png"
-
-#echo "Installing wallpaper..."
-#sudo install -m0644 -D --target-directory="$WALLPAPER_DIR" "$TEMP_DIR/mywallpaper.png"
-#sudo install -m0644 -D --target-directory="$WALLPAPER_DIR" "$TEMP_DIR/mywallpaper-blurred.png"
-
-#rm -r "${TEMP_DIR:?}"
-
 install_wallpaper "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
-install_wallpaper "nord1" "https://www.itl.cat/pngfile/big/293-2936366_3840x2160-knstlerisch-minimalist-wallpaper-mountain.jpg"
 install_wallpaper "nord" "https://i.redd.it/jkxvgyorlk051.png"

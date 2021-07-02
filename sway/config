@@ -5,8 +5,8 @@ set $down j
 set $up k
 set $right l
 
-set $term alacritty
-#set $term kitty
+#set $term alacritty
+set $term kitty
 set $menu rofi -show drun $ROFI_FLAGS | xargs swaymsg exec --
 #set $menu wofi | xargs swaymsg exec --
 
@@ -321,6 +321,7 @@ for_window {
     [app_id="seahorse"] floating enable
     [class="GParted"] floating enable
     [app_id="polkit"] floating enable
+    [title="Event Tester"] floating enable
 }
 ### }}}
 

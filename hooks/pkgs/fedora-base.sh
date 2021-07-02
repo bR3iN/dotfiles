@@ -19,6 +19,7 @@ pkgs=(
     setroubleshoot
     setxkbmap
     thunderbird
+    torbrowser-launcher
     tlp
     tmux
 
@@ -44,3 +45,7 @@ groups=(
 
 sudo dnf install -y "${pkgs[@]}"
 sudo dnf group install -y "${groups[@]}"
+
+sudo systemctl enable --now docker
+sudo systemctl enable --now libvirtd
+sudo systemctl enable --now tlp

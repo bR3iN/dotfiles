@@ -10,7 +10,7 @@ main ()
         echo "$current" > "$TMP_FILE"
         set 0
     else
-        old=$(cat "$TMP_FILE" 2>/dev/null)
+        local old=$(cat "$TMP_FILE" 2>/dev/null)
         if [ -n "$old" ]; then
             set "$old"
         else
