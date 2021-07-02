@@ -34,6 +34,8 @@ template = "gtk-flatcolor"
 subtemplate = "gtk-3"
 file = "~/.config/gtk-3.20/gtk.css"
 rewrite = true
+hook = "~/.local/bin/propagate-flavours"
+light = false
 
 [[item]]
 template = "qutebrowser"
@@ -55,15 +57,16 @@ rewrite = true
 [[item]]
 template = "waybar"
 file = "~/.config/waybar/flavours.css"
-#hook = "killall -USR2 waybar"
+hook = "killall -USR2 waybar"
 rewrite = true
 
 [[item]]
 template = "sway"
 subtemplate = "colors"
 file = "~/.config/sway/flavours"
-hook = "swaymsg reload"
 rewrite = true
+hook = "swaymsg reload"
+light = false
 
 #[[item]]
 #template = "wofi"

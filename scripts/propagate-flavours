@@ -1,0 +1,24 @@
+#!/usr/bin/bash
+# Propagates changes to the color scheme made by flavours
+# to resources accessed by root.
+
+# Get users home directory then call this script again as root
+if [ -z "$1" ]; then
+    pkexec propagate-flavours "$HOME"
+    exit
+fi
+
+THEMES="/usr/share/themes"
+BACKGROUNDS="/usr/share/backgrounds/mywallpaper"
+
+CONFIG_DIR="${1}/.config"
+cp "$CONFIG_DIR"/gtk-3.0/gtk.css  "$THEMES"/FlatColor/gtk-3.0/flavours.css
+cp "$CONFIG_DIR"/gtk-3.20/gtk.css "$THEMES"/FlatColor/gtk-3.20/flavours.css
+
+mkdir -p "$BACKGROUNDS"
+
+for name in current current_blurred; do
+    if [ -f "$1/Wallpaper/$name" ]; then
+        cp "$1/Wallpaper/$name" "$BACKGROUNDS/$name"
+    fi
+done
