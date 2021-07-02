@@ -15,9 +15,10 @@ paq = require'paq-nvim'.paq
 
 paq 'tpope/vim-surround'
 paq 'tpope/vim-repeat'
-paq 'preservim/nerdcommenter'
+paq 'tpope/vim-commentary'
 paq 'christoomey/vim-tmux-navigator'
 paq 'georgewitteman/vim-fish'
+paq 'rust-lang/rust.vim'
 
 paq { 'savq/paq-nvim', opt = true } do
     map ('n', '<leader>pi', ':PaqInstall<CR>')

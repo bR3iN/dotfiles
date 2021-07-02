@@ -49,6 +49,7 @@ set smartcase "requires ignorecase
 set splitbelow
 set splitright
 set wildmode=longest:full,full
+set wildignorecase
 
 " Undo behaviour
 set undofile
@@ -76,6 +77,8 @@ if has('nvim')
 endif
 
 nnoremap <leader>ee :!ls<cr>:e<space>
+nnoremap <leader>se :!ls<cr>:sp<space>
+nnoremap <leader>ve :!ls<cr>:vs<space>
 
 " Buffer navigation
 nnoremap <leader>b  :<C-u>ls<cr>:<c-u>b<space>
@@ -187,6 +190,13 @@ tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<CR>
 tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<CR>
 " }}}
 
+" rust.vim {{{
+let g:rust_conceal = 1
+let g:rust_conceal_mod_path = 1
+let g:rust_fold = 2
+"let g:rustfmt_autosave = 1
+" }}}
+
 " }}}
 
 " Autocmd {{{
@@ -221,7 +231,7 @@ endif
 " Otherwise set in /usr/share/nvim/runtime/syntax/syncolor.vim
 hi Comment ctermfg=8
 hi Constant ctermfg=5
-hi Special ctermfg=16
+hi Special ctermfg=17
 hi Identifier ctermfg=6
 hi Statement ctermfg=3
 hi PreProc ctermfg=12
@@ -267,7 +277,7 @@ if !has("nvim")
     call plug#begin('~/.vim/plugged')
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-repeat'
-    Plug 'preservim/nerdcommenter'
+    Plug 'tpope/vim-commentary'
     Plug 'christoomey/vim-tmux-navigator'
     call plug#end()
 endif
