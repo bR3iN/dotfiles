@@ -1,6 +1,7 @@
-#if [ ! "$XDG_SESSION_TYPE" = wayland ]; then
-    #export QT_SCALE_FACTOR=1.25
-    #export ROFI_FLAGS="$ROFI_FLAGS -dpi 120"
-#fi
+if [ "$XDG_DESKTOP_SESSION" = gnome ]; then
+    export QT_SCALE_FACTOR=1.25
+    export ROFI_FLAGS="$ROFI_FLAGS -dpi 120"
+fi
 
+env > /tmp/startup_env
 # vim: filetype=sh
