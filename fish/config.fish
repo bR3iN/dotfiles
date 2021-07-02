@@ -24,6 +24,7 @@ alias ga 'git add'
 alias gc 'git commit'
 alias gl 'git log'
 alias gd 'git diff'
+alias se 'sudoedit'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
