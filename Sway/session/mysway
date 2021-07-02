@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+# See https://man.sr.ht/~kennylevinsen/greetd/
+
+# Set environment variables
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=sway
+export XDG_CURRENT_DESKTOP=sway
+
+# Show sway logs under journalctl
+systemd-cat --identifier sway sway $@
