@@ -6,6 +6,7 @@ pkgs=(
     bat
     docker
     firefox
+    fedora-workstation-repositories
     youtube-dl
     fish
     ImageMagick

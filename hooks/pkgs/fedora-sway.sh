@@ -1,5 +1,5 @@
-sudo dnf module enable sway:rolling
-sudo dnf copr   enable alebastr/sway-extras
+sudo dnf module enable -y sway:rolling
+sudo dnf copr   enable -y alebastr/sway-extras
 
 pkgs=(
     blueberry
@@ -7,6 +7,7 @@ pkgs=(
     d-feet
     google-noto-emoji-color-fonts
     gnome-keyring
+    xfce-polkit
     seahorse
     htop
     lxappearance
@@ -26,6 +27,7 @@ pkgs=(
     waybar
     wl-clipboard
     wlogout
+    wob
     wlsunset
 )
 

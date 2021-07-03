@@ -12,4 +12,4 @@ mkdir -p ~/.profile.d
 echo 'export ROFI_FLAGS="$ROFI_FLAGS -theme theme"' > ~/.profile.d/rofi_flavours
 
 # Apply default theme
-~/.cargo/bin/flavours apply nord
+~/.cargo/bin/flavours apply --light nord
