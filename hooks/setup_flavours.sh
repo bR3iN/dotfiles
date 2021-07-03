@@ -9,7 +9,7 @@ mkdir -p ~/.config/{gtk-2.0,gtk-3.0,gtk-3.20,waybar,sway,kitty,alacritty}
 
 # Make rofi use the flavours infused theme
 mkdir -p ~/.profile.d
-echo 'export ROFI_FLAGS%eq%"$ROFI_FLAGS -theme theme"' > ~/.profile.d/rofi_flavours
+echo 'export ROFI_FLAGS="$ROFI_FLAGS -theme theme"' > ~/.profile.d/rofi_flavours
 
 # Apply default theme
 ~/.cargo/bin/flavours apply nord
