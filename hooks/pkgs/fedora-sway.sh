@@ -25,6 +25,7 @@ pkgs=(
     swaylock
     waybar
     wl-clipboard
+    wlogout
     wlsunset
 )
 

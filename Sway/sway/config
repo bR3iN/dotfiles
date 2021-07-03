@@ -81,10 +81,8 @@ input "1:1:AT_Translated_Set_2_keyboard" {
 }
 
 input "2:14:ETPS/2_Elantech_Touchpad" {
-    dwt enabled
-        tap enabled
-        natural_scroll enabled
-        middle_emulation enabled
+    tap enabled
+    natural_scroll enabled
 }
 
 # You can get the names of your inputs by running: swaymsg -t get_inputs
@@ -96,8 +94,9 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
 ## Sway stuff {{{
 floating_modifier $mod normal
 
-# Lock screen
+# Lock screen and power menu
 bindsym $mod+Escape exec wlock
+bindsym $mod+Control+Escape exec wlogout
 
 # Hide Waybar
 bindsym $mod+o exec killall -SIGUSR1 waybar; smart_gaps toggle
@@ -111,8 +110,8 @@ bindsym $mod+f fullscreen
 # Reload configuration file
 bindsym $mod+Control+r reload
 
-# Exit sway
-bindsym $mod+Control+q exec swaynag -t warning -m 'Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'
+## Exit sway
+#bindsym $mod+Control+q exec swaynag -t warning -m 'Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'
 
 # Close focused client
 bindsym $mod+q kill
