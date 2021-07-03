@@ -83,3 +83,9 @@ template = "custom"
 subtemplate = "rofi"
 file = "~/.config/rofi/flavours.rasi"
 rewrite = true
+
+[[item]]
+template = "custom"
+subtemplate = "wob"
+file = "~/.config/wob"
+rewrite = true
