@@ -9,14 +9,14 @@
     "margin-top"   : 15,
     "modules-center": ["clock"],
     "modules-right": [
+        "tray",
         "custom/media",
         "cpu",
         "memory",
         "idle_inhibitor",
         "pulseaudio",
         "network",
-        "battery",
-        "tray"
+        "battery"
     ],
 
     "sway/workspaces": {
