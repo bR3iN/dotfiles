@@ -1,0 +1,91 @@
+#!/usr/bin/bash
+
+# tmp file used to store current brightness when toggling
+# as well as fallback when file can't be found
+TMP_FILE=/tmp/backlight_toggle_current
+TOGGLE_FALLBACK="50%"
+
+# wob pipe to display percentage on screen
+WOB_PIPE=/tmp/wob.sock
+
+# default increase/decrese
+DEFAULT_CHANGE="5%"
+
+main ()
+{
+    case "$1" in
+        toggle)
+            toggle
+            ;;
+        increase)
+            increase
+            ;;
+        decrease)
+            decrease
+            ;;
+        *)
+            set_brightness "$1" &>/dev/null
+            ;;
+    esac
+}
+
+toggle ()
+{
+    local current=$(get_brightness)
+    if [ "$current" != "0" ]; then
+        echo "$current" > "$TMP_FILE"
+        set_brightness 0
+    else
+        local old=$(cat "$TMP_FILE" 2>/dev/null)
+        if [ -n "$old" ]; then
+            set_brightness "$old"
+        else
+            set_brightness "$TOGGLE_FALLBACK"
+        fi
+    fi
+}
+
+increase ()
+{
+    local new
+    new=($(set_brightness +"$DEFAULT_CHANGE"))
+    emit ${new[1]}
+}
+
+decrease ()
+{
+    local new
+    new=($(set_brightness "$DEFAULT_CHANGE"-))
+    emit ${new[1]}
+    if [ "${new[0]}" = "0" ]; then
+        set_brightness 1
+    fi
+}
+
+set_brightness ()
+{
+    # Set brightness and print current brightness as
+    # absulute value and as percentage to stdout (e.g 2345 40)
+    brightnessctl set "$1" \
+        | sed -n 's/.*Current brightness: \([0-9]*\) (\(.*\)%)/\1 \2/p' 
+}
+
+get_brightness()
+{
+    brightnessctl get
+}
+
+emit ()
+{
+    if [ ! -p "$WOB_PIPE" ]; then
+        exit
+    fi
+
+    if [ -n "$1" ]; then
+        echo "$1" >> "$WOB_PIPE"
+    else
+        cat >> "$WOB_PIPE"
+    fi
+}
+
+main "$@"
