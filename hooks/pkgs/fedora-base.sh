@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 sudo dnf copr enable -y agriffis/neovim-nightly &>> /dev/null
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 pkgs=(
     bat
@@ -10,6 +11,8 @@ pkgs=(
     youtube-dl
     fish
     ImageMagick
+    ffmpeg
+    mpv
     kitty
     neovim
     npm
