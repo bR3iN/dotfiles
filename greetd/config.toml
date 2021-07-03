@@ -17,5 +17,5 @@ command = "sway --config /etc/greetd/gtkgreet-sway.conf"
 user = "greetd"
 
 [initial_session]
-command = "sway"
+command = "mysway"
 user = "%USER%"
