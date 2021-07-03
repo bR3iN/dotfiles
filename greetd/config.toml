@@ -16,6 +16,6 @@ command = "sway --config /etc/greetd/gtkgreet-sway.conf"
 # in the `video` group.
 user = "greetd"
 
-#[initial_session]
-#command = "sway"
-#user = "%USER%"
+[initial_session]
+command = "sway"
+user = "%USER%"

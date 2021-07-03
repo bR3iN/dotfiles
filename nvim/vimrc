@@ -86,10 +86,10 @@ nnoremap <leader>sb	:<C-u>ls<cr>:<c-u>sb<space>
 nnoremap <leader>vb	:<C-u>ls<cr>:<c-u>vert sb<space>
 nnoremap <leader>db	:<C-u>ls<cr>:<c-u>bd<space>
 
-nnoremap ]b :<C-u>bnext<CR>
-nnoremap [b :<C-u>bprev<CR>
-nnoremap ]B :<C-u>blast<CR>
-nnoremap [B :<C-u>bfirst<CR>
+"nnoremap ]b :<C-u>bnext<CR>
+"nnoremap [b :<C-u>bprev<CR>
+"nnoremap ]B :<C-u>blast<CR>
+"nnoremap [B :<C-u>bfirst<CR>
 
 " Navigate quickfix and location lists
 nnoremap ]q         :<C-u>cnext<CR>
