@@ -137,15 +137,15 @@ bindsym $mod+Control+e exec kitty -e nvim '+cd %:h' ~/.config/sway/config
 ## Media keys {{{
 #Brightness keys
 bindsym XF86MonBrightnessDown \
-    exec brightnessctl set 5%-
+    exec backlight decrease
 bindsym XF86MonBrightnessUp \
-    exec brightnessctl set +5%
+    exec backlight increase
 
 # Toggle keyboard and screen backlight
 bindsym Mod4+Home \
     exec kbbacklight_toggle
 bindsym Mod4+End \
-    exec backlight_toggle
+    exec backlight toggle
 
 # Raise, lowe and mute audio
 bindsym XF86AudioLowerVolume \
@@ -324,7 +324,7 @@ for_window {
 }
 ### }}}
 
-# Autostart {{{
+### Autostart {{{
 exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
 exec /usr/libexec/xfce-polkit
 
