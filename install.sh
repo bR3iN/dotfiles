@@ -162,7 +162,12 @@ function installFile {
             createSymlink "$file" "$HOME/.local/bin/$(basename "$file")"
         fi
     elif [ -d "$INSTALLER_DIR/$file" ]; then
-        (cd "$INSTALLER_DIR/$file"; ${as_root-} make install)
+        (cd "$INSTALLER_DIR/$file"; ${as_root-} make install) \
+            || local exit_code=$?
+    fi
+
+    if [ ! "${exit_code:-0}" -eq 0]; then
+        echo "ERROR: install directive $file failed with exit code $exit_code"
     fi
 }
 
