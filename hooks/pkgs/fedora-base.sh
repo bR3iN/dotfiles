@@ -7,6 +7,7 @@ pkgs=(
     #rofi
     bat
     docker
+    fedora-workstation-backgrounds
     fedora-workstation-repositories
     ffmpeg
     firefox

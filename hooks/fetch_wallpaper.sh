@@ -15,6 +15,14 @@ download_wallpaper() {
     wget -O "$directory/${name}.${url##*.}" "$url" &>> /dev/null
 }
 
+get_wallpaper() {
+    local name="$1"
+    local path="$2"
+    local directory="$3"
+    echo "Copying wallpaper ${name} to ${directory}"
+    cp "$path" "$directory/${name}.${path##*.}"
+}
+
 resize_and_blur() {
     local path="$1"
     local path_blurred="$2"
@@ -27,10 +35,17 @@ resize_and_blur() {
 }
 
 install_wallpaper() {
-    if [ "$1" = "--root" ]; then
-        local as_root="true"
+    while [[ "$1" =~ ^-- ]]; do
+        case "$1" in
+            --root)
+                local as_root="true"
+                ;;
+            --local)
+                local from_path="true"
+                ;;
+        esac
         shift
-    fi
+    done
 
     local name="$1"
     local url="$2"
@@ -57,7 +72,11 @@ install_wallpaper() {
         local directory="$tmp_dir"
     fi
 
-    download_wallpaper "$name" "$url" "$directory"
+    if [ "$from_path" = true ]; then
+        get_wallpaper "$name" "$url" "$directory"
+    else
+        download_wallpaper "$name" "$url" "$directory"
+    fi
 
     local path="$directory/$name.$extension"
     local path_blurred="$directory/${name}_blurred.$extension"
@@ -72,5 +91,13 @@ install_wallpaper() {
     fi
 }
 
+# On all systems
 install_wallpaper "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
-install_wallpaper "nord" "https://i.redd.it/jkxvgyorlk051.png"
+
+case "$(cat /etc/os-release | grep "^NAME")" in
+    *Fedora)
+    install_wallpaper         "nord"     "https://i.redd.it/jkxvgyorlk051.png"
+    install_wallpaper --local "fedora34" "/usr/share/backgrounds/default.png"
+    install_wallpaper --local "fedora"   "/usr/share/backgrounds/fedora-workstation/paisaje.jpg"
+    ;;
+esac
