@@ -5,7 +5,7 @@ cargo install flavours
 ~/.cargo/bin/flavours update all
 
 # Make sure all necessary directories exist
-mkdir -p ~/.config/{gtk-2.0,gtk-3.0,gtk-3.20,waybar,sway,kitty,alacritty}
+mkdir -p ~/.config/{gtk-2.0,gtk-3.0,gtk-3.20,waybar,sway,kitty,alacritty,zathura}
 
 # Make rofi use the flavours infused theme
 mkdir -p ~/.profile.d

@@ -5,30 +5,31 @@ pkgs=(
     blueberry
     brightnessctl
     d-feet
-    google-noto-emoji-color-fonts
     gnome-keyring
-    xfce-polkit
-    seahorse
+    google-noto-emoji-color-fonts
+    greetd
+    greetd-gtkgreet
     htop
     lxappearance
     NetworkManager-tui
     nnn
     pavucontrol
     playerctl
+    pulseaudio-utils
     rofi-wayland
+    seahorse
     sway
     swayidle
+    swaylock
     Thunar
-    greetd
-    greetd-gtkgreet
     thunar-volman
     tumbler
-    swaylock
     waybar
     wl-clipboard
     wlogout
-    wob
     wlsunset
+    wob
+    xfce-polkit
 )
 
 sudo dnf install -y "${pkgs[@]}"

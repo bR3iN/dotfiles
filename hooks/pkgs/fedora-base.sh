@@ -1,32 +1,35 @@
 #!/usr/bin/bash
 
 sudo dnf copr enable -y agriffis/neovim-nightly &>> /dev/null
-sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 pkgs=(
+    #rofi
     bat
     docker
-    firefox
     fedora-workstation-repositories
-    youtube-dl
-    fish
-    ImageMagick
     ffmpeg
-    mpv
+    firefox
+    fish
+    gparted
+    ImageMagick
     kitty
+    mpv
+    mpv-mpris
     neovim
     npm
+    plymouth-theme-spinner
     powertop
     qutebrowser
     redshift
     ristretto
-    #rofi
     setroubleshoot
     setxkbmap
     thunderbird
-    torbrowser-launcher
     tlp
     tmux
+    torbrowser-launcher
+    youtube-dl
 
     # Order matters
     zathura
@@ -42,6 +45,7 @@ groups=(
     "Standard"
     "Multimedia"
     "Printing Support"
+    "Common NetworkManager Submodules"
     "Hardware Support"
     "Development Tools"
     "C Development Tools and Libraries"
@@ -51,6 +55,8 @@ groups=(
 sudo dnf install -y "${pkgs[@]}"
 sudo dnf group install -y "${groups[@]}"
 
+systemctl enable --now --user pipewire.service
+systemctl enable --now --user pipewire-pulse.service
 sudo systemctl enable --now docker
 sudo systemctl enable --now libvirtd
 sudo systemctl enable --now tlp
