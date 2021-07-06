@@ -5,8 +5,7 @@ let mapleader = " "
 
 " For Plugins
 let g:tmux_navigator_no_mappings = 1
-let g:NERDCreateDefaultMappings = 0
-let b:surround_66 = "{\r}\1\1"
+let g:surround_66 = "{\r}\1\1"
 
 if has("nvim") && executable('nvr')
     let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
@@ -152,15 +151,9 @@ onoremap       <silent>g{                   :<c-u>call MoveInParagraph(0, 1)<cr>
 
 " Configure Shared Plugins {{{
 
- "NERDCommenter {{{
-nmap     <silent>  <Plug>NERDCommenterToggle
-vmap     <silent>  <Plug>NERDCommenterToggle
-inoremap <silent>  <Esc>:exec "normal \<Plug>NERDCommenterToggle"<cr>a
-" }}}
-
 " NERDTree {{{
 "nnoremap <silent> <leader>nt :<c-u>NERDTreeToggle<CR>
-"nnoremap <silent> <leader>nf  :<c-u>NERDTreeFind<CR>
+"nnoremap <silent> <leader>nf :<c-u>NERDTreeFind<CR>
 	"" Exit Vim if NERDTree is the only window left.
 "augroup plugin_NERDTree
     "autocmd!
