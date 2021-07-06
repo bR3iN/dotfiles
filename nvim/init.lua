@@ -80,7 +80,7 @@ paq 'nvim-treesitter/nvim-treesitter' do
     prequire('treesitter')
 end
 
---map('n', '<leader>ot', ':below split term://fish | resize 10<CR>')
+map('n', '<leader>ot', ':below split term://fish | resize 10<CR>')
 augroup 'terminal' [[
     autocmd TermOpen * setlocal nonumber norelativenumber | startinsert
     autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif

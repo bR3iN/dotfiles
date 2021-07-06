@@ -95,9 +95,11 @@ install_wallpaper() {
 install_wallpaper "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
 
 case "$(cat /etc/os-release | grep "^NAME")" in
-    *Fedora)
-    install_wallpaper         "nord"     "https://i.redd.it/jkxvgyorlk051.png"
-    install_wallpaper --local "fedora34" "/usr/share/backgrounds/default.png"
-    install_wallpaper --local "fedora"   "/usr/share/backgrounds/fedora-workstation/paisaje.jpg"
-    ;;
+	*Fedora)
+		install_wallpaper         "nord"     "https://i.redd.it/jkxvgyorlk051.png"
+		install_wallpaper --local "fedora34" "/usr/share/backgrounds/default.png"
+		install_wallpaper --local "fedora"   "/usr/share/backgrounds/fedora-workstation/paisaje.jpg"
+		;;
+	*Tumbleweed*)
+		install_wallpaper --local "opensuse" "/usr/share/wallpapers/default-1920x1080.jpg"
 esac
