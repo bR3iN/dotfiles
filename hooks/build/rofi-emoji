@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+set -e
+
+# Variables to configure
+URL=https://github.com/Mange/rofi-emoji
+DIRNAME=rofi-emoji
+DIR_PATH="$HOME/Github/$DIRNAME"
+
+# Executed inside repo
+build_and_install ()
+{
+    autoreconf -i
+    mkdir build
+    cd build/
+    ../configure
+    make
+    sudo make install
+
+    # Fixes XDG_DATA_DIRS on tumbleweed
+    sudo mkdir -p /usr/local/share/applications
+}
+
+install_dependencies ()
+{
+    case "$(cat /etc/os | grep "^NAME")" in
+        *Fedora)
+            ;;
+        *Tumbleweed*)
+            sudo zypper install rofi-devel \
+                noto-coloremoji-fonts
+            ;;
+    esac
+}
+
+if [ ! -d "$DIR_PATH" ]; then
+    install_dependencies
+ 
+    mkdir -p "$(dirname "$DIR_PATH")"
+    git clone "$URL" "$DIR_PATH"
+    cd "$DIR_PATH"
+
+    build_and_install || rm -rf "$DIR_PATH"
+fi

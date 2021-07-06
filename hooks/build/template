@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+set -e
+
+# Variables to configure
+URL=
+DIRNAME=
+DIR_PATH="$HOME/Github/$DIRNAME"
+
+# Executed inside repo
+build_and_install ()
+{
+    make
+    sudo make install
+}
+
+install_dependencies ()
+{
+    case "$(cat /etc/os | grep "^NAME")" in
+        *Fedora)
+            ;;
+        *Tumbleweed*)
+            ;;
+    esac
+}
+
+if [ ! -d "$DIR_PATH" ]; then
+    install_dependencies
+ 
+    mkdir -p "$(dirname "$DIR_PATH")"
+    git clone "$URL" "$DIR_PATH"
+    cd "$DIR_PATH"
+
+    build_and_install || rm -rf "$DIR_PATH"
+fi
