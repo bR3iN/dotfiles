@@ -6,6 +6,7 @@ sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rel
 pkgs=(
     #rofi
     bat
+    cargo
     docker
     fedora-workstation-backgrounds
     fedora-workstation-repositories
@@ -14,6 +15,7 @@ pkgs=(
     fish
     gparted
     ImageMagick
+    imv
     kitty
     mpv
     mpv-mpris
@@ -23,7 +25,6 @@ pkgs=(
     powertop
     qutebrowser
     redshift
-    ristretto
     setroubleshoot
     setxkbmap
     thunderbird
@@ -36,9 +37,6 @@ pkgs=(
     zathura
     zathura-pdf-poppler
     zathura-plugins-all
-
-    # For building flavours
-    cargo
 )
 
 groups=(
