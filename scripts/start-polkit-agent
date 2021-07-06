@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+
+agents=(
+    /usr/libexec/xfce-polkit
+    /usr/libexec/polkit-gnome-authentication-agent-1
+    /usr/bin/lxpolkit
+)
+
+for cmd in "${agents[@]}"; do
+    if [ -x "$cmd" ]; then
+        eval "$cmd &"
+        exit
+    fi
+done

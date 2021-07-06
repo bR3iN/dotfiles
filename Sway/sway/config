@@ -18,7 +18,7 @@ include flavours
 font Fira Sans Regular 10
 
 hide_edge_borders --i3 smart_no_gaps
-default_border pixel 2
+default_border pixel 1
 
 smart_gaps     off
 gaps inner     12
@@ -320,13 +320,14 @@ for_window {
     [app_id="seahorse"] floating enable
     [class="GParted"] floating enable
     [app_id="polkit"] floating enable
+    [app_id="org.kde.kdeconnect"] floating enable
     [title="Event Tester"] floating enable
 }
 ### }}}
 
 ### Autostart {{{
 exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
-exec /usr/libexec/xfce-polkit
+exec start-polkit-agent
 
 exec mkfifo /tmp/wob.sock
 exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
