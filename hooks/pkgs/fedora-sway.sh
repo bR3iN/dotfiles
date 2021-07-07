@@ -6,7 +6,6 @@ pkgs=(
     brightnessctl
     d-feet
     gnome-keyring
-    google-noto-emoji-color-fonts
     greetd
     greetd-gtkgreet
     htop

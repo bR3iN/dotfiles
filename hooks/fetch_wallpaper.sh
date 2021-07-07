@@ -72,7 +72,7 @@ install_wallpaper() {
         local directory="$tmp_dir"
     fi
 
-    if [ "$from_path" = true ]; then
+    if [ "${from_path-}" = true ]; then
         get_wallpaper "$name" "$url" "$directory"
     else
         download_wallpaper "$name" "$url" "$directory"
