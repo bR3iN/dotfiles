@@ -15,7 +15,7 @@ build_and_install ()
 
 install_dependencies ()
 {
-    case "$(cat /etc/os | grep "^NAME")" in
+    case "$(cat /etc/os-release | grep "^NAME")" in
         *Fedora)
             ;;
         *Tumbleweed*)
