@@ -5,7 +5,7 @@ c.content.cookies.store = False
 c.content.cookies.store = False
 c.content.geolocation = False
 c.content.javascript.enabled = False
-config.set('content.javascript.images', True, '*://*.duckduckgo.com/*')
+config.set('content.javascript.enabled', True, '*://*.duckduckgo.com/*')
 c.content.webgl = False
 c.content.webrtc_ip_handling_policy = 'default-public-interface-only'
 

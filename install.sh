@@ -166,7 +166,7 @@ function installFile {
             || local exit_code=$?
     fi
 
-    if [ ! "${exit_code:-0}" -eq 0]; then
+    if [ ! "${exit_code:-0}" -eq 0 ]; then
         echo "ERROR: install directive $file failed with exit code $exit_code"
     fi
 }
