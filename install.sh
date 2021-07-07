@@ -4,6 +4,8 @@ set -o nounset
 set -o pipefail
 
 export INSTALLER_DIR=$(dirname $(readlink -f "$0"))
+export INSTALLER_USER="$(whoami)"
+
 CONF="${INSTALLER_DIR}/dotfiles.ini"
 OUTPUT_SEPARATOR='='
 
@@ -162,6 +164,12 @@ function installFile {
             createSymlink "$file" "$HOME/.local/bin/$(basename "$file")"
         fi
     elif [ -d "$INSTALLER_DIR/$file" ]; then
+
+        # Make INSTALLER_USER environment variable available if run with sudo
+        if [ -n "${as_root-}" ]; then
+            as_root="$as_root --preserve-env=INSTALLER_USER"
+        fi
+
         (cd "$INSTALLER_DIR/$file"; ${as_root-} make install) \
             || local exit_code=$?
     fi
