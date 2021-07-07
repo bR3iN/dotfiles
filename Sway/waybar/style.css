@@ -14,6 +14,7 @@ window#waybar {
     background-color: alpha(@base01, 0.95);
     border-bottom: 3px solid alpha(@base03, 0.95);
     color: @base08;
+    opacity: 0.8;
 }
 
 window#waybar.hidden {

@@ -130,8 +130,8 @@ bindsym $mod+d exec rofi-open
 bindsym $mod+b         exec qutebrowser
 bindsym $mod+Control+b exec rofi-ff
 
-# Edit config file
-bindsym $mod+Control+e exec kitty -e nvim '+cd %:h' ~/.config/sway/config
+# Open emoji selector
+bindsym $mod+Control+e exec rofi-emoji
 ## }}}
 
 ## Media keys {{{
@@ -321,6 +321,7 @@ for_window {
     [class="GParted"] floating enable
     [app_id="polkit"] floating enable
     [app_id="org.kde.kdeconnect"] floating enable
+    [app_id="org.opensuse.YaST"] floating enable
     [title="Event Tester"] floating enable
 }
 ### }}}
