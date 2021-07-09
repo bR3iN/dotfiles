@@ -13,12 +13,12 @@ pkgs=(
     ffmpeg
     firefox
     fish
-    gparted
     ImageMagick
     imv
     kitty
     mpv
     mpv-mpris
+    neofetch
     neovim
     npm
     plymouth-theme-spinner
