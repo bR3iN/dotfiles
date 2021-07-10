@@ -185,7 +185,6 @@ tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<CR>
 
 " rust.vim {{{
 let g:rust_conceal = 1
-let g:rust_conceal_mod_path = 1
 let g:rust_fold = 2
 "let g:rustfmt_autosave = 1
 " }}}

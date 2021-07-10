@@ -4,6 +4,7 @@ URL="https://github.com/jasperro/FlatColor"
 
 if [ ! -d ~/.themes/FlatColor ]; then
     git clone "$URL" ~/.themes/FlatColor
+    gsettings set org.gnome.desktop.interface gtk-theme 'FlatColor'
 fi
 
 if [ ! -d /usr/share/themes/FlatColor ]; then

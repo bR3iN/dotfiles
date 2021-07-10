@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 sudo dnf module enable -y sway:rolling
 sudo dnf copr   enable -y alebastr/sway-extras
 

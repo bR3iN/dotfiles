@@ -96,7 +96,7 @@ floating_modifier $mod normal
 
 # Lock screen and power menu
 bindsym $mod+Escape exec wlock
-bindsym $mod+Control+Escape exec wlogout
+bindsym $mod+Control+Q exec wlogout
 
 # Hide Waybar
 bindsym $mod+o exec killall -SIGUSR1 waybar; smart_gaps toggle
