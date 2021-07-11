@@ -27,6 +27,7 @@ pkgs=(
     redshift
     setroubleshoot
     setxkbmap
+    snapper
     thunderbird
     tlp
     tmux
