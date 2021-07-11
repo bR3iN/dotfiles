@@ -311,18 +311,20 @@ for_window {
     #[app_id="zathura"] move container to workspace 2
     [app_id="zathura"] layout tabbed
     [class="Thunderbird"] move conatiner to workspace 5
-    [app_id="pavucontrol"] floating enable
+
+    [app_id="blueberry.py"]          floating enable
+    [app_id="d-feet"]                floating enable
+    [app_id="firewall-config"]       floating enable
+    [app_id="gpick"]                 floating enable
+    [app_id="org.kde.kdeconnect"]    floating enable
+    [app_id="org.opensuse.YaST"]     floating enable
+    [app_id="pavucontrol"]           floating enable
+    [app_id="polkit"]                floating enable
+    [app_id="seahorse"]              floating enable
+    [app_id="setroubleshoot"]        floating enable
     [app_id="system-config-printer"] floating enable
-    [app_id="setroubleshoot"] floating enable
-    [app_id="blueberry.py"] floating enable
-    [app_id="gpick"] floating enable
-    [app_id="d-feet"] floating enable
-    [app_id="seahorse"] floating enable
-    [class="GParted"] floating enable
-    [app_id="polkit"] floating enable
-    [app_id="org.kde.kdeconnect"] floating enable
-    [app_id="org.opensuse.YaST"] floating enable
-    [title="Event Tester"] floating enable
+    [class="GParted"]                floating enable
+    [title="Event Tester"]           floating enable
 }
 ### }}}
 
