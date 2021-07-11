@@ -18,7 +18,7 @@ file = "~/.config/kitty/flavours.conf"
 rewrite = true
 
 [[item]]
-template = "gtk-flatcolor"
+template = "custom"
 subtemplate = "gtk-3"
 file = "~/.config/gtk-3.0/gtk.css"
 rewrite = true
@@ -30,11 +30,11 @@ file = "~/.config/gtk-2.0/gtkrc"
 rewrite = true
 
 [[item]]
-template = "gtk-flatcolor"
+template = "custom"
 subtemplate = "gtk-3"
 file = "~/.config/gtk-3.20/gtk.css"
 rewrite = true
-hook = "~/.local/bin/propagate-flavours"
+#hook = "~/.local/bin/propagate-flavours"
 light = false
 
 [[item]]
