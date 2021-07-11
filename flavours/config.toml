@@ -34,7 +34,7 @@ template = "custom"
 subtemplate = "gtk-3"
 file = "~/.config/gtk-3.20/gtk.css"
 rewrite = true
-#hook = "~/.local/bin/propagate-flavours"
+hook = "~/.local/bin/propagate-flavours"
 light = false
 
 [[item]]
