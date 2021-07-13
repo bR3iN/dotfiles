@@ -73,7 +73,6 @@ window#waybar.hidden {
 }
 
 #battery {
-    font-family: Fira Sans;
     border-bottom: 3px solid shade(@base0B, 0.7);
 }
 
