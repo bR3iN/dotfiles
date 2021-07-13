@@ -38,9 +38,9 @@ pkgs=(
     libstdc++-devel  # Needed by treesitter(?)
 )
 
+systemctl enable --user --now pipewire
+systemctl enable --user --now pipewire-pulseaudio
 sudo systemctl enable --now docker
-sudo systemctl enable --now pipewire
-sudo systemctl enable --now pipewire-pulseaudio
 sudo systemctl enable       greetd
 
 sudo zypper install -y "$pkgs[@]"
