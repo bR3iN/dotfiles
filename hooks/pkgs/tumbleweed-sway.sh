@@ -3,6 +3,7 @@ sudo zypper addrepo -refresh -name "X11:Wayland" \
 
 pkgs=(
     bat
+    blueberry
     cargo
     docker
     firefox
@@ -16,6 +17,7 @@ pkgs=(
     neofetch
     neovim
     npm
+    opi
     pipewire
     pipewire-pulseaudio
     qutebrowser
@@ -25,6 +27,7 @@ pkgs=(
     sway
     tmux
     upower
+    wlock
     wob
     zathura
     zathura-plugin-djvu
@@ -34,5 +37,10 @@ pkgs=(
     libqt5-qtwayland # Needed by qutebrowser on wayland
     libstdc++-devel  # Needed by treesitter(?)
 )
+
+sudo systemctl enable --now docker
+sudo systemctl enable --now pipewire
+sudo systemctl enable --now pipewire-pulseaudio
+sudo systemctl enable       greetd
 
 sudo zypper install -y "$pkgs[@]"
