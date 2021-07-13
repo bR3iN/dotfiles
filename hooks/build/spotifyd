@@ -26,6 +26,7 @@ install_dependencies ()
             sudo dnf install cargo alsa-lib-devel rust-dbus-devel
             ;;
         *Tumbleweed*)
+            sudo zypper install alsa-devel libopenssl-devel
             ;;
     esac
 }
