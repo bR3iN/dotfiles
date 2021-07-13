@@ -2,7 +2,7 @@
 
 function main {
     if [ "$2" == "Charging" ]; then
-        echo "[${1}%]"
+        echo " ${1}%[] "
     else
         echo " ${1}% "
     fi

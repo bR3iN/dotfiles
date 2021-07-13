@@ -80,7 +80,7 @@
         //"format-good": "{icon}", // An empty format will hide the module
         //"format-full": "{icon}",
         //"format-icons": ["", "", "", "", ""]
-        "format-icons": ["", "", "", "", "", "", "", "", "", ""]
+        "format-icons": ["", "", "", "", "", "", "", "", "", "", ""]
     },
 
     "network": {

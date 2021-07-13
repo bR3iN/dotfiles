@@ -110,6 +110,8 @@ nnoremap <leader>lc :<C-u>lclose<CR>
 nnoremap Y y$
 nnoremap <C-c> <C-^>
 
+nmap  gcc
+
 nnoremap <silent> <C-L> :<c-u>nohlsearch<CR><C-L>
 
 tnoremap <Esc> <C-\><C-n>

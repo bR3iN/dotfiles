@@ -336,6 +336,4 @@ exec mkfifo /tmp/wob.sock
 exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
 # }}}
 
-# include /etc/sway/config.d/*
-
 # vim: foldmethod=marker
