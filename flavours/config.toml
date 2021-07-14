@@ -89,3 +89,8 @@ template = "custom"
 subtemplate = "wob"
 file = "~/.config/wob"
 rewrite = true
+
+[[item]]
+template = "mako"
+file = "~/.config/mako/config"
+rewrite = true
