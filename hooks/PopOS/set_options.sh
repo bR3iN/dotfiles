@@ -4,8 +4,5 @@ gsettings set org.gnome.shell.extensions.pop-shell toggle-stacking-global "['<Co
 gsettings set org.gnome.shell.extensions.pop-shell activate-launcher "[]"
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "[]"
 
-# Pop-os launcher
-gsettings reset org.gnome.mutter overlay-key
-
 [ ! -f ~/Wallpaper/current ] && ~/Wallpaper/set pop-os
 gsettings set org.gnome.desktop.background picture-uri "file:///$HOME/Wallpaper/current"
