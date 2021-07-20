@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-sudo dnf copr enable -y agriffis/neovim-nightly &>> /dev/null
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 pkgs=(

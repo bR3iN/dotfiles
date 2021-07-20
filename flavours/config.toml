@@ -68,7 +68,7 @@ rewrite = true
 [[item]]
 template = "sway"
 subtemplate = "colors"
-file = "~/.config/sway/flavours"
+file = "~/.config/sway/config.d/flavours"
 rewrite = true
 hook = "swaymsg reload"
 light = false
