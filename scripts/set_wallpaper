@@ -1,23 +1,16 @@
 #!/usr/bin/bash
-
 WALLPAPER_DIR="$HOME/Wallpaper"
 
-if [ -n "$1" ]; then
-    wallpaper="$1"
-else
-    wallpaper=$(cat /tmp/current_scheme 2>/dev/null)
-fi
+wallpaper="${1:-$(cat /tmp/current_scheme 2>/dev/null)}"
+[ -z "$wallpaper" ] && exit
 
-file_normal=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}\.")
-file_blurred=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}_blurred\.")
-
-if [ -n "$file_normal" ]; then
-    ln -fs "$WALLPAPER_DIR/$file_normal" "$WALLPAPER_DIR/current"
-fi
-
-if [ -n "$file_blurred" ]; then
-    ln -fs "$WALLPAPER_DIR/$file_blurred" "$WALLPAPER_DIR/current_blurred"
-fi
+for suffix in "" _blurred _wide _wide_blurred; do
+    file=$(ls "$WALLPAPER_DIR" | grep "^${wallpaper}${suffix}\." \
+                               | head -1)
+    if [ -n "$file" ]; then
+        ln -fs "$WALLPAPER_DIR/$file" "$WALLPAPER_DIR/current$suffix"
+    fi
+done
 
 if [ -n "$1" ]; then
     case "$DESKTOP_SESSION" in

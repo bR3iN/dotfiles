@@ -2,47 +2,33 @@
 set -e
 set -u
 
-LOCAL_WALLPAPER_DIR="$HOME/Wallpaper"
-SYSTEM_WALLPAPER_DIR="/usr/share/backgrounds/mywallpaper"
-TARGET_SIZE="1920x1080"
+WALLPAPER_DIR="$HOME/Wallpaper"
 
-download_wallpaper() {
-    local name="$1"
-    local url="$2"
-    local directory="$3"
+main() {
+    # Wallpapers to be installed on all distros
+    install_wallpaper --both --resize "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
+    install_wallpaper "opensuse"      "/shared/Wallpaper/tumbleweed.png"
+    install_wallpaper "opensuse_wide" "/shared/Wallpaper/tumbleweed-wide.png"
 
-    echo "Downloading wallpaper ${name} to ${directory}"
-    wget -O "$directory/${name}.${url##*.}" "$url" &>> /dev/null
-}
-
-get_wallpaper() {
-    local name="$1"
-    local path="$2"
-    local directory="$3"
-    echo "Copying wallpaper ${name} to ${directory}"
-    cp "$path" "$directory/${name}.${path##*.}"
-}
-
-resize_and_blur() {
-    local path="$1"
-    local path_blurred="$2"
-
-    echo "Resizing wallaper"
-    convert -resize "${TARGET_SIZE%%x*}" "$path" "$path"
-
-    echo "Blurring wallpaper for lock screen"
-    convert -blur 0x30 "$path" "$path_blurred"
+    # Distro specific wallpaper
+    case "$(cat /etc/os-release | grep "^NAME")" in
+        *Fedora)
+            install_wallpaper "nord" "https://i.redd.it/jkxvgyorlk051.png"
+            install_wallpaper "nord_wide" "/shared/Wallpaper/nord-wide-fedora.png"
+            ;;
+        *Tumbleweed*)
+            ;;
+    esac
 }
 
 install_wallpaper() {
-    while [[ "$1" =~ ^-- ]]; do
+    while [[ "$1" =~ ^- ]]; do
         case "$1" in
-            --root)
-                local as_root="true"
+            --both)
+                local BOTH=true
                 ;;
-            --local)
-                local from_path="true"
-                ;;
+            --resize)
+                local RESIZE=true
         esac
         shift
     done
@@ -50,56 +36,81 @@ install_wallpaper() {
     local name="$1"
     local url="$2"
     local extension="${url##*.}"
+    local file="${name}.$extension"
 
-    # Check if wallpaper is already installed
-    if [ "${as_root-}" = true ]; then
-        if [ -f "$SYSTEM_WALLPAPER_DIR/$name.$extension" ]; then
-            echo "Wallpaper already installed. Skipping..."
+    if [ -f "$WALLPAPER_DIR/$file" ]; then
+        echo "Wallpaper already installed. Skipping..."
+        return
+    fi
+
+    local TMP_DIR=$(mktemp -d)
+
+    if [[ "$url" =~ ^/ ]]; then
+        get_wallpaper "$url" || {
+            echo "WARNING: Path $url is not valid. Skipping..."
             return
-        fi
+        }
     else
-        if [ -f "$LOCAL_WALLPAPER_DIR/$name.$extension" ]; then
-            echo "Wallpaper already installed. Skipping..."
+        download_wallpaper "$url" || {
+            echo "WARNING: Url $url is not valid. Skipping..."
             return
-        fi
+        }
     fi
 
-    if [ ! "${as_root-}" = true ]; then
-        local directory="$LOCAL_WALLPAPER_DIR"
-    else
-        local tmp_dir
-        tmp_dir="$(mktemp -d)"
-        local directory="$tmp_dir"
+    process "$name" "$extension"
+    if [ "${BOTH-}" = true ]; then
+        process "${name}_wide" "$extension"
     fi
 
-    if [ "${from_path-}" = true ]; then
-        get_wallpaper "$name" "$url" "$directory"
-    else
-        download_wallpaper "$name" "$url" "$directory"
-    fi
-
-    local path="$directory/$name.$extension"
-    local path_blurred="$directory/${name}_blurred.$extension"
-    resize_and_blur "$path" "$path_blurred"
-
-    if [  "${as_root-}" = "true" ]; then
-        echo "Installing wallpaper..."
-        sudo mkdir -p "$SYSTEM_WALLPAPER_DIR"
-        sudo install -m0644 -D --target-directory="$SYSTEM_WALLPAPER_DIR" "$path"
-        sudo install -m0644 -D --target-directory="$SYSTEM_WALLPAPER_DIR" "$path_blurred"
-        rm -r "${tmp_dir:?}"
-    fi
+    rm -r "${TMP_DIR?}"
 }
 
-# On all systems
-install_wallpaper "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
+process() {
+    local name="$1"
+    local extension="$2"
+    local file="${name}.$extension"
 
-case "$(cat /etc/os-release | grep "^NAME")" in
-	*Fedora)
-		install_wallpaper         "nord"     "https://i.redd.it/jkxvgyorlk051.png"
-		install_wallpaper --local "fedora34" "/usr/share/backgrounds/default.png"
-		install_wallpaper --local "fedora"   "/usr/share/backgrounds/fedora-workstation/paisaje.jpg"
-		;;
-	*Tumbleweed*)
-		install_wallpaper --local "opensuse" "/usr/share/wallpapers/default-1920x1080.jpg"
-esac
+    if [ "${RESIZE-}" = true ]; then
+        if [[ "$name" =~ _wide$ ]]; then
+            resize 3440x1440 "$TMP_DIR/tmp.$extension" "$WALLPAPER_DIR/$file"
+        else
+            resize 1920x1080 "$TMP_DIR/tmp.$extension" "$WALLPAPER_DIR/$file"
+        fi
+    else
+        cp "$TMP_DIR/tmp.$extension" "$WALLPAPER_DIR/$file"
+    fi
+
+    blur "$WALLPAPER_DIR/$file"
+}
+
+resize() {
+    local target_size="$1"
+    local file="$2"
+    local target_file="$3"
+
+    echo "Resizing wallpaper to $target_size"
+    convert -resize "${target_size%%x*}" -crop "${target_size}+0+0" -gravity center "$file" "$target_file"
+}
+
+blur() {
+    local path="$1"
+    echo "Blurring wallpaper for lock screen"
+    convert -blur 0x30 "$path" "${path%.*}_blurred.${file##*.}"
+}
+
+download_wallpaper() {
+    local url="$1"
+    echo "Downloading wallpaper from $url"
+    wget -O "$TMP_DIR/tmp.${url##*.}" "$url" &>> /dev/null
+}
+
+get_wallpaper() {
+    local path="$1"
+    [ -f "$path" ] || return 1
+
+    echo "Fetching wallpaper from ${path}"
+    cp "$path" "$TMP_DIR/tmp.${path##*.}"
+}
+
+
+main "$@"
