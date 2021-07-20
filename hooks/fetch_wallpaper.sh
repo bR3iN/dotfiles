@@ -5,6 +5,14 @@ set -u
 WALLPAPER_DIR="$HOME/Wallpaper"
 
 main() {
+    if [ -n "$*" ]; then
+        install_wallpaper "$@"
+    else
+        default_selection
+    fi
+}
+
+default_selection() {
     # Wallpapers to be installed on all distros
     install_wallpaper --both --resize "pop-os" "https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg"
     install_wallpaper "opensuse"      "/shared/Wallpaper/tumbleweed.png"
@@ -13,21 +21,29 @@ main() {
     # Distro specific wallpaper
     case "$(cat /etc/os-release | grep "^NAME")" in
         *Fedora)
-            install_wallpaper "nord" "https://i.redd.it/jkxvgyorlk051.png"
-            install_wallpaper "nord_wide" "/shared/Wallpaper/nord-wide-fedora.png"
+            install_wallpaper "nord"      "/shared/Wallpaper/nord-fedora.png"
+            install_wallpaper "nord_wide" "/shared/Wallpaper/nord-fedora-wide.png"
             ;;
         *Tumbleweed*)
+            install_wallpaper "nord"      "/shared/Wallpaper/nord-tumbleweed.png"
+            install_wallpaper "nord_wide" "/shared/Wallpaper/nord-tumbleweed-wide.png"
             ;;
+        *)
+            install_wallpaper "nord"      "/shared/Wallpaper/nord.png"
+            install_wallpaper "nord_wide" "/shared/Wallpaper/nord-wide.png"
     esac
 }
 
 install_wallpaper() {
     while [[ "$1" =~ ^- ]]; do
         case "$1" in
-            --both)
+            -f|--force)
+                local FORCE=true
+                ;;
+            -b|--both)
                 local BOTH=true
                 ;;
-            --resize)
+            -r|--resize)
                 local RESIZE=true
         esac
         shift
@@ -38,8 +54,8 @@ install_wallpaper() {
     local extension="${url##*.}"
     local file="${name}.$extension"
 
-    if [ -f "$WALLPAPER_DIR/$file" ]; then
-        echo "Wallpaper already installed. Skipping..."
+    if [ -f "$WALLPAPER_DIR/$file" ] && [ -z "{FORCE-}" ]; then
+        echo "Wallpaper with this name already installed. Skipping..."
         return
     fi
 
