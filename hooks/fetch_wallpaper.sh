@@ -54,7 +54,7 @@ install_wallpaper() {
     local extension="${url##*.}"
     local file="${name}.$extension"
 
-    if [ -f "$WALLPAPER_DIR/$file" ] && [ -z "{FORCE-}" ]; then
+    if [ -f "$WALLPAPER_DIR/$file" ] && [ -z "${FORCE-}" ]; then
         echo "Wallpaper with this name already installed. Skipping..."
         return
     fi
