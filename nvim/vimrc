@@ -247,7 +247,7 @@ hi PmenuSbar ctermbg=19
 hi PmenuSel ctermbg=8 ctermfg=11 cterm=bold
 hi PmenuThump ctermbg=7
 "hi Question ctermfg=10
-hi Question ctermfg=16
+hi Question ctermfg=10
 hi SignColumn ctermbg=18
 hi SpecialKey ctermfg=6
 hi StatusLine ctermbg=8 ctermfg=2 cterm=bold
