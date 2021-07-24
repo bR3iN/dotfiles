@@ -16,6 +16,7 @@ command = "sway --config /etc/greetd/gtkgreet-sway.conf"
 # in the `video` group.
 user = "greetd"
 
-[initial_session]
-command = "mysway"
-user = "%USER%"
+# Uncomment for autologin
+#[initial_session]
+#command = "mysway"
+#user = "%USER%"
