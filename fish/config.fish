@@ -1,10 +1,10 @@
 #!/usr/bin/fish
 
-if which bat &> /dev/null
+if [ -x /usr/bin/bat ]
     alias cat 'bat'
     set -x PAGER 'bat'
     set -x BAT_PAGER 'less'
-else if which batcat &> /dev/null
+else if [ -x /usr/bin/batcat ]
     alias cat 'batcat'
     set -x PAGER 'batcat' 
     set -x BAT_PAGER 'less'
@@ -12,13 +12,14 @@ else
     set -x PAGER 'less'
 end
 
-if [ -x /usr/bin/fish ]
-    alias tmux='SHELL=/usr/bin/fish command tmux'
+if [ -x /usr/bin/exa ]
+    alias ll 'exa -algb'
+else
+    alias ll 'ls -AhlF'
 end
 
 alias igrep 'grep -i'
 alias less 'less --mouse'
-alias ll 'ls -AhlF'
 alias gs 'git status'
 alias ga 'git add'
 alias gc 'git commit'
