@@ -6,7 +6,7 @@ set $up k
 set $right l
 
 #set $term alacritty
-set $term kitty
+set $term kitty-with-socket
 set $menu rofi -show drun $ROFI_FLAGS | xargs swaymsg exec --
 #set $menu wofi | xargs swaymsg exec --
 # }}}
@@ -21,7 +21,7 @@ smart_gaps     off
 gaps inner     12
 gaps outer     3
 
-bindsym $mod+Control+g gaps outer current toggle
+bindsym $mod+Control+g gaps inner current toggle 12
 
 bar swaybar_command waybar
 
@@ -244,8 +244,17 @@ bindsym $mod+e layout toggle split
 # Move focus to the parent container
 bindsym $mod+a focus parent
 bindsym $mod+c focus child
-bindsym $mod+Shift+k focus parent
-bindsym $mod+Shift+j focus child
+# bindsym $mod+Shift+k focus parent
+# bindsym $mod+Shift+j focus child
+
+bindsym $mod+Shift+$left  resize shrink width  40px
+bindsym $mod+Shift+$down  resize grow   height 40px
+bindsym $mod+Shift+$up    resize shrink height 40px
+bindsym $mod+Shift+$right resize grow   width  40px
+bindsym $mod+Shift+Left   resize shrink width  40px
+bindsym $mod+Shift+Down   resize grow   height 40px
+bindsym $mod+Shift+Up     resize shrink height 40px
+bindsym $mod+Shift+Right  resize grow   width  40px
 # }}}
 
 # Resize mode {{{
@@ -293,9 +302,7 @@ bindsym $mod+r mode "resize"
 ### Rules {{{
 # See swaymsg -t get_tree
 for_window {
-    #[app_id="zathura"] move container to workspace 2
-    [app_id="zathura"] layout tabbed
-    [class="Thunderbird"] move conatiner to workspace 5
+    [app_id="thunderbird"] move container to workspace 5
 
     [app_id="blueberry.py"]          floating enable
     [app_id="d-feet"]                floating enable
