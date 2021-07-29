@@ -6,6 +6,10 @@ let mapleader = " "
 " For Plugins
 let g:tmux_navigator_no_mappings = 1
 let g:surround_66 = "{\r}\1\1"
+let g:vimtex_format_enabled = 1
+let g:vimtex_quickfix_mode = 0
+let g:vimtex_view_method  = 'zathura'
+let g:tex_flavor = 'latex'
 
 if has("nvim") && executable('nvr')
     let $VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
@@ -85,11 +89,6 @@ nnoremap <leader>sb	:<C-u>ls<cr>:<c-u>sb<space>
 nnoremap <leader>vb	:<C-u>ls<cr>:<c-u>vert sb<space>
 nnoremap <leader>db	:<C-u>ls<cr>:<c-u>bd<space>
 
-"nnoremap ]b :<C-u>bnext<CR>
-"nnoremap [b :<C-u>bprev<CR>
-"nnoremap ]B :<C-u>blast<CR>
-"nnoremap [B :<C-u>bfirst<CR>
-
 " Navigate quickfix and location lists
 nnoremap ]q         :<C-u>cnext<CR>
 nnoremap [q         :<C-u>cprev<CR>
@@ -166,23 +165,35 @@ onoremap       <silent>g{                   :<c-u>call MoveInParagraph(0, 1)<cr>
 " }}}
 
 " Tmux Navigator {{{
-nnoremap <silent> <M-h> 	:<C-u>TmuxNavigateLeft<CR>
-nnoremap <silent> <M-j> 	:<C-u>TmuxNavigateDown<CR>
-nnoremap <silent> <M-k> 	:<C-u>TmuxNavigateUp<CR>
-nnoremap <silent> <M-l> 	:<C-u>TmuxNavigateRight<CR>
-nnoremap <silent> <M-left> 	:<C-u>TmuxNavigateLeft<CR>
-nnoremap <silent> <M-down> 	:<C-u>TmuxNavigateDown<CR>
-nnoremap <silent> <M-up> 	:<C-u>TmuxNavigateUp<CR>
-nnoremap <silent> <M-right> :<C-u>TmuxNavigateRight<CR>
+if has('nvim')
+    nnoremap <silent> <M-h> 	:<C-u>TmuxNavigateLeft<CR>
+    nnoremap <silent> <M-j> 	:<C-u>TmuxNavigateDown<CR>
+    nnoremap <silent> <M-k> 	:<C-u>TmuxNavigateUp<CR>
+    nnoremap <silent> <M-l> 	:<C-u>TmuxNavigateRight<CR>
+    nnoremap <silent> <M-left> 	:<C-u>TmuxNavigateLeft<CR>
+    nnoremap <silent> <M-down> 	:<C-u>TmuxNavigateDown<CR>
+    nnoremap <silent> <M-up> 	:<C-u>TmuxNavigateUp<CR>
+    nnoremap <silent> <M-right> :<C-u>TmuxNavigateRight<CR>
 
-tnoremap <silent> <M-h> 	<C-\><C-n>:TmuxNavigateLeft<CR>
-tnoremap <silent> <M-j> 	<C-\><C-n>:TmuxNavigateDown<CR>
-tnoremap <silent> <M-k> 	<C-\><C-n>:TmuxNavigateUp<CR>
-tnoremap <silent> <M-l> 	<C-\><C-n>:TmuxNavigateRight<CR>
-tnoremap <silent> <M-left> 	<C-\><C-n>:TmuxNavigateLeft<CR>
-tnoremap <silent> <M-down> 	<C-\><C-n>:TmuxNavigateDown<CR>
-tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<CR>
-tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<CR>
+    tnoremap <silent> <M-h> 	<C-\><C-n>:TmuxNavigateLeft<CR>
+    tnoremap <silent> <M-j> 	<C-\><C-n>:TmuxNavigateDown<CR>
+    tnoremap <silent> <M-k> 	<C-\><C-n>:TmuxNavigateUp<CR>
+    tnoremap <silent> <M-l> 	<C-\><C-n>:TmuxNavigateRight<CR>
+    tnoremap <silent> <M-left> 	<C-\><C-n>:TmuxNavigateLeft<CR>
+    tnoremap <silent> <M-down> 	<C-\><C-n>:TmuxNavigateDown<CR>
+    tnoremap <silent> <M-up> 	<C-\><C-n>:TmuxNavigateUp<CR>
+    tnoremap <silent> <M-right> <C-\><C-n>:TmuxNavigateRight<CR>
+else
+    nnoremap <silent> h 	    :<C-u>TmuxNavigateLeft<CR>
+    nnoremap <silent> j 	    :<C-u>TmuxNavigateDown<CR>
+    nnoremap <silent> k 	    :<C-u>TmuxNavigateUp<CR>
+    nnoremap <silent> l 	    :<C-u>TmuxNavigateRight<CR>
+    nnoremap <silent> <left> 	:<C-u>TmuxNavigateLeft<CR>
+    nnoremap <silent> <down> 	:<C-u>TmuxNavigateDown<CR>
+    nnoremap <silent> <up> 	:<C-u>TmuxNavigateUp<CR>
+    nnoremap <silent> <right> :<C-u>TmuxNavigateRight<CR>
+endif
+
 " }}}
 
 " rust.vim {{{
@@ -215,6 +226,17 @@ augroup vimrc
 
 	autocmd BufWritePre /tmp/* setlocal noundofile
 augroup END
+
+" Disable background opacity in kitty while (neo)vim is running
+if exists("$KITTY_LISTEN_ON")
+    augroup kitty
+        au!
+        autocmd VimEnter   * silent! !kitty @ set-background-opacity 1
+        autocmd VimLeave   * silent! !kitty @ set-background-opacity $BACKGROUND_OPACITY
+        autocmd VimResume  * silent! !kitty @ set-background-opacity 1
+        autocmd VimSuspend * silent! !kitty @ set-background-opacity $BACKGROUND_OPACITY
+    augroup END
+endif
 " }}}
 
 " Appearence {{{
