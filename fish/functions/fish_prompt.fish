@@ -43,7 +43,7 @@ function fish_prompt --description 'Write out the prompt'
         echo -n (math (echo -s $argv | string replace --all -r '.*?[mGKH]?' '' | wc -c) - 1)
     end
 
-    set date_format
+    set    date_format
     set -a date_format (set_color bryellow) "%d %b"
     set -a date_format (set_color normal) ", "
     set -a date_format (set_color bryellow) "%H"
@@ -51,7 +51,10 @@ function fish_prompt --description 'Write out the prompt'
     set -a date_format (set_color bryellow) "%M"
     set -a date_format (set_color normal) ":"
     set -a date_format (set_color bryellow) "%S"
+
     set -a rhs (set_color normal) [
+    set -a rhs (set_color red) "$CMD_DURATION ms"
+    set -a rhs (set_color normal) "; "
     set -a rhs (date +(echo -sn $date_format))
     set -a rhs (set_color normal) ]
 

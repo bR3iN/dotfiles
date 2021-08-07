@@ -18,6 +18,7 @@ else
     alias ll 'ls -AhlF'
 end
 
+alias usage 'du -hd 1'
 alias igrep 'grep -i'
 alias less 'less --mouse'
 alias gs 'git status'
