@@ -10,5 +10,11 @@ export MOZ_ENABLE_WAYLAND=1
 
 source ~/.bash_profile
 
+if [ -x /usr/bin/sway-git ]; then
+    sway_cmd="sway-git"
+else
+    sway_cmd="sway"
+fi
+
 # Show sway logs under journalctl
-systemd-cat --identifier sway sway $@
+systemd-cat --identifier sway "$sway_cmd" "$@"

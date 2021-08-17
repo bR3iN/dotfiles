@@ -6,7 +6,9 @@ set $up k
 set $right l
 
 set $term kitty-with-socket
-set $menu rofi -show drun -run-command "swaymsg exec -- {cmd}" $ROFI_FLAGS
+set $menu rofi -show combi -run-command "swaymsg exec -- {cmd}" \
+    -combi-modi "sway,drun" \
+    $ROFI_FLAGS
 # }}}
 
 ### Appearance {{{
@@ -15,17 +17,12 @@ font Fira Sans Regular 10
 hide_edge_borders --i3 smart_no_gaps
 default_border pixel 1
 
-set $inner 12
-set $outer 3
+set $gaps_inner 12
+set $gaps_outer 3
 
 smart_gaps off
-gaps inner $inner
-gaps outer $outer
-
-bindsym $mod+Control+g       gaps inner current set 0; \
-                             gaps outer current set 0
-bindsym $mod+Shift+Control+g gaps inner current set $inner; \
-                             gaps outer current set $outer
+gaps inner $gaps_inner
+gaps outer $gaps_outer
 
 bar swaybar_command waybar
 
@@ -88,8 +85,10 @@ floating_modifier $mod normal
 bindsym $mod+Escape exec wlock
 # bindsym $mod+Control+Q exec wlogout
 
-# Hide Waybar
-bindsym $mod+o exec killall -SIGUSR1 waybar; smart_gaps toggle
+# Toggle waybar and gaps
+bindsym $mod+Control+g exec "killall -SIGUSR1 waybar"; \
+    gaps inner all toggle $gaps_inner; \
+    gaps outer all toggle $gaps_outer
 
 # Toggle sticky
 bindsym $mod+Control+s sticky toggle
