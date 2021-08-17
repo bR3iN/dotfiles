@@ -2,7 +2,8 @@
 set -e
 set -u
 
-INSTALLER_DIR=${INSTALLER_DIR-$(dirname $(dirname $(dirname $(readlink -f "$0"))))}
+DEFAULT_CONF="${INSTALLER_DIR-$(pwd)}"/gnome/custom_keybindings.ini
+
 SCHEMA="org.gnome.settings-daemon.plugins.media-keys"
 DCONF_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 
@@ -28,7 +29,7 @@ function main {
     done
 
     local count=$(get_count)
-    local config=$(parse_config "${CONF-gnome/custom_keybindings.ini}")
+    local config=$(parse_config "${CONF-"$DEFAULT_CONF"}")
     echo "Adding the following keybindings:"
 
     local IFS=$'\n'
@@ -84,7 +85,7 @@ function add_keybinding {
 }
 
 function parse_config {
-    awk -f - "$INSTALLER_DIR/$1" << EOF
+    awk -f - "$1" << EOF
 /\[.*\]/ {
     dump(name, binding, command)
     gsub(/(\[|\])/,"")
