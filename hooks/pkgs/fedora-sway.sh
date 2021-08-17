@@ -6,11 +6,9 @@ sudo dnf copr   enable -y alebastr/sway-extras
 pkgs=(
     blueberry
     brightnessctl
-    d-feet
     gnome-keyring
     greetd
     greetd-gtkgreet
-    htop
     lxappearance
     NetworkManager-tui
     nnn
@@ -19,7 +17,7 @@ pkgs=(
     pulseaudio-utils
     rofi-wayland
     seahorse
-    sway
+    sway-git
     swayidle
     swaylock
     Thunar
@@ -27,7 +25,6 @@ pkgs=(
     tumbler
     waybar
     wl-clipboard
-    wlogout
     wlsunset
     wob
     xfce-polkit
