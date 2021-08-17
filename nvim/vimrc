@@ -46,7 +46,7 @@ set mouse=a
 set number
 set relativenumber
 set ruler
-set scrolloff=1
+set scrolloff=5
 set showcmd
 set smartcase "requires ignorecase
 set splitbelow
@@ -117,6 +117,7 @@ tnoremap <Esc> <C-\><C-n>
 tnoremap <C-v><Esc> <Esc>
 
 nnoremap <leader>w  :<c-u>w<cr>
+nnoremap <leader>sw :<c-u>w !pkexec tee % >/dev/null<CR>
 nnoremap <leader>qq :<c-u>q<cr>
 
 nnoremap <leader>mk :make<CR>
