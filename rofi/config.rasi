@@ -1,5 +1,5 @@
 configuration {
-    modi: "drun";
+    modi: "drun,combi,sway:~/.config/rofi/sway-windows";
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/
@@ -34,7 +34,7 @@ configuration {
 /*	auto-select: false;*/
 /*	parse-hosts: false;*/
 /*	parse-known-hosts: true;*/
-    combi-modi: "drun";
+    /* combi-modi: "drun"; */
     matching: "fuzzy";
 /*	tokenize: true;*/
 /*	m: "-5";*/
