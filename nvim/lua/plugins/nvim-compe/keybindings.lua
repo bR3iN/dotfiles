@@ -3,12 +3,13 @@ local map   = utils.map
 
 local M = {}
 
+_compe = {}
 
 local function expand(str)
     return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
-_compe_tab = function(default)
+_compe.tab = function(default)
     if vim.fn.pumvisible() == 1 then
         return expand '<C-n>'
     elseif vim.fn['vsnip#jumpable'](1) == 1 then
@@ -18,7 +19,7 @@ _compe_tab = function(default)
     end
 end
 
-_compe_stab = function(default)
+_compe.stab = function(default)
     if vim.fn.pumvisible() == 1 then
         return expand '<C-p>'
     elseif vim.fn['vsnip#jumpable'](-1) == 1 then
@@ -30,20 +31,20 @@ end
 
 M.tab_role  = function(str)
     local opt = { expr = true, noremap = false }
-    map('i', str, string.format('v:lua._compe_tab("%s")', str), opt)
+    map('i', str, 'v:lua._compe.tab("'..str..'")', opt)
 end
 
 M.stab_role = function(str)
     local opt = { expr = true, noremap = false }
-    map('i', str, string.format('v:lua._compe_stab("%s")', str), opt)
+    map('i', str, 'v:lua._compe.stab("'..str..'")', opt)
 end
 
 M.cancel = function(str)
-    map('i', str, 'compe#close(\'<Esc>\')' , {expr = true})
+    map('i', str, 'compe#close("'..str..'")' , {expr = true})
 end
 
 M.confirm = function(str)
-    map('i', str, 'compe#confirm(\'<CR>\')', {expr = true})
+    map('i', str, 'compe#confirm("'..str..'")', {expr = true})
 end
 
 

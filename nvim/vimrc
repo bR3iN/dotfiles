@@ -109,8 +109,9 @@ nnoremap <leader>lc :<C-u>lclose<CR>
 nnoremap Y y$
 nnoremap <C-c> <C-^>
 
+nnoremap <leader>d "_d
 nmap  gcc
-
+nnoremap <leader>V vg_
 nnoremap <silent> <C-L> :<c-u>nohlsearch<CR><C-L>
 
 tnoremap <Esc> <C-\><C-n>
@@ -227,18 +228,6 @@ augroup vimrc
 
 	autocmd BufWritePre /tmp/* setlocal noundofile
 augroup END
-
-" Disable background opacity in kitty while (neo)vim is running
-if exists("$KITTY_LISTEN_ON")
-    augroup kitty
-        au!
-        autocmd VimEnter   * silent! !kitty @ set-background-opacity 1
-        autocmd VimLeave   * silent! !kitty @ set-background-opacity $BACKGROUND_OPACITY
-        autocmd VimResume  * silent! !kitty @ set-background-opacity 1
-        autocmd VimSuspend * silent! !kitty @ set-background-opacity $BACKGROUND_OPACITY
-    augroup END
-endif
-" }}}
 
 " Appearence {{{
 if !has("nvim")
