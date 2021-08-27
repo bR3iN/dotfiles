@@ -17,8 +17,8 @@ font Fira Sans Regular 10
 hide_edge_borders --i3 smart_no_gaps
 default_border pixel 1
 
-set $gaps_inner 12
-set $gaps_outer 3
+set $gaps_inner 15
+set $gaps_outer 0
 
 smart_gaps off
 gaps inner $gaps_inner
@@ -86,9 +86,9 @@ bindsym $mod+Escape exec wlock
 # bindsym $mod+Control+Q exec wlogout
 
 # Toggle waybar and gaps
-bindsym $mod+Control+g exec "killall -SIGUSR1 waybar"; \
-    gaps inner all toggle $gaps_inner; \
-    gaps outer all toggle $gaps_outer
+bindsym $mod+o exec "killall -SIGUSR1 waybar"
+bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
+                       gaps outer current toggle $gaps_outer
 
 # Toggle sticky
 bindsym $mod+Control+s sticky toggle
@@ -121,6 +121,9 @@ bindsym $mod+Control+b exec rofi-ff
 
 # Open emoji selector
 bindsym $mod+Control+e exec rofi-emoji
+
+# Open script selector
+bindsym $mod+x exec rofi-scripts
 ## }}}
 
 ## Media keys {{{

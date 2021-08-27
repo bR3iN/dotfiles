@@ -1,5 +1,5 @@
 configuration {
-    modi: "drun,combi,sway:~/.config/rofi/sway-windows";
+    modi: "drun,combi,sway:~/.local/share/scripts/rofi-sway.sh";
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/
@@ -9,7 +9,7 @@ configuration {
     /*padding: 5;*/
 /*	yoffset: 0;*/
 /*	xoffset: 0;*/
-/*	fixed-num-lines: true;*/
+	fixed-num-lines: false;
     show-icons: true;
 /*	terminal: "rofi-sensible-terminal";*/
 /*	ssh-client: "ssh";*/

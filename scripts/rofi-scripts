@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+SCRIPT_PATH=~/.local/share/scripts/rofi-scripts.sh
+
+ROFI_FLAGS=(
+    $ROFI_FLAGS
+    '-no-show-icons'
+)
+
+rofi -modi scripts:"$SCRIPT_PATH" -show scripts ${ROFI_FLAGS[@]}
