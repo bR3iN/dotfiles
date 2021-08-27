@@ -1,11 +1,9 @@
 local uv = vim.loop
-local utils = require'utils'
-local pprint = utils.pprint
 
 local SHELL = "bash"
 local M = {}
 
-parse_cmd = function(cmd)
+local function parse_cmd(cmd)
     local args
     if type(cmd) == 'table' then
         args = cmd
@@ -14,7 +12,7 @@ parse_cmd = function(cmd)
     return cmd, args
 end
 
-read_into = function(pipe, buffer)
+local function read_into(pipe, buffer)
     pipe:read_start(function(err, data)
         if data then
             table.insert(buffer, data)
@@ -53,9 +51,9 @@ M.spawn_with_callback_linewise = function(cmd, cb, options)
 end
 
 M.spawn_with_callback = function(cmd, cb, options)
-    local options = options or {}
-
     local cmd, args = parse_cmd(cmd)
+
+    local options = options or {}
     options.args = args
     
     local cb = cb and vim.schedule_wrap(cb)
@@ -84,7 +82,7 @@ M.for_file_in = function(dir_name, cb, buf_nr)
         if dir then 
             local function iter_files()
                 dir:readdir(function(err, entries)
-                    if (not entries) then
+                    if not entries then
                         dir:closedir()
                     else
                         vim.tbl_map(vim.schedule_wrap(function(entry)
@@ -103,9 +101,5 @@ M.for_file_in = function(dir_name, cb, buf_nr)
 
     uv.fs_opendir(dir_name, start_iter, buf_nr)
 end
-
--- M.for_file_in('/tmp', function(filename, filetype)
---     pprint(filename)
--- end)
 
 return M

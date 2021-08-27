@@ -1,7 +1,5 @@
-local utils  = require'utils'
 local async  = require'utils.async'
 local uv     = vim.loop
-local pprint = utils.pprint
 
 local pkg_dir = os.getenv('HOME')..'/.local/share/nvim/site/pack/pkgs/start'
 local pkgs    = {}
@@ -65,10 +63,10 @@ end
 
 M.update = function(name)
     print('Update plugins...')
-    async.for_file_in(pkg_dir, function(filename, filetype)
+    async.for_file_in(pkg_dir, function(filename)
         local path = pkg_dir..'/'..filename
-        if is_git_repo(path) and filetype == 'directory' then
-            update_repo(path, cb)
+        if is_git_repo(path) then
+            update_repo(path)
         end
     end)
 end
