@@ -12,6 +12,7 @@ pkgs=(
     ffmpeg
     firefox
     fish
+    fzf
     htop
     ImageMagick
     imv
@@ -37,6 +38,7 @@ pkgs=(
     tlp
     tmux
     torbrowser-launcher
+    xdotool # for vimtex
     youtube-dl
 
     # Order matters
