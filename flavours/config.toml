@@ -91,6 +91,7 @@ file = "~/.config/wob"
 rewrite = true
 
 [[item]]
-template = "mako"
+template = "custom"
+subtemplate = "mako"
 file = "~/.config/mako/config"
 rewrite = true
