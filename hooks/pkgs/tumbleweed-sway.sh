@@ -5,6 +5,7 @@ pkgs=(
     bat
     blueberry
     cargo
+    d-feet
     docker
     firefox
     fish
@@ -12,6 +13,8 @@ pkgs=(
     greetd
     gtkgreet
     kitty
+    libnotify-tools
+    mako
     mpv
     mpv-mpris
     neofetch
@@ -21,12 +24,13 @@ pkgs=(
     pipewire
     pipewire-pulseaudio
     qutebrowser
-    rofi
     seahorse
     secret-tool
     sway
+    thunar
     tmux
     upower
+    waybar
     wlock
     wob
     zathura
@@ -38,9 +42,10 @@ pkgs=(
     libstdc++-devel  # Needed by treesitter(?)
 )
 
+sudo zypper install -y "$pkgs[@]"
+
 systemctl enable --user --now pipewire
 systemctl enable --user --now pipewire-pulseaudio
+
 sudo systemctl enable --now docker
 sudo systemctl enable       greetd
-
-sudo zypper install -y "$pkgs[@]"
