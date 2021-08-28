@@ -1,7 +1,8 @@
-local cmd             = vim.cmd
-local utils           = require'utils'
-local augroup         = utils.augroup
-local map             = utils.map
+local cmd     = vim.cmd
+local utils   = require'utils'
+local augroup = utils.augroup
+local map     = utils.map
+local add     = require'pkg'.init()
 
 -- Load shared vimrc
 cmd 'runtime vimrc'
@@ -10,8 +11,6 @@ cmd 'runtime vimrc'
 map ('n', '<leader>pu', ':lua require"pkg".update()<CR>')
 map ('n', '<leader>pc', ':lua require"pkg".clean()<CR>')
 map ('n', '<leader>pl', ':lua require"pkg".list()<CR>')
-
-local add = require'pkg'.init()
 
 add 'tpope/vim-surround'
 add 'tpope/vim-repeat'
