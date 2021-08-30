@@ -39,8 +39,7 @@ M.add = function(name, cb)
     local path = get_path(name)
 
     if vim.fn.isdirectory(path) ~= 0 then
-        if cb then vim.schedule(cb) end
-        -- update_repo(path)
+        if cb then cb() end
         table.insert(pkgs, name)
     else
         async.spawn_with_callback({
@@ -84,6 +83,7 @@ M.clean = function()
 
     async.for_file_in(pkg_dir, function(filename, filetype)
         if filetype == 'directory' and removable(filename) then
+        print(filename)
             remove_file(filename)
         end
     end)

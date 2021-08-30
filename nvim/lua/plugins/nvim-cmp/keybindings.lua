@@ -3,27 +3,26 @@ local map   = utils.map
 
 local M = {}
 
-_compe = {}
 
-local function expand(str)
-    return vim.api.nvim_replace_termcodes(str, true, true, true)
+local function feed(str)
+    return vim.fn.feedkeys(vim.api.nvim_replace_termcodes(str, true, true, true))
 end
 
 _compe.tab = function(default)
     if vim.fn.pumvisible() == 1 then
-        return expand '<C-n>'
+        return feed '<C-n>'
     elseif vim.fn['vsnip#jumpable'](1) == 1 then
-        return expand '<Plug>(vsnip-jump-next)'
+        return feed '<Plug>(vsnip-jump-next)'
     else
-        return expand(default)
+        return feed(default)
     end
 end
 
 _compe.stab = function(default)
     if vim.fn.pumvisible() == 1 then
-        return expand '<C-p>'
+        return feed '<C-p>'
     elseif vim.fn['vsnip#jumpable'](-1) == 1 then
-        return expand '<Plug>(vsnip-jump-prev)'
+        return feed '<Plug>(vsnip-jump-prev)'
     else
         return vim.fn['compe#complete']()
     end

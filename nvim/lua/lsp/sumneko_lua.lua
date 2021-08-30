@@ -1,7 +1,7 @@
 local lspconfig = require('lspconfig')
 local on_attach = require('lsp').on_attach
 
-local sumneko_root = os.getenv('HOME')..'/Github/lua-language-server'
+local sumneko_root = os.getenv('HOME')..'/Github/sumneko-lua'
 local sumneko_bin  = sumneko_root..'/bin/Linux/lua-language-server'
 
 lspconfig.sumneko_lua.setup{
@@ -13,11 +13,6 @@ lspconfig.sumneko_lua.setup{
             diagnostics = {
                 globals = {
                     'vim',
-                    'awesome',
-                    'root',
-                    'client',
-                    'screen',
-                    'tag',
                 }
             },
             workspace = {

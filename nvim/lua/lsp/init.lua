@@ -38,7 +38,7 @@ local function custom_on_attach(lsp, client, bufnr)
 	end
 
 	-- Autocommands: {{{
-	--cmd('augroup lsp_autocmd_' .. lsp) 
+	--cmd('augroup lsp_autocmd_' .. lsp)
 	--cmd 'autocmd!'
     --if cap.document_formatting then
         --cmd 'autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)'
@@ -50,20 +50,20 @@ local function custom_on_attach(lsp, client, bufnr)
 	--end
 	--cmd 'augroup END'
     -- }}}
-
-	-- buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 end
 
-M.on_attach = function(lsp) 
-    return function(...) 
-        custom_on_attach(lsp, ...) 
-    end 
+M.on_attach = function(lsp)
+    return function(...)
+        custom_on_attach(lsp, ...)
+    end
 end
 
-M.with_defaults = function(lsp)
-    lspconfig[lsp].setup{
-        on_attach = M.on_attach(lsp)
-    }
-end
+M.with_defaults = (function()
+    return function(lsp)
+        lspconfig[lsp].setup{
+            on_attach = M.on_attach(lsp),
+        }
+    end
+end)()
 
 return M
