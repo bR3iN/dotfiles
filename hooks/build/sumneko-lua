@@ -1,0 +1,39 @@
+#!/usr/bin/bash
+set -e
+
+# Variables to configure
+URL="https://github.com/sumneko/lua-language-server"
+DIRNAME="sumneko-lua"
+DIR_PATH="$HOME/Github/$DIRNAME"
+
+# Executed inside repo
+build_and_install ()
+{
+    git submodule update --init --recursive
+    cd 3rd/luamake
+    ./compile/install.sh
+    cd ../..
+    ./3rd/luamake/luamake rebuild
+}
+
+install_dependencies ()
+{
+    case "$(cat /etc/os-release | grep "^NAME")" in
+        *Fedora)
+            sudo dnf in -y ninja
+            ;;
+        *Tumbleweed*)
+            sudo zypper in -y ninja
+            ;;
+    esac
+}
+
+if [ ! -d "$DIR_PATH" ]; then
+    install_dependencies
+ 
+    mkdir -p "$(dirname "$DIR_PATH")"
+    git clone "$URL" "$DIR_PATH"
+    cd "$DIR_PATH"
+
+    build_and_install || rm -rf "$DIR_PATH"
+fi
