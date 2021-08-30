@@ -18,5 +18,8 @@ case "$(cat /etc/os-release | grep '^NAME=')" in
     *Tumbleweed*)
         sed 's/user = "greetd"/user = "greeter"/' -i "$GREETD_CONF"
         chown greeter:greeter "$GREETD_CONF"
+
+        mkdir -p /var/lib/greetd/.config/dconf
+        chown -R greeter:greeter /var/lib/greetd
         ;;
 esac
