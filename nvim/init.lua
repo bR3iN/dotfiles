@@ -257,6 +257,6 @@ augroup 'init.lua' [[
 -- Appearence {{{
 
 vim.opt.fillchars = { vert = '│' }
-require'colors'
+vim.cmd 'colorscheme base16'
 
 -- }}}
