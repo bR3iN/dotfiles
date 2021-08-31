@@ -200,13 +200,13 @@ add ('hrsh7th/nvim-cmp', function()
     add 'hrsh7th/cmp-nvim-lsp'
     add 'hrsh7th/cmp-nvim-lua'
     add 'hrsh7th/cmp-path'
+    add 'hrsh7th/cmp-vsnip'
     add 'hrsh7th/cmp-calc'
     require'plugins.nvim-cmp'.setup {
         tab_role = '<Tab>',
         stab_role = '<S-Tab>',
         confirm = '<CR>',
         cancel = '<C-e>',
-        complete = '<C-Space>',
     }
 end)
 

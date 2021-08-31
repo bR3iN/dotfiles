@@ -20,7 +20,7 @@ install_dependencies ()
 {
     case "$(cat /etc/os-release | grep "^NAME")" in
         *Fedora)
-            sudo dnf in -y ninja
+            sudo dnf in -y ninja-build libstdc++-static
             ;;
         *Tumbleweed*)
             sudo zypper in -y ninja

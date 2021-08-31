@@ -27,8 +27,6 @@ local role_to_func = {
 
     confirm = cmp.mapping.confirm({ select = true }),
 
-    complete = cmp.mapping.complete(),
-
     cancel = cmp.mapping.close(),
 }
 
