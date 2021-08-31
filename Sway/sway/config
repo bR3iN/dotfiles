@@ -382,7 +382,6 @@ for_window {
 ### Autostart {{{
 exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
 exec start-polkit-agent
-exec mako
 exec /usr/libexec/kdeconnectd
 exec kdeconnect-indicator
 exec powerprofilesctl set power-saver
@@ -391,6 +390,7 @@ exec mkfifo /tmp/wob.sock
 exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
 # }}}
 
+include /etc/sway/config.d/*
 include ~/.config/sway/config.d/*
 
 # vim: foldmethod=marker

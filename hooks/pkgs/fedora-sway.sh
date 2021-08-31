@@ -10,6 +10,7 @@ pkgs=(
     greetd
     greetd-gtkgreet
     lxappearance
+    mako
     NetworkManager-tui
     nnn
     pavucontrol
@@ -33,4 +34,5 @@ pkgs=(
 sudo dnf install -y "${pkgs[@]}"
 sudo dnf group install -y "${groups[@]}"
 
+systemctl --user enable --now mako.service
 sudo systemctl enable greetd
