@@ -8,5 +8,7 @@ ROFI_FLAGS=(
     -i -p 'Choose Firefox Profile'
 )
 
-OUTPUT=$(awk '/Name=/{sub("Name=",""); print}' "$FF_DIR/profiles.ini" | rofi -dmenu "${ROFI_FLAGS[@]}")
-firefox -p "${OUTPUT:?}"
+PROFILES="$(awk '/Name=/{sub("Name=",""); print}' "$FF_DIR/profiles.ini")"
+
+SELECTION="$(echo "$PROFILES" | rofi -lines "$(echo "$PROFILES" | wc -l)" -dmenu "${ROFI_FLAGS[@]}")"
+firefox -p "${SELECTION:?}"
