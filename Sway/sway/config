@@ -58,8 +58,8 @@ exec swayidle -w timeout 180 'swaymsg "output * dpms off"' \
 bindsym $mod+i input * xkb_switch_layout next
 
 input * {
-    xkb_layout us,us
-    xkb_variant ,intl
+    xkb_layout us,us,us
+    xkb_variant ,intl,colemak_dh
     accel_profile flat
 }
 
@@ -111,6 +111,7 @@ bindsym $mod+Slash exec $menu
 
 # Open terminal
 bindsym $mod+t exec $term
+bindsym $mod+Control+t exec kitty-tmux
 
 # Open documents
 bindsym $mod+d exec rofi-open

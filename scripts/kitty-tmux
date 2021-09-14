@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+export BACKGROUND_OPACITY=1
+kitty -o background_opacity=1 tmux
