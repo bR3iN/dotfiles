@@ -69,6 +69,7 @@ map ('n', '<leader>V', 'vg_') -- Does not mark newline
 map ('n', 'gQ', '<nop>')
 map ('n', '<C-c>', '<C-^>')
 map ('n', '<C-h>', ':ToggleComments<CR>')
+map ('i', '<C-h>', '<C-o>:ToggleComments<CR>')
 map ('n', '<C-L>', ':<c-u>nohlsearch<CR><C-L>')
 map ('n', '<leader>mk', ':make<CR>')
 
@@ -163,7 +164,7 @@ end)
 
 add 'tpope/vim-repeat'
 add 'tpope/vim-commentary'
--- add 'georgewitteman/vim-fish'
+add 'georgewitteman/vim-fish'
 
 add ('tpope/vim-surround', function()
     vim.g.surround_66 = '{\r}\1\1'  -- 'B'
@@ -177,8 +178,8 @@ add ('lervag/vimtex', function()
 end)
 
 add ('rust-lang/rust.vim', function()
-    vim.g.rust_conceal = 1
-    vim.g.rust_fold = 2
+    vim.g.rust_conceal = 0
+    vim.g.rust_fold = 1
 end)
 
 add ('neomake/neomake', function()
@@ -200,6 +201,7 @@ add ('hrsh7th/nvim-cmp', function()
     add 'hrsh7th/cmp-nvim-lsp'
     add 'hrsh7th/cmp-nvim-lua'
     add 'hrsh7th/cmp-path'
+    add 'hrsh7th/cmp-buffer'
     add 'hrsh7th/cmp-vsnip'
     add 'hrsh7th/cmp-calc'
     require'plugins.nvim-cmp'.setup {

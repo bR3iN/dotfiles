@@ -50,6 +50,7 @@ local function setup(tbl)
             { name = 'path'     },
             { name = 'calc'     },
             { name = 'omni'     },
+            { name = 'buffer'   },
         },
 
         mapping = mapping,
