@@ -11,8 +11,13 @@ set $menu rofi -show combi -run-command "swaymsg exec -- {cmd}" \
     $ROFI_FLAGS
 # }}}
 
+### Imports {{{
+include /etc/sway/config.d/*
+include ~/.config/sway/config.d/*
+### }}}
+
 ### Appearance {{{
-font Fira Sans Regular 10
+font Fira Sans Regular 9
 
 hide_edge_borders --i3 smart_no_gaps
 default_border pixel 1
@@ -20,7 +25,7 @@ default_border pixel 1
 set $gaps_inner 15
 set $gaps_outer 0
 
-smart_gaps off
+smart_gaps on
 gaps inner $gaps_inner
 gaps outer $gaps_outer
 
@@ -388,8 +393,5 @@ exec powerprofilesctl set power-saver
 exec mkfifo /tmp/wob.sock
 exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
 # }}}
-
-include /etc/sway/config.d/*
-include ~/.config/sway/config.d/*
 
 # vim: foldmethod=marker
