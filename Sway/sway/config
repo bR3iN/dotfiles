@@ -1,8 +1,8 @@
 ### Variables {{{
 set $mod Mod4
-set $left h
-set $down j
-set $up k
+set $left  h
+set $down  j
+set $up    k
 set $right l
 
 set $term kitty-with-socket
@@ -252,8 +252,6 @@ bindsym $mod+e layout toggle split
 # Move focus to the parent container
 bindsym $mod+a focus parent
 bindsym $mod+c focus child
-# bindsym $mod+Shift+k focus parent
-# bindsym $mod+Shift+j focus child
 
 bindsym $mod+Shift+$left  resize shrink width  40px
 bindsym $mod+Shift+$down  resize grow   height 40px
