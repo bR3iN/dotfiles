@@ -2,7 +2,7 @@
 
 DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
 ROFI_FLAGS=(
-    $ROFI_FLAGS
+    -dpi "$ROFI_DPI"
     '-i'
     '-p' 'Open Document'
     '-no-show-icons'

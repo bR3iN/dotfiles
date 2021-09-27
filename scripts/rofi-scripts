@@ -2,7 +2,7 @@
 SCRIPT_PATH=~/.local/share/scripts/rofi-scripts.sh
 
 ROFI_FLAGS=(
-    $ROFI_FLAGS
+    -dpi "$ROFI_DPI"
     '-no-show-icons'
 )
 

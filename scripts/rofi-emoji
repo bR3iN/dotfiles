@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 ROFI_FLAGS=(
-    $ROFI_FLAGS
+    -dpi "$ROFI_DPI"
     -no-show-icons
     -sorting-method normal
     -matching normal

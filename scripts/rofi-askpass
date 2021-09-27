@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+PROMPT="$(echo "${1-Password}" | sed 's/: \?$//')"
+THEME_STRING='window {width: 25%;} inputbar {children: [prompt,textbox-prompt-colon,entry];} entry {placeholder: "Enter password";}'
+
+rofi \
+    -dmenu \
+    -password \
+    -theme-str "$THEME_STRING" \
+    -no-fixed-num-lines \
+    -p "$PROMPT"

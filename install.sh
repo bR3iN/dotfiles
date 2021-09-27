@@ -142,7 +142,7 @@ function runHook {
 function runCommand {
     local command=$(sed 's/%eq%/=/g' <<< "$1")
     echo "Running command '${command}'"
-    eval "(${command})" 2>&1 | sed "s/^/    /" || local exit_code="$?"
+    eval "(${command})" 2>&1 | sed 's/^/    /' || local exit_code="$?"
     if [ ! "${exit_code:-0}" -eq 0 ]; then
         echo "ERROR: Command '${command}' failed with exit code ${exit_code}"
     fi
@@ -157,9 +157,16 @@ function installFile {
         local as_root=sudo
     fi
 
+    if [[ "$file" =~ ^lib: ]]; then
+        file="${file#lib:}"
+        local lib=sudo
+    fi
+
     if [ -f "$INSTALLER_DIR/$file" ]; then
         if [ -n "${as_root-}" ]; then
             sudo install -D -m=0755 -t "/usr/local/bin" "$INSTALLER_DIR/$file"
+        elif [ -n "${lib-}" ]; then
+            createSymlink "$file" "$HOME/.local/share/scripts/$(basename "$file")"
         else
             createSymlink "$file" "$HOME/.local/bin/$(basename "$file")"
         fi
