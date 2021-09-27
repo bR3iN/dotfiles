@@ -9,7 +9,7 @@ get() {
 }
 
 fade_out() {
-    for level in $(eval echo {$(get)..0..15}); do
+    for level in $(eval echo {$(get)..0..5}); do
         set $level
         sleep 0.01
     done
@@ -23,11 +23,13 @@ dim() {
 CURRENT=$(get)
 
 trap 'exit 0' TERM INT
-trap "set $CURRENT; kill %%" EXIT
+trap "kill %%; set $CURRENT" EXIT
 
-#fade_out &
-dim && sleep 5 &
+# dim &
+fade_out &
 wait
 
-set $CURRENT
-xset dpms force off
+lock & disown
+
+sleep 1234567890 &
+wait

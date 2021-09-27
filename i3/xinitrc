@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+xrdb -merge ~/.config/X11/Xresources
+setxkbmap $(cat ~/.config/X11/Xkbmap)
+
+for file in /etc/X11/xinit/xinitrc.d/* ; do
+        . $file
+done
+
+exec ~/.local/bin/myi3

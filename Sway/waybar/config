@@ -7,11 +7,12 @@
     "modules-center": ["clock"],
     "modules-right": [
         "tray",
-        "custom/media",
+        "custom/vpn",
+        "backlight",
+        "pulseaudio",
         "cpu",
         "memory",
         "idle_inhibitor",
-        "pulseaudio",
         "network",
         "battery"
     ],
@@ -19,7 +20,7 @@
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
-        "format": "{name}: {icon}",
+        "format": "{name}",
         "format-icons": {
             "1": "",
             "2": "",
@@ -44,6 +45,12 @@
         }
     },
 
+    "backlight": {
+        "device": "intel_baklight",
+        "format": "{percent}% {icon}",
+        "format-icons": ["", "", ""],
+    },
+
     "tray": {
         "icon-size": 21,
         "spacing": 10
@@ -59,44 +66,34 @@
         "tooltip": false
     },
 
-    "memory": {
-        "format": "{used:0.1f}GiB ",
+    "memory": { "format": "{used:0.1f}GiB ",
         "tooltip": false,
     },
 
     "battery": {
         "states": {
-            //"good": 95,
             "warning": 30,
             "critical": 10
         },
         "format": "{capacity}% {icon}",
         "format-charging": "{capacity}% ",
         "format-plugged": "{capacity}% ",
-        //"format-alt": "{time} {icon}",
-        //"format-good": "{icon}", // An empty format will hide the module
-        //"format-full": "{icon}",
-        //"format-icons": ["", "", "", "", ""],
         "format-icons": ["", "", "", "", "", "", "", "", "", "", ""]
     },
 
     "network": {
-        // "interface": "wlp2*", // (Optional) To force the use of this interface
         "format-wifi": "",
-        "tooltip-format": "{essid} ({signalStrength}%)",
-        //"format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
-        //"format-linked": "{ifname} (No IP) ",
-        "format-disconnected": "⚠",
+        "tooltip-wifi-format": "{essid} ({signalStrength}%)",
+        "format-ethernet": "",
+        "format-disconnected": "",
     },
 
     "pulseaudio": {
-        // "scroll-step": 1, // %, can be a float
-        "format": "{icon}",
-        "format-muted": "",
+        "scroll-step": 5, // %, can be a float
+        "format": "{volume:2d}% {icon}",
+        "format-muted": "{volume:2d}% 婢",
         "format-bluetooth": "{volume}% {icon}",
-        "format-bluetooth-muted": " {icon}",
-        "format-source": " ",
-        "format-source-muted": "",
+        "format-bluetooth-muted": "{volume}% {icon}",
         "format-icons": {
             "headphone": "",
             "hands-free": "",
@@ -104,29 +101,17 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": ["", "", ""]
+            "default": ["奄", "奔", "墳"]
         },
         "on-click": "pavucontrol"
     },
 
-    "custom/media": {
-        "format": "{icon}",
-        "return-type": "json",
-        //"max-length": 20,
-        "format-icons": {
-            "spotifyd": "",
-            "default": "🎜"
-        },
-        "escape": true,
-        //"exec-if": "[ $(playerctl status) != Stopped ]",
-        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null",
-        "on-click": "playerctl play-pause",
-        //"exec": "$HOME/.config/waybar/mediaplayer.py --player spotifyd 2> /dev/null"
+    "custom/vpn": {
+        "format": "嬨",
+        "exec": "echo '{}'",
+        "exec-if": "pgrep -x openvpn",
+        "interval": 5,
     },
-
-    "wlr/taskbar": {
-        "format": "{icon}",
-        "tooltip-format": "{title}",
-        "on-click": "activate",
-    }
 }
+
+// vim: ft=json

@@ -22,7 +22,7 @@ window#waybar.hidden {
 }
 
 #workspaces button {
-    padding: 0 3px;
+    padding: 0 8px;
     background-color: transparent;
     color: @base05;
     /* Use box-shadow instead of border so the text isn't offset */
@@ -45,10 +45,10 @@ window#waybar.hidden {
 }
 
 #mode {
-    background-color: shade(@base0B, 0.6);
-    color: @base04;
+    background-color: @base0B;
+    color: @base03;
     padding: 0 14px;
-    border-bottom: 3px solid @base07;
+    border-bottom: 3px solid alpha(@base03, 0.95);
 }
 
 #clock,
@@ -60,13 +60,17 @@ window#waybar.hidden {
 #backlight,
 #network,
 #pulseaudio,
-#custom-media,
 #tray,
 #idle_inhibitor,
+#custom-vpn,
 #mpd {
     padding: 0 14px;
     color: @base04;
     background-color: transparent;
+}
+
+#backlight {
+    border-bottom: 3px solid shade(@base08, 0.7);
 }
 
 #battery {
@@ -98,30 +102,34 @@ window#waybar.hidden {
     border-bottom: 3px solid shade(@base0C, 0.7);
 }
 
+#custom-vpn {
+    border-bottom: 3px solid shade(@base0A, 1.0);
+}
+
 #pulseaudio {
-    background-color: alpha(@base0D, 0.7);
-    border-bottom: 3px solid @base0D;
+    background-color: alpha(@base09, 0.7);
+    border-bottom: 3px solid @base09;
 }
 
 #pulseaudio.muted {
     background-color: transparent;
-    border-bottom: 3px solid shade(@base0D, 0.7);
+    border-bottom: 3px solid shade(@base09, 0.7);
 }
 
 #idle_inhibitor {
-    border-bottom: 3px solid shade(@base0E, 0.7);
+    border-bottom: 3px solid shade(@base0D, 0.7);
 }
 
 #idle_inhibitor.activated {
-    border-bottom: 3px solid @base0E;
+    border-bottom: 3px solid @base0D;
 }
 
 #memory {
-    border-bottom: 3px solid shade(@base0A, 0.7);
+    border-bottom: 3px solid shade(@base0E, 0.7);
 }
 
 #cpu {
-    border-bottom: 3px solid shade(@base09, 0.7);
+    border-bottom: 3px solid shade(@base0A, 0.7);
 }
 
 #window,
@@ -137,12 +145,6 @@ window#waybar.hidden {
 /* If workspaces is the rightmost module, omit right margin */
 .modules-right > widget:last-child > #workspaces {
     margin-right: 0;
-}
-
-#custom-media {
-    background-color: alpha(@base0B, 0.3);
-    border-bottom: 3px solid shade(@base0B, 0.7);
-    min-width: 0px;
 }
 
 #clock {

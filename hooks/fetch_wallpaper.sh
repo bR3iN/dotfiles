@@ -54,7 +54,7 @@ install_wallpaper() {
     local extension="${url##*.}"
     local file="${name}.$extension"
 
-    if [ -f "$WALLPAPER_DIR/$file" ] && [ -z "${FORCE-}" ]; then
+    if [ -f "$WALLPAPER_DIR/${name}.png" ] && [ -z "${FORCE-}" ]; then
         echo "Wallpaper with this name already installed. Skipping..."
         return
     fi
@@ -71,6 +71,12 @@ install_wallpaper() {
             echo "WARNING: Url $url is not valid. Skipping..."
             return
         }
+    fi
+
+    if [ ! "$extension" = "png" ]; then
+        echo "Converting image to png..."
+        convert "$TMP_DIR/tmp.$extension" "$TMP_DIR/tmp.png"
+        extension="png"
     fi
 
     process "$name" "$extension"
