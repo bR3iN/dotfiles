@@ -150,7 +150,8 @@ bindsym --locked {
     #i3: bindsym \
     Mod4+Home exec --no-startup-id kbbacklight_toggle
     #i3: bindsym \
-    Mod4+End  exec --no-startup-id backlight toggle
+    #i3: Mod4+End  exec --no-startup-id "sleep 0.5; xset dpms force off"
+    Mod4+End  exec --no-startup-id backlight toggle #sway-only
 
     # Raise, lowe and mute audio
     #i3: bindsym \
