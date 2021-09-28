@@ -103,7 +103,7 @@ click-right = pavucontrol
 
 format-volume-background = ${self.format-muted-underline}
 format-volume-foreground = ${colors.base00}
-format-volume-underline = ${colors.base00}
+format-volume-underline = ${self.format-mouted-underline}
 
 format-volume-padding = ${indicator.format-padding}
 format-muted-padding = ${indicator.format-padding}
