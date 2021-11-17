@@ -423,6 +423,7 @@ exec mkfifo /tmp/wob.sock
 exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
 #)
 #i3: exec --no-startup-id redshift
+#i3: exec --no-startup-id dunst
 # }}}
 
 #sway-only(
