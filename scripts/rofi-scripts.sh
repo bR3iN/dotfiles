@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
     awk '/^\[.*\]$/ { gsub(/(\[|\])/,""); print}' "$CONFIG"
 else
     declare -a target
-    local path=$(awk -v target="$1" -F "=" '
+    path=$(awk -v target="$1" -F "=" '
     # BEGIN { in_target = 0 }
 
     /^\[.*\]$/ {
