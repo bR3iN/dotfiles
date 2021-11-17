@@ -5,9 +5,6 @@
 TMP_FILE=/tmp/backlight_toggle_current
 TOGGLE_FALLBACK="50%"
 
-# wob pipe to display percentage on screen
-WOB_PIPE=/tmp/wob.sock
-
 # default increase/decrese
 DEFAULT_CHANGE="5%"
 
@@ -47,17 +44,13 @@ toggle ()
 
 increase ()
 {
-    local new
-    new=($(set_brightness +"$DEFAULT_CHANGE"))
-    emit ${new[1]}
+    set_brightness +"$DEFAULT_CHANGE"
 }
 
 decrease ()
 {
-    local new
-    new=($(set_brightness "$DEFAULT_CHANGE"-))
-    emit ${new[1]}
-    if [ "${new[0]}" = "0" ]; then
+    set_brightness "$DEFAULT_CHANGE"-
+    if [ "$(get_brightness)" = "0" ]; then
         set_brightness 1
     fi
 }
@@ -66,26 +59,14 @@ set_brightness ()
 {
     # Set brightness and print current brightness as
     # absulute value and as percentage to stdout (e.g 2345 40)
-    brightnessctl set "$1" \
-        | sed -n 's/.*Current brightness: \([0-9]*\) (\(.*\)%)/\1 \2/p' 
+    # brightnessctl set "$1" \
+    #     | sed -n 's/.*Current brightness: \([0-9]*\) (\(.*\)%)/\1 \2/p'
+    brightnessctl set "$1" > /dev/null
 }
 
 get_brightness()
 {
     brightnessctl get
-}
-
-emit ()
-{
-    if [ ! -p "$WOB_PIPE" ]; then
-        exit
-    fi
-
-    if [ -n "$1" ]; then
-        echo "$1" >> "$WOB_PIPE"
-    else
-        cat >> "$WOB_PIPE"
-    fi
 }
 
 main "$@"
