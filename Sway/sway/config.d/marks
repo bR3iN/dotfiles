@@ -1,0 +1,91 @@
+bindsym $mod+m mode "create mark"
+mode "create mark" {
+    bindsym a mode "default"; mark a
+    bindsym b mode "default"; mark b
+    bindsym c mode "default"; mark c
+    bindsym d mode "default"; mark d
+    bindsym e mode "default"; mark e
+    bindsym f mode "default"; mark f
+    bindsym g mode "default"; mark g
+    bindsym h mode "default"; mark h
+    bindsym i mode "default"; mark i
+    bindsym j mode "default"; mark j
+    bindsym k mode "default"; mark k
+    bindsym l mode "default"; mark l
+    bindsym m mode "default"; mark m
+    bindsym n mode "default"; mark n
+    bindsym o mode "default"; mark o
+    bindsym p mode "default"; mark p
+    bindsym q mode "default"; mark q
+    bindsym r mode "default"; mark r
+    bindsym s mode "default"; mark s
+    bindsym t mode "default"; mark t
+    bindsym u mode "default"; mark u
+    bindsym v mode "default"; mark v
+    bindsym w mode "default"; mark w
+    bindsym x mode "default"; mark x
+    bindsym y mode "default"; mark y
+    bindsym z mode "default"; mark z
+    bindsym 0 mode "default"; mark 0
+    bindsym 1 mode "default"; mark 1
+    bindsym 2 mode "default"; mark 2
+    bindsym 3 mode "default"; mark 3
+    bindsym 4 mode "default"; mark 4
+    bindsym 5 mode "default"; mark 5
+    bindsym 6 mode "default"; mark 6
+    bindsym 7 mode "default"; mark 7
+    bindsym 8 mode "default"; mark 8
+    bindsym 9 mode "default"; mark 9
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+m mode "default"
+    bindsym Control+bracketleft mode "default"
+}
+
+bindsym $mod+apostrophe mode "goto mark"
+mode "goto mark" {
+    bindsym a mode "default"; [con_mark="a"] focus
+    bindsym b mode "default"; [con_mark="b"] focus
+    bindsym c mode "default"; [con_mark="c"] focus
+    bindsym d mode "default"; [con_mark="d"] focus
+    bindsym e mode "default"; [con_mark="e"] focus
+    bindsym f mode "default"; [con_mark="f"] focus
+    bindsym g mode "default"; [con_mark="g"] focus
+    bindsym h mode "default"; [con_mark="h"] focus
+    bindsym i mode "default"; [con_mark="i"] focus
+    bindsym j mode "default"; [con_mark="j"] focus
+    bindsym k mode "default"; [con_mark="k"] focus
+    bindsym l mode "default"; [con_mark="l"] focus
+    bindsym m mode "default"; [con_mark="m"] focus
+    bindsym n mode "default"; [con_mark="n"] focus
+    bindsym o mode "default"; [con_mark="o"] focus
+    bindsym p mode "default"; [con_mark="p"] focus
+    bindsym q mode "default"; [con_mark="q"] focus
+    bindsym r mode "default"; [con_mark="r"] focus
+    bindsym s mode "default"; [con_mark="s"] focus
+    bindsym t mode "default"; [con_mark="t"] focus
+    bindsym u mode "default"; [con_mark="u"] focus
+    bindsym v mode "default"; [con_mark="v"] focus
+    bindsym w mode "default"; [con_mark="w"] focus
+    bindsym x mode "default"; [con_mark="x"] focus
+    bindsym y mode "default"; [con_mark="y"] focus
+    bindsym z mode "default"; [con_mark="z"] focus
+    bindsym 0 mode "default"; [con_mark="0"] focus
+    bindsym 1 mode "default"; [con_mark="1"] focus
+    bindsym 2 mode "default"; [con_mark="2"] focus
+    bindsym 3 mode "default"; [con_mark="3"] focus
+    bindsym 4 mode "default"; [con_mark="4"] focus
+    bindsym 5 mode "default"; [con_mark="5"] focus
+    bindsym 6 mode "default"; [con_mark="6"] focus
+    bindsym 7 mode "default"; [con_mark="7"] focus
+    bindsym 8 mode "default"; [con_mark="8"] focus
+    bindsym 9 mode "default"; [con_mark="9"] focus
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+apostrophe mode "default"
+    bindsym Control+bracketleft mode "default"
+}

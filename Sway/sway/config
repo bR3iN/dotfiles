@@ -8,8 +8,7 @@ set $right l
 set $term kitty-with-socket
 #sway-only(
 set $menu rofi -show combi -run-command "swaymsg exec -- {cmd}" \
-    -combi-modi "sway,drun" \
-    -dpi "$ROFI_DPI"
+    -combi-modi "sway,drun"
 #)
 #i3: set $menu "rofi -show combi -combi-modi 'window\,drun' -dpi $ROFI_DPI"
 # }}}
@@ -25,7 +24,8 @@ default_border pixel 1
 set $gaps_inner 15
 set $gaps_outer 0
 
-smart_gaps yes
+#i3-change-next-to: smart_gaps on
+smart_gaps on
 gaps inner $gaps_inner
 gaps outer $gaps_outer
 
@@ -343,7 +343,7 @@ mode "powermenu" {
     #i3: bindsym l mode "default"; exec $lock
 
     # Suspend
-    bindsym s mode "default"; exec systemctl suspend
+    bindsym s mode "default"; exec --no-startup-id systemctl suspend
 
     # Exit sway/logout
     #i3-change-next-to: bindsym e mode "default"; exec i3-msg exit
@@ -358,7 +358,7 @@ mode "powermenu" {
 # }}}
 
 # Swap mode {{{
-bindsym $mod+Return mark --add swap; mode "swap"
+bindsym $mod+Return mark --add _swap; mode "swap"
 mode "swap" {
     # Move the focus
     bindsym $left  focus left
@@ -374,8 +374,8 @@ mode "swap" {
 
     # Swap with marked window
     bindsym Return mode "default"; \
-    swap container with mark swap; \
-    [con_mark="swap"] focus
+    swap container with mark _swap; \
+    [con_mark="_swap"] focus
 
     # Return to default mode
     bindsym $mod+Return         mode "default"
