@@ -13,9 +13,11 @@ pkgs=(
     firefox
     fish
     fzf
+    fzf
     htop
     ImageMagick
     imv
+    jq
     kde-connect
     kitty
     mpv
@@ -45,6 +47,12 @@ pkgs=(
     zathura
     zathura-pdf-poppler
     zathura-plugins-all
+
+    # abcde
+    # lame
+    # mp3gain
+    # python3-eyed3
+    # lsscsi
 )
 
 groups=(
@@ -67,3 +75,5 @@ systemctl enable --now --user pipewire-pulse.service
 sudo systemctl enable --now docker
 sudo systemctl enable --now libvirtd
 sudo systemctl enable --now tlp
+sudo systemctl disable systemd-networkd-wait-online
+sudo systemctl mask systemd-networkd-wait-online
