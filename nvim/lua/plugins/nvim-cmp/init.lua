@@ -6,8 +6,8 @@ end
 
 local role_to_func = {
     tab_role = function(fallback)
-        if vim.fn.pumvisible() == 1 then
-            feed '<C-n>'
+        if cmp.visible() then
+            cmp.select_next_item()
         elseif vim.fn['vsnip#jumpable'](1) == 1 then
             feed '<Plug>(vsnip-jump-next)'
         else
@@ -16,8 +16,8 @@ local role_to_func = {
     end,
 
     stab_role = function(fallback)
-        if vim.fn.pumvisible() == 1 then
-            feed '<C-p>'
+        if cmp.visible() then
+            cmp.select_prev_item()
         elseif vim.fn['vsnip#jumpable'](-1) == 1 then
             feed '<Plug>(vsnip-jump-prev)'
         else

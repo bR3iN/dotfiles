@@ -3,7 +3,7 @@ setlocal textwidth=80
 " }}}
 
 " Misc Mappings{{{
-nnoremap <buffer> <leader>f gqq
+" nnoremap <buffer> <leader>f gqq
 vnoremap <buffer> <leader>f gq
 nnoremap <buffer> <leader>u ~h
 

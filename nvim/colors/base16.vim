@@ -40,6 +40,9 @@ hi Type ctermfg=10
 hi Underlined ctermfg=12
 hi Ignore ctermfg=17
 
+" Used by Neomake
+hi SpellCap ctermbg=19
+
 hi LspDiagnosticsDefaultError ctermfg=9
 hi LspDiagnosticsDefaultHint ctermfg=13
 hi LspDiagnosticsDefaultInformation ctermfg=10
