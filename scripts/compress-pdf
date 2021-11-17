@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+for file in "$@"; do
+    if [[ "$file" =~ .pdf$ ]]; then
+        echo "Compressing ${file}"
+        /usr/bin/gs \
+            -sDEVICE=pdfwrite \
+            -dCompatibilityLevel=1.4 \
+            -dPDFSETTINGS=/ebook \
+            -dNOPAUSE \
+            -dQUIET \
+            -dBATCH \
+            -sOutputFile="${file%.pdf}_compressed.pdf" \
+            "$file"
+    fi
+done
