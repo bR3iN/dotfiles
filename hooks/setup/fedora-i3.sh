@@ -1,38 +1,34 @@
 #!/usr/bin/bash
 
-sudo dnf module enable -y sway:rolling
-sudo dnf copr   enable -y alebastr/sway-extras
+pkg_groups=(
+    base-x
+)
 
 pkgs=(
     blueberry
     brightnessctl
+    dunst
+    feh
     gnome-keyring
-    greetd
-    greetd-gtkgreet
+    i3-gaps
     lxappearance
-    mako
     NetworkManager-tui
-    nnn
     pavucontrol
+    picom
     playerctl
+    polybar
     pulseaudio-utils
+    redshift
     rofi-wayland
     seahorse
-    sway-git
-    swayidle
-    swaylock
     Thunar
     thunar-volman
     tumbler
-    waybar
-    wl-clipboard
-    wlsunset
-    wob
     xfce-polkit
+    xss-lock
 )
 
+sudo dnf group install -y "${pkg_groups[@]}"
 sudo dnf install -y "${pkgs[@]}"
-sudo dnf group install -y "${groups[@]}"
 
-systemctl --user enable --now mako.service
 sudo systemctl enable greetd

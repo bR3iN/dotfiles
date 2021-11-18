@@ -2,9 +2,20 @@
 
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
+pkg_groups=(
+    "Core"
+    "Standard"
+    "Multimedia"
+    "Printing Support"
+    "Common NetworkManager Submodules"
+    "Hardware Support"
+    "Development Tools"
+    "C Development Tools and Libraries"
+    "Virtualization"
+)
+
 pkgs=(
     bat
-    cargo
     d-feet
     docker
     fedora-workstation-backgrounds
@@ -12,9 +23,6 @@ pkgs=(
     ffmpeg
     firefox
     fish
-    fzf
-    fzf
-    htop
     ImageMagick
     imv
     jq
@@ -27,20 +35,15 @@ pkgs=(
     npm
     plymouth-theme-spinner
     power-profiles-daemon
-    powertop
+    toolbox
     qutebrowser
-    redshift
-    rls
-    rustfmt
     setroubleshoot
     setxkbmap
-    snapper
     tealdeer
     thunderbird
-    tlp
     tmux
     torbrowser-launcher
-    xdotool # for vimtex
+    xdotool #for vimtex
     youtube-dl
 
     # Order matters
@@ -55,25 +58,14 @@ pkgs=(
     # lsscsi
 )
 
-groups=(
-    "Core"
-    "Standard"
-    "Multimedia"
-    "Printing Support"
-    "Common NetworkManager Submodules"
-    "Hardware Support"
-    "Development Tools"
-    "C Development Tools and Libraries"
-    "Virtualization"
-)
-
+sudo dnf group install -y "${pkg_groups[@]}"
 sudo dnf install -y "${pkgs[@]}"
-sudo dnf group install -y "${groups[@]}"
 
 systemctl enable --now --user pipewire.service
 systemctl enable --now --user pipewire-pulse.service
 sudo systemctl enable --now docker
 sudo systemctl enable --now libvirtd
-sudo systemctl enable --now tlp
 sudo systemctl disable systemd-networkd-wait-online
-sudo systemctl mask systemd-networkd-wait-online
+sudo systemctl mask    systemd-networkd-wait-online
+
+sudo plymouth-set-default-theme -R spinner
