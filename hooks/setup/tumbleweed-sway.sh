@@ -55,5 +55,7 @@ sudo zypper install -y "${pkgs[@]}"
 systemctl enable --user --now pipewire
 systemctl enable --user --now pipewire-pulse
 
+sudo systemctl set-default graphical.target
+
 sudo systemctl enable --now docker
 sudo systemctl enable       greetd
