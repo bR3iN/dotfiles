@@ -12,22 +12,22 @@ get_configs()
 filter()
 {
     awk '\
-    BEGIN             { in_sway_block = 0; skip_next = 0 }
-    /^#i3-skip-next:/ { skip_next = 1; next }
-    /^#sway-only\(/   { in_sway_block = 1; next }
-    /^#)/             { in_sway_block = 0; next }
+    BEGIN             { ws = "( |    )*"; in_sway_block = 0; skip_next = 0 }
+    /^( |   )*#i3-skip-next:/ { skip_next = 1; next }
+    /^( |   )*#sway-only\(/   { in_sway_block = 1; next }
+    /^( |   )*#)/             { in_sway_block = 0; next }
 
     in_sway_block || /#sway-only/ { next }
     skip_next { skip_next = 0; next }
 
-    /^#i3-change-next-to: / {
+    /^( |   )*#i3-change-next-to: / {
         skip_next = 1
-        sub("^#i3-change-next-to: ", "")
+        sub("^( |   )*#i3-change-next-to: ", "")
         print
         next
     }
 
-    { sub("^#i3: ",""); print }'
+    { sub("^( | )*#i3: ",""); print }'
 }
 
 get_configs | filter > "${1:-/tmp/i3.config}"
