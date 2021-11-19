@@ -174,7 +174,22 @@ add ('lervag/vimtex', function()
     vim.g.vimtex_format_enabled = 1
     vim.g.vimtex_quickfix_mode = 0
     vim.g.vimtex_view_method  = 'zathura'
-    vim.g.tex_flavor = 'latex'
+    -- vim.g.tex_flavor = 'latex'
+    vim.g.vimtex_compiler_latexmk = {
+        options = {
+            -- '-lualatex',
+            '-verbose',
+            '-file-line-error',
+            '-synctex=1',
+            '-interaction=nonstopmode',
+            '-pdflatex="lualatex %O %S"',
+        },
+        build_dir = '',
+        callback = 1,
+        continuous = 1,
+        executable = 'latexmk',
+        hooks = {},
+    }
 end)
 
 add ('rust-lang/rust.vim', function()
@@ -188,7 +203,8 @@ add ('neomake/neomake', function()
 end)
 
 add ('neovim/nvim-lspconfig', function()
-    -- require 'lsp.ccls'
+    require 'lsp.ccls'
+    -- require 'lsp.clangd'
     require 'lsp.sumneko_lua'
     require 'lsp.rls'
     require 'lsp.bashls'

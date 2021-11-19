@@ -20,6 +20,7 @@ c.editor.command = ['kitty', 'bash', '-c', 'nvim "{file}" "+normal {line}G{colum
 config.bind('<F1>', 'open -t https://raw.githubusercontent.com/qutebrowser/qutebrowser/master/doc/img/cheatsheet-big.png')
 config.bind('<Space>F', 'spawn firefox -p Hardened {url}')
 config.bind('<Space>f', 'spawn firefox -p Normal {url}')
+config.bind('<Space>y', 'spawn mpv {url}')
 # config.bind('<Space>c', 'config-cycle -p content.cookies.accept no-3rdparty never')
 config.bind('<Space>j', 'config-cycle -p content.javascript.enabled')
 config.bind('<Space>m', 'config-cycle -p messages.timeout 0 3000')

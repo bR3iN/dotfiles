@@ -13,7 +13,7 @@ foreground = ${colors.base04}
 
 line-size = 2
 
-border-size = 0
+border-size = 1
 border-color = ${colors.base01}
 
 font-0 = Fira Sans:size=10;2
@@ -33,7 +33,7 @@ format = <label-state> <label-mode>
 index-sort = true
 wrapping-scroll = false
 
-label-padding = 3
+label-padding = 2
 
 pin-workspaces = true
 
@@ -140,6 +140,7 @@ inherit = indicator
 format-underline= ${colors.base0D}
 type = custom/script
 exec = if [ -f /tmp/idle.lock ]; then echo ; else echo ; fi
+click-left = toggle-idle
 
 
 [module/memory]
@@ -179,7 +180,6 @@ type = internal/battery
 inherit = indicator
 battery = BAT0
 adapter = ADP1
-full-at = 98
 
 format-charging-padding = ${indicator.format-padding}
 format-discharging-padding = ${indicator.format-padding}

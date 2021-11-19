@@ -3,7 +3,7 @@ local map    = require'utils'.map
 _custom_operators = {}
 
 local function get_text(mode, bufnr)
-    local bufnr = bufnr or 0
+    bufnr = bufnr or 0
 
     local marks = (mode == 'char' or mode == 'line') and {'[', ']'} or {'<', '>'}
 

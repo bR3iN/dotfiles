@@ -3,7 +3,6 @@
 FF_DIR="$HOME/.mozilla/firefox"
 
 ROFI_FLAGS=(
-    -dpi "$ROFI_DPI"
     -no-sorting -no-show-icons
     -i -p 'Choose Firefox Profile'
 )

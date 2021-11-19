@@ -9,10 +9,8 @@ pkgs=(
     gnome-keyring
     greetd
     greetd-gtkgreet
-    lxappearance
     mako
     NetworkManager-tui
-    nnn
     pavucontrol
     playerctl
     pulseaudio-utils
@@ -31,8 +29,8 @@ pkgs=(
     xfce-polkit
 )
 
+# sudo dnf group install -y "${pkg_groups[@]}"
 sudo dnf install -y "${pkgs[@]}"
-sudo dnf group install -y "${groups[@]}"
 
 systemctl --user enable --now mako.service
 sudo systemctl enable greetd
