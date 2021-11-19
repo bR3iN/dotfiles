@@ -33,7 +33,7 @@ format = <label-state> <label-mode>
 index-sort = true
 wrapping-scroll = false
 
-label-padding = 2
+label-padding = 3
 
 pin-workspaces = true
 
