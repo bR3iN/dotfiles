@@ -62,10 +62,10 @@ rewrite = true
 hook = "swaymsg reload"
 light = false
 
-#[[item]]
-#template = "wofi"
-#file = "~/.config/wofi/flavours.css"
-#rewrite = true
+[[item]]
+template = "wofi"
+file = "~/.config/wofi/flavours.css"
+rewrite = true
 
 [[item]]
 template = "custom"
