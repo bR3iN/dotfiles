@@ -3,3 +3,5 @@
 	name = bR3iN
 [init]
 	defaultBranch = main
+[pull]
+	rebase = false

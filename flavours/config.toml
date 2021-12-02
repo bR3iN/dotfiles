@@ -18,26 +18,6 @@ file = "~/.config/kitty/flavours.conf"
 rewrite = true
 
 [[item]]
-template = "custom"
-subtemplate = "gtk-3"
-file = "~/.config/gtk-3.0/gtk.css"
-rewrite = true
-
-[[item]]
-template = "gtk-flatcolor"
-subtemplate = "gtk-2"
-file = "~/.config/gtk-2.0/gtkrc"
-rewrite = true
-
-[[item]]
-template = "custom"
-subtemplate = "gtk-3"
-file = "~/.config/gtk-3.20/gtk.css"
-rewrite = true
-hook = "~/.local/bin/propagate-flavours"
-light = false
-
-[[item]]
 template = "qutebrowser"
 file = "~/.config/qutebrowser/flavours.py"
 rewrite = true
@@ -95,3 +75,12 @@ template = "custom"
 subtemplate = "dunst"
 file = "~/.config/dunst/dunstrc"
 rewrite = true
+
+[[item]]
+template = "custom"
+subtemplate = "FlatColor-16"
+file = "~/.themes/FlatColor-16/colors.css"
+rewrite = true
+hook = "cd ~/.themes/FlatColor-16 && make &"
+
+# vim: nowrap

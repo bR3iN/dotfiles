@@ -1,17 +1,5 @@
-### Variables {{{
-set $mod Mod4
-set $left  h
-set $down  j
-set $up    k
-set $right l
-
-set $term kitty-with-socket
-#sway-only(
-set $menu rofi -show combi -run-command "swaymsg exec -- {cmd}" \
-    -combi-modi "sway,drun"
-#)
-#i3: set $menu "rofi -show combi -combi-modi 'window\,drun' -dpi $ROFI_DPI"
-# }}}
+#i3-skip-next:
+include ~/.config/sway/variables
 
 ### Appearance {{{
 #i3-change-next-to: font pango:Fira Sans Regular 9
@@ -19,10 +7,9 @@ font Fira Sans Regular 9
 
 #i3-change-next-to: hide_edge_borders smart_no_gaps
 hide_edge_borders --i3 smart_no_gaps
+#i3-change-next-to: new_float normal
+default_floating_border normal
 default_border pixel 1
-
-set $gaps_inner 15
-set $gaps_outer 0
 
 #i3-change-next-to: smart_gaps on
 smart_gaps on
@@ -35,6 +22,7 @@ bar swaybar_command waybar
 # Load colors
 #i3-skip-next:
 include ~/.config/sway/flavours
+# TODO: factor out
 # Property Name         Border  BG      Text    Indicator Child Border
 client.focused          $base01 $base03 $base04 $base0B $base0B
 client.focused_inactive $base01 $base02 $base04 $base03 $base03
@@ -117,14 +105,15 @@ bindcode $mod+61 exec --no-startup-id $menu
 
 # Open terminal
 bindsym $mod+t exec $term
-bindsym $mod+Control+t exec kitty-tmux
+# bindsym $mod+Control+t exec $term_var
+bindsym $mod+Control+t exec $term_var
 
 # Open documents
 bindsym $mod+d exec rofi-open
 
 # Browser
-bindsym $mod+b         exec qutebrowser
-bindsym $mod+Control+b exec rofi-ff
+bindsym $mod+b         exec $browser
+bindsym $mod+Control+b exec --no-startup-id rofi-ff
 
 # Open emoji selector
 bindsym $mod+Control+e exec rofi-emoji
@@ -134,7 +123,6 @@ bindsym $mod+x exec rofi-scripts
 ## }}}
 
 ## Media keys {{{
-
 # Brightness keys
 #i3-change-next-to: bindsym \
 bindsym --locked \
@@ -275,18 +263,9 @@ bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
-# Move focus to the parent container
+# Move focus to the parent/child container
 bindsym $mod+a focus parent
 bindsym $mod+c focus child
-
-bindsym $mod+Shift+$left  resize shrink width  40px
-bindsym $mod+Shift+$down  resize grow   height 40px
-bindsym $mod+Shift+$up    resize shrink height 40px
-bindsym $mod+Shift+$right resize grow   width  40px
-bindsym $mod+Shift+Left   resize shrink width  40px
-bindsym $mod+Shift+Down   resize grow   height 40px
-bindsym $mod+Shift+Up     resize shrink height 40px
-bindsym $mod+Shift+Right  resize grow   width  40px
 # }}}
 
 # Resize mode {{{
@@ -339,14 +318,14 @@ mode "powermenu" {
     bindsym r exec systemctl reboot
 
     # Lock screen
-    bindsym l mode "default"; exec wlock #sway-only
-    #i3: bindsym l mode "default"; exec $lock
+    #i3-change-next-to: bindsym l mode "default"; exec $lock
+    bindsym l mode "default"; exec wlock
 
     # Suspend
     bindsym s mode "default"; exec --no-startup-id systemctl suspend
 
     # Exit sway/logout
-    #i3-change-next-to: bindsym e mode "default"; exec i3-msg exit
+    #i3-change-next-to: bindsym e mode "default"; exit
     bindsym e mode "default"; exec swaymsg exit
     #bindsym e exec loginctl terminate-user $USER
 
@@ -388,6 +367,7 @@ mode "swap" {
 ### Rules {{{
 for_window [class="GParted"] floating enable
 
+#i3: for_window [instance="gtk3-widget-factory"] floating enable
 #sway-only(
 for_window {
     [app_id="thunderbird"] move container to workspace 5
@@ -418,12 +398,10 @@ exec /usr/libexec/kdeconnectd
 exec kdeconnect-indicator
 exec powerprofilesctl set power-saver
 exec mako
-
-exec mkfifo /tmp/wob.sock
-exec tail -f /tmp/wob.sock | wob $(cat ~/.config/wob 2>/dev/null)
 #)
 #i3: exec --no-startup-id redshift
 #i3: exec --no-startup-id dunst
+#i3: exec --no-startup-id picom
 # }}}
 
 #sway-only(

@@ -3,6 +3,7 @@
 get_configs()
 {
     cat \
+        ~/.config/sway/variables \
         ~/.config/sway/flavours \
         ~/.config/sway/config \
         ~/.config/sway/config.d/* \
