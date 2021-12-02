@@ -27,6 +27,9 @@ alias gc 'git commit'
 alias gl 'git log'
 alias gd 'git diff'
 alias se sudoedit
+alias te 'toolbox enter'
+alias tc 'toolbox create'
+alias tr 'toolbox run'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0

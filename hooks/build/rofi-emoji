@@ -23,8 +23,8 @@ build_and_install ()
 install_dependencies ()
 {
     case "$(cat /etc/os-release | grep "^NAME")" in
-        *Fedora)
-            sudo dnf install -y meson ninja-build sassc \
+        *Fedora*)
+            sudo dnf install -y autoconf meson ninja-build sassc \
                 glib2-devel cairo-devel rofi-devel \
                 google-noto-emoji-color-fonts
             ;;
