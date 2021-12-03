@@ -8,4 +8,6 @@ if [ -d ~/.profile.d ]; then
     done
 fi
 
+[ -n "$TOOLBOX_PATH" ] && [ -x /usr/bin/fish ] && exec /usr/bin/fish
+
 # vim: filetype=sh
