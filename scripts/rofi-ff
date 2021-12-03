@@ -1,13 +1,30 @@
 #!/usr/bin/bash
 
 FF_DIR="$HOME/.mozilla/firefox"
-
-ROFI_FLAGS=(
-    -no-sorting -no-show-icons
-    -i -p 'Choose Firefox Profile'
-)
+PROMPT="Choose Firefox Profile"
 
 PROFILES="$(awk '/Name=/{sub("Name=",""); print}' "$FF_DIR/profiles.ini")"
 
-SELECTION="$(echo "$PROFILES" | rofi -lines "$(echo "$PROFILES" | wc -l)" -dmenu "${ROFI_FLAGS[@]}")"
-firefox -p "${SELECTION:?}"
+if [ "$(basename "$0")" = wofi-ff ]; then
+    CMD=(
+        wofi
+        --dmenu
+        --insensitive
+        --prompt "$PROMPT"
+        --matching contains
+        --lines "$(echo "$PROFILES" | wc -l)"
+    )
+else
+    CMD=(
+        rofi
+        -dmenu -i
+        -p "$PROMPT"
+        -no-show-icons
+        -sorting-method levenshtein
+        -matching normal
+        -lines "$(echo "$PROFILES" | wc -l)"
+    )
+fi
+
+SELECTION="$(echo "$PROFILES" | "${CMD[@]}")"
+[ -n "${SELECTION-}" ] && firefox -p "${SELECTION:?}"
