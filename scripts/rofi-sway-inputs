@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+
+LAYOUTS_DIR="$HOME/.config/sway/input"
+PROMPT="Choose keyboard layout"
+
+LAYOUTS="$(ls "$LAYOUTS_DIR")"
+
+if [ "$(basename "$0")" = wofi-sway-inputs ]; then
+    CMD=(
+        wofi
+        --dmenu
+        --insensitive
+        --prompt "$PROMPT"
+        --matching contains
+        --lines "$(echo "$LAYOUTS" | wc -l)"
+    )
+else
+    CMD=(
+        rofi
+        -dmenu -i
+        -p "$PROMPT"
+        -no-show-icons
+        -sorting-method levenshtein
+        -matching normal
+        -lines "$(echo "$LAYOUTS" | wc -l)"
+    )
+fi
+
+SELECTION="$(echo "$LAYOUTS" | "${CMD[@]}")"
+[ -n "${SELECTION-}" ] && swaymsg input '*' xkb_file "$LAYOUTS_DIR/$SELECTION"
