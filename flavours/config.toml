@@ -78,9 +78,10 @@ rewrite = true
 
 [[item]]
 template = "custom"
-subtemplate = "FlatColor-16"
-file = "~/.themes/FlatColor-16/colors.css"
+subtemplate = "scss"
+file = "~/.themes/FlatWaita-16/base16.scss"
 rewrite = true
-hook = "cd ~/.themes/FlatColor-16 && make &"
+hook = "cd ~/.themes/FlatWaita-16 && make install &"
+
 
 # vim: nowrap
