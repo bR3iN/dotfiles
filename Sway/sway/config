@@ -33,12 +33,8 @@ client.background       $base07
 # }}}
 
 ### Idle configuration {{{
-#sway-only(
-exec swayidle -w timeout 180 'swaymsg "output * dpms off"' \
-                    resume 'swaymsg "output * dpms on"' \
-                 timeout 185 'swaylock -f' \
-                 before-sleep 'swaylock -f'
-#)
+#i3-skip-next
+exec swayidle -w before-sleep 'swaylock -f'
 
 #i3: exec --no-startup-id xset 180
 #i3: exec --no-startup-id xss-lock -n dim-and-lock -- lock
@@ -46,17 +42,14 @@ exec swayidle -w timeout 180 'swaymsg "output * dpms off"' \
 
 ### Input configuration {{{
 #sway-only(
-bindsym $mod+i input * xkb_switch_layout next
+bindsym $mod+Control+i exec rofi-sway-inputs
 
 input * {
-    xkb_layout us,us,us
-    xkb_variant ,intl,colemak_dh
-    # xkb_options lv3:ralt_alt,altwin:prtsc_rwin
     accel_profile flat
 }
 
 input "1:1:AT_Translated_Set_2_keyboard" {
-    xkb_options altwin:prtsc_rwin
+    xkb_file ~/.config/sway/input/default-thinkpad.xkb
 }
 
 input "2:14:ETPS/2_Elantech_Touchpad" {
@@ -375,6 +368,7 @@ for_window {
     [app_id="blueberry.py"]          floating enable
     [app_id="d-feet"]                floating enable
     [app_id="firewall-config"]       floating enable
+    [app_id="gtg"]                   floating enable
     [app_id="gpick"]                 floating enable
     [app_id="org.kde.kdeconnect"]    floating enable
     [app_id="org.opensuse.YaST"]     floating enable
@@ -391,12 +385,13 @@ for_window {
 ### Autostart {{{
 exec --no-startup-id start-polkit-agent
 exec --no-startup-id Thunar --daemon
+exec --no-startup-id powerprofilesctl set power-saver
+exec thunderbird
 
 #sway-only(
 exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
 exec /usr/libexec/kdeconnectd
 exec kdeconnect-indicator
-exec powerprofilesctl set power-saver
 exec mako
 #)
 #i3: exec --no-startup-id redshift

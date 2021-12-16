@@ -7,12 +7,11 @@
     "modules-center": ["clock"],
     "modules-right": [
         "tray",
-        "custom/vpn",
         "backlight",
         "pulseaudio",
         "cpu",
         "memory",
-        "idle_inhibitor",
+        "custom/vpn",
         "network",
         "battery"
     ],
@@ -49,6 +48,8 @@
         "device": "intel_baklight",
         "format": "{percent}% {icon}",
         "format-icons": ["", "", ""],
+        "on-scroll-up": "backlight increase",
+        "on-scroll-down": "backlight decrease",
     },
 
     "tray": {
@@ -107,9 +108,9 @@
     },
 
     "custom/vpn": {
+        "return-type": "json",
         "format": "嬨",
-        "exec": "echo '{}'",
-        "exec-if": "pgrep -x openvpn",
+        "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
         "interval": 5,
     },
 }
