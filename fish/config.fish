@@ -29,7 +29,6 @@ alias gd 'git diff'
 alias se sudoedit
 alias te 'toolbox enter'
 alias tc 'toolbox create'
-alias tr 'toolbox run'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
@@ -41,13 +40,16 @@ set -x MANPAGER 'nvim +Man!'
 #set -xa PATH "$HOME/.node_modules/bin"
 #set -xa PATH "$HOME/.local/bin"
 
+bind -e --preset \eh
+bind \em __fish_man_page
 bind \e, history-token-search-forward
+
 
 if test -f "$HOME/.config/fish/fish.local"
     source "$HOME/.config/fish/fish.local"
 end
 
-if [ $TERM = xterm-kitty ]
+if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty @ set-background-opacity 1; kitty +kitten ssh'
 end
 
