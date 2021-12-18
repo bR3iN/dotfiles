@@ -1,0 +1,400 @@
+## Variables {{{
+
+set $mod Mod4
+set $left  h
+set $down  j
+set $up    k
+set $right l
+
+# set gaps
+set $gaps_inner 15
+set $gaps_outer 0
+
+# web browser
+set $browser flatpak run org.qutebrowser.qutebrowser
+
+# application launcher
+set $menu "rofi -show combi -combi-modi 'window\,drun'
+
+# }}}
+
+## Appearance {{{
+
+font pango:Fira Sans Regular 9
+
+hide_edge_borders smart_no_gaps
+new_float normal
+default_border pixel 1
+
+smart_gaps on
+gaps inner $gaps_inner
+gaps outer $gaps_outer
+
+exec --no-startup-id polybar --reload mybar
+
+# Load colors
+# Property Name         Border  BG      Text    Indicator Child Border
+client.focused          $base01 $base03 $base04 $base0B $base0B
+client.focused_inactive $base01 $base02 $base04 $base03 $base03
+client.unfocused        $base01 $base00 $base04 $base00 $base01
+client.urgent           $base08 $base08 $base00 $base08 $base08
+client.placeholder      $base00 $base00 $base04 $base00 $base00
+client.background       $base07
+
+# }}}
+
+## Idle configuration {{{
+
+exec --no-startup-id xset 180
+exec --no-startup-id xss-lock -n dim-and-lock -- lock
+
+# }}}
+
+## Key bindings {{{
+
+floating_modifier $mod
+
+# Lock screen and power menu
+bindsym $mod+Escape exec lock
+
+# Toggle waybar and gaps
+bindsym $mod+o exec polybar-msg cmd toggle
+bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
+                       gaps outer current toggle $gaps_outer
+
+# Toggle sticky
+bindsym $mod+Control+s sticky toggle
+
+# Make the current focus fullscreen
+bindsym $mod+f fullscreen
+
+# Reload configuration file
+bindsym $mod+Control+r \
+    exec --no-startup-id ~/.local/share/scripts/generate-i3-config.sh; restart
+
+# Close focused client
+bindsym $mod+q kill
+
+## Launcher {{{
+
+bindcode $mod+61 exec --no-startup-id $menu
+
+# Open terminal
+bindsym $mod+t exec kitty-with-socket
+bindsym $mod+Control+t exec kitty-toolbox
+
+# Browser
+bindsym $mod+b         exec $browser
+bindsym $mod+Control+b exec --no-startup-id rofi-ff
+
+# Open emoji selector
+bindsym $mod+Control+e exec rofi-emoji
+
+# Open script selector
+bindsym $mod+x exec rofi-scripts
+## }}}
+
+## Media keys {{{
+# Brightness keys
+bindsym XF86MonBrightnessDown exec --no-startup-id backlight decrease
+bindsym XF86MonBrightnessUp   exec --no-startup-id backlight increase
+
+# Toggle keyboard and screen backlight
+bindsym Mod4+Home exec --no-startup-id kbbacklight_toggle
+bindsym Mod4+End  exec --no-startup-id "sleep 0.5; xset dpms force off"
+
+# Raise, lower and mute audio
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute     exec --no-startup-id pactl set-source-mute 0 toggle
+
+# Mod + audio keys as player control
+bindsym $mod+XF86AudioMute        exec --no-startup-id playerctl play-pause
+bindsym $mod+XF86AudioLowerVolume exec --no-startup-id playerctl previous
+bindsym $mod+XF86AudioRaiseVolume exec --no-startup-id playerctl next
+bindsym $mod+XF86AudioMicMute     exec --no-startup-id playerctl stop
+
+# Bind player keys (used e.g. by bluetooth headset)
+bindsym XF86AudioPlay  exec --no-startup-id playerctl play
+bindsym XF86AudioPause exec --no-startup-id playerctl pause
+bindsym XF86AudioNext  exec --no-startup-id playerctl next
+bindsym XF86AudioPrev  exec --no-startup-id playerctl previous
+# }}}
+
+## Navigation {{{
+
+# Move to and show scratchpad 
+bindsym $mod+Control+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+# Toggle floating status of current client
+bindsym $mod+Control+space floating toggle
+
+# Swap focus between the tiling area and the floating area
+bindsym $mod+space focus mode_toggle
+
+# Move the focus
+bindsym $mod+$left  focus left
+bindsym $mod+$down  focus down
+bindsym $mod+$up    focus up
+bindsym $mod+$right focus right
+bindsym $mod+Left   focus left
+bindsym $mod+Down   focus down
+bindsym $mod+Up     focus up
+bindsym $mod+Right  focus right
+
+# Move the focused client
+bindsym $mod+Control+$left  move left
+bindsym $mod+Control+$down  move down
+bindsym $mod+Control+$up    move up
+bindsym $mod+Control+$right move right
+bindsym $mod+Control+Left   move left
+bindsym $mod+Control+Down   move down
+bindsym $mod+Control+Up     move up
+bindsym $mod+Control+Right  move right
+
+# Switch to workspace
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+# Move with focused container to workspace
+bindsym $mod+Control+1 move container to workspace number 1; \
+	workspace number 1
+bindsym $mod+Control+2 move container to workspace number 2; \
+	workspace number 2
+bindsym $mod+Control+3 move container to workspace number 3; \
+	workspace number 3
+bindsym $mod+Control+4 move container to workspace number 4; \
+	workspace number 4
+bindsym $mod+Control+5 move container to workspace number 5; \
+	workspace number 5
+bindsym $mod+Control+6 move container to workspace number 6; \
+	workspace number 6
+bindsym $mod+Control+7 move container to workspace number 7; \
+	workspace number 7
+bindsym $mod+Control+8 move container to workspace number 8; \
+	workspace number 8
+bindsym $mod+Control+9 move container to workspace number 9; \
+    workspace number 9
+bindsym $mod+Control+0 move container to workspace number 10; \
+    workspace number 10 
+
+## }}}
+
+## Layout related {{{
+
+# Create new split
+bindsym $mod+g splith
+bindsym $mod+v splitv
+
+# Switch layout of current container
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Move focus to the parent/child container
+bindsym $mod+a focus parent
+bindsym $mod+c focus child
+
+# }}}
+
+# }}}
+
+## Rules {{{
+
+for_window [class="GParted"] floating enable
+for_window [instance="gtk3-widget-factory"] floating enable
+
+# }}}
+
+## Autostart {{{
+
+exec --no-startup-id start-polkit-agent
+exec --no-startup-id Thunar --daemon
+exec --no-startup-id powerprofilesctl set power-saver
+
+exec --no-startup-id redshift
+exec --no-startup-id dunst
+exec --no-startup-id picom
+
+# }}}
+
+## Modes {{{
+
+# Resize mode {{{
+bindsym $mod+r mode "resize"
+mode "resize" {
+    bindsym $left  resize shrink width  10px
+    bindsym $down  resize grow   height 10px
+    bindsym $up    resize shrink height 10px
+    bindsym $right resize grow   width  10px
+    bindsym Left   resize shrink width  10px
+    bindsym Down   resize grow   height 10px
+    bindsym Up     resize shrink height 10px
+    bindsym Right  resize grow   width  10px
+
+    # Resize in bigger steps
+    bindsym Shift+$left  resize shrink width  40px
+    bindsym Shift+$down  resize grow   height 40px
+    bindsym Shift+$up    resize shrink height 40px
+    bindsym Shift+$right resize grow   width  40px
+    bindsym Shift+Left   resize shrink width  40px
+    bindsym Shift+Down   resize grow   height 40px
+    bindsym Shift+Up     resize shrink height 40px
+    bindsym Shift+Right  resize grow   width  40px
+
+    # Move around while resizing
+    bindsym $mod+$left focus left
+    bindsym $mod+$down focus down
+    bindsym $mod+$up focus up
+    bindsym $mod+$right focus right
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+    bindsym Control+bracketleft mode "default"
+}
+# }}}
+
+# Powermenu mode {{{
+bindsym $mod+Control+q mode "powermenu"
+mode "powermenu" {
+    # Poweroff
+    bindsym p exec systemctl poweroff 
+
+    # Reboot
+    bindsym r exec systemctl reboot
+
+    # Lock screen TODO
+    bindsym l mode "default"; exec $lock
+
+    # Suspend
+    bindsym s mode "default"; exec --no-startup-id systemctl suspend
+
+    # Exit sway/logout
+    bindsym e mode "default"; exit
+
+    # Return to default mode
+    bindsym Escape              mode "default"
+    bindsym $mod+Control+q      mode "default"
+    bindsym Control+bracketleft mode "default"
+}
+# }}}
+
+# Create and jump to marks {{{
+bindsym $mod+m mode "create mark"
+mode "create mark" {
+    bindsym a mode "default"; mark a
+    bindsym b mode "default"; mark b
+    bindsym c mode "default"; mark c
+    bindsym d mode "default"; mark d
+    bindsym e mode "default"; mark e
+    bindsym f mode "default"; mark f
+    bindsym g mode "default"; mark g
+    bindsym h mode "default"; mark h
+    bindsym i mode "default"; mark i
+    bindsym j mode "default"; mark j
+    bindsym k mode "default"; mark k
+    bindsym l mode "default"; mark l
+    bindsym m mode "default"; mark m
+    bindsym n mode "default"; mark n
+    bindsym o mode "default"; mark o
+    bindsym p mode "default"; mark p
+    bindsym q mode "default"; mark q
+    bindsym r mode "default"; mark r
+    bindsym s mode "default"; mark s
+    bindsym t mode "default"; mark t
+    bindsym u mode "default"; mark u
+    bindsym v mode "default"; mark v
+    bindsym w mode "default"; mark w
+    bindsym x mode "default"; mark x
+    bindsym y mode "default"; mark y
+    bindsym z mode "default"; mark z
+    bindsym 0 mode "default"; mark 0
+    bindsym 1 mode "default"; mark 1
+    bindsym 2 mode "default"; mark 2
+    bindsym 3 mode "default"; mark 3
+    bindsym 4 mode "default"; mark 4
+    bindsym 5 mode "default"; mark 5
+    bindsym 6 mode "default"; mark 6
+    bindsym 7 mode "default"; mark 7
+    bindsym 8 mode "default"; mark 8
+    bindsym 9 mode "default"; mark 9
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+m mode "default"
+    bindsym Control+bracketleft mode "default"
+}
+
+bindsym $mod+apostrophe mode "goto mark"
+mode "goto mark" {
+    bindsym a mode "default"; [con_mark="a"] focus
+    bindsym b mode "default"; [con_mark="b"] focus
+    bindsym c mode "default"; [con_mark="c"] focus
+    bindsym d mode "default"; [con_mark="d"] focus
+    bindsym e mode "default"; [con_mark="e"] focus
+    bindsym f mode "default"; [con_mark="f"] focus
+    bindsym g mode "default"; [con_mark="g"] focus
+    bindsym h mode "default"; [con_mark="h"] focus
+    bindsym i mode "default"; [con_mark="i"] focus
+    bindsym j mode "default"; [con_mark="j"] focus
+    bindsym k mode "default"; [con_mark="k"] focus
+    bindsym l mode "default"; [con_mark="l"] focus
+    bindsym m mode "default"; [con_mark="m"] focus
+    bindsym n mode "default"; [con_mark="n"] focus
+    bindsym o mode "default"; [con_mark="o"] focus
+    bindsym p mode "default"; [con_mark="p"] focus
+    bindsym q mode "default"; [con_mark="q"] focus
+    bindsym r mode "default"; [con_mark="r"] focus
+    bindsym s mode "default"; [con_mark="s"] focus
+    bindsym t mode "default"; [con_mark="t"] focus
+    bindsym u mode "default"; [con_mark="u"] focus
+    bindsym v mode "default"; [con_mark="v"] focus
+    bindsym w mode "default"; [con_mark="w"] focus
+    bindsym x mode "default"; [con_mark="x"] focus
+    bindsym y mode "default"; [con_mark="y"] focus
+    bindsym z mode "default"; [con_mark="z"] focus
+    bindsym 0 mode "default"; [con_mark="0"] focus
+    bindsym 1 mode "default"; [con_mark="1"] focus
+    bindsym 2 mode "default"; [con_mark="2"] focus
+    bindsym 3 mode "default"; [con_mark="3"] focus
+    bindsym 4 mode "default"; [con_mark="4"] focus
+    bindsym 5 mode "default"; [con_mark="5"] focus
+    bindsym 6 mode "default"; [con_mark="6"] focus
+    bindsym 7 mode "default"; [con_mark="7"] focus
+    bindsym 8 mode "default"; [con_mark="8"] focus
+    bindsym 9 mode "default"; [con_mark="9"] focus
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+apostrophe mode "default"
+    bindsym Control+bracketleft mode "default"
+}
+# }}}
+
+# }}}
+
+## Output configuration {{{
+
+exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
+
+# }}}
+
+# vim ft=conf
