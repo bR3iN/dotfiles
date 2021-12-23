@@ -42,7 +42,7 @@ exec swayidle -w before-sleep 'swaylock -f'
 
 ### Input configuration {{{
 #sway-only(
-bindsym $mod+Control+i exec rofi-sway-inputs
+bindsym $mod+Control+i exec rofi-inputs --sway
 
 input * {
     accel_profile flat
