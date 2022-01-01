@@ -1,1 +1,1 @@
-require'lsp'.with_defaults('vimls')
+require'lsp'.setup_with_defaults('vimls')

@@ -63,7 +63,6 @@ vim.opt.path:append('**')
 
 -- Mappings {{{
 
-map ('n', 'Y', 'y$')
 map ('n', '<leader>d', '"_d')
 map ('n', '<leader>V', 'vg_') -- Does not mark newline
 map ('n', 'gQ', '<nop>')
@@ -71,7 +70,7 @@ map ('n', '<C-c>', '<C-^>')
 map ('n', '<C-h>', ':ToggleComments<CR>')
 map ('i', '<C-h>', '<C-o>:ToggleComments<CR>')
 map ('n', '<C-L>', ':<c-u>nohlsearch<CR><C-L>')
-map ('n', '<leader>mk', ':make<CR>')
+map ('n', '<leader>mk', ':make!<CR>')
 
 map ('t', '<Esc>', '<C-\\><C-n>')
 map ('t', '<C-v><Esc>', '<Esc>')
@@ -166,6 +165,13 @@ add 'tpope/vim-repeat'
 add 'tpope/vim-commentary'
 add 'georgewitteman/vim-fish'
 
+-- add ('nvim-neorg/neorg', function()
+--     add ('nvim-lua/plenary.nvim', function()
+--         _G.package.loaded["plugins.neorg"] = nil
+--         require'plugins.neorg'.setup()
+--     end)
+-- end)
+
 add ('tpope/vim-surround', function()
     vim.g.surround_66 = '{\r}\1\1'  -- 'B'
 end)
@@ -174,22 +180,7 @@ add ('lervag/vimtex', function()
     vim.g.vimtex_format_enabled = 1
     vim.g.vimtex_quickfix_mode = 0
     vim.g.vimtex_view_method  = 'zathura'
-    -- vim.g.tex_flavor = 'latex'
-    vim.g.vimtex_compiler_latexmk = {
-        options = {
-            -- '-lualatex',
-            '-verbose',
-            '-file-line-error',
-            '-synctex=1',
-            '-interaction=nonstopmode',
-            '-pdflatex="lualatex %O %S"',
-        },
-        build_dir = '',
-        callback = 1,
-        continuous = 1,
-        executable = 'latexmk',
-        hooks = {},
-    }
+    vim.g.tex_flavor = 'latex'
 end)
 
 add ('rust-lang/rust.vim', function()
@@ -203,14 +194,11 @@ add ('neomake/neomake', function()
 end)
 
 add ('neovim/nvim-lspconfig', function()
-    require 'lsp.ccls'
-    -- require 'lsp.clangd'
+    require 'lsp.clangd'
     require 'lsp.sumneko_lua'
     require 'lsp.rls'
     require 'lsp.bashls'
     require 'lsp.vimls'
-    -- require 'lsp.texlab'
-    -- require 'lsp.tsserver'
 end)
 
 add ('hrsh7th/nvim-cmp', function()
@@ -219,7 +207,6 @@ add ('hrsh7th/nvim-cmp', function()
     add 'hrsh7th/cmp-path'
     add 'hrsh7th/cmp-buffer'
     add 'hrsh7th/cmp-vsnip'
-    add 'hrsh7th/cmp-calc'
     require'plugins.nvim-cmp'.setup {
         tab_role = '<Tab>',
         stab_role = '<S-Tab>',
@@ -237,9 +224,6 @@ end)
 add ('nvim-treesitter/nvim-treesitter', function()
     add 'nvim-treesitter/nvim-treesitter-textobjects'
     require 'plugins.treesitter'
-    vim.schedule(function()
-        pcall(vim.api.nvim_exec, 'TSUpdate', true)
-    end)
 end)
 
 -- }}}

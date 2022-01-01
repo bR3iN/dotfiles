@@ -1,8 +1,7 @@
 local lspconfig = require('lspconfig')
-local on_attach = require('lsp').on_attach
 
 lspconfig.rls.setup{
-    on_attach = on_attach("rls"),
+    on_attach = require'lsp'.custom_on_attach,
     settings = {
         rust = {
             all_features = true,

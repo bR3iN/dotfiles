@@ -1,1 +1,1 @@
-require'lsp'.with_defaults('bashls')
+require'lsp'.setup_with_defaults('bashls')

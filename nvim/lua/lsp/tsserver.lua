@@ -1,1 +1,1 @@
-require'lsp'.with_defaults('tsserver')
+require'lsp'.setup_with_defaults('tsserver')
