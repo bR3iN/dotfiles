@@ -85,8 +85,6 @@ map('n', '<leader>ot', '<Plug>OpenTerminal', { noremap = false })
 
 -- Open init.lua
 map ('n', '<leader>ev', ':<c-u>edit   $MYVIMRC<CR>')
-map ('n', '<leader>sv', ':<c-u>split  $MYVIMRC<CR>')
-map ('n', '<leader>vv', ':<c-u>vsplit $MYVIMRC<CR>')
 
 -- Open files
 map ('n', '<leader>f' , ':find<space>'      , { silent = false })
@@ -97,6 +95,8 @@ map ('n', '<leader>b' , ':<C-u>ls<cr>:<c-u>b<space>'      , { silent = false })
 map ('n', '<leader>sb', ':<C-u>ls<cr>:<c-u>sb<space>'     , { silent = false })
 map ('n', '<leader>vb', ':<C-u>ls<cr>:<c-u>vert sb<space>', { silent = false })
 map ('n', '<leader>db', ':<C-u>ls<cr>:<c-u>bd<space>'     , { silent = false })
+map ('n', ']b', ':<C-u>bnext<CR>')
+map ('n', '[b', ':<C-u>bprev<CR>')
 
 -- Navigate quickfix and location lists
 map ('n', ']q', ':<C-u>cnext<CR>')
