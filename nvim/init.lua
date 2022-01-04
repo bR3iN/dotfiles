@@ -71,6 +71,7 @@ map ('n', '<C-h>', ':ToggleComments<CR>')
 map ('i', '<C-h>', '<C-o>:ToggleComments<CR>')
 map ('n', '<C-L>', ':<c-u>nohlsearch<CR><C-L>')
 map ('n', '<leader>mk', ':make!<CR>')
+map ('n', '<leader>mt', ':MakeTags<CR>')
 
 map ('t', '<Esc>', '<C-\\><C-n>')
 map ('t', '<C-v><Esc>', '<Esc>')
@@ -199,6 +200,7 @@ add ('neovim/nvim-lspconfig', function()
     require 'lsp.rls'
     require 'lsp.bashls'
     require 'lsp.vimls'
+    require 'lsp'.setup_with_defaults('pyright')
 end)
 
 add ('hrsh7th/nvim-cmp', function()
