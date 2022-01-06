@@ -19,7 +19,6 @@ hi PmenuSbar ctermbg=19
 hi PmenuSel ctermbg=8 ctermfg=11 cterm=bold
 hi PmenuThumb ctermbg=8
 hi Question ctermfg=10
-hi SignColumn ctermbg=18
 hi SpecialKey ctermfg=6
 hi StatusLine ctermbg=8 ctermfg=2 cterm=bold
 hi StatusLineNC ctermbg=19 ctermfg=2 cterm=NONE
@@ -40,14 +39,16 @@ hi Type ctermfg=10
 hi Underlined ctermfg=12
 hi Ignore ctermfg=17
 
-" Used by Neomake
-hi SpellCap ctermbg=19
+hi SignColumn ctermbg=19
 
-hi LspDiagnosticsDefaultError ctermfg=9 ctermbg=19
-hi LspDiagnosticsDefaultHint ctermfg=13 ctermbg=19
-hi LspDiagnosticsDefaultInformation ctermfg=10 ctermbg=19
-hi LspDiagnosticsDefaultWarning ctermfg=11 ctermbg=19
-hi LspDiagnosticsFloatingError       ctermbg=18
-hi LspDiagnosticsFloatingHint        ctermbg=18
-hi LspDiagnosticsFloatingInformation ctermbg=18
-hi LspDiagnosticsFloatingWarning     ctermbg=18
+" Used by Neomake
+hi SpellCap ctermbg=8
+
+hi DiagnosticError       ctermbg=19 ctermfg=9
+hi DiagnosticHint        ctermbg=19 ctermfg=12
+hi DiagnosticInfo        ctermbg=19 ctermfg=10
+hi DiagnosticWarn        ctermbg=19 ctermfg=16
+hi DiagnosticSignError   ctermbg=8  ctermfg=9
+hi DiagnosticSignHint    ctermbg=8  ctermfg=12
+hi DiagnosticSignInfo    ctermbg=8  ctermfg=10
+hi DiagnosticSignWarn    ctermbg=8  ctermfg=16

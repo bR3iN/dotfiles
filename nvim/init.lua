@@ -192,6 +192,7 @@ end)
 add ('neomake/neomake', function()
     map ('n', '<leader>nm', ':<C-u>Neomake<CR>')
     map ('n', '<leader>nc', ':<C-u>NeomakeClean<CR>')
+    require 'plugins.neomake'
 end)
 
 add ('neovim/nvim-lspconfig', function()
