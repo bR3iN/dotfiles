@@ -60,7 +60,7 @@ function fish_prompt --description 'Write out the prompt'
 
     # Print first line
     echo -n -s $lhs
-    printf "%-"(math $COLUMNS - (get_width $lhs) - (get_width $rhs))"s" " "
+    printf "%-"(math $COLUMNS - (get_width $lhs) - (get_width $rhs) - (get_width $VIRTUAL_ENV_PROMPT))"s" " "
     echo -n -s $rhs
 
     echo
