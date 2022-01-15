@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+
+CONFIG_DIR="/etc/openvpn/"
+
+PROMPT="Choose Server"
+
+vpn_is_running()
+{
+    pgrep --exact openvpn &>/dev/null
+}
+
+list_options()
+{
+    if vpn_is_running; then
+        echo "Stop"
+    fi
+
+    find "$CONFIG_DIR" -type f -name '*.ovpn' 2>/dev/null \
+        | sed "s#^${CONFIG_DIR}##"
+}
+
+callback()
+{
+    if vpn_is_running; then
+        sudo -A killall --exact openvpn
+    fi
+
+    if [ "$1" != Stop ]; then
+        sudo -A openvpn "$CONFIG_DIR/$1"
+    fi
+}
+
+source ~/.local/share/scripts/rofi-prompt.sh

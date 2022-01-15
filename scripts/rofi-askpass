@@ -1,25 +1,22 @@
 #!/usr/bin/bash
 
 PROMPT="$(echo "${1-Password}" | sed 's/: \?$//')"
-THEME_STRING='window {width: 25%;} inputbar {children: [prompt,textbox-prompt-colon,entry];} entry {placeholder: "Enter password";}'
 
-if [ "$(basename "$0")" = wofi-askpass ]; then
-    CMD=(
-        wofi
-        --dmenu
-        --password
-        --insensitive
-        --prompt "$PROMPT"
-    )
-else
-    CMD=(
-        rofi
-        -dmenu
-        -password
-        -p "$PROMPT"
-        -theme-str "$THEME_STRING" \
-        -no-fixed-num-lines
-    )
-fi
+ROFI_OPTIONS=(
+    -password
+    -theme-str 'window {width: 25%;} inputbar {children: [prompt,textbox-prompt-colon,entry];} entry {placeholder: "Enter password";}'
+    -no-fixed-num-lines
+)
 
-"${CMD[@]}"
+
+list_options() {
+    true
+}
+
+
+callback() {
+    echo "$@"
+}
+
+
+source ~/.local/share/scripts/rofi-prompt.sh

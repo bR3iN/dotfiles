@@ -2,26 +2,16 @@
 
 DOC_DIR="${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
 PROMPT="Open Document"
+ROFI_OPTIONS=(-fixed-num-lines)
 
-if [ "$(basename "$0")" = wofi-open ]; then
-    CMD=(
-        wofi
-        --dmenu
-        --insensitive
-        --prompt "$PROMPT"
-        --matching contains
-    )
-else
-    CMD=(
-        rofi
-        -dmenu -i
-        -p "$PROMPT"
-        -no-show-icons
-        -sorting-method levenshtein
-        -matching normal
-    )
-fi
+list_options()
+{
+    find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}'
+}
 
-OUTPUT=$(find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}' | "${CMD[@]}")
+callback()
+{
+    xdg-open "${DOC_DIR}/$1"
+}
 
-[ -n "${OUTPUT-}" ] && xdg-open "${DOC_DIR}/${OUTPUT}"
+source ~/.local/share/scripts/rofi-prompt.sh
