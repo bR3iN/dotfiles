@@ -6,15 +6,18 @@ set $down  j
 set $up    k
 set $right l
 
+# terminal emulator
+set $term kitty-with-socket
+
 # set gaps
 set $gaps_inner 15
 set $gaps_outer 0
 
 # web browser
-set $browser flatpak run org.qutebrowser.qutebrowser
+set $browser qutebrowser
 
 # application launcher
-set $menu "rofi -show combi -combi-modi 'window\,drun'
+set $menu "rofi -show combi -combi-modi 'window\,drun'"
 
 # }}}
 
@@ -32,7 +35,25 @@ gaps outer $gaps_outer
 
 exec --no-startup-id polybar --reload mybar
 
-# Load colors
+# Start flavours
+set $base00 #202020
+set $base01 #2A2A2A
+set $base02 #333333
+set $base03 #3D3D3D
+set $base04 #E3E3E3
+set $base05 #EBEBEB
+set $base06 #F2F2F2
+set $base07 #F4F4F4
+set $base08 #E23434
+set $base09 #F19822
+set $base0A #FFCE51
+set $base0B #73C48F
+set $base0C #48B9C7
+set $base0D #34E2E2
+set $base0E #AD7FA8
+set $base0F #AD9B7F
+# End flavours
+
 # Property Name         Border  BG      Text    Indicator Child Border
 client.focused          $base01 $base03 $base04 $base0B $base0B
 client.focused_inactive $base01 $base02 $base04 $base03 $base03
@@ -69,32 +90,36 @@ bindsym $mod+Control+s sticky toggle
 bindsym $mod+f fullscreen
 
 # Reload configuration file
-bindsym $mod+Control+r \
-    exec --no-startup-id ~/.local/share/scripts/generate-i3-config.sh; restart
+bindsym $mod+Control+r reload
 
 # Close focused client
 bindsym $mod+q kill
 
 ## Launcher {{{
 
-bindcode $mod+61 exec --no-startup-id $menu
+bindcode $mod+61 exec $menu
 
 # Open terminal
-bindsym $mod+t exec kitty-with-socket
-bindsym $mod+Control+t exec kitty-toolbox
+bindsym $mod+t exec $term
+bindsym $mod+Control+t exec kitty-tmux
+
+# Open documents
+bindsym $mod+d exec rofi-open
 
 # Browser
 bindsym $mod+b         exec $browser
-bindsym $mod+Control+b exec --no-startup-id rofi-ff
+bindsym $mod+Control+b exec rofi-ff
 
 # Open emoji selector
 bindsym $mod+Control+e exec rofi-emoji
 
 # Open script selector
 bindsym $mod+x exec rofi-scripts
+
 ## }}}
 
 ## Media keys {{{
+
 # Brightness keys
 bindsym XF86MonBrightnessDown exec --no-startup-id backlight decrease
 bindsym XF86MonBrightnessUp   exec --no-startup-id backlight increase
@@ -120,6 +145,7 @@ bindsym XF86AudioPlay  exec --no-startup-id playerctl play
 bindsym XF86AudioPause exec --no-startup-id playerctl pause
 bindsym XF86AudioNext  exec --no-startup-id playerctl next
 bindsym XF86AudioPrev  exec --no-startup-id playerctl previous
+
 # }}}
 
 ## Navigation {{{
@@ -190,7 +216,7 @@ bindsym $mod+Control+0 move container to workspace number 10; \
 
 ## }}}
 
-## Layout related {{{
+## Layout related stuff {{{
 
 # Create new split
 bindsym $mod+g splith
@@ -209,28 +235,10 @@ bindsym $mod+c focus child
 
 # }}}
 
-## Rules {{{
-
-for_window [class="GParted"] floating enable
-for_window [instance="gtk3-widget-factory"] floating enable
-
-# }}}
-
-## Autostart {{{
-
-exec --no-startup-id start-polkit-agent
-exec --no-startup-id Thunar --daemon
-exec --no-startup-id powerprofilesctl set power-saver
-
-exec --no-startup-id redshift
-exec --no-startup-id dunst
-exec --no-startup-id picom
-
-# }}}
-
 ## Modes {{{
 
 # Resize mode {{{
+
 bindsym $mod+r mode "resize"
 mode "resize" {
     bindsym $left  resize shrink width  10px
@@ -265,12 +273,13 @@ mode "resize" {
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
-    bindsym $mod+r mode "default"
     bindsym Control+bracketleft mode "default"
 }
+
 # }}}
 
 # Powermenu mode {{{
+
 bindsym $mod+Control+q mode "powermenu"
 mode "powermenu" {
     # Poweroff
@@ -279,7 +288,7 @@ mode "powermenu" {
     # Reboot
     bindsym r exec systemctl reboot
 
-    # Lock screen TODO
+    # Lock screen
     bindsym l mode "default"; exec $lock
 
     # Suspend
@@ -293,7 +302,36 @@ mode "powermenu" {
     bindsym $mod+Control+q      mode "default"
     bindsym Control+bracketleft mode "default"
 }
+
 # }}}
+
+
+# }}}
+
+## Output configuration {{{
+
+exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
+
+# }}}
+
+## Rules {{{
+
+for_window [class="GParted"] floating enable
+for_window [instance="gtk3-widget-factory"] floating enable
+
+## }}}
+
+## Autostart {{{
+
+exec --no-startup-id redshift
+exec --no-startup-id dunst
+exec --no-startup-id picom
+
+exec --no-startup-id start-polkit-agent
+exec --no-startup-id Thunar --daemon
+# exec --no-startup-id powerprofilesctl set power-saver
+
+## }}}
 
 # Create and jump to marks {{{
 bindsym $mod+m mode "create mark"
@@ -338,7 +376,6 @@ mode "create mark" {
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
-    bindsym $mod+m mode "default"
     bindsym Control+bracketleft mode "default"
 }
 
@@ -384,16 +421,8 @@ mode "goto mark" {
     # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
-    bindsym $mod+apostrophe mode "default"
     bindsym Control+bracketleft mode "default"
 }
-# }}}
-
-# }}}
-
-## Output configuration {{{
-
-exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
 
 # }}}
 

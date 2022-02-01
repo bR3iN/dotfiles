@@ -89,3 +89,5 @@ mode "goto mark" {
     bindsym $mod+apostrophe mode "default"
     bindsym Control+bracketleft mode "default"
 }
+
+# vim: filetype=conf

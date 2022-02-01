@@ -16,9 +16,5 @@ export DESKTOP_SESSION=i3
 
 source ~/.bash_profile
 
-# start picom
-picom -b
-
 # Start i3
-~/.local/share/scripts/generate-i3-config.sh
 systemd-cat --identifier i3 /usr/bin/i3
