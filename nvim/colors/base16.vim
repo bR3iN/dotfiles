@@ -8,7 +8,9 @@ let colors_name = "base16"
 
 hi Conceal ctermbg=18
 hi CursorColumn ctermbg=18
-hi CursorLineNr ctermfg=7
+hi CursorLineNr ctermfg=17 cterm=None
+hi CursorLine cterm=None
+hi CursorLineFzfLua cterm=underline
 hi Directory ctermfg=14
 hi FoldColumn ctermbg=18
 hi Folded ctermbg=18

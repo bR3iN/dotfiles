@@ -43,9 +43,16 @@ hook = "swaymsg reload"
 light = false
 
 [[item]]
-template = "wofi"
-file = "~/.config/wofi/flavours.css"
-rewrite = true
+template = "custom"
+subtemplate = "i3"
+file = "~/.config/i3/config"
+hook = "i3-msg reload"
+light = false
+
+# [[item]]
+# template = "wofi"
+# file = "~/.config/wofi/flavours.css"
+# rewrite = true
 
 [[item]]
 template = "custom"
@@ -53,11 +60,11 @@ subtemplate = "rofi"
 file = "~/.config/rofi/flavours.rasi"
 rewrite = true
 
-[[item]]
-template = "custom"
-subtemplate = "wob"
-file = "~/.config/wob"
-rewrite = true
+# [[item]]
+# template = "custom"
+# subtemplate = "wob"
+# file = "~/.config/wob"
+# rewrite = true
 
 [[item]]
 template = "custom"

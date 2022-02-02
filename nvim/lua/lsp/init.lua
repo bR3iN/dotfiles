@@ -22,11 +22,10 @@ M.custom_on_attach = function(client, bufnr, tbl)
                 ['<leader>D']  = '<cmd>lua vim.lsp.buf.type_definition()<CR>',
                 ['<leader>rn'] = '<cmd>lua vim.lsp.buf.rename()<CR>',
                 ['<leader>ca'] = '<cmd>lua vim.lsp.buf.code_action()<CR>',
-                ['<leader>od'] = '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>',
-                ['<leader>oD'] = '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>',
+                ['<leader>od'] = '<cmd>lua vim.diagnostic.open_float()<CR>',
                 ['gr']         = '<cmd>lua vim.lsp.buf.references()<CR>',
-                ['[d']         = '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>',
-                [']d']         = '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>',
+                ['[d']         = '<cmd>lua vim.diagnostic.goto_prev()<CR>',
+                [']d']         = '<cmd>lua vim.diagnostic.goto_next()<CR>',
             }
         }
     })

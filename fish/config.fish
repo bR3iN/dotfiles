@@ -12,11 +12,7 @@ else
     set -x PAGER less
 end
 
-if [ -x /usr/bin/exa ]
-    alias ll 'exa -algb'
-else
-    alias ll 'ls -AhlF'
-end
+alias ll 'ls -AhlF'
 
 alias usage 'du -hd 1'
 alias igrep 'grep -i'
@@ -27,27 +23,21 @@ alias gc 'git commit'
 alias gl 'git log'
 alias gd 'git diff'
 alias se sudoedit
-alias te 'toolbox enter'
-alias tc 'toolbox create'
+alias te 'TERM=xterm toolbox enter'
+alias tc 'toolbox create --image toolbox'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
 set -x GCC_COLORS 'error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-#set -x  EDITOR nvim
-#set -x  VISUAL nvim
+set -x EDITOR nvim
+set -x VISUAL nvim
 set -x CDPATH . ~
 set -x MANPAGER 'nvim +Man!'
-#set -xa PATH "$HOME/.node_modules/bin"
-#set -xa PATH "$HOME/.local/bin"
 
 bind -e --preset \eh
 bind \em __fish_man_page
 bind \e, history-token-search-forward
 
-
-if test -f "$HOME/.config/fish/fish.local"
-    source "$HOME/.config/fish/fish.local"
-end
 
 if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty @ set-background-opacity 1; kitty +kitten ssh'
@@ -55,10 +45,4 @@ end
 
 if [ -f /usr/share/fzf/shell/key-bindings.fish ]
     source /usr/share/fzf/shell/key-bindings.fish
-end
-
-function run_and_close
-    $argv &
-    disown
-    exit
 end

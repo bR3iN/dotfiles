@@ -27,6 +27,7 @@ end
 utils.set_options {
     cmdheight = 2,
     confirm = true,
+    cursorline = true,
     hidden  = true,
     ignorecase = true,
     mouse = 'a',
@@ -87,15 +88,7 @@ map('n', '<leader>ot', '<Plug>OpenTerminal', { noremap = false })
 -- Open init.lua
 map ('n', '<leader>ev', ':<c-u>edit   $MYVIMRC<CR>')
 
--- Open files
-map ('n', '<leader>f' , ':find<space>'      , { silent = false })
-map ('n', '<leader>sf', ':sfind<space>'     , { silent = false })
-map ('n', '<leader>vf', ':vert sfind<space>', { silent = false })
 -- Buffer navigation
-map ('n', '<leader>b' , ':<C-u>ls<cr>:<c-u>b<space>'      , { silent = false })
-map ('n', '<leader>sb', ':<C-u>ls<cr>:<c-u>sb<space>'     , { silent = false })
-map ('n', '<leader>vb', ':<C-u>ls<cr>:<c-u>vert sb<space>', { silent = false })
-map ('n', '<leader>db', ':<C-u>ls<cr>:<c-u>bd<space>'     , { silent = false })
 map ('n', ']b', ':<C-u>bnext<CR>')
 map ('n', '[b', ':<C-u>bprev<CR>')
 
@@ -162,6 +155,17 @@ end)
 
 -- Load and configure plugins {{{
 
+add ('ibhagwan/fzf-lua', function()
+    map ('n', '<leader>ff', ':FzfLua files<CR>')
+    map ('n', '<leader>fl', ':FzfLua lines<CR>')
+    map ('n', '<leader>b',  ':FzfLua buffers<CR>')
+    map ('n', '<leader>fg', ':FzfLua live_grep<CR>')
+    map ('n', '<leader>fG', ':FzfLua grep<CR>')
+    map ('v', '<leader>fg', ':<C-u>FzfLua grep_visual<CR>')
+    map ('n', '<leader>fd', ':FzfLua lsp_declarations<CR>')
+    map ('n', '<leader>fD', ':FzfLua lsp_definitions<CR>')
+end)
+
 add 'tpope/vim-repeat'
 add 'tpope/vim-commentary'
 add 'georgewitteman/vim-fish'
@@ -199,8 +203,8 @@ add ('neovim/nvim-lspconfig', function()
     require 'lsp.clangd'
     require 'lsp.sumneko_lua'
     require 'lsp.rls'
-    require 'lsp.bashls'
-    require 'lsp.vimls'
+    require 'lsp'.setup_with_defaults('bashls')
+    require 'lsp'.setup_with_defaults('vimls')
     require 'lsp'.setup_with_defaults('pyright')
 end)
 
@@ -225,8 +229,8 @@ add ('hrsh7th/vim-vsnip', function()
 end)
 
 add ('nvim-treesitter/nvim-treesitter', function()
-    add 'nvim-treesitter/nvim-treesitter-textobjects'
-    require 'plugins.treesitter'
+    -- add 'nvim-treesitter/nvim-treesitter-textobjects'
+    -- require 'plugins.treesitter'
 end)
 
 -- }}}
