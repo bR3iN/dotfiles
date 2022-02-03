@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+
+CONFIG_DIR="$HOME/.screenlayout"
+
+PROMPT="Choose Screen Layout"
+
+list_options()
+{
+    find "$CONFIG_DIR" -type f -name '*.sh' \
+        | sed -e 's/.sh$//' -e "s#^${CONFIG_DIR}/\?##"
+}
+
+callback()
+{
+    "${CONFIG_DIR}/${1}.sh"
+}
+
+source ~/.local/share/scripts/rofi-prompt.sh
