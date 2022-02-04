@@ -95,6 +95,9 @@ bindsym $mod+Control+r reload
 # Close focused client
 bindsym $mod+q kill
 
+# Make screenshot
+bindsym $mod+Control+p exec gnome-screenshot --class=gnome-screenshot -ia
+
 ## Launcher {{{
 
 bindcode $mod+61 exec $menu
@@ -318,6 +321,8 @@ exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
 
 for_window [class="GParted"] floating enable
 for_window [instance="gtk3-widget-factory"] floating enable
+for_window [class="gnome-screenshot"] floating enable
+for_window [class="arandr"] floating enable
 
 ## }}}
 

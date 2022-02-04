@@ -164,6 +164,7 @@ add ('ibhagwan/fzf-lua', function()
     map ('v', '<leader>fg', ':<C-u>FzfLua grep_visual<CR>')
     map ('n', '<leader>fd', ':FzfLua lsp_declarations<CR>')
     map ('n', '<leader>fD', ':FzfLua lsp_definitions<CR>')
+    require'fzf-lua'.setup { hl = { cursorline = 'CursorLineFzfLua' } }
 end)
 
 add 'tpope/vim-repeat'
@@ -229,8 +230,8 @@ add ('hrsh7th/vim-vsnip', function()
 end)
 
 add ('nvim-treesitter/nvim-treesitter', function()
-    -- add 'nvim-treesitter/nvim-treesitter-textobjects'
-    -- require 'plugins.treesitter'
+    add 'nvim-treesitter/nvim-treesitter-textobjects'
+    require 'plugins.treesitter'
 end)
 
 -- }}}
