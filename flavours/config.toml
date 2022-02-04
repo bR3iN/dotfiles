@@ -73,7 +73,8 @@ file = "~/.config/mako/config"
 rewrite = true
 
 [[item]]
-template = "polybar"
+template = "custom"
+subtemplate = "polybar"
 file = "~/.config/polybar/flavours"
 rewrite = true
 

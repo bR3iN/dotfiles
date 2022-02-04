@@ -13,16 +13,16 @@ foreground = ${colors.base04}
 
 line-size = 2
 
-border-size = 0
+border-size = 1
 border-color = ${colors.base01}
 
-font-0 = Fira Sans:size=9;2
-font-1 = Symbols Nerd Font:size=9;2
-font-2 = Fira Sans:style=SemiBold:size=11;3
+font-0 = Fira Sans:size=11;2
+font-1 = Symbols Nerd Font:size=11;2
+font-2 = Fira Sans:style=SemiBold:size=13;3
 
 modules-left = i3
 modules-center = date
-modules-right = vpn backlight pulseaudio cpu memory idle network battery
+modules-right = backlight pulseaudio cpu memory vpn-off vpn-on network battery
 
 cursor-click = pointer
 
@@ -71,16 +71,22 @@ format-padding = 4
 format-underline= ${colors.base03}
 
 
-[module/vpn]
+[module/vpn-on]
 inherit = indicator
-format-underline= ${colors.base0A}
+format-underline= ${colors.base0D}
+format-background= ${colors.base0D}
 type = custom/script
 exec = echo "on"
 exec-if = pgrep -x openvpn
-; format-font = 3
-format-padding = 2
 format = "嬨"
 
+[module/vpn-off]
+inherit = indicator
+format-underline= ${colors.base0D}
+type = custom/script
+exec = echo "off"
+exec-if = ! pgrep -x openvpn
+format = "嬨"
 
 [module/backlight]
 inherit = indicator
