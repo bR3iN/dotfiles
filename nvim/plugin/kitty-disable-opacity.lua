@@ -1,3 +1,6 @@
+-- currently disabled
+if true then return end
+
 if not vim.env['KITTY_LISTEN_ON'] then
     return
 end

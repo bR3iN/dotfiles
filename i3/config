@@ -7,7 +7,7 @@ set $up    k
 set $right l
 
 # terminal emulator
-set $term kitty-with-socket
+set $term kitty
 
 # set gaps
 set $gaps_inner 15
@@ -104,7 +104,6 @@ bindcode $mod+61 exec $menu
 
 # Open terminal
 bindsym $mod+t exec $term
-bindsym $mod+Control+t exec kitty-tmux
 
 # Open documents
 bindsym $mod+d exec rofi-open
