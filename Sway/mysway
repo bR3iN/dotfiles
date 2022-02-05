@@ -8,7 +8,11 @@ export XDG_CURRENT_DESKTOP=sway
 export DESKTOP_SESSION=sway
 export MOZ_ENABLE_WAYLAND=1
 
-source ~/.bash_profile
+for file in /etc/profile ~/.profile; do
+    if [ -f "$file" ]; then
+        source "$file"
+    fi
+done
 
 if [ -x /usr/bin/sway-git ]; then
     sway_cmd="sway-git"

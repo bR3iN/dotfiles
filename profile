@@ -1,3 +1,8 @@
+export PATH="$PATH:$HOME/.local/bin:$HOME/.node_modules/bin:$HOME/.cargo/bin"
+
+export EDITOR=nvim
+export VISUAL=nvim
+
 if [ -d ~/.profile.d ]; then
     for file in ~/.profile.d/*; do
         source "$file" 2> /dev/null
