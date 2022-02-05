@@ -1,5 +1,5 @@
 configuration {
-    modi: "drun,combi,sway:~/.local/share/scripts/rofi-sway.sh";
+    modi: "drun";
 /*	width: 50;*/
 /*	lines: 15;*/
 /*	columns: 1;*/

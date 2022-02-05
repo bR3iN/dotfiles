@@ -8,6 +8,6 @@ if [ ! -d "$DIR" ]; then
     (cd "$DIR" && make install)
 
     if [ -x /usr/bin/gsettings ]; then
-        gsettings set org.gnome.desktop.interface gtk-theme 'FlatColor'
+        gsettings set org.gnome.desktop.interface gtk-theme 'FlatWaita-16'
     fi
 fi
