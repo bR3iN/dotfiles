@@ -93,7 +93,7 @@ bindsym $mod+Control+s sticky toggle
 bindsym $mod+f fullscreen
 
 # Reload configuration file
-bindsym $mod+Control+r reload
+bindsym $mod+Control+r reload; restart
 
 # Close focused client
 bindsym $mod+q kill

@@ -79,7 +79,7 @@ floating_modifier $mod
 bindsym $mod+Escape exec lock
 
 # Toggle waybar and gaps
-bindsym $mod+o exec polybar-msg cmd toggle
+bindsym $mod+o exec --no-startup-id polybar-msg cmd toggle
 bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
                        gaps outer current toggle $gaps_outer
 
@@ -90,13 +90,19 @@ bindsym $mod+Control+s sticky toggle
 bindsym $mod+f fullscreen
 
 # Reload configuration file
-bindsym $mod+Control+r reload
+bindsym $mod+Control+r reload; restart
 
 # Close focused client
 bindsym $mod+q kill
 
 # Make screenshot
 bindsym $mod+Control+p exec gnome-screenshot --class=gnome-screenshot -ia
+
+# Connect VPN
+bindsym $mod+Control+v exec rofi-vpn
+
+# Choose keyboard layout
+bindsym $mod+Control+i exec rofi-inputs
 
 ## Launcher {{{
 
@@ -312,7 +318,7 @@ mode "powermenu" {
 
 ## Output configuration {{{
 
-exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
+exec_always --no-startup-id feh --bg-fill ~/Wallpaper/current
 
 # }}}
 
@@ -321,6 +327,8 @@ exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
 for_window [class="GParted"] floating enable
 for_window [instance="gtk3-widget-factory"] floating enable
 for_window [class="gnome-screenshot"] floating enable
+for_window [class="arandr"] floating enable
+for_window [class="pavucontrol"] floating enable
 for_window [class="arandr"] floating enable
 
 ## }}}
@@ -333,7 +341,7 @@ exec --no-startup-id picom
 
 exec --no-startup-id start-polkit-agent
 exec --no-startup-id Thunar --daemon
-# exec --no-startup-id powerprofilesctl set power-saver
+exec --no-startup-id powerprofilesctl set power-saver
 
 ## }}}
 
