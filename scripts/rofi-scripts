@@ -1,8 +1,22 @@
 #!/usr/bin/bash
-SCRIPT_PATH=~/.local/share/scripts/rofi-scripts.sh
+SCRIPTS_DIR=~/Scripts
+PROMPT="Choose a script to run"
 
-ROFI_FLAGS=(
-    '-no-show-icons'
-)
+ROFI_FLAGS=('-no-show-icons')
 
-rofi -modi scripts:"$SCRIPT_PATH" -show scripts ${ROFI_FLAGS[@]}
+if [ ! -d "$SCRIPTS_DIR" ]; then
+    echo "'$SCRIPTS_DIR' is not a directory"
+    exit 1
+fi
+
+list_options()
+{
+    find "$SCRIPTS_DIR" -type f -executable | sed "s#${SCRIPTS_DIR}/\?##"
+}
+
+callback()
+{
+    "$SCRIPTS_DIR"/"$1" >> /tmp/rofi-scripts-"${1%.*}".log
+}
+
+source ~/.config/rofi/scripts/prompt.sh

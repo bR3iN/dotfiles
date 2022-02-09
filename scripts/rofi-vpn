@@ -30,4 +30,4 @@ callback()
     fi
 }
 
-source ~/.local/share/scripts/rofi-prompt.sh
+source ~/.config/rofi/scripts/prompt.sh

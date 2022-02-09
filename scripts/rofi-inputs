@@ -1,23 +1,23 @@
 #!/usr/bin/bash
 
-LAYOUTS_DIR="$HOME/.config/sway/input"
-
 PROMPT="Choose keyboard layout"
-
-if [ "${1-}" = "--sway" ]; then
-    CALLBACK=(swaymsg input '*' xkb_file)
-else
-    CALLBACK=#TODO
-fi
 
 list_options()
 {
-    ls "$LAYOUTS_DIR"
+    if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+        ls "$HOME/.config/sway/input"
+    elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+        ls "$HOME/.config/i3/xkbmap"
+    fi
 }
 
 callback()
 {
-    "${CALLBACK[@]}" "$LAYOUTS_DIR/$1"
+    if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+        swaymsg input '*' xkb_file "$1"
+    elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+        setxkbmap $(cat "$HOME/.config/i3/xkbmap/$1")
+    fi
 }
 
-source ~/.local/share/scripts/rofi-prompt.sh
+source ~/.config/rofi/scripts/prompt.sh
