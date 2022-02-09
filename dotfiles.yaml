@@ -1,0 +1,248 @@
+Neovim:
+  links:
+    nvim: .config/nvim
+  run:
+    - 'nvim --headless +q'
+    - 'pip3 install --user --upgrade neovim-remote'
+
+
+Tmux:
+  links:
+    tmux: .config/tmux
+
+
+Zathura:
+  links:
+    zathura: .config/zathura
+  run:
+    - 'xdg-mime default org.pwmt.zathura.desktop application/pdf'
+
+
+Git:
+  links:
+    gitconfig: .config/git/config
+
+
+Kitty:
+  links:
+    kitty: .config/kitty
+  hooks:
+    - fonts/install_fira_code_nerd_fonts.sh
+  run:
+    - 'touch ~/.config/kitty/local.conf'
+
+
+Redshift:
+  links:
+    redshift.conf: .config/redshift.conf
+
+
+Bat:
+  links:
+    bat.conf: .config/bat/config
+
+
+Fish:
+  links:
+    fish: .config/fish
+  run:
+    - [sudo, mkdir, -p, /root/.config]
+    - [sudo, cp, -r, fish, /root/.config/]
+
+
+Bash:
+  target:
+    - Profile
+  links:
+    bash/bashrc : .bashrc
+    bash/profile: .bash_profile
+
+
+Rofi:
+  links:
+    rofi: .config/rofi
+    rofi/profile.sh: ~/.profile.d/rofi-sudo-askpass.sh
+  target:
+    - Profile
+    - Flavours
+  hooks: 
+    - fonts/install_fira_fonts.sh
+  install: 
+    - scripts/rofi-open
+    - scripts/rofi-vpn
+    - scripts/rofi-ff
+    - scripts/rofi-emoji
+    - scripts/rofi-scripts
+    - scripts/rofi-inputs
+    - scripts/rofi-xrandr
+    - scripts/rofi-askpass
+
+
+Fonts:
+  hooks:
+    - fonts/install_fira_code_nerd_fonts.sh --global
+    - fonts/install_fira_fonts.sh           --global
+    - fonts/install_symbols_nerd_font.sh    --global
+
+
+Npm:
+  run:
+    - 'mkdir -p "$HOME/.node_modules"'
+    - 'npm config set prefix "$HOME/.node_modules"'
+
+
+Thinkpad:
+  target:
+    - Profile
+  links:
+    - Thinkpad/Xkbmap: .Xkbmap
+  install:
+    - scripts/kbbacklight_toggle
+    - scripts/backlight
+
+
+Thinkpad-X:
+  target :
+    - Thinkpad
+  system-install:
+    - Thinkpad/xorg-conf
+
+
+Flavours:
+  target:
+    - Rust
+  hooks:
+    - setup/flavours.sh
+    - setup/FlatWaita-16.sh
+  links:
+    flavours: .config/flavours
+    flavours/templates: .local/share/flavours/base16/templates/custom/templates
+  install:
+    - scripts/flav
+    - flavours/schemes
+
+
+Rust:
+  hooks:
+    - setup/rustup.sh
+
+
+Sway:
+  links:
+    Sway/sway: .config/sway
+    Sway/waybar: .config/waybar
+    Sway/swaylock: .config/swaylock
+  run:
+    - 'mkdir -p ~/.config/sway/config.d'
+    - 'cp --no-clobber Sway/sway-defaults/output-default ~/.config/sway/config.d/output'
+  install:
+    - scripts/start-polkit-agent
+    - scripts/wlock
+  system-install:
+    - Sway/mysway
+
+
+Greetd:
+  system-install:
+    - greetd
+
+
+Qutebrowser:
+  links:
+    qutebrowser.py: ~/.config/qutebrowser/config.py
+  run:
+    - 'xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http{,s}'
+
+
+Qutebrowser Flatpak:
+  links:
+    qutebrowser.py: ~/.var/app/org.qutebrowser.qutebrowser/config/qutebrowser/config.py
+  run:
+    - 'xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http{,s}'
+    - 'ln -s ~/.config/qutebrowser ~/.var/app/org.qutebrowser.qutebrowser/config/qutebrowser'
+    - 'sudo flatpak override --filesystem=./qutebrowser.py org.qutebrowser.qutebrowser'
+
+
+Wallpaper:
+  links:
+    scripts/set_wallpaper: Wallpaper/set
+  hooks:
+    - setup/wallpaper.sh
+  run:
+    - ~/Wallpaper/set pop-os
+
+
+I3:
+  links:
+    i3/config: .config/i3/config
+    i3/polybar: .config/polybar
+    i3/xinitrc: .xinitrc
+  install:
+    - scripts/start-polkit-agent
+      # - scripts/lock
+
+
+Profile:
+  links:
+    profile: .profile
+  run:
+    - mkdir -p ~/.profile.d
+
+
+Fedora Sway:
+  hooks: 
+    - setup/fedora-common.sh
+    - setup/fedora-common.sh
+    - setup/fedora-sway.sh
+  target:
+    - Sway
+    - Desktop
+    - Wallpaper
+    - Greetd
+  run:
+    - [sudo, systemctl, start, greetd]
+
+
+Server:
+  target:
+    - Bat
+    - Fish
+    - Tmux
+
+
+Desktop:
+  target:
+    - Server
+    - Bash
+    - Fonts
+    - Git
+    - Kitty
+    - Neovim
+    - Npm
+    - Zathura
+    - Qutebrowser
+    - Flavours
+
+
+Sway Silverblue:
+  target:
+    - Sway
+    - Bash
+    - Bat
+    - Fish
+    - Fonts
+    - Git
+    - Kitty
+    - Neovim
+    - Rofi
+    - Tmux
+    - Zathura
+    - Qutebrowser Flatpak
+  run:
+    - echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/blacklist-pcspkr.conf > /dev/null
+
+Test:
+  install:
+    - 'fish'
+
+# vim: nowrap
