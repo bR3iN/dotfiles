@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import annotations
 from argparse import ArgumentParser
 from subprocess import run
 from typing import Any, Callable, Dict, Iterable, List, Type, Union
+import pathlib
+import shutil
 from yaml.cyaml import CLoader
 import os
 import yaml
@@ -60,6 +62,9 @@ class Plugin:
     def set_env(self, env: Environment):
         self.env = env
 
+    def full_path(self, str: path) -> str:
+        return ""
+
     def parse_config(self, _) -> List[Action]:
         raise Exception()
 
@@ -92,6 +97,49 @@ def islistof(ls: List, type: Type) -> bool:
     return any(map(lambda el: isinstance(el, type), ls))
 
 
+def create_symlink(src: Path, dst):
+    if not os.path.exists(src):
+        print(f"Link source {src} does not exist. Skipping...")
+        return
+    if os.path.exists(dst):
+        if os.path.islink(dst):
+            os.unlink(dst)
+        else:
+            deleted = ask_and_delete(dst)
+            if not deleted:
+                return
+    pathlib.Path(os.path.dirname(dst)).mkdir(parents=True, exist_ok=True)
+    os.symlink(src, dst)
+
+
+def expand_path(path: str, default_prefix: str) -> str:
+    if path.startswith('/'):
+        return path
+    elif path.startswith('~'):
+        return os.path.join(HOME, path[1:])
+    else:
+        return os.path.join(default_prefix, path)
+
+
+def ask_and_delete(path: str) -> bool:
+    while True:
+        print(f"The file/directory '{path}' already exists.")
+        print("Do you want to remove it? [y/N]")
+        answer = input()
+        if answer in ['y', 'Y']:
+            delete_file_or_dir(path)
+            return True
+        elif answer in ['', 'n', 'N']:
+            return False
+
+
+def delete_file_or_dir(path: str):
+    if os.path.isfile(path):
+        os.remove(path)
+    elif os.path.isdir(path):
+        shutil.rmtree(path)
+
+
 
 ###########
 # Plugins #
@@ -101,14 +149,20 @@ def islistof(ls: List, type: Type) -> bool:
 @register_plugin('hooks')
 class HooksPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
-        return map(RunCmd, validate(str, config))
+        dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
+        hooks_dir = os.path.join(dotfiles_dir, 'hooks')
+        exp = lambda f: expand_path(f, hooks_dir)
+        return map(RunCmd, map(exp, validate(str, config)))
 
 
 @register_plugin('links')
 class LinksPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
+        dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
         is_valid = lambda i: isinstance(i[0], str) and isinstance(i[1], str)
         for src, dst in validate(is_valid, config.items()):
+            src = expand_path(src, dotfiles_dir)
+            dst = expand_path(dst, HOME) # type: ignore
             yield CreateSymlink(src, dst)
 
 
@@ -118,7 +172,7 @@ class TargetPlugin(Plugin):
         for target in validate(str, config):
             self.env.dotfile_installer.add(target)
         return
-        yield  # type: ignore
+        yield
 
 
 @register_plugin('run')
@@ -131,7 +185,9 @@ class RunPlugin(Plugin):
 @register_plugin('system-install')
 class SystemInstallPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
-        for file in validate(str, config):
+        dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
+        exp = lambda f: expand_path(f, dotfiles_dir)
+        for file in map(exp, validate(str, config)):
             if os.path.isfile(file):
                 yield SystemInstallFile(file)
             elif os.path.isdir(file):
@@ -144,8 +200,8 @@ class SystemInstallPlugin(Plugin):
 class InstallPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
         dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
-        full_path = lambda file: os.path.join(dotfiles_dir, file)
-        for path in map(full_path, validate(str, config)):
+        exp = lambda f: expand_path(f, dotfiles_dir)
+        for path in map(exp, validate(str, config)):
             if os.path.isfile(path):
                 yield InstallFile(path)
             elif os.path.isdir(path):
@@ -168,7 +224,7 @@ class PrintMsg(Action):
 class CreateSymlink(Action):
     def __init__(self, src: Path, dst: Path):
         desc = f"Creating symlink {src} -> {dst}"
-        job = lambda: os.symlink(src, dst)
+        job = lambda: create_symlink(src, dst)
         self.set_job(job, desc)
 
 
@@ -232,7 +288,6 @@ class DotfileInstaller:
         for target in targets:
             self.add(target)
         self.execute_actions()
-        self.print_success()
 
     def add(self, target: Target):
         if target in self._installed:
