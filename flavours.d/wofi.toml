@@ -1,0 +1,4 @@
+[[item]]
+template = "wofi"
+file = "~/.config/wofi/flavours.css"
+rewrite = true

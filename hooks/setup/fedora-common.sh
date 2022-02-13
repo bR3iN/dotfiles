@@ -16,13 +16,15 @@ pkg_groups=(
 
 pkgs=(
     bat
+    blueberry
+    brightnessctl
     d-feet
-    docker
     fedora-workstation-backgrounds
     fedora-workstation-repositories
     ffmpeg
     firefox
     fish
+    gnome-keyring
     ImageMagick
     imv
     jq
@@ -30,21 +32,28 @@ pkgs=(
     kitty
     mpv
     mpv-mpris
-    neofetch
     neovim
+    NetworkManager-tui
     npm
+    pavucontrol
+    playerctl
     plymouth-theme-spinner
+    podman
     power-profiles-daemon
-    toolbox
+    pulseaudio-utils
     qutebrowser
+    seahorse
     setroubleshoot
-    setxkbmap
     tealdeer
+    Thunar
+    thunar-volman
     thunderbird
     tmux
+    toolbox
     torbrowser-launcher
+    tumbler
     xdotool #for vimtex
-    youtube-dl
+    xfce-polkit
 
     # Order matters
     zathura
@@ -63,7 +72,6 @@ sudo dnf install -y "${pkgs[@]}"
 
 systemctl enable --now --user pipewire.service
 systemctl enable --now --user pipewire-pulse.service
-sudo systemctl enable --now docker
 sudo systemctl enable --now libvirtd
 sudo systemctl disable systemd-networkd-wait-online
 sudo systemctl mask    systemd-networkd-wait-online

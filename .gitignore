@@ -1,14 +1,6 @@
 local.*
 *.local
-flavours*
-!flavours/
 
 # neovim
 nvim/undo/
 nvim/spell/
-
-# vim
-.netrwhist
-vim/plugged/
-vim/spell/
-vim/autoload/plug.vim

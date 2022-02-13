@@ -1,0 +1,6 @@
+[[item]]
+template = "custom"
+subtemplate = "i3"
+file = "~/.config/i3/config"
+hook = "i3-msg reload"
+light = false

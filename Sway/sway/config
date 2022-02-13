@@ -98,6 +98,9 @@ bindsym $mod+Control+r reload; restart
 # Close focused client
 bindsym $mod+q kill
 
+# Connect vpn
+bindsym $mod+Control+v exec rofi-vpn
+
 ## Launcher {{{
 
 bindcode $mod+61 exec $menu

@@ -3,10 +3,10 @@
 from __future__ import annotations
 from argparse import ArgumentParser
 from subprocess import run
-from typing import Any, Callable, Dict, Iterable, List, Type, Union
+from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union
 import pathlib
 import shutil
-from yaml.cyaml import CLoader
+from yaml.cyaml import CLoader as Loader
 import os
 import yaml
 
@@ -16,18 +16,26 @@ assert HOME is not None
 
 
 KeyWord = str
-Path = str
 Target = str
+Path = str
 
 
-def load_config(dir: str, file_name='dotfiles.yaml') -> Dict:
+def load_config(dir: str, file_name='dotfiles.yaml'
+        ) -> Dict[Target, List[Dict[KeyWord, Any]]]:
+    # load config
     config: Dict
     path = os.path.join(dir, file_name)
     with open(path, 'r') as fh:
-        config = yaml.load(fh.read(), Loader=CLoader)
+        config = yaml.load(fh.read(), Loader=Loader)
+
+    # check validity
+    def is_ordered_map(entry) -> bool:
+        return (isinstance(entry, List)
+                and all(map(lambda i:
+                    isinstance(i, dict) and len(i) == 1, entry)))
     for key, value in config.items():
-        if not isinstance(value, Dict):
-            raise Exception(f"Config for target '{key}' is not a yaml mapping")
+        if not is_ordered_map(value):
+            raise Exception(f"Malformed config for target '{key}'.")
     return config
 
 
@@ -61,9 +69,6 @@ class Action:
 class Plugin:
     def set_env(self, env: Environment):
         self.env = env
-
-    def full_path(self, str: path) -> str:
-        return ""
 
     def parse_config(self, _) -> List[Action]:
         raise Exception()
@@ -101,13 +106,13 @@ def create_symlink(src: Path, dst):
     if not os.path.exists(src):
         print(f"Link source {src} does not exist. Skipping...")
         return
-    if os.path.exists(dst):
-        if os.path.islink(dst):
-            os.unlink(dst)
-        else:
-            deleted = ask_and_delete(dst)
-            if not deleted:
-                return
+
+    if os.path.islink(dst):  # bad symlinks don't "exist"
+        os.unlink(dst)
+    elif os.path.exists(dst):
+        was_deleted = ask_and_delete(dst)
+        if not was_deleted:
+            return
     pathlib.Path(os.path.dirname(dst)).mkdir(parents=True, exist_ok=True)
     os.symlink(src, dst)
 
@@ -146,6 +151,42 @@ def delete_file_or_dir(path: str):
 ###########
 
 
+@register_plugin('profile')
+class ProfilePlugin(Plugin):
+    key_word = 'profile'
+    def parse_config(self, config) -> Iterable[Action]:
+        dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
+
+        def create_action(name: str):
+            file_name = name + '.sh'
+            src = os.path.join(dotfiles_dir, 'profile.d', file_name)
+            dst = os.path.join(HOME, '.profile.d/', file_name) # type: ignore
+            return CreateSymlink(src, dst)
+
+        if isinstance(config, str):
+            yield create_action(config)
+        else:
+            return map(create_action, validate(str, config))
+
+
+@register_plugin('flavours')
+class FlavoursPlugin(Plugin):
+    def parse_config(self, config) -> Iterable[Action]:
+        dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
+
+        def create_action(name: str):
+            file_name = name + '.toml'
+            src = os.path.join(dotfiles_dir, 'flavours.d', file_name)
+            dst = os.path.join(HOME, '.config/flavours/config.toml.d', file_name) # type: ignore
+            return CreateSymlink(src, dst)
+
+        if isinstance(config, str):
+            yield create_action(config)
+        else:
+            return map(create_action, validate(str, config))
+
+
+
 @register_plugin('hooks')
 class HooksPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
@@ -166,8 +207,8 @@ class LinksPlugin(Plugin):
             yield CreateSymlink(src, dst)
 
 
-@register_plugin('target')
-class TargetPlugin(Plugin):
+@register_plugin('needs')
+class NeedsPlugin(Plugin):
     def parse_config(self, config) -> Iterable[Action]:
         for target in validate(str, config):
             self.env.dotfile_installer.add(target)
@@ -274,7 +315,7 @@ class InstallFile(RunCmd):
 
 class DotfileInstaller:
     dotfiles_dir: Path
-    config_by_target: Dict[Target, Dict[KeyWord, Any]]
+    config_by_target: Dict[Target, List[Dict[KeyWord, Any]]]
     dry_run: bool
     _installed: List[Target] = []
     _actions: List[Action] = []
@@ -289,18 +330,21 @@ class DotfileInstaller:
             self.add(target)
         self.execute_actions()
 
+    def check(self):
+        for target in self.config_by_target.keys():
+            self.add(target)
+
     def add(self, target: Target):
         if target in self._installed:
             return
         self._installed.append(target)
         self._actions.append(PrintMsg(f"Installing target {target}"))
 
-        config = self.get_config(target)
         env = Environment(self, target)
-        for key_word, plugin_config in config.items():
+        for key_word, config in self.get_config(target):
             plugin = self.get_plugin(key_word)
             plugin.set_env(env)
-            for action in plugin.parse_config(plugin_config):
+            for action in plugin.parse_config(config):
                 action.set_env(env)
                 self._actions.append(action)
         self._actions.append(PrintMsg(f"Finished installation of target {target}"))
@@ -311,11 +355,14 @@ class DotfileInstaller:
             if not self.dry_run:
                 action.execute()
 
-    def get_config(self, target: Target):
+    def get_config(self, target: Target) -> Iterable[Tuple[KeyWord, Any]]:
         try:
-            return self.config_by_target[target]
+            config = self.config_by_target[target]
         except KeyError:
             self.abort(f"No config found for target '{target}'")
+        for item in config:
+            for key, value in item.items():
+                yield (key, value)
 
     def get_plugin(self, key_word: KeyWord):
         plugins = get_plugins()
@@ -336,6 +383,7 @@ class DotfileInstaller:
         print("=============================================")
         for target in self._installed:
             print(target)
+        exit(0)
 
     def abort(self, msg):
         print(f"ERROR: {msg}")
@@ -351,19 +399,30 @@ def parse_args():
                         help='only print what would be done')
     parser.add_argument('--list', '-l', action='store_true',
                         help='list all install targets')
+    parser.add_argument('--check', '-c', action='store_true',
+                        help='check config and print the first error encountered')
     args = parser.parse_args()
-    if len(args.install_targets) == 0 and not args.list:
+    if len(args.install_targets) == 0 and not args.list and not args.check:
         parser.error('Please specify an install target')
     return args
 
 
-def main():
+def run():
     args = parse_args()
-    dfm = DotfileInstaller(os.path.join(HOME, '.dotfiles'), args.dry_run)
+    dotfile_manager = DotfileInstaller(os.path.join(HOME, '.dotfiles'), args.dry_run)
     if args.list:
-        dfm.list_targets()
-        exit(0)
-    dfm.install(args.install_targets)
+        dotfile_manager.list_targets()
+    elif args.check:
+        dotfile_manager.check()
+    else:
+        dotfile_manager.install(args.install_targets)
+
+
+def main():
+    try:
+        run()
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":

@@ -1,73 +1,74 @@
 Neovim:
-  links:
-    nvim: .config/nvim
-  run:
+  - links:
+      nvim: .config/nvim
+  - run:
     - 'nvim --headless +q'
     - 'pip3 install --user --upgrade neovim-remote'
 
 
 Tmux:
-  links:
-    tmux: .config/tmux
+  - links:
+      tmux: .config/tmux
 
 
 Zathura:
-  links:
-    zathura: .config/zathura
-  run:
+  - links:
+      zathura: .config/zathura
+  - run:
     - 'xdg-mime default org.pwmt.zathura.desktop application/pdf'
+  - flavours: zathura
 
 
 Git:
-  links:
-    gitconfig: .config/git/config
+  - links:
+      gitconfig: .config/git/config
 
 
 Kitty:
-  links:
-    kitty: .config/kitty
-  hooks:
+  - links:
+      kitty: .config/kitty
+  - hooks:
     - fonts/install_fira_code_nerd_fonts.sh
-  run:
+  - run:
     - 'touch ~/.config/kitty/local.conf'
+  - flavours: kitty
 
 
 Redshift:
-  links:
-    redshift.conf: .config/redshift.conf
+  - links:
+      redshift.conf: .config/redshift.conf
 
 
 Bat:
-  links:
-    bat.conf: .config/bat/config
+  - links:
+      bat.conf: .config/bat/config
 
 
 Fish:
-  links:
-    fish: .config/fish
-  run:
+  - links:
+      fish: .config/fish
+  - run:
     - [sudo, mkdir, -p, /root/.config]
     - [sudo, cp, -r, fish, /root/.config/]
+  - flavours: fzf
 
 
 Bash:
-  target:
-    - Profile
-  links:
-    bash/bashrc : .bashrc
-    bash/profile: .bash_profile
+  - links:
+      bash/bashrc: .bashrc
+      bash/bash_profile: .bash_profile
 
 
 Rofi:
-  links:
-    rofi: .config/rofi
-    rofi/profile.sh: ~/.profile.d/rofi-sudo-askpass.sh
-  target:
+  - links:
+      rofi: .config/rofi
+      rofi/profile.sh: ~/.profile.d/rofi-sudo-askpass.sh
+  - needs:
     - Profile
     - Flavours
-  hooks: 
+  - hooks:
     - fonts/install_fira_fonts.sh
-  install: 
+  - install:
     - scripts/rofi-open
     - scripts/rofi-vpn
     - scripts/rofi-ff
@@ -79,139 +80,148 @@ Rofi:
 
 
 Fonts:
-  hooks:
+  - hooks:
     - fonts/install_fira_code_nerd_fonts.sh --global
     - fonts/install_fira_fonts.sh           --global
     - fonts/install_symbols_nerd_font.sh    --global
 
 
 Npm:
-  run:
+  - run:
     - 'mkdir -p "$HOME/.node_modules"'
     - 'npm config set prefix "$HOME/.node_modules"'
 
 
 Thinkpad:
-  target:
+  - needs:
     - Profile
-  links:
-    - Thinkpad/Xkbmap: .Xkbmap
-  install:
+  - links:
+      Thinkpad/Xkbmap: .Xkbmap
+  - install:
     - scripts/kbbacklight_toggle
     - scripts/backlight
 
 
 Thinkpad-X:
-  target :
+  - target :
     - Thinkpad
-  system-install:
+  - system-install:
     - Thinkpad/xorg-conf
 
 
 Flavours:
-  target:
+  - needs:
     - Rust
-  hooks:
+  - hooks:
     - setup/flavours.sh
-    - setup/FlatWaita-16.sh
-  links:
-    flavours: .config/flavours
-    flavours/templates: .local/share/flavours/base16/templates/custom/templates
-  install:
+  - links:
+      flavours: .config/flavours
+      flavours/templates: .local/share/flavours/base16/templates/custom/templates
+  - install:
     - scripts/flav
     - flavours/schemes
 
 
+FlatWaita-16:
+  - hooks:
+    - setup/FlatWaita-16.sh
+  - flavours:
+    - FlatWaita-16
+
+
 Rust:
-  hooks:
+  - hooks:
     - setup/rustup.sh
 
 
 Sway:
-  links:
-    Sway/sway: .config/sway
-    Sway/waybar: .config/waybar
-    Sway/swaylock: .config/swaylock
-  run:
+  - links:
+      Sway/sway: .config/sway
+      Sway/waybar: .config/waybar
+      Sway/swaylock: .config/swaylock
+  - run:
     - 'mkdir -p ~/.config/sway/config.d'
     - 'cp --no-clobber Sway/sway-defaults/output-default ~/.config/sway/config.d/output'
-  install:
+  - install:
     - scripts/start-polkit-agent
     - scripts/wlock
-  system-install:
+  - system-install:
     - Sway/mysway
+  - flavours: [sway, waybar, rofi, mako]
 
 
 Greetd:
-  system-install:
+  - system-install:
     - greetd
 
 
 Qutebrowser:
-  links:
-    qutebrowser.py: ~/.config/qutebrowser/config.py
-  run:
+  - links:
+      qutebrowser.py: ~/.config/qutebrowser/config.py
+  - run:
     - 'xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http{,s}'
+  - flavours: qutebrowser
 
 
 Qutebrowser Flatpak:
-  links:
-    qutebrowser.py: ~/.var/app/org.qutebrowser.qutebrowser/config/qutebrowser/config.py
-  run:
+  - links:
+      qutebrowser.py: ~/.var/app/org.qutebrowser.qutebrowser/config/qutebrowser/config.py
+  - run:
     - 'xdg-mime default org.qutebrowser.qutebrowser.desktop x-scheme-handler/http{,s}'
     - 'ln -s ~/.config/qutebrowser ~/.var/app/org.qutebrowser.qutebrowser/config/qutebrowser'
     - 'sudo flatpak override --filesystem=./qutebrowser.py org.qutebrowser.qutebrowser'
 
 
 Wallpaper:
-  links:
-    scripts/set_wallpaper: Wallpaper/set
-  hooks:
+  - links:
+      scripts/set_wallpaper: Wallpaper/set
+  - hooks:
     - setup/wallpaper.sh
-  run:
+  - run:
     - ~/Wallpaper/set pop-os
 
 
 I3:
-  links:
-    i3/config: .config/i3/config
-    i3/polybar: .config/polybar
-    i3/xinitrc: .xinitrc
-  install:
+  - links:
+      I3/config: .config/i3/config
+      I3/polybar: .config/polybar
+      I3/xinitrc: .xinitrc
+  - install:
     - scripts/start-polkit-agent
-      # - scripts/lock
+  - flavours: [rofi, i3, polybar, dunst]
+    # - scripts/lock
 
 
 Profile:
-  links:
-    profile: .profile
-  run:
+  - links:
+      profile: .profile
+  - run:
     - mkdir -p ~/.profile.d
 
 
 Fedora Sway:
-  hooks: 
+  - hooks:
     - setup/fedora-common.sh
     - setup/fedora-common.sh
     - setup/fedora-sway.sh
-  target:
+  - needs:
     - Sway
     - Desktop
-    - Wallpaper
+  - Wallpaper
     - Greetd
-  run:
+  - run:
     - [sudo, systemctl, start, greetd]
 
 
 Server:
-  target:
+  - needs:
     - Bat
-    - Fish
+  - Fish
     - Tmux
 
 
 Desktop:
-  target:
+  - needs:
     - Server
     - Bash
     - Fonts
@@ -225,7 +235,7 @@ Desktop:
 
 
 Sway Silverblue:
-  target:
+  - needs:
     - Sway
     - Bash
     - Bat
@@ -238,11 +248,7 @@ Sway Silverblue:
     - Tmux
     - Zathura
     - Qutebrowser Flatpak
-  run:
+  - run:
     - echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/blacklist-pcspkr.conf > /dev/null
-
-Test:
-  install:
-    - 'fish'
 
 # vim: nowrap

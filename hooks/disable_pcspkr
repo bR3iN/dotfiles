@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/blacklist-pcspkr.conf > /dev/null
+if [ -x /usr/sbin/rmmod ]; then
+    sudo rmmod pcspkr
+fi

@@ -1,0 +1,6 @@
+[[item]]
+template = "custom"
+subtemplate = "dunst"
+file = "~/.config/dunst/dunstrc"
+rewrite = true
+

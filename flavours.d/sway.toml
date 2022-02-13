@@ -1,0 +1,7 @@
+[[item]]
+template = "sway"
+subtemplate = "colors"
+file = "~/.config/sway/flavours"
+rewrite = true
+hook = "swaymsg reload"
+light = false

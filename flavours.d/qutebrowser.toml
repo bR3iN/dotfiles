@@ -1,0 +1,4 @@
+[[item]]
+template = "qutebrowser"
+file = "~/.config/qutebrowser/flavours.py"
+rewrite = true

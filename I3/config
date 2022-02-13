@@ -330,6 +330,7 @@ for_window [class="gnome-screenshot"] floating enable
 for_window [class="arandr"] floating enable
 for_window [class="pavucontrol"] floating enable
 for_window [class="arandr"] floating enable
+assign [class="Thunderbird"] 5
 
 ## }}}
 
