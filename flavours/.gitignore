@@ -1,2 +1,2 @@
-./config.toml
-./config.toml.d/*
+/config.toml
+/config.toml.d/*.toml

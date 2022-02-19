@@ -14,6 +14,7 @@ for_window {
     [app_id="setroubleshoot"]        floating enable
     [app_id="system-config-printer"] floating enable
     [title="Event Tester"]           floating enable
+    [app_id="com.github.wwmm.easyeffects"] floating enable
 }
 
 # vim: ft=conf

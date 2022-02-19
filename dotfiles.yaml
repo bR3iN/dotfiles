@@ -63,9 +63,7 @@ Rofi:
   - links:
       rofi: .config/rofi
       rofi/profile.sh: ~/.profile.d/rofi-sudo-askpass.sh
-  - needs:
-    - Profile
-    - Flavours
+  - profile: rofi-askpass
   - hooks:
     - fonts/install_fira_fonts.sh
   - install:
@@ -139,9 +137,6 @@ Sway:
       Sway/sway: .config/sway
       Sway/waybar: .config/waybar
       Sway/swaylock: .config/swaylock
-  - run:
-    - 'mkdir -p ~/.config/sway/config.d'
-    - 'cp --no-clobber Sway/sway-defaults/output-default ~/.config/sway/config.d/output'
   - install:
     - scripts/start-polkit-agent
     - scripts/wlock
@@ -173,6 +168,8 @@ Qutebrowser Flatpak:
 
 
 Wallpaper:
+  - install:
+    - scripts/wm
   - links:
       scripts/set_wallpaper: Wallpaper/set
   - hooks:
@@ -207,7 +204,7 @@ Fedora Sway:
   - needs:
     - Sway
     - Desktop
-  - Wallpaper
+    - Wallpaper
     - Greetd
   - run:
     - [sudo, systemctl, start, greetd]
@@ -216,7 +213,7 @@ Fedora Sway:
 Server:
   - needs:
     - Bat
-  - Fish
+    - Fish
     - Tmux
 
 

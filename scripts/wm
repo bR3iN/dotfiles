@@ -1,0 +1,264 @@
+#!/usr/bin/python3
+from __future__ import annotations
+from typing import Optional, Tuple
+import argparse
+from argparse import Namespace
+import os
+import shutil
+import subprocess
+import urllib.request
+
+
+DEFAULT_DIR = os.path.join(os.getenv('HOME'), 'Wallpaper')  # type: ignore
+
+
+def get_args():
+    parser = argparse.ArgumentParser('Wallpaper manager')
+    subparsers = parser.add_subparsers(dest='cmd', required=True)
+
+    parser.add_argument('--directory', '-d', required=False, default=DEFAULT_DIR,
+            help='Wallpaper directory')
+
+    base_subparser = argparse.ArgumentParser(add_help=False)
+    base_subparser.add_argument('--yes-to-all', '-y', required=False, action='store_true')
+
+    parser_add = subparsers.add_parser('add', parents=[base_subparser],
+            help='Add wallpaper')
+    parser_add.add_argument('url',
+            help='Url of wallpaper')
+    parser_add.add_argument('name', nargs='?',
+            help='Name of wallpaper')
+    parser_add.add_argument('--resize', required=False,
+            help='target size of wallpaper')
+
+    parser_set = subparsers.add_parser('set', parents=[base_subparser],
+            help='Set wallpaper by name or from scheme')
+    parser_set.add_argument('name', nargs='?',
+            help='Name of wallpaper to set')
+
+    parser_set_default = subparsers.add_parser('set-default', parents=[base_subparser],
+            help='Set default wallpaper')
+    parser_set_default.add_argument('name',
+            help='Name of wallpaper to set as default')
+
+    parser_list = subparsers.add_parser('list', parents=[base_subparser],
+            help='List all saved wallpapers')
+
+    return parser.parse_args()
+
+
+def run(args):
+    manager = WallpaperManager(args)
+    if args.cmd == 'list':
+        manager.list()
+    elif args.cmd == 'set':
+        if args.name is not None:
+            manager.set(args.name)
+        else:
+            manager.set_from_scheme()
+    elif args.cmd == 'set-default':
+        manager.set_default(args.name)
+    elif args.cmd == 'add':
+        manager.add(args)
+
+
+def main():
+    args = get_args()
+    try:
+        run(args)
+    except Exception as e:
+        # print(f"Error: {e}")
+        raise e
+
+
+class WallpaperManager:
+    dir: str
+    yes_to_all: bool
+    EXTENSIONS = ['.png', '.jpg']
+
+    def __init__(self, args: Namespace):
+        self.dir = args.directory
+        self.yes_to_all = args.yes_to_all
+
+    def _full_path(self, file_name: str) -> str:
+        return os.path.join(self.dir, file_name)
+
+    def _search(self, name: str) -> Optional[str]:
+        return next(filter(os.path.isfile,
+            map(self._full_path,
+                map(lambda s: name + s,
+                    self.EXTENSIONS))), None)
+
+    def set_from_scheme(self):
+        scheme = get_current_scheme()
+        if scheme is not None:
+            self._set_with_fallback(scheme)
+        else:
+            raise Exception("No scheme detected.")
+
+    def _set_with_fallback(self, name: str):
+        try:
+            self.set(name)
+        except WallpaperNotFound as e:
+            try:
+                self.set('default')
+            except WallpaperNotFound:
+                raise e
+
+    def set(self, name: str):
+        file = self._search(name)
+        if file is not None:
+            self._blur_if_needed(file)
+            self._link_to_current(file)
+        else:
+            raise WallpaperNotFound(name)
+
+    def set_default(self, name: str):
+        file = self._search(name)
+        if file is not None:
+            self._blur_if_needed(file)
+            self._copy_to_default(file)
+        else:
+            raise WallpaperNotFound(name)
+
+    def _get_default_wallpaper(self) -> Optional[str]:
+        return self._search('default')
+
+    def _copy_to_default(self, file: str):
+        self._remove_current_default()
+        default = self._full_path('default') + get_extension(file)
+        shutil.copy(file, default)
+        file_blurred = self._get_blurred_file(file)
+        default_blurred = self._get_blurred_file(default)
+        shutil.copy(file_blurred, default_blurred)
+
+    def _remove_current_default(self):
+        current_default = self._get_default_wallpaper()
+        if current_default is not None:
+            self._remove_wallpaper(current_default)
+
+    def _link_to_current(self, file: str):
+        current_path = self._full_path('current')
+        create_symlink(file, current_path)
+        blurred_file = self._get_blurred_file(file)
+        create_symlink(blurred_file, current_path + '_blurred')
+
+    def _get_blurred_file(self, file: str):
+        dirname, basename = os.path.split(file)
+        return os.path.join(dirname, 'blurred', basename)
+
+    def _blur_if_needed(self, file: str):
+        blurred_file = self._get_blurred_file(file)
+        if not os.path.isfile(blurred_file):
+            print(f'blurring {file}')
+            cmd = ['convert', '-blur', '0x30', file, blurred_file]
+            subprocess.run(cmd)
+
+    def add(self, args: Namespace):
+        name, ext = self._file_name_from_add_args(args)
+        self._delete_if_present(name)
+        file_name = name + ext
+        self._fetch_wallpaper_as(file_name, args.url)
+        if args.resize is not None:
+            self._resize(file_name, args.resize)
+        self._blur_if_needed(self._full_path(file_name))
+
+    def _resize(self, file_name: str, size: str):
+        width, height = self._parse_size(size)
+        path = self._full_path(file_name)
+        cmd = ['convert', '-resize', width,
+               '-crop', f'{width}x{height}+0+0',
+               '-gravity', 'center',
+               path, path]
+        print(f"Resizing {file_name} to size '{size}'")
+        subprocess.run(cmd)
+
+    def _parse_size(self, size: str) -> Tuple[str, str]:
+        if size == 'default':
+            return '3840', '2160'
+        else:
+            size_fields = size.split('x')
+            assert len(size_fields) == 2, 'Size has to be specified as "<width>x<height>"'
+            return size_fields[0], size_fields[1]
+
+    def _file_name_from_add_args(self, args) -> Tuple[str, str]:
+        if args.name is not None:
+            return args.name, get_extension(args.url)
+        else:
+            return os.path.splitext(os.path.basename(args.url))
+
+    def _delete_if_present(self, name):
+        file = self._search(name)
+        if file is not None:
+            if os.path.isfile(file):
+                print(f"The wallpaper '{name}' already exists.")
+                if self.confirm('Do you want to remove it?'):
+                    self._remove_wallpaper(file)
+                else:
+                    print('Aborting...')
+                    exit(1)
+
+    def _remove_wallpaper(self, file):
+        blurred_file = self._get_blurred_file(file)
+        for path in filter(os.path.isfile, [file, blurred_file]):
+            os.remove(path)
+
+    def list(self):
+        print('\n'.join(
+            filter(lambda f: get_extension(f) in self.EXTENSIONS,
+                map(lambda e: e.name,
+                    filter(lambda e: e.is_file(),
+                        os.scandir(self.dir))))))
+
+    def _fetch_wallpaper_as(self, file_name: str, loc: str):
+        url = path_to_url(loc) if loc.startswith('/') else loc
+        path = self._full_path(file_name)
+        urllib.request.urlretrieve(url, path)
+
+    def confirm(self, msg: str) -> bool:
+        while True:
+            print(msg, flush=True, end=' [y/N]: ')
+            if self.yes_to_all:
+                print('y', flush=True)
+                return True
+            else:
+                answer = input()
+                if answer in ['y', 'Y']:
+                    return True
+                elif answer in ['', 'n', 'N']:
+                    return False
+
+
+class WallpaperNotFound(Exception):
+    def __init__(self, name: str):
+        self.name = name
+        msg = f"Wallpaper '{name}' was not found."
+        super().__init__(msg)
+
+
+def get_current_scheme() -> Optional[str]:
+    scheme_path = '/tmp/current_scheme'
+    if os.path.isfile(scheme_path):
+        return open(scheme_path).readline().strip('\n\r')
+    else:
+        return None
+
+
+def create_symlink(src, dst):
+    if os.path.islink(dst):
+        os.unlink(dst)
+    os.symlink(src, dst)
+
+
+def get_extension(path: str) -> str:
+    return os.path.splitext(path)[1]
+
+
+def path_to_url(path: str) -> str:
+    if path.startswith('~'):
+        path = os.path.join(os.getenv('HOME'), path[1:])  # type: ignore
+    return 'file://' + path
+
+
+if __name__ == "__main__":
+    main()

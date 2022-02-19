@@ -1,6 +1,0 @@
-### Output configuration
-#
-# see `man 5 sway-output` for details
-#
-#i3-change-next-to: exec_always --no-startup-id feh --no-fehbg --bg-scale ~/Wallpaper/current
-output * bg ~/Wallpaper/current fill

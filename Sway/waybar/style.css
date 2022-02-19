@@ -12,7 +12,7 @@
 
 window#waybar {
     background-color: shade(@base00, 0.7);
-    border-bottom: 2 solid alpha(@base03, 0.8);
+    border-bottom: 2 solid @base03;
     color: @base08;
     opacity: 1.0;
 }
@@ -22,7 +22,7 @@ window#waybar.hidden {
 }
 
 #workspaces button {
-    padding: 0 3px;
+    padding: 0 8px;
     margin: 0;
     background-color: transparent;
     color: shade(@base04, 0.9);

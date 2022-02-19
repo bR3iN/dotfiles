@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from argparse import ArgumentParser
-from subprocess import run
+from subprocess import run as run_cmd
 from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union
 import pathlib
 import shutil
@@ -272,7 +272,7 @@ class CreateSymlink(Action):
 class SudoMakeInstall(Action):
     def __init__(self, dir: str):
         desc = f'Running `sudo make install` inside {dir}'
-        job = lambda: run(['sudo', 'make', 'install'], cwd=dir)
+        job = lambda: run_cmd(['sudo', 'make', 'install'], cwd=dir)
         self.set_job(job, desc)
 
 
@@ -280,7 +280,7 @@ class MakeInstall(Action):
     def __init__(self, dir: str):
         self.dir = dir
         desc = f'Running `make install` inside {self.dir}'
-        job = lambda: run(['make', 'install'], cwd=self.dir)
+        job = lambda: run_cmd(['make', 'install'], cwd=self.dir)
         self.set_job(job, desc)
 
 
@@ -296,7 +296,7 @@ class RunCmd(Action):
         s = f"{' '.join(cmd)}" if isinstance(cmd, list) else f'bash -c "{cmd}"'
         desc = f"Running '{s}'"
         cmd = cmd if isinstance(cmd, list) else ['bash', '-c', cmd]
-        job = lambda: run(cmd, cwd=self.env.dotfile_installer.dotfiles_dir)
+        job = lambda: run_cmd(cmd, cwd=self.env.dotfile_installer.dotfiles_dir)
         self.set_job(job, desc)
 
 
@@ -306,10 +306,10 @@ class SystemInstallFile(RunCmd):
         RunCmd.__init__(self, cmd)
 
 
-class InstallFile(RunCmd):
+class InstallFile(CreateSymlink):
     def __init__(self, file: str):
-        cmd = ['install', '-m755', '-D', f'-t={HOME}/.local/bin', file]
-        RunCmd.__init__(self, cmd)
+        dst = os.path.join(f'{HOME}/.local/bin', os.path.basename(file))
+        CreateSymlink.__init__(self, file, dst)
 
 
 
