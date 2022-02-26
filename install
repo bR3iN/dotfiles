@@ -180,10 +180,8 @@ class FlavoursPlugin(Plugin):
             dst = os.path.join(HOME, '.config/flavours/config.toml.d', file_name) # type: ignore
             return CreateSymlink(src, dst)
 
-        if isinstance(config, str):
-            yield create_action(config)
-        else:
-            return map(create_action, validate(str, config))
+        return map(create_action, validate(str,
+            config if isinstance(config, list) else [config]))
 
 
 

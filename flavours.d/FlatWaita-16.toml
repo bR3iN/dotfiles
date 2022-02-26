@@ -3,4 +3,5 @@ template = "custom"
 subtemplate = "scss"
 file = "~/.themes/FlatWaita-16/base16.scss"
 rewrite = true
-hook = "cd ~/.themes/FlatWaita-16 && make install-flatpak & flatpak-spawn --host pkexec bash -c \"cd $HOME/.themes/FlatWaita-16 && make system-install\" &"
+light = false
+hook = "cd ~/.themes/FlatWaita-16 && make install-flatpak & propagate-theme &"

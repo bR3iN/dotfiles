@@ -121,6 +121,8 @@ Flavours:
 
 
 FlatWaita-16:
+  - install:
+    - scripts/propagate-theme
   - hooks:
     - setup/FlatWaita-16.sh
   - flavours:
