@@ -26,7 +26,7 @@ set $menu "rofi -show combi -combi-modi 'window\,drun'"
 font pango:Fira Sans Regular 9
 
 hide_edge_borders smart_no_gaps
-new_float normal
+default_floating_border normal
 default_border pixel 1
 
 smart_gaps on

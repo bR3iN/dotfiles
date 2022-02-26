@@ -187,6 +187,7 @@ I3:
       I3/xinitrc: .xinitrc
   - install:
     - scripts/start-polkit-agent
+    - I3/lightdm
   - flavours: [rofi, i3, polybar, dunst]
     # - scripts/lock
 
