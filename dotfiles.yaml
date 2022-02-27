@@ -111,7 +111,7 @@ Flavours:
   - needs:
     - Rust
   - links:
-      flavours: .config/flavours
+      flavours/schemes: .config/flavours/schemes
       flavours/templates: .local/share/flavours/base16/templates/custom/templates
   - install:
     - scripts/flav

@@ -161,6 +161,7 @@ class WallpaperManager:
         name, ext = self._file_name_from_add_args(args)
         self._delete_if_present(name)
         file_name = name + ext
+        print(f'Fetching wallpaper {name}')
         self._fetch_wallpaper_as(file_name, args.url)
         if args.resize is not None:
             self._resize(file_name, args.resize)
