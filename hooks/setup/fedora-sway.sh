@@ -21,4 +21,3 @@ pkgs=(
 sudo dnf install -y "${pkgs[@]}"
 
 systemctl --user enable --now mako.service
-sudo systemctl enable greetd

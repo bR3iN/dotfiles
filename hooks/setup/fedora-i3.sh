@@ -8,11 +8,12 @@ pkgs=(
     dunst
     feh
     i3-gaps
+    lighdm
+    lightdm-gtk
     picom
     polybar
     redshift
     rofi
-    rofi-wayland
     setxkbmap
     xss-lock
 )

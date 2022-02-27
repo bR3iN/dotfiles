@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+# Add rpmfusion free repository
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
 
 pkg_groups=(
@@ -11,13 +12,13 @@ pkg_groups=(
     "Hardware Support"
     "Development Tools"
     "C Development Tools and Libraries"
-    "Virtualization"
 )
 
 pkgs=(
     bat
     blueberry
     brightnessctl
+    cmus
     d-feet
     fedora-workstation-backgrounds
     fedora-workstation-repositories
@@ -36,6 +37,7 @@ pkgs=(
     NetworkManager-tui
     npm
     pavucontrol
+    pipewire-codec-aptx
     playerctl
     plymouth-theme-spinner
     podman
@@ -55,11 +57,12 @@ pkgs=(
     xdotool #for vimtex
     xfce-polkit
 
-    # Order matters
+    # Order apparently matters
     zathura
     zathura-pdf-poppler
     zathura-plugins-all
 
+    # For ripping CDs
     # abcde
     # lame
     # mp3gain
@@ -73,7 +76,8 @@ sudo dnf install -y "${pkgs[@]}"
 systemctl enable --now --user pipewire.service
 systemctl enable --now --user pipewire-pulse.service
 sudo systemctl enable --now libvirtd
+
+
 sudo systemctl disable systemd-networkd-wait-online
 sudo systemctl mask    systemd-networkd-wait-online
-
 sudo plymouth-set-default-theme -R spinner
