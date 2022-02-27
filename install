@@ -153,7 +153,6 @@ def delete_file_or_dir(path: str):
 
 @register_plugin('profile')
 class ProfilePlugin(Plugin):
-    key_word = 'profile'
     def parse_config(self, config) -> Iterable[Action]:
         dotfiles_dir = self.env.dotfile_installer.dotfiles_dir
 
@@ -166,7 +165,8 @@ class ProfilePlugin(Plugin):
         if isinstance(config, str):
             yield create_action(config)
         else:
-            return map(create_action, validate(str, config))
+            for item in  map(create_action, validate(str, config)):
+                yield item
 
 
 @register_plugin('flavours')

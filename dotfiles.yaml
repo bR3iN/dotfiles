@@ -208,14 +208,15 @@ Fedora I3:
     - Desktop
     - I3
     - Lightdm
-  # - run:
-  #   - [sudo, systemctl, start, lightdm]
+  - run:
+    - "~/.local/bin/flav apply pop-os"
+    - [sudo, systemctl, start, lightdm]
 
 
 Lightdm:
   - needs:
-    - FlatWaita-16
     - Wallpaper
+    - FlatWaita-16 # Install after Wallpaper
     - Fonts
   - install:
     - I3/lightdm
@@ -236,6 +237,7 @@ Fedora Sway:
 
 Server:
   - needs:
+    - Profile
     - Neovim
     - Bash
     - Fish
@@ -246,6 +248,7 @@ Server:
 Desktop:
   - needs:
     - Server
+    - Flavours
     - Fonts
     - Git
     - Kitty
@@ -253,7 +256,6 @@ Desktop:
     - Npm
     - Qutebrowser
     - Wallpaper
-    - Flavours
 
 
 Sway Silverblue:

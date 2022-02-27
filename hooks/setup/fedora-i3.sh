@@ -8,7 +8,7 @@ pkgs=(
     dunst
     feh
     i3-gaps
-    lighdm
+    lightdm
     lightdm-gtk
     picom
     polybar

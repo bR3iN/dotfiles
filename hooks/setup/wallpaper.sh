@@ -19,3 +19,11 @@ for file in "${local_files[@]}"; do
         add "$file"
     fi
 done
+
+if [ ! -f ~/Wallpaper/current ]; then
+    ~/.local/bin/wm set pop-os
+fi
+
+if [ ! -f ~/Wallpaper/default ]; then
+    ~/.local/bin/wm set-default pop-os
+fi

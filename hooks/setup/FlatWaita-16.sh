@@ -5,7 +5,7 @@ DIR="$HOME/.themes/FlatWaita-16"
 
 if [ ! -d "$DIR" ]; then
     git clone "$URL" "$DIR"
-    (cd "$DIR" && make install)
+    (cd "$DIR" && make install-flatpak)
 
     if [ -x /usr/bin/gsettings ]; then
         gsettings set org.gnome.desktop.interface gtk-theme 'FlatWaita-16'
