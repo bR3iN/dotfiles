@@ -21,6 +21,7 @@ def get_args():
 
     base_subparser = argparse.ArgumentParser(add_help=False)
     base_subparser.add_argument('--yes-to-all', '-y', required=False, action='store_true')
+    base_subparser.add_argument('--no-to-all', required=False, action='store_true')
 
     parser_add = subparsers.add_parser('add', parents=[base_subparser],
             help='Add wallpaper')
@@ -74,11 +75,13 @@ def main():
 class WallpaperManager:
     dir: str
     yes_to_all: bool
+    no_to_all: bool
     EXTENSIONS = ['.png', '.jpg']
 
     def __init__(self, args: Namespace):
         self.dir = args.directory
         self.yes_to_all = args.yes_to_all
+        self.no_to_all = args.no_to_all
 
     def _full_path(self, file_name: str) -> str:
         return os.path.join(self.dir, file_name)
@@ -218,7 +221,10 @@ class WallpaperManager:
     def confirm(self, msg: str) -> bool:
         while True:
             print(msg, flush=True, end=' [y/N]: ')
-            if self.yes_to_all:
+            if self.no_to_all:
+                print('n', flush=True)
+                return False
+            elif self.yes_to_all:
                 print('y', flush=True)
                 return True
             else:

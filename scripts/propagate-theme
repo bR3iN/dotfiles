@@ -3,18 +3,24 @@
 set -e
 set -u
 
-sudo -A echo
+if [ -n "${SUDO_ASKPASS-}" ]; then
+    SUDO_CMD="sudo -A"
+else
+    SUDO_CMD="sudo"
+fi
+
+$SUDO_CMD echo -n
 sleep 1
 
 if [ -d ~/.themes/FlatWaita-16 ]; then
     if [ -d /usr/share/themes/FlatWaita-16 ]; then
-        sudo -A rm -r /usr/share/themes/FlatWaita-16
+        $SUDO_CMD rm -r /usr/share/themes/FlatWaita-16
     fi
-    sudo -A bash -c "cd \"$HOME/.themes/FlatWaita-16\" && make system-install"
+    $SUDO_CMD bash -c "cd \"$HOME/.themes/FlatWaita-16\" && make system-install"
 fi
 
 for wallpaper in current current_blurred; do
     if [ -f ~/Wallpaper/"$wallpaper" ]; then
-        sudo -A cp -H ~/Wallpaper/"$wallpaper" /usr/share/backgrounds/
+        $SUDO_CMD cp -H ~/Wallpaper/"$wallpaper" /usr/share/backgrounds/
     fi
 done

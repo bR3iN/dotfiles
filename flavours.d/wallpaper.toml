@@ -1,0 +1,6 @@
+[[item]]
+template = "custom"
+subtemplate = "current_scheme"
+file = "/tmp/current_scheme"
+rewrite = true
+hook = "wm set"

@@ -5,4 +5,4 @@
 ~/.cargo/bin/flavours update all
 
 # Apply default theme
-~/.cargo/bin/flavours apply --light pop-os
+# ~/.cargo/bin/flavours apply --light pop-os

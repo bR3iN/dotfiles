@@ -25,10 +25,10 @@ Git:
 
 
 Kitty:
+  - needs:
+    - Fonts
   - links:
       kitty: .config/kitty
-  - hooks:
-    - fonts/install_fira_code_nerd_fonts.sh
   - run:
     - 'touch ~/.config/kitty/local.conf'
   - flavours: kitty
@@ -60,12 +60,10 @@ Bash:
 
 
 Rofi:
+  - needs:
+    - Fonts
   - links:
       rofi: .config/rofi
-      rofi/profile.sh: ~/.profile.d/rofi-sudo-askpass.sh
-  - profile: rofi-askpass
-  - hooks:
-    - fonts/install_fira_fonts.sh
   - install:
     - scripts/rofi-open
     - scripts/rofi-vpn
@@ -75,6 +73,10 @@ Rofi:
     - scripts/rofi-inputs
     - scripts/rofi-xrandr
     - scripts/rofi-askpass
+  - profile:
+    - rofi-askpass
+  - flavours:
+    - rofi
 
 
 Fonts:
@@ -91,8 +93,6 @@ Npm:
 
 
 Thinkpad:
-  - needs:
-    - Profile
   - links:
       Thinkpad/Xkbmap: .Xkbmap
   - install:
@@ -110,14 +110,14 @@ Thinkpad-X:
 Flavours:
   - needs:
     - Rust
-  - hooks:
-    - setup/flavours.sh
   - links:
       flavours: .config/flavours
       flavours/templates: .local/share/flavours/base16/templates/custom/templates
   - install:
     - scripts/flav
     - flavours/schemes
+  - hooks:
+    - setup/flavours.sh
 
 
 FlatWaita-16:
@@ -127,6 +127,8 @@ FlatWaita-16:
     - setup/FlatWaita-16.sh
   - flavours:
     - FlatWaita-16
+  - run:
+    - ~/.local/bin/propagate-theme
 
 
 Rust:
@@ -172,24 +174,21 @@ Qutebrowser Flatpak:
 Wallpaper:
   - install:
     - scripts/wm
-  - links:
-      scripts/set_wallpaper: Wallpaper/set
   - hooks:
     - setup/wallpaper.sh
-  - run:
-    - ~/Wallpaper/set pop-os
+  - flavours: wallpaper
 
 
 I3:
+  - needs:
+    - Rofi
+    - Redshift
   - links:
       I3/config: .config/i3/config
       I3/polybar: .config/polybar
-      I3/xinitrc: .xinitrc
   - install:
     - scripts/start-polkit-agent
-    - I3/lightdm
-  - flavours: [rofi, i3, polybar, dunst]
-    # - scripts/lock
+  - flavours: [i3, polybar, dunst]
 
 
 Profile:
@@ -199,9 +198,31 @@ Profile:
     - mkdir -p ~/.profile.d
 
 
-Fedora Sway:
+Fedora I3:
   - hooks:
     - setup/fedora-common.sh
+    - setup/fedora-i3.sh
+  - links:
+      I3/xinitrc: .xinitrc
+  - needs:
+    - Desktop
+    - I3
+    - Lightdm
+  # - run:
+  #   - [sudo, systemctl, start, lightdm]
+
+
+Lighdm:
+  - needs:
+    - FlatWaita-16
+    - Wallpaper
+    - Fonts
+  - install:
+    - I3/lightdm
+
+
+Fedora Sway:
+  - hooks:
     - setup/fedora-common.sh
     - setup/fedora-sway.sh
   - needs:
@@ -215,22 +236,23 @@ Fedora Sway:
 
 Server:
   - needs:
-    - Bat
+    - Neovim
+    - Bash
     - Fish
     - Tmux
+    - Bat
 
 
 Desktop:
   - needs:
     - Server
-    - Bash
     - Fonts
     - Git
     - Kitty
-    - Neovim
-    - Npm
     - Zathura
+    - Npm
     - Qutebrowser
+    - Wallpaper
     - Flavours
 
 
