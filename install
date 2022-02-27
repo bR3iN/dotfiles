@@ -120,8 +120,8 @@ def create_symlink(src: Path, dst):
 def expand_path(path: str, default_prefix: str) -> str:
     if path.startswith('/'):
         return path
-    elif path.startswith('~'):
-        return os.path.join(HOME, path[1:])
+    elif path.startswith('~/'):
+        return os.path.join(HOME, path[2:])
     else:
         return os.path.join(default_prefix, path)
 
