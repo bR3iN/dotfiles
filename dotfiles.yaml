@@ -212,7 +212,7 @@ Fedora I3:
   #   - [sudo, systemctl, start, lightdm]
 
 
-Lighdm:
+Lightdm:
   - needs:
     - FlatWaita-16
     - Wallpaper
