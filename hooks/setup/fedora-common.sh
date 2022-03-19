@@ -80,4 +80,5 @@ sudo systemctl enable --now libvirtd
 
 sudo systemctl disable systemd-networkd-wait-online
 sudo systemctl mask    systemd-networkd-wait-online
+sudo systemctl set-default graphical.target
 sudo plymouth-set-default-theme -R spinner
