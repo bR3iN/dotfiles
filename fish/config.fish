@@ -40,7 +40,7 @@ bind \e, history-token-search-forward
 
 
 if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
-    alias ssh 'kitty @ set-background-opacity 1; kitty +kitten ssh'
+    alias ssh 'kitty +kitten ssh'
 end
 
 if [ -f /usr/share/fzf/shell/key-bindings.fish ]

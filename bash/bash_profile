@@ -1,4 +1,5 @@
 if [ -n "${TOOLBOX_PATH}" ] && [ -x /usr/bin/fish ]; then
+    source /etc/profile
     exec /usr/bin/fish
 fi
 

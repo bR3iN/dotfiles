@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+which cargo &> /dev/null && exit
+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     --output /tmp/rustup-init.sh
 

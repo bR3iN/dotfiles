@@ -6,7 +6,7 @@ ROFI_OPTIONS=(-fixed-num-lines)
 
 list_options()
 {
-    find "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}'
+    find -L "${DOC_DIR}/" -type f | awk -v "del"="${DOC_DIR}/" '{sub(del, ""); print}'
 }
 
 callback()

@@ -6,7 +6,7 @@
     /* `otf-font-awesome` is required to be installed for icons */
     /*font-family: Fira Sans, Symbols Nerd Font, Roboto, Helvetica, Arial, sans-serif;*/
     font-family: Fira Sans, Symbols Nerd Font;
-    font-size: 12px;
+    font-size: 100%;
     min-height: 0;
 }
 
@@ -22,7 +22,7 @@ window#waybar.hidden {
 }
 
 #workspaces button {
-    padding: 0 8px;
+    padding: 0 3px;
     margin: 0;
     background-color: transparent;
     color: shade(@base04, 0.9);
@@ -159,5 +159,6 @@ window#waybar.hidden {
 }
 
 #clock {
-    font-size: 120%;
+    font-family: Fira Sans SemiBold;
+    font-size: 115%;
 }

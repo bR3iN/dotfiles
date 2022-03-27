@@ -40,7 +40,7 @@ pin-workspaces = true
 label-mode = %mode%
 label-mode-padding = 3
 label-mode-foreground = ${colors.base02}
-label-mode-underline= ${colors.base00}
+label-mode-underline= ${colors.base0B}
 label-mode-background = ${colors.base0B}
 
 label-focused = %index%

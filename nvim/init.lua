@@ -207,6 +207,7 @@ add ('neovim/nvim-lspconfig', function()
     require 'lsp'.setup_with_defaults('bashls')
     require 'lsp'.setup_with_defaults('vimls')
     require 'lsp'.setup_with_defaults('pyright')
+    require 'lsp'.setup_with_defaults('hls')
 end)
 
 add ('hrsh7th/nvim-cmp', function()
