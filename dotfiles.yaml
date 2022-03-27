@@ -171,6 +171,11 @@ Qutebrowser Flatpak:
     - 'sudo flatpak override --filesystem=./qutebrowser.py org.qutebrowser.qutebrowser'
 
 
+Autorandr:
+  - links:
+      autorandr: .config/autorandr
+
+
 Wallpaper:
   - install:
     - scripts/wm
@@ -208,6 +213,7 @@ Fedora I3:
     - Desktop
     - I3
     - Lightdm
+    - Autorandr
   - run:
     - "~/.local/bin/flav apply pop-os"
     - [sudo, systemctl, start, lightdm]
