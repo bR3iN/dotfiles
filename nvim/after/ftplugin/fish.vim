@@ -1,3 +1,4 @@
+" TODO: -> <Plug>Run
 nnoremap <buffer> <leader>rr :w !fish<cr>
 
 compiler fish
