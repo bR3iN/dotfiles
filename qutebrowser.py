@@ -27,7 +27,7 @@ config.bind('<Space>m', 'config-cycle -p messages.timeout 0 3000')
 
 
 ## Appearance
-c.fonts.default_size = '10pt'
+c.fonts.default_size = '11pt'
 c.fonts.default_family = "Fira"
 c.tabs.title.format = '{current_title}'
 
