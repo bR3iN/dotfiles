@@ -37,7 +37,8 @@
              {:name :path}
              {:name :calc}
              {:name :omni}
-             {:name :buffer}
+             {:name :buffer
+              :option {:keyword_pattern "\\k\\+"}}
              ; {:name :neorg}
              ]
    :formatting {:format (fn [entry vim-item]

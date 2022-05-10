@@ -1,1 +1,1 @@
-nnoremap <leader>rr :w !python<CR>
+nnoremap <Plug>RunFile :w !python<CR>

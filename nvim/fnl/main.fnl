@@ -1,11 +1,10 @@
-; TODO: in fnl files what a word is
-
 ;; Imports
-(import-macros {: set! : setl! : set+ : let! } :utils.macros)
+(import-macros {: set! : setl! : setg! : set+ : let! } :utils.macros)
 (local {: add!} (require :pkg))
 (local {: nmap! : vmap! : tmap! : cmap! : imap!
         : command! : augroup! : color!}
   (require :utils.nvim))
+(local {: spawn} (require :utils.async))
 
 ;; General Options and Keymaps
 ; set leader keys
@@ -56,7 +55,7 @@
 (set! wrap)
 
 ; Default tab behaviour
-(set! shiftwidth 4)  ; messes with fennel.vim
+(setg! shiftwidth 4)  ; messes with fennel.vim
 (set! tabstop 4)
 (set! expandtab)
 
@@ -65,6 +64,8 @@
 
 ; Load custom operators
 (require :operators)
+(nmap! "gp"   "<Plug>Print")
+(vmap! "gp"   "<Plug>Print")
 
 ; delete into black hole register
 (nmap! "<leader>d" "\"_d")
@@ -87,6 +88,7 @@
 
 (nmap! "<leader>mk" ":make!<CR>")
 (nmap! "<leader>mt" ":MakeTags<CR>")
+(nmap! "<leader>rr" "<Plug>RunFile")
 
 ; Sane `<Esc>` behaviour in terminal mode
 (tmap! "<Esc>" "<C-\\><C-n>")
@@ -125,7 +127,8 @@
 ; Write and quit
 (nmap! "<leader>w"  ":<C-u>w<cr>")
 (nmap! "<leader>sw" ":<C-u>w !pkexec tee % >/dev/null<CR>")  ;"sudo write" via polkit agent
-(nmap! "<leader>qq" ":<C-u>q<cr>")
+(nmap! "<leader>qq" ":<C-u>quit<cr>")
+(nmap! "<leader>QQ" ":<C-u>quitall<cr>")
 
 ; Manage plugins
 (nmap! "<leader>pu" "<Plug>PkgUpdate")
@@ -152,29 +155,7 @@
 (command! "Mkdir" #(vim.fn.mkdir (vim.fn.expand "%:h") :p))
 
 ; Create tags asynchrounously
-(command! "MakeTags" #((. (require :utils.async) :spawn) ["ctags" "-R" "."]))
-
-(let [autocmd! (augroup! :init.lua)]
-  ; Autoload config files on save
-  (autocmd! :BufWritePost (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
-            #(dofile vim.env.MYVIMRC))
-
-  ; Fold via marker in config files
-  (autocmd! :BufRead (.. vim.env.HOME "~/.{config,dotfiles}/*")
-            #(setl! foldmethod :marker))
-
-  ; Don't save undofiles for tempfiles
-  (autocmd! :BufWritePre "/tmp/*"
-            #(setl! noundofile))
-
-  ; Highlight yanks
-  (autocmd! :TextYankPost "*"
-            #(vim.highlight.on_yank {:higroup :IncSearch
-                                     :timeout 150})))
-
-;; Appearance
-(set! fillchars { :vert :| })
-(color! :base16)
+(command! "MakeTags" #(spawn ["ctags" "-R" "."]))
 
 ;; LSP setup
 (let [keymaps
@@ -248,6 +229,11 @@
 
 (add! "nvim-lua/plenary.nvim")
 (add! "nvim-neorg/neorg" :load-config)
+(nmap! "<leader>gc" "<Plug>NeorgGtdCapture")
+(nmap! "<leader>go" "<Plug>NeorgGtdOpen")
+
+; (add! "Olical/conjure")
+; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)
 
 ;; Load local plugins
 (require :plugin.nvr-in-terminal)
@@ -257,7 +243,25 @@
 (require :plugin.open-cache)
 (nmap! "ghoc" "<Plug>OpenCache")
 
-; (add! "Olical/conjure")
-; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)
+;; Misc. autocmds
+(let [autocmd! (augroup! :init.lua)]
+  ; Autoload config files on save
+  (autocmd! :BufWritePost (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
+            #(dofile vim.env.MYVIMRC))
 
-(add! "ggandor/leap.nvim" :load-config)
+  ; Fold via marker in config files
+  (autocmd! :BufRead (.. vim.env.HOME "~/.{config,dotfiles}/*")
+            #(setl! foldmethod :marker))
+
+  ; Don't save undofiles for tempfiles
+  (autocmd! :BufWritePre "/tmp/*"
+            #(setl! noundofile))
+
+  ; Highlight yanks
+  (autocmd! :TextYankPost "*"
+            #(vim.highlight.on_yank {:higroup :IncSearch
+                                     :timeout 150})))
+
+;; Appearance
+(set! fillchars { :vert :| })
+(color! :base16)

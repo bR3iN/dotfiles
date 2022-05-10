@@ -1,1 +1,1 @@
-nnoremap <buffer> <leader>rr :w !bash<cr>
+nnoremap <buffer> <Plug>RunFile :w !bash<cr>

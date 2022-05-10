@@ -28,11 +28,9 @@
       (tostring id))
     next-id))
 
-
 (fn M.register-func [func id]
   (tset (. _G func-tbl-name) id func))
 
-; TODO: use a global `call_user_funcion` instead?
 ; Generate vimscript to call a previously registered function by id
 (fn M.id->vimscript [id]
     (.. ":lua _G." func-tbl-name "[\"" id "\"]()<CR>"))

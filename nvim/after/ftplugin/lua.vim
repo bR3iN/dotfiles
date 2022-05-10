@@ -1,1 +1,1 @@
-nnoremap <buffer> <leader>rr :lua dofile(vim.fn.expand('%'))<cr>
+nnoremap <buffer> <Plug>RunFile :lua dofile(vim.fn.expand('%'))<cr>
