@@ -16,16 +16,16 @@
     _ action))
 
 (fn parse-rhs [rhs]
-  (let [lsp-pf :lsp
-        diag-pf :diag]
+  (let [lsp-pf :lsp:
+        diag-pf :diag:]
     (if
       (starts-with rhs lsp-pf) (let [action (remove-prefix rhs lsp-pf)]
                                  (values
-                                   #(. vim.lsp.buf action)
+                                   #((. vim.lsp.buf action))
                                    (action->capability action)))
       (starts-with rhs diag-pf) (let [action (remove-prefix rhs diag-pf)]
                                   (values
-                                    #(. vim.diagnostic action)
+                                    #((. vim.diagnostic action))
                                     nil))
       (values rhs nil))))
 
