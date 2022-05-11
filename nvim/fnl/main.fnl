@@ -232,6 +232,8 @@
 (nmap! "<leader>gc" "<Plug>NeorgGtdCapture")
 (nmap! "<leader>go" "<Plug>NeorgGtdOpen")
 
+(add! "ggandor/leap.nvim" :load-config)
+
 ; (add! "Olical/conjure")
 ; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)
 
