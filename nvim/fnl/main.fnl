@@ -189,6 +189,10 @@
   (add! "neovim/nvim-lspconfig"
         :setup {: keymaps : setup}))
 
+;; Appearance
+(set! fillchars { :vert :| })
+(color! :base16)  ; Load before plugins
+
 ;; Load and configure plugins
 (add! "rktjmp/hotpot.nvim")
 (add! "tpope/vim-repeat")
@@ -240,6 +244,7 @@
 ;; Load local plugins
 (require :plugin.nvr-in-terminal)
 (require :plugin.toggle-comments)
+(require :plugin.highlight-trailing-whitespace)
 
 ; Open hotpot-compiled fennel file
 (require :plugin.open-cache)
@@ -263,7 +268,3 @@
   (autocmd! :TextYankPost "*"
             #(vim.highlight.on_yank {:higroup :IncSearch
                                      :timeout 150})))
-
-;; Appearance
-(set! fillchars { :vert :| })
-(color! :base16)

@@ -36,6 +36,7 @@
 (local opt-tbl
   {:load {:core.defaults {}
           :core.norg.concealer {}
+          :core.norg.qol.toc {:config {:close_split_on_jump true}}
           :core.norg.dirman {:config {:workspaces {:notes "~/neorg"
                                                    :gtd "~/neorg/gtd"}
                                       :default :notes

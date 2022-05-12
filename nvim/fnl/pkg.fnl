@@ -64,13 +64,19 @@
 (fn packloadall! []
   (vim.cmd :packloadall!))
 
+(fn unrequire [mod]
+  (tset _G.package.loaded mod nil))
+
 (fn action->callback [action reponame]
   (let [dirname (reponame->dirname reponame)
         config-module (.. :configs. dirname)]
     (match action
       nil nil
-      :load-config #(require config-module)
+      :load-config (fn []
+                     (unrequire config-module)
+                     (require config-module))
       :setup (fn [?arg]
+               (unrequire config-module)
                (let [config (require config-module)]
                  (config.setup ?arg)))
       other (error (.. "Unrecognized action '" other ";")))))
@@ -115,11 +121,7 @@
   ; Reset internal package list
   (set pkgs {})
   ; Create package directory if necessary
-  (vim.fn.mkdir pkg-dir :p)
-  ; Unload plugin configurations
-  (each [name _ (pairs _G.package.loaded)]
-    (if (starts-with name :configs.)
-        (tset _G.package.loaded name nil))))
+  (vim.fn.mkdir pkg-dir :p))
 
 (nmap! "<Plug>PkgUpdate" #(update!))
 (nmap! "<Plug>PkgList"   #(list!))

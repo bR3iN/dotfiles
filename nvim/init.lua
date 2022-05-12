@@ -1,8 +1,7 @@
 -- Bootstrap fennel support
 require('setup_hotpot')
 
--- Initialize plugin manager;
--- resets internal plugin list and unload plugin configs
+-- Initialize plugin manager; resets internal plugin list
 require('pkg').init()
 
 -- (Re)Load main config

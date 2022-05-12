@@ -39,12 +39,6 @@
 (fn M.command! [lhs rhs]
   (vim.cmd (table.concat [:command! lhs (rhs->str rhs)] " ")))
 
-(fn M.augroup! [name cmds]
-  (vim.cmd (.. "augroup " name))
-  (vim.cmd "autocmd!")
-  (vim.api.nvim_exec (table.concat cmds "\n") false)
-  (vim.cmd "augroup END"))
-
 (fn M.color! [scheme]
   (if (not= vim.g.colors_name
             scheme)

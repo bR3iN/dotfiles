@@ -33,6 +33,7 @@
    :sources [
              {:name :nvim_lsp}
              {:name :nvim_lua}
+             {:name :neorg}
              {:name :vsnip}
              {:name :path}
              {:name :calc}
