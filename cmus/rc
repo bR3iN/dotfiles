@@ -1,0 +1,2 @@
+bind -f browser u browser-up
+set mpris=true

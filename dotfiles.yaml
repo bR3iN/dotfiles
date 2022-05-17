@@ -4,6 +4,7 @@ Neovim:
   - run:
     - 'nvim --headless +q'
     - 'pip3 install --user --upgrade neovim-remote'
+  - flavours: nvim
 
 
 Tmux:
@@ -174,6 +175,11 @@ Qutebrowser Flatpak:
 Autorandr:
   - links:
       autorandr: .config/autorandr
+
+
+Cmus:
+  - links:
+      cmus/rc: .config/cmus/rc
 
 
 Wallpaper:
