@@ -13,13 +13,16 @@
                  (vim.cmd :NeorgStart))
                (func)))]
   (nmap! "<Plug>NeorgGtdCapture" (wrap #(vim.cmd "Neorg gtd capture")))
-  (nmap! "<Plug>NeorgGtdOpen"    (wrap #(vim.cmd "Neorg workspace gtd"))))
+  (nmap! "<Plug>NeorgGtdOpen"    (wrap #(vim.cmd "Neorg workspace gtd")))
+  (nmap! "<Plug>NeorgGtdViews"   (wrap #(vim.cmd "Neorg gtd views")))
+  (nmap! "<Plug>NeorgNotesOpen"  (wrap #(vim.cmd "Neorg workspace notes"))))
 
 (fn keybinds-hook [keybinds]
-  (let [remap_key keybinds.remap_key]
-    (remap_key :norg :n "<LocalLeader>tc" "<LocalLeader>gc")
-    (remap_key :norg :n "<LocalLeader>tv" "<LocalLeader>gv")
-    (remap_key :norg :n "<LocalLeader>te" "<LocalLeader>ge")
+  (let [remap_key keybinds.remap_key
+        unmap     keybinds.unmap]
+    (unmap :norg :n "<LocalLeader>tc")
+    (unmap :norg :n "<LocalLeader>tv")
+    (unmap :norg :n "<LocalLeader>te")
 
     (remap_key :norg         :n "<CR>" "<C-]>")
     (remap_key :toc-split    :n "<CR>" "<C-]>")
@@ -37,7 +40,7 @@
   {:load {:core.defaults {}
           :core.norg.concealer {}
           :core.norg.qol.toc {:config {:close_split_on_jump true}}
-          :core.norg.dirman {:config {:workspaces {:notes "~/neorg"
+          :core.norg.dirman {:config {:workspaces {:notes "~/neorg/notes"
                                                    :gtd "~/neorg/gtd"}
                                       :default :notes
                                       :autochdir true

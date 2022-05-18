@@ -1,0 +1,8 @@
+{
+    "Context List": {
+        "prefix": ["#"],
+        "body": [
+            "#contexts $0"
+        ]
+    },
+}

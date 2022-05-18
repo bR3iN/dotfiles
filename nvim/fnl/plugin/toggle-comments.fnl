@@ -1,15 +1,16 @@
 (local {: command!} (require :utils.nvim))
 
-(var hidden true)
+(var saved {:fg (. (require :flavours) 16)})
+
+(fn replace-saved [new]
+  (let [tmp saved]
+    (set saved new)
+    tmp))
 
 (fn toggle []
-  (let [color-on "ctermfg=17 cterm=bold"
-        color-off "ctermfg=8 cterm=NONE"]
-    (set hidden (not hidden))
-    (->> (if hidden
-           color-off
-           color-on)
-         (.. ":hi Comment ")
-         (vim.cmd))))
+  (let [new (replace-saved
+              (vim.api.nvim_get_hl_by_name :Comment true))]
+    (vim.api.nvim_set_hl 0 :Comment new)
+    (vim.api.nvim_cmd {:cmd :redraw :bang true} {})))
 
 (command! :ToggleComments toggle)

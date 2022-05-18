@@ -37,7 +37,6 @@
   (let [restore (save ["@\""])]
     (with-cb
       [restore]
-      (print (vim.inspect (vim.api.nvim_buf_get_mark 0 ">")))
       (yank-to-unnamed mode)
       (. (vim.fn.getreginfo "\"") :regcontents))))
 

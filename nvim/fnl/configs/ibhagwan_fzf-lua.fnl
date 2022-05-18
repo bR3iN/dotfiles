@@ -1,2 +1,3 @@
 (let [{: setup} (require :fzf-lua)]
-  (setup {:hl {:cursorline "CursorLineFzfLua"}}))
+  (setup {:files {:file_icons false}
+          :hl {:cursorline "CursorLineFzfLua"}}))

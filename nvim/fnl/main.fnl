@@ -151,6 +151,9 @@
 (nmap! "gb" "<Plug>OpenInBrowser")
 (vmap! "gb" "<Plug>OpenInBrowser")
 
+(nmap! "<C-[>" "<C-^>")
+(nmap! "-" ":edit %:p:h<CR>")
+
 ; Creates current directory
 (command! "Mkdir" #(vim.fn.mkdir (vim.fn.expand "%:h") :p))
 
@@ -190,8 +193,8 @@
         :setup {: keymaps : setup}))
 
 ;; Appearance
+(require :base16)
 (set! fillchars { :vert :| })
-(color! :base16)  ; Load before plugins
 
 ;; Load and configure plugins
 (add! "rktjmp/hotpot.nvim")
@@ -235,14 +238,17 @@
 (add! "nvim-neorg/neorg" :load-config)
 (nmap! "<leader>gc" "<Plug>NeorgGtdCapture")
 (nmap! "<leader>go" "<Plug>NeorgGtdOpen")
+(nmap! "<leader>gv" "<Plug>NeorgGtdViews")
+(nmap! "<leader>gn" "<Plug>NeorgNotesOpen")
 
 (add! "ggandor/leap.nvim" :load-config)
+
+(add! "tamago324/lir.nvim" :load-config)
 
 ; (add! "Olical/conjure")
 ; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)
 
 ;; Load local plugins
-(require :plugin.nvr-in-terminal)
 (require :plugin.toggle-comments)
 (require :plugin.highlight-trailing-whitespace)
 
