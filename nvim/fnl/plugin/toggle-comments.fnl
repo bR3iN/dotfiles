@@ -1,6 +1,9 @@
 (local {: command!} (require :utils.nvim))
 
-(var saved {:fg (. (require :flavours) 16)})
+(var saved {:fg (let [(ok base-colors) (pcall require :flavours)]
+                  (if ok
+                    (. base-colors 16)
+                    :#FFFFFF))})
 
 (fn replace-saved [new]
   (let [tmp saved]

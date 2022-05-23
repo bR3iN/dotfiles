@@ -1,5 +1,5 @@
 (local lspconfig (require :lspconfig))
-(local {: starts-with : remove-prefix : rhs->str} (require :utils))
+(local {: starts-with : remove-prefix} (require :utils))
 (local mod ...)
 
 (var default-keymaps {})
@@ -30,9 +30,8 @@
       (values rhs nil))))
 
 (fn set-keymap [mode bufnr lhs rhs]
-  (vim.api.nvim_buf_set_keymap
-    bufnr mode lhs (rhs->str rhs)
-    {:noremap true :silent true}))
+  (vim.keymap.set
+    mode lhs rhs {:noremap true :silent true :buffer burnr}))
 
 (fn mk-on_attach [keymaps]
   (local keymaps (vim.tbl_deep_extend :error keymaps default-keymaps))

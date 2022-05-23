@@ -59,6 +59,9 @@
 (set! tabstop 4)
 (set! expandtab)
 
+; Start with folds expanded
+(set! foldlevelstart 99)
+
 ; let :find search subdirectories recursively
 (set+ path :**)
 
@@ -244,6 +247,7 @@
 (add! "ggandor/leap.nvim" :load-config)
 
 (add! "tamago324/lir.nvim" :load-config)
+
 
 ; (add! "Olical/conjure")
 ; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)

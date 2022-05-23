@@ -1,8 +1,10 @@
 {
-    "Context List": {
-        "prefix": ["#"],
+    "Ranged tag": {
+        "prefix": ["@@"],
         "body": [
-            "#contexts $0"
+            "@$1",
+            "$2",
+            "@end"
         ]
-    },
+    }
 }

@@ -87,7 +87,7 @@
   (let [opt-tbl {:noremap true :silent true}
         lhs (.. :<Plug> name)
         set-keymap (fn [mode rhs]
-                     (vim.api.nvim_set_keymap mode lhs rhs opt-tbl))]
+                     (vim.keymap.set mode lhs rhs opt-tbl))]
     (set-keymap
       :n (.. ":set operatorfunc=v:lua.__user_operators." name "<CR>g@"))
     (set-keymap

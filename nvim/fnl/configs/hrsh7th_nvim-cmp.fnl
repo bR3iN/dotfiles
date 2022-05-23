@@ -11,7 +11,7 @@
   (let [jumpable (. vim.fn :vsnip#jumpable)
         feed (fn [str]
                (vim.fn.feedkeys
-                 (vim.api.replace_termcodes str true true true)))]
+                 (vim.api.nvim_replace_termcodes str true true true)))]
     (match role
       :tab-role  (fn [fallback]
                    (if
