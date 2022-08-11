@@ -3,6 +3,7 @@
 
 (add! "hrsh7th/cmp-nvim-lsp")
 (add! "hrsh7th/cmp-nvim-lua")
+(add! "kdheepak/cmp-latex-symbols")
 (add! "hrsh7th/cmp-path")
 (add! "hrsh7th/cmp-buffer")
 (add! "hrsh7th/cmp-vsnip")
@@ -36,6 +37,7 @@
              {:name :neorg}
              {:name :vsnip}
              {:name :path}
+             {:name :latex_symbols}
              {:name :calc}
              {:name :omni}
              {:name :buffer
@@ -45,11 +47,12 @@
    :formatting {:format (fn [entry vim-item]
                           (let [display-name
                                 (match (. entry :source :name)
-                                  :nvim_lsp "[LSP]"
-                                  :nvim_lua "[Lua]"
-                                  :vsnip    "[Vsp]"
-                                  :path     "[Pth]"
-                                  :calc     "[Clc]")]
+                                  :nvim_lsp      "[LSP]"
+                                  :nvim_lua      "[Lua]"
+                                  :vsnip         "[Vsp]"
+                                  :latex_symbols "[LTX]"
+                                  :path          "[Pth]"
+                                  :calc          "[Clc]")]
                             (tset vim-item :menu display-name)
                             vim-item))}})
 
