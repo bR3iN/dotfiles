@@ -14,7 +14,7 @@ pkgs=(
     waybar
     wl-clipboard
     wlsunset
-    wob
+    # wob
 )
 
 # sudo dnf group install -y "${pkg_groups[@]}"

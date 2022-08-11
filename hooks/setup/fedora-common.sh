@@ -2,6 +2,7 @@
 
 # Add rpmfusion free repository
 sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf copr enable -y agriffis/neovim-nightly
 
 pkg_groups=(
     "Core"
@@ -40,7 +41,6 @@ pkgs=(
     pipewire-codec-aptx
     playerctl
     plymouth-theme-spinner
-    podman
     power-profiles-daemon
     pulseaudio-utils
     qutebrowser
@@ -51,7 +51,6 @@ pkgs=(
     thunar-volman
     thunderbird
     tmux
-    toolbox
     torbrowser-launcher
     tumbler
     xdotool #for vimtex
