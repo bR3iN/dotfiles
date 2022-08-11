@@ -26,7 +26,7 @@ callback()
     fi
 
     if [ "$1" != Stop ]; then
-        pkexec openvpn "$CONFIG_DIR/$1"
+        pkexec openvpn "$CONFIG_DIR/$1" > /tmp/openvpn.log
     fi
 }
 

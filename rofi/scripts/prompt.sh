@@ -12,6 +12,7 @@ is_function() {
 check_config()
 {
     if ! is_function list_options || ! is_function callback; then
+        echo "Error: Invalid usage of 'prompt.sh'"
         exit 1
     fi
 }
