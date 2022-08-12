@@ -1,7 +1,12 @@
 (local {: augroup!} (require :utils.nvim))
 
-(let [autocmd! (augroup! :hightlight-traling-whitespace)]
-  (autocmd! :InsertLeave "*" #(vim.cmd "match TrailingWhitespace /\\v\\s+$/"))
-  (autocmd! :InsertEnter "*" #(vim.fn.clearmatches)))
+(fn hl []
+  (vim.cmd "match TrailingWhitespace /\\v\\s+$/"))
 
-(vim.api.nvim_set_hl 0 :TrailingWhitespace {:ctermfg 16 :ctermbg 16})
+(fn nohl []
+  (vim.fn.clearmatches))
+
+(let [autocmd! (augroup! :highlight-traling-whitespace)]
+  (autocmd! :BufEnter "*" hl)
+  (autocmd! :InsertLeave "*" hl)
+  (autocmd! :InsertEnter "*" nohl))

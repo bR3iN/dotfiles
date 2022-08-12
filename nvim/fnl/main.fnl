@@ -70,14 +70,8 @@
 (nmap! "gp"   "<Plug>Print")
 (vmap! "gp"   "<Plug>Print")
 
-; delete into black hole register
-(nmap! "<leader>d" "\"_d")
-
 ; select until end of line (like `C`, `D`, etc.)
 (nmap! "<leader>v" "vg_")
-
-; "disable" Ex mode
-(nmap! "gQ" "<nop>")
 
 ; Goto alternative file
 (nmap! "<C-c>" "<C-^>")
@@ -90,7 +84,8 @@
 (nmap! "<C-L>" ":<c-u>nohlsearch<CR><C-L>")
 
 (nmap! "<leader>mk" ":make!<CR>")
-(nmap! "<leader>mt" ":MakeTags<CR>")
+
+; <Plug>RunFile bindings are defined in ftplugin/ where applicable to run the current file
 (nmap! "<leader>rr" "<Plug>RunFile")
 
 ; Sane `<Esc>` behaviour in terminal mode
@@ -98,9 +93,8 @@
 (tmap! "<C-v><Esc>" "<Esc>")
 
 ; Open text in browser
-(nmap! "gb"   "<Plug>OpenInBrowser")
-(vmap! "gb"   "<Plug>OpenInBrowser")
-(nmap! "gbb" "V<Plug>OpenInBrowser")
+(nmap! "gb" "<Plug>OpenInBrowser")
+(vmap! "gb" "<Plug>OpenInBrowser")
 
 ; Open terminal
 (nmap! :<leader>ot "<Plug>OpenTerminal")
@@ -145,15 +139,6 @@
 ; Capitalize word in front of cursor
 (imap! "<c-u>" "<Esc>viwUea")
 
-; Resize windows
-(nmap! "<M-,>" "<C-w>+")
-(nmap! "<M-.>" "<C-w>-")
-(nmap! "<M-<>" "<C-w><")
-(nmap! "<M->>" "<C-w>>")
-
-(nmap! "gb" "<Plug>OpenInBrowser")
-(vmap! "gb" "<Plug>OpenInBrowser")
-
 (nmap! "<C-[>" "<C-^>")
 (nmap! "-" ":edit %:p:h<CR>")
 
@@ -176,22 +161,17 @@
        "gr"         [:n :lsp:references]
        "<leader>od" [:n :diag:open_float]
        "[d"         [:n :diag:goto_prev]
-       "]d"         [:n :diag:goto_next]}
-      setup
-      {:with-config
-       [
-        :clangd
-        :sumneko_lua
-        :rls
-        ]
-       :with-defaults
-       [
-        :bashls
-        :vimls
-        :pyright
-        :hls
-        :racket_langserver
-        ]}]
+       "]d"         [:n :diag:goto_next]
+       "gqq"        [:n :lsp:formatting]
+       "gq"         [:n :lsp:range_formatting]}
+      setup {:with-config [:clangd
+                           :sumneko_lua
+                           :rls]
+             :with-defaults [:bashls
+                             :vimls
+                             :pyright
+                             :hls
+                             :racket_langserver]}]
   (add! "neovim/nvim-lspconfig"
         :setup {: keymaps : setup}))
 
@@ -203,6 +183,7 @@
 (add! "rktjmp/hotpot.nvim")
 (add! "tpope/vim-repeat")
 (add! "tpope/vim-commentary")
+
 (add! "georgewitteman/vim-fish")
 (add! "jaawerth/fennel.vim")
 
@@ -248,13 +229,10 @@
 
 (add! "tamago324/lir.nvim" :load-config)
 
-
-; (add! "Olical/conjure")
-; (let! :conjure#filetype#fennel :conjure.client.fennel.stdio)
-
 ;; Load local plugins
 (require :plugin.toggle-comments)
 (require :plugin.highlight-trailing-whitespace)
+(command! :Rename (require :plugin.rename))
 
 ; Open hotpot-compiled fennel file
 (require :plugin.open-cache)
@@ -267,7 +245,7 @@
             #(dofile vim.env.MYVIMRC))
 
   ; Fold via marker in config files
-  (autocmd! :BufRead (.. vim.env.HOME "~/.{config,dotfiles}/*")
+  (autocmd! :BufRead (.. vim.env.HOME "/.{config,dotfiles}/*")
             #(setl! foldmethod :marker))
 
   ; Don't save undofiles for tempfiles

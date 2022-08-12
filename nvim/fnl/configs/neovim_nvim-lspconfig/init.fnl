@@ -7,27 +7,15 @@
 (fn set-default-keymaps [new-keymaps]
   (set default-keymaps new-keymaps))
 
-(fn action->capability [action]
-  (match action
-    :references :find_references
-    :definition :goto_definition
-    :formatting :document_formatting
-    :range_formatting :document_range_formatting
-    _ action))
-
-(fn parse-rhs [rhs]
+(fn rhs->func [rhs]
   (let [lsp-pf :lsp:
         diag-pf :diag:]
     (if
       (starts-with rhs lsp-pf) (let [action (remove-prefix rhs lsp-pf)]
-                                 (values
-                                   #((. vim.lsp.buf action))
-                                   (action->capability action)))
+                                 (. vim.lsp.buf action))
       (starts-with rhs diag-pf) (let [action (remove-prefix rhs diag-pf)]
-                                  (values
-                                    #((. vim.diagnostic action))
-                                    nil))
-      (values rhs nil))))
+                                  (. vim.diagnostic action))
+      rhs)))
 
 (fn set-keymap [mode bufnr lhs rhs]
   (vim.keymap.set
@@ -36,12 +24,8 @@
 (fn mk-on_attach [keymaps]
   (local keymaps (vim.tbl_deep_extend :error keymaps default-keymaps))
   (fn [client bufnr]
-    (let [caps client.server_capabilities]
-      (each [lhs [mode rhs] (pairs keymaps)]
-        (let [(new-rhs ?cap) (parse-rhs rhs)]
-          (if (or (= cap nil)
-                  (. caps cap))
-            (set-keymap mode bufnr lhs new-rhs)))))))
+    (each [lhs [mode rhs] (pairs keymaps)]
+      (set-keymap mode bufnr lhs (rhs->func rhs)))))
 
 (fn setup-with-config [ls-name]
   (let [{:config ?config :keymaps ?keymaps} (require (.. mod :. ls-name))

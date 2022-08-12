@@ -26,7 +26,7 @@
   (hi! :DiffDelete nil (darken 13 0.5))
 
   (hi! :LeapMatch (lighten 12 0.1) 1 {:underline true :nocombine true})
-  (hi! :LeapLabelPrimary 1 (lighten 12 0.1) {:nocombine true})
+  (hi! :LeapLabelPrimary 1 9 {:nocombine true})
   (hi! :LeapLabelSecondary 1 (lighten 13 0.1) {:nocombine true})
 
   (hi! :Conceal nil 2)
@@ -74,6 +74,8 @@
   (hi! :DiagnosticSignHint  14 4)
   (hi! :DiagnosticSignInfo  12 4)
   (hi! :DiagnosticSignWarn  10 4)
+
+  (hi! :TrailingWhitespace 10 10)
   ; (vim.cmd "syntax on")
   )
 
