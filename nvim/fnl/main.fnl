@@ -150,20 +150,20 @@
 
 ;; LSP setup
 (let [keymaps
-      {"gD"         [:n :lsp:declaration]
-       "gd"         [:n :lsp:definition]
-       "K"          [:n :lsp:hover]
-       "gi"         [:n :lsp:implementation]
-       "<C-k>"      [:n :lsp:signature_help]
-       "<leader>D"  [:n :lsp:type_definition]
-       "<leader>rn" [:n :lsp:rename]
-       "<leader>ca" [:n :lsp:code_action]
-       "gr"         [:n :lsp:references]
-       "<leader>od" [:n :diag:open_float]
-       "[d"         [:n :diag:goto_prev]
-       "]d"         [:n :diag:goto_next]
-       "gqq"        [:n :lsp:formatting]
-       "gq"         [:n :lsp:range_formatting]}
+      {"gD"         [:n :declaration]
+       "gd"         [:n :definition]
+       "K"          [:n :hover]
+       "gi"         [:n :implementation]
+       "<C-k>"      [:n :signature_help]
+       "<leader>D"  [:n :type_definition]
+       "<leader>rn" [:n :rename]
+       "<leader>ca" [:n :code_action]
+       "gr"         [:n :references]
+       "<leader>od" [:n #(vim.diagnostic.open_float {:border :single})]
+       "[d"         [:n #(vim.diagnostic.goto_prev {:float {:border :single}})]
+       "]d"         [:n #(vim.diagnostic.goto_next {:float {:border :single}})]
+       "gqq"        [:n :formatting]
+       "gq"         [:n :range_formatting]}
       setup {:with-config [:clangd
                            :sumneko_lua
                            :rls]
@@ -174,6 +174,7 @@
                              :racket_langserver]}]
   (add! "neovim/nvim-lspconfig"
         :setup {: keymaps : setup}))
+(add! :Maan2003/lsp_lines.nvim :load-config)
 
 ;; Appearance
 (require :base16)
@@ -219,11 +220,14 @@
       :setup #(.. :<M- $1 :>))  ; Use Alt as modifier
 
 (add! "nvim-lua/plenary.nvim")
-(add! "nvim-neorg/neorg" :load-config)
-(nmap! "<leader>gc" "<Plug>NeorgGtdCapture")
-(nmap! "<leader>go" "<Plug>NeorgGtdOpen")
-(nmap! "<leader>gv" "<Plug>NeorgGtdViews")
-(nmap! "<leader>gn" "<Plug>NeorgNotesOpen")
+(add! "nvim-neorg/neorg" :setup
+      {"<leader>gc" "Neorg gtd capture"
+       "<leader>gv" "Neorg gtd views"
+       "<leader>ge" "Neorg gtd edit"
+       "<leader>go" "Neorg workspace gtd"
+       "<leader>gn" "Neorg workspace notes"
+       "<leader>gr" "Neorg workspace references"
+       "<leader>gd" "Neorg workspace docs"})
 
 (add! "ggandor/leap.nvim" :load-config)
 

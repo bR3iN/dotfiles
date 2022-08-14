@@ -1,5 +1,5 @@
 (local lspconfig (require :lspconfig))
-(local {: starts-with : remove-prefix} (require :utils))
+(local {: starts-with : remove-prefix : string?} (require :utils))
 (local mod ...)
 
 (var default-keymaps {})
@@ -7,15 +7,10 @@
 (fn set-default-keymaps [new-keymaps]
   (set default-keymaps new-keymaps))
 
-(fn rhs->func [rhs]
-  (let [lsp-pf :lsp:
-        diag-pf :diag:]
-    (if
-      (starts-with rhs lsp-pf) (let [action (remove-prefix rhs lsp-pf)]
-                                 (. vim.lsp.buf action))
-      (starts-with rhs diag-pf) (let [action (remove-prefix rhs diag-pf)]
-                                  (. vim.diagnostic action))
-      rhs)))
+(fn parse-rhs [rhs]
+  (if (string? rhs)
+    (. vim.lsp.buf rhs)
+    rhs))
 
 (fn set-keymap [mode bufnr lhs rhs]
   (vim.keymap.set
@@ -25,7 +20,7 @@
   (local keymaps (vim.tbl_deep_extend :error keymaps default-keymaps))
   (fn [client bufnr]
     (each [lhs [mode rhs] (pairs keymaps)]
-      (set-keymap mode bufnr lhs (rhs->func rhs)))))
+      (set-keymap mode bufnr lhs (parse-rhs rhs)))))
 
 (fn setup-with-config [ls-name]
   (let [{:config ?config :keymaps ?keymaps} (require (.. mod :. ls-name))

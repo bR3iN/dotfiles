@@ -1,21 +1,12 @@
-(local {: nil?} (require :utils))
+(local {: nil? : string?} (require :utils))
 (local {: nmap!} (require :utils.nvim))
 
 (fn running? []
+  ; Check if the command `Neorg` is defined
   (->> :Neorg
        (. (vim.api.nvim_get_commands {}))
        (nil?)
        (not)))
-
-(let [wrap (fn [func]
-             (fn []
-               (if (not (running?))
-                 (vim.cmd :NeorgStart))
-               (func)))]
-  (nmap! "<Plug>NeorgGtdCapture" (wrap #(vim.cmd "Neorg gtd capture")))
-  (nmap! "<Plug>NeorgGtdOpen"    (wrap #(vim.cmd "Neorg workspace gtd")))
-  (nmap! "<Plug>NeorgGtdViews"   (wrap #(vim.cmd "Neorg gtd views")))
-  (nmap! "<Plug>NeorgNotesOpen"  (wrap #(vim.cmd "Neorg workspace notes"))))
 
 (fn keybinds-hook [keybinds]
   (let [remap_key keybinds.remap_key
@@ -40,17 +31,40 @@
   {:load {:core.defaults {}
           :core.norg.concealer {}
           :core.norg.qol.toc {:config {:close_split_on_jump true}}
-          :core.norg.dirman {:config {:workspaces {:notes "~/neorg/notes"
-                                                   :gtd "~/neorg/gtd"}
+          :core.norg.dirman {:config {:workspaces {:notes "~/neorg/sync/notes"
+                                                   :references "~/neorg/sync/references"
+                                                   :gtd "~/neorg/tasks"}
                                       :default :notes
                                       :autochdir true
                                       :open_last_workspace false}}
           :core.norg.completion {:config {:engine :nvim-cmp}}
           :core.gtd.base {:config {:workspace :gtd
-                                   :default_lists {:someday :someday.norg}}}
+                                   :default_lists {:inbox :index.norg
+                                                   :someday :someday.norg}
+                                   :custom_tag_completion true
+                                   }}
           :core.keybinds {:config {:default_keybinds true
                                    :hook keybinds-hook}}}})
 
+(fn rhs->func [rhs]
+  (if (string? rhs)
+    #(vim.cmd rhs)
+    rhs))
 
-(let [{: setup} (require :neorg)]
-  (setup opt-tbl))
+(fn with-neorg-started [func]
+  ; Starts Neorg if not running; then calls `func`
+  (fn []
+    (if (not (running?))
+      (vim.cmd :NeorgStart))
+    (func)))
+
+{:setup (fn [keymaps]
+          ; General setup
+          (let [{: setup} (require :neorg)]
+            (setup opt-tbl))
+          ; Set keymaps
+          (each [lhs rhs (pairs keymaps)]
+            (let [wrapped-rhs (-> rhs
+                                  (rhs->func)
+                                  (with-neorg-started))]
+              (nmap! lhs wrapped-rhs))))}
