@@ -1,6 +1,6 @@
 (fn set-highlights [base-colors]
   (local {:highlight hi! : lighten : darken : mix : scale}
-    (let [{: init} (require :plugin.colors)]
+    (let [{: init} (require :plugin.color_utils)]
       (init base-colors)))
 
   ; (vim.cmd "syntax reset")
@@ -9,8 +9,8 @@
 
   (set vim.opt.termguicolors true)
 
-  (hi! :Normal 6 1)
-  (hi! :Comment (lighten 4 0.1))
+  (hi! :Normal 6 nil)
+  (hi! :Comment (lighten 4 0.2))
   (hi! :Constant 15)
   (hi! :Special 16)
   (hi! :Identifier 13 nil {:bold true})
@@ -32,7 +32,7 @@
   (hi! :Conceal nil 2)
   (hi! :Cursor 1 6)
   (hi! :CursorColumn nil 2)
-  (hi! :CursorLine nil 2 {:cterm nil})
+  (hi! :CursorLine nil (darken 2 0.05) {:cterm nil})
   (hi! :CursorLineFzfLua nil nil {:underline true})
   (hi! :CursorLineNr 16 nil {:cterm nil})
   (hi! :Directory 13)
@@ -58,7 +58,7 @@
   (hi! :TabLine nil 2)
   (hi! :Title 15)
   (hi! :VertSplit 4 nil {:cterm nil})
-  (hi! :Visual nil (darken 3 0.05))
+  (hi! :Visual nil 3)
   (hi! :WarningMsg 9)
   (hi! :SignColumn nil 3)
 
@@ -81,7 +81,7 @@
   ; (vim.cmd "syntax on")
   )
 
-(let [(ok base-colors) (pcall require :flavours)]
+(let [(ok base-colors) (pcall require :base16)]
   (if (not ok)
-    (print "Couldn't find flavours.lua")
+    (print "Couldn't find base16.lua")
     (set-highlights base-colors)))

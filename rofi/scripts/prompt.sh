@@ -3,11 +3,9 @@
 set -e
 set -u
 
-
 is_function() {
     [ "$(type -t "$1")" = function ]
 }
-
 
 check_config()
 {
@@ -16,7 +14,6 @@ check_config()
         exit 1
     fi
 }
-
 
 prompt()
 {
@@ -44,13 +41,10 @@ prompt()
     list_options | "${CMD[@]}"
 }
 
-
 check_config
 
 selection="$(prompt)"
 
 if [ -n "$selection" ]; then
     callback "$selection"
-else
-    exit 0
 fi

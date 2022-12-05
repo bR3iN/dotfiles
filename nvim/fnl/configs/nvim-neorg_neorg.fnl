@@ -31,8 +31,7 @@
   {:load {:core.defaults {}
           :core.norg.concealer {}
           :core.norg.qol.toc {:config {:close_split_on_jump true}}
-          :core.norg.dirman {:config {:workspaces {:notes "~/neorg/sync/notes"
-                                                   :references "~/neorg/sync/references"
+          :core.norg.dirman {:config {:workspaces {:notes "~/neorg/notes"
                                                    :gtd "~/neorg/tasks"}
                                       :default :notes
                                       :autochdir true

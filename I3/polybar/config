@@ -1,4 +1,4 @@
-include-file = ~/.config/polybar/flavours
+include-file = ~/.config/polybar/base16
 
 
 [bar/mybar]
@@ -106,13 +106,14 @@ type = internal/pulseaudio
 inherit = indicator
 click-right = pavucontrol
 
-format-volume-background = ${self.format-muted-underline}
+format-volume-underline = ${colors.base09}
+format-muted-underline = ${self.format-volume-underline}
+
 format-volume-foreground = ${colors.base00}
-format-volume-underline = ${self.format-mouted-underline}
+format-volume-background = ${self.format-muted-underline}
 
 format-volume-padding = ${indicator.format-padding}
 format-muted-padding = ${indicator.format-padding}
-format-muted-underline = ${colors.base09}
 
 format-volume = <label-volume> <ramp-volume>
 label-volume = %percentage%%

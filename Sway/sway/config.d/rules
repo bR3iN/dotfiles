@@ -1,20 +1,21 @@
 for_window {
-    [app_id="thunderbird"]                            move window to workspace 5
+    [app_id="thunderbird"]           move window to workspace 5
     [class="GParted"]                floating enable
     [app_id="blueberry.py"]          floating enable
     [app_id="d-feet"]                floating enable
+    [app_id="zenity"]                floating enable
     [app_id="firewall-config"]       floating enable
-    [app_id="gtg"]                   floating enable; move window to workspace 4
     [app_id="gpick"]                 floating enable
     [app_id="org.kde.kdeconnect"]    floating enable
     [app_id="org.opensuse.YaST"]     floating enable
     [app_id="pavucontrol"]           floating enable
     [app_id="polkit"]                floating enable
     [app_id="seahorse"]              floating enable
-    [app_id="setroubleshoot"]        floating enable
+    [class="Setroubleshoot"]         floating enable
     [app_id="system-config-printer"] floating enable
     [title="Event Tester"]           floating enable
     [app_id="com.github.wwmm.easyeffects"] floating enable
+    [app_id="com.github.GradienceTeam.Gradience"] floating enable
 }
 
 # vim: ft=conf

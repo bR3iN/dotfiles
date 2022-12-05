@@ -25,8 +25,8 @@
           b (parse-slice 6 7)]
       [r g b])))
 
-(fn rgb->hex [rgb]
-  (string.format "#%02x%02x%02x" (table.unpack rgb)))
+(fn rgb->hex [[r g b]]
+  (string.format "#%02x%02x%02x" r g b))
 
 (fn into-bounds [val]
   (-> val

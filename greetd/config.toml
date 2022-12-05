@@ -19,4 +19,4 @@ user = "greetd"
 # Uncomment for autologin
 #[initial_session]
 #command = "mysway"
-#user = "%USER%"
+#user = "<user>"

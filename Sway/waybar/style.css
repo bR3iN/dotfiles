@@ -1,4 +1,4 @@
-@import "flavours.css";
+@import "base16.css";
 
 * {
     border: none;
@@ -11,7 +11,7 @@
 }
 
 window#waybar {
-    background-color: shade(@base00, 0.7);
+    background-color: shade(@base01, 0.7);
     border-bottom: 2 solid @base03;
     color: @base08;
     opacity: 1.0;

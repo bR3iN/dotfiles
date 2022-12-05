@@ -167,9 +167,11 @@ function runCommand {
 
 function runIndented {
     bash -c "$1" 2>&1 | indentStdout || local exit_code="$?"
+    pushd "$INSTALLER_DIR" &> /dev/null
     if [ ! "${exit_code:-0}" -eq 0 ]; then
         error "$(cwrap "$PURPLE" "'$*'") failed with exit code ${exit_code}."
     fi
+    popd &> /dev/null
 }
 
 
@@ -409,4 +411,3 @@ function info {
 
 
 main "$@"
-# main Bash Desktop Bash

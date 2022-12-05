@@ -32,14 +32,7 @@ c.fonts.default_family = "Fira"
 c.tabs.title.format = '{current_title}'
 
 # Load colors and change some
-config.source('flavours.py')
-base04 = c.colors.contextmenu.disabled.fg
-base00 = c.colors.tabs.even.bg
-if base00 != None and base04 != None:
-    c.colors.tabs.selected.odd.bg  = base04
-    c.colors.tabs.selected.odd.fg  = base00
-    c.colors.tabs.selected.even.bg = base04
-    c.colors.tabs.selected.even.fg = base00
+config.source('base16.py')
 
 # Load autoconfig to allow for local overrides
 config.load_autoconfig()

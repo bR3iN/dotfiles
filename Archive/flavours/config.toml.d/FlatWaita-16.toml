@@ -4,4 +4,4 @@ subtemplate = "scss"
 file = "~/.themes/FlatWaita-16/base16.scss"
 rewrite = true
 light = false
-hook = "cd ~/.themes/FlatWaita-16 && make install-flatpak & propagate-theme &"
+hook = "cd ~/.themes/FlatWaita-16 && make && propagate-theme &"

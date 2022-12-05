@@ -35,7 +35,7 @@ gaps outer $gaps_outer
 
 exec --no-startup-id polybar --reload mybar
 
-# Start flavours
+# Include base16 colors
 set $base00 #202020
 set $base01 #2A2A2A
 set $base02 #333333
@@ -48,15 +48,14 @@ set $base08 #E23434
 set $base09 #F19822
 set $base0A #FFCE51
 set $base0B #73C48F
-set $base0C #48B9C7
-set $base0D #34E2E2
+set $base0C #34E2E2
+set $base0D #48B9C7
 set $base0E #AD7FA8
 set $base0F #AD9B7F
-# End flavours
 
 # Property Name         Border  BG      Text    Indicator Child Border
-client.focused          $base01 $base03 $base04 $base0B $base0B
-client.focused_inactive $base01 $base02 $base04 $base03 $base03
+client.focused          $base0B $base04 $base02 $base0B $base0B
+client.focused_inactive $base03 $base03 $base04 $base03 $base03
 client.unfocused        $base01 $base00 $base04 $base00 $base01
 client.urgent           $base08 $base08 $base00 $base08 $base08
 client.placeholder      $base00 $base00 $base04 $base00 $base00
@@ -291,13 +290,13 @@ mode "resize" {
 bindsym $mod+Control+q mode "powermenu"
 mode "powermenu" {
     # Poweroff
-    bindsym p exec systemctl poweroff 
+    bindsym p mode "default"; exec --no-startup-id systemctl poweroff 
 
     # Reboot
-    bindsym r exec systemctl reboot
+    bindsym r mode "default"; exec --no-startup-id systemctl reboot
 
     # Lock screen
-    bindsym l mode "default"; exec $lock
+    bindsym l mode "default"; exec --no-startup-id $lock
 
     # Suspend
     bindsym s mode "default"; exec --no-startup-id systemctl suspend

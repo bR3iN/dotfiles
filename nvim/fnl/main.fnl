@@ -74,7 +74,8 @@
 (nmap! "<leader>v" "vg_")
 
 ; Goto alternative file
-(nmap! "<C-c>" "<C-^>")
+; (nmap! "<C-c>" "<C-^>")
+(nmap! "<C-p>" "<C-^>")
 
 ; Toggle the color of comments
 (nmap! "<C-h>" ":ToggleComments<CR>")
@@ -139,7 +140,6 @@
 ; Capitalize word in front of cursor
 (imap! "<c-u>" "<Esc>viwUea")
 
-(nmap! "<C-[>" "<C-^>")
 (nmap! "-" ":edit %:p:h<CR>")
 
 ; Creates current directory
@@ -162,22 +162,24 @@
        "<leader>od" [:n #(vim.diagnostic.open_float {:border :single})]
        "[d"         [:n #(vim.diagnostic.goto_prev {:float {:border :single}})]
        "]d"         [:n #(vim.diagnostic.goto_next {:float {:border :single}})]
-       "gqq"        [:n :formatting]
-       "gq"         [:n :range_formatting]}
+       "gqq"        [:n :format]
+       "gq"         [:n :format]}
       setup {:with-config [:clangd
                            :sumneko_lua
-                           :rls]
+                           ; :rls
+                           ]
              :with-defaults [:bashls
                              :vimls
                              :pyright
+                             :rust_analyzer
                              :hls
                              :racket_langserver]}]
   (add! "neovim/nvim-lspconfig"
         :setup {: keymaps : setup}))
-(add! :Maan2003/lsp_lines.nvim :load-config)
+; (add! :Maan2003/lsp_lines.nvim :load-config)
 
 ;; Appearance
-(require :base16)
+(require :colors)
 (set! fillchars { :vert :| })
 
 ;; Load and configure plugins
@@ -226,12 +228,13 @@
        "<leader>ge" "Neorg gtd edit"
        "<leader>go" "Neorg workspace gtd"
        "<leader>gn" "Neorg workspace notes"
-       "<leader>gr" "Neorg workspace references"
-       "<leader>gd" "Neorg workspace docs"})
+       "<leader>gr" "Neorg workspace references"})
+       ; "<leader>gd" "Neorg workspace docs"})
 
 (add! "ggandor/leap.nvim" :load-config)
 
 (add! "tamago324/lir.nvim" :load-config)
+(add! "norcalli/nvim-colorizer.lua" :load-config)
 
 ;; Load local plugins
 (require :plugin.toggle-comments)

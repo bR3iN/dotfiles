@@ -1,43 +1,8 @@
-/*Defines base00 - base0F*/
-@import "flavours.rasi"
+@import "base16.rasi"
 
-* {
-    spacing:                     2;
-    background-color:            rgba ( 0, 0, 0, 0 % );
-    background:                  @base00;
-    blue:                        @base0C;
-    foreground:                  @base05;
-    lightbg:                     @base01;
-    lightfg:                     @base06;
-    darkfg:                      @base04;
-    red:                         @base08;
+* { spacing: 2; }
 
-    border-color:                @base02;
-    separatorcolor:              @foreground;
-
-    active-background:           @background;
-    active-foreground:           @blue;
-    normal-background:           @background;
-    normal-foreground:           @foreground;
-    urgent-background:           @background;
-    urgent-foreground:           @red;
-
-    alternate-active-background: @lightbg;
-    alternate-active-foreground: @blue;
-    alternate-normal-background: @lightbg;
-    alternate-normal-foreground: @foreground;
-    alternate-urgent-background: @lightbg;
-    alternate-urgent-foreground: @red;
-
-    selected-active-background:  @blue;
-    selected-active-foreground:  @background;
-    selected-normal-background:  @darkfg;
-    selected-normal-foreground:  @lightbg;
-    selected-urgent-background:  @red;
-    selected-urgent-foreground:  @background;
-}
-
-/*Output of 'rofi -dump-theme -theme default':*/
+/* Based on 'rofi -dump-theme -theme default': */
 element {
     padding: 1px ;
     spacing: 5px ;

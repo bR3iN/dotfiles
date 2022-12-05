@@ -1,1 +1,1 @@
-Configs of applications I no longer use.
+Configs no longer in use.

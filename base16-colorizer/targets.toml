@@ -1,0 +1,51 @@
+[gradience]
+rewrite = "~/.config/presets/user/base16.json"
+mkdir = true
+enable_if = "[ -x /usr/bin/gradience ]"
+
+[dunst]
+rewrite = "~/.config/dunst/dunstrc"
+
+[fzf_fish]
+rewrite = "~/.config/fish/conf.d/fzf_base16.fish"
+
+[i3]
+rewrite = "~/.config/i3/colors.conf"
+hook = "i3-msg reload"
+enable_if = "[ \"$XDG_SESSION_DESKTOP\" = i3 ]"
+
+[kitty]
+rewrite = "~/.config/kitty/base16.conf"
+
+[custom]
+template = "mako"
+rewrite = "~/.config/mako/config"
+
+[neovim]
+template = "lua"
+rewrite = "~/.config/nvim/lua/base16.lua"
+
+[polybar]
+rewrite = "~/.config/polybar/base16"
+
+[qutebrowser]
+rewrite = "~/.config/qutebrowser/base16.py"
+
+[rofi]
+rewrite = "~/.config/rofi/base16.rasi"
+
+[sway]
+rewrite = "~/.config/sway/base16"
+
+[Wallpaper]
+template = "null"
+rewrite = "/dev/null"
+hook = "wm try-set $SCHEME_NAME"
+
+[waybar]
+template = "css"
+rewrite = "~/.config/waybar/base16.css"
+# hook = "killall -USR2 waybar"
+
+[zathura]
+rewrite = "~/.config/zathura/base16"

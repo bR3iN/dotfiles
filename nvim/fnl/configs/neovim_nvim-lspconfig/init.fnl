@@ -14,7 +14,7 @@
 
 (fn set-keymap [mode bufnr lhs rhs]
   (vim.keymap.set
-    mode lhs rhs {:noremap true :silent true :buffer burnr}))
+    mode lhs rhs {:noremap true :silent true :buffer bufnr}))
 
 (fn mk-on_attach [keymaps]
   (local keymaps (vim.tbl_deep_extend :error keymaps default-keymaps))

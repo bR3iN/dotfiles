@@ -2,22 +2,23 @@
 
 PROMPT="Choose keyboard layout"
 
-list_options()
-{
-    if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+    list_options() {
         ls "$HOME/.config/sway/input"
-    elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
-        ls "$HOME/.config/i3/xkbmap"
-    fi
-}
+    }
 
-callback()
-{
-    if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
-        swaymsg input '*' xkb_file "$1"
-    elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+    callback() {
+        swaymsg input '*' xkb_file "$HOME/.config/sway/input/$1"
+    }
+
+elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+    list_options() {
+        ls "$HOME/.config/i3/xkbmap"
+    }
+
+    callback() {
         setxkbmap $(cat "$HOME/.config/i3/xkbmap/$1")
-    fi
-}
+    }
+fi
 
 source ~/.config/rofi/scripts/prompt.sh

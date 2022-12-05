@@ -28,6 +28,7 @@ font Fira Sans Regular 9
 hide_edge_borders --i3 smart_no_gaps
 default_floating_border normal
 default_border pixel 1
+titlebar_padding 4 1
 
 smart_gaps on
 gaps inner $gaps_inner
@@ -36,11 +37,11 @@ gaps outer $gaps_outer
 bar swaybar_command waybar
 
 # Load colors
-include ~/.config/sway/flavours
+include ~/.config/sway/base16
 
 # Property Name         Border  BG      Text    Indicator Child Border
-client.focused          $base01 $base03 $base04 $base0B $base0B
-client.focused_inactive $base01 $base02 $base04 $base03 $base03
+client.focused          $base0B $base04 $base02 $base0B $base0B
+client.focused_inactive $base03 $base03 $base04 $base03 $base03
 client.unfocused        $base01 $base00 $base04 $base00 $base01
 client.urgent           $base08 $base08 $base00 $base08 $base08
 client.placeholder      $base00 $base00 $base04 $base00 $base00
@@ -133,7 +134,7 @@ bindsym --locked XF86MonBrightnessDown exec backlight decrease
 bindsym --locked XF86MonBrightnessUp   exec backlight increase
 
 # Toggle keyboard and screen backlight
-bindsym --locked Mod4+Home exec kbbacklight_toggle
+bindsym --locked Mod4+Home exec kbdbacklight cycle
 bindsym --locked Mod4+End  exec backlight toggle
 
 # Raise, lower and mute audio
@@ -251,7 +252,7 @@ exec powerprofilesctl set power-saver
 # exec thunderbird
 # exec org.gnome.GTG
 
-exec wlsunset -l 51.9 -L 9.9 -T 5500 -t 3200
+exec wlsunset -l 51.9 -L 9.9 -T 4500 -t 3200
 exec /usr/libexec/kdeconnectd
 exec kdeconnect-indicator
 exec mako

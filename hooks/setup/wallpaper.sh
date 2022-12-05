@@ -6,19 +6,10 @@ mkdir -p ~/Wallpaper/blurred
 
 function add { ~/.local/bin/wm add --no-to-all "$@" || true; }
 
-add --resize default 'https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg' 'pop-os'
+add --resize default 'https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg' 'Pop-OS'
 
-local_files=(
-    "/shared/Wallpaper/nord-fedora.png"
-    "/shared/Wallpaper/nord.png"
-    "/shared/Wallpaper/tumbleweed.png"
-)
-
-for file in "${local_files[@]}"; do
-    if [ -f "$file" ]; then
-        add "$file"
-    fi
-done
+add "/shared/Wallpaper/nord.png" "Nord"
+add "/shared/Wallpaper/tumbleweed.png" "OpenSUSE(dark)"
 
 if [ ! -f ~/Wallpaper/current ]; then
     ~/.local/bin/wm set pop-os

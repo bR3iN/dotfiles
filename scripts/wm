@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 from __future__ import annotations
 from typing import Optional, Tuple
 import argparse
@@ -13,7 +14,7 @@ DEFAULT_DIR = os.path.join(os.getenv('HOME'), 'Wallpaper')  # type: ignore
 
 
 def get_args():
-    parser = argparse.ArgumentParser('Wallpaper manager')
+    parser = argparse.ArgumentParser(description='CLI wallpaper manager')
     subparsers = parser.add_subparsers(dest='cmd', required=True)
 
     parser.add_argument('--directory', '-d', required=False, default=DEFAULT_DIR,
@@ -33,9 +34,14 @@ def get_args():
             help='target size of wallpaper')
 
     parser_set = subparsers.add_parser('set', parents=[base_subparser],
-            help='Set wallpaper by name or from scheme')
-    parser_set.add_argument('name', nargs='?',
+            help='Set wallpaper by name')
+    parser_set.add_argument('name',
             help='Name of wallpaper to set')
+
+    parser_try_set = subparsers.add_parser('try-set', parents=[base_subparser],
+            help='Set wallpaper by name; fall back to the default wallpaper if the wallpaper does not exist')
+    parser_try_set.add_argument('name',
+            help='Name of wallpaper to try to set')
 
     parser_set_default = subparsers.add_parser('set-default', parents=[base_subparser],
             help='Set default wallpaper')
@@ -53,10 +59,12 @@ def run(args):
     if args.cmd == 'list':
         manager.list()
     elif args.cmd == 'set':
-        if args.name is not None:
+        manager.set(args.name)
+    elif args.cmd == 'try-set':
+        try:
             manager.set(args.name)
-        else:
-            manager.set_from_scheme()
+        except WallpaperNotFound:
+            manager.set('default')
     elif args.cmd == 'set-default':
         manager.set_default(args.name)
     elif args.cmd == 'add':
@@ -92,13 +100,6 @@ class WallpaperManager:
                 map(lambda s: name + s,
                     self.EXTENSIONS))), None)
 
-    def set_from_scheme(self):
-        scheme = get_current_scheme()
-        if scheme is not None:
-            self._set_with_fallback(scheme)
-        else:
-            raise Exception("No scheme detected.")
-
     def _set_with_fallback(self, name: str):
         try:
             self.set(name)
@@ -107,6 +108,16 @@ class WallpaperManager:
                 self.set('default')
             except WallpaperNotFound:
                 raise e
+
+    def try_set(self, name: str):
+        file = self._search(name)
+        if file is not None:
+            file = self._get_default_wallpaper()
+        if file is not None:
+            self._blur_if_needed(file)
+            self._link_to_current(file)
+        else:
+            raise WallpaperNotFound(name)
 
     def set(self, name: str):
         file = self._search(name)
@@ -241,14 +252,6 @@ class WallpaperNotFound(Exception):
         self.name = name
         msg = f"Wallpaper '{name}' was not found."
         super().__init__(msg)
-
-
-def get_current_scheme() -> Optional[str]:
-    scheme_path = '/tmp/current_scheme'
-    if os.path.isfile(scheme_path):
-        return open(scheme_path).readline().strip('\n\r')
-    else:
-        return None
 
 
 def create_symlink(src, dst):
