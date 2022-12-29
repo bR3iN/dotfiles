@@ -1,0 +1,1 @@
+abbreviate <buffer> e -exec

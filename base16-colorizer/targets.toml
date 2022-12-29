@@ -23,7 +23,7 @@ rewrite = "~/.config/mako/config"
 
 [neovim]
 template = "lua"
-rewrite = "~/.config/nvim/lua/base16.lua"
+rewrite = "~/.config/nvim/lua/base16-colors.lua"
 
 [polybar]
 rewrite = "~/.config/polybar/base16"

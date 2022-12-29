@@ -7,3 +7,6 @@ require('pkg').init()
 -- (Re)Load main config
 package.loaded['main'] = nil
 require('main')
+
+-- Autoremove plugins
+require('pkg').clean()

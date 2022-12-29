@@ -81,6 +81,30 @@
                  (config.setup ?arg)))
       other (error (.. "Unrecognized action '" other ";")))))
 
+(fn add2! [reponame ?opts]
+  ; Add plugin to internal list
+  (table.insert pkgs reponame)
+  ; Install and setup
+  (let [path (reponame->path reponame)
+        setup (or (-?> ?opts
+                       (. :setup))
+                  (fn []))]
+    (if (dir? path)
+      ; Plugin ist already installed, setup synchronously
+      (setup)
+      ; Otherwise, install and set it up asynchronously
+      (spawn-with-callback
+        [:git :clone (reponame->url reponame) path]
+        (fn [code]
+          (if (= code 0)
+            (do
+              (print (.. "Installed " reponame))
+              (gen-helptags path)
+              (packloadall!)
+              (setup))
+            (print (.. "Failed to install " reponame))))
+        {:env [:GIT_TERMINAL_PROMPT=0]}))))
+
 (fn add! [reponame action ?arg]
   (table.insert pkgs reponame)
   (let [?cb (action->callback action reponame)
@@ -98,9 +122,10 @@
 
 (fn list! []
   (table.sort pkgs)
-  (print "Plugins:")
-  (let [indent (partial .. "  ")]
-    (vim.tbl_map #(print (indent $1)) pkgs)))
+  (let [sep "\n  "]
+    (print (.. "Installed plugins:" sep
+               (table.concat pkgs sep)))
+    (vim.cmd "messages")))
 
 (fn update! []
   (scan-dir
@@ -129,5 +154,7 @@
 
 {
  : add!
+ : add2!
  : init
+ :clean clean!
  }

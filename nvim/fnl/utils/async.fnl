@@ -27,12 +27,12 @@
 (fn parse-cmd [[file & args]]
   (values file args))
 
-(fn M.spawn-with-callback [cmd ?cb ?opt-tbl]
-  (let [cb (-?> ?cb (vim.schedule_wrap))
+(fn M.spawn-with-callback [cmd ?cb ?opts]
+  (let [?cb (-?> ?cb (vim.schedule_wrap))
         (file args) (parse-cmd cmd)
-        opt-tbl (or ?opt-tbl {})]
-    (tset opt-tbl :args args)
-    (uv.spawn file opt-tbl cb)))
+        opts (doto (or ?opts {})
+                   (tset :args args))]
+    (uv.spawn file opts ?cb)))
 
 ; (fn M.spawn-with-lines-callback [cmd ?cb ?opt-tbl]
 ;     (let [stdout (uv.new_pipe)
