@@ -166,11 +166,13 @@ function runCommand {
 
 
 function runIndented {
-    bash -c "$1" 2>&1 | indentStdout || local exit_code="$?"
     pushd "$INSTALLER_DIR" &> /dev/null
+
+    bash -c "$1" 2>&1 | indentStdout || local exit_code="$?"
     if [ ! "${exit_code:-0}" -eq 0 ]; then
         error "$(cwrap "$PURPLE" "'$*'") failed with exit code ${exit_code}."
     fi
+
     popd &> /dev/null
 }
 
@@ -260,6 +262,7 @@ function confirmAndDelete {
         return
     fi
 
+    echo
     warning "The file/directory"
     echo
     echo "    $(cwrap "$PURPLE" "'$1'")"

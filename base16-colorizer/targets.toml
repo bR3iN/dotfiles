@@ -40,6 +40,7 @@ rewrite = "~/.config/sway/base16"
 [Wallpaper]
 template = "null"
 rewrite = "/dev/null"
+enable_if = "which wm"
 hook = "wm try-set $SCHEME_NAME"
 
 [waybar]
