@@ -312,8 +312,9 @@ function parseTarget {
 
 AWK_COMMON='
 BEGIN {
-    header_left  = "^\\s*\\["
-    header_right = "\\]\\s*$"
+    whitespace = "( |	)*"  # spaces or literal tabs
+    header_left  = "^" whitespace "\\["
+    header_right = "\\]" whitespace "$"
     header_tail = "\\.(links|hooks|installs|needs)"
     valid_target = "[a-zA-Z0-9\\-_]+"
 }'
@@ -336,7 +337,7 @@ END { for (target in targets) { print target } }'
 AWK_PARSE_TARGET='
 '"$AWK_COMMON"'
 
-BEGIN { comment_or_empty = "^\\s*(;|\\s*$)" }
+BEGIN { comment_or_empty = "^" whitespace "(;|" whitespace "$)" }
 
 $0 ~ header_left valid_target header_tail header_right {
     header = parse_header($0)
@@ -349,8 +350,8 @@ in_target && $0 !~ header_left && $0 !~ comment_or_empty {
 }
 
 function trim(s) {
-    sub(/^\s*/, "", s)
-    sub(/\s*$/, "", s)
+    sub("^" whitespace, "", s)
+    sub(whitespace "$", "", s)
     return s
 }
 
