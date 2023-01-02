@@ -184,10 +184,6 @@
                 :config {}
                 :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
 
-               {:name :rls
-                :config {:settings {:rust {:all_features true}}}
-                :keymaps {}}
-
                {:name :sumneko_lua
                 :config (require :lsp.configs.sumneko_lua)
                 :keymaps {}}
@@ -522,23 +518,24 @@
 
 (add! "tamago324/lir.nvim"
       {:setup
-       #(let [mappings
-              (let [actions (require :lir.actions)
-                    bindings {"<C-]>" :edit
-                              "<C-s>" :split
-                              "<C-v>" :vsplit
-                              "q" :quit
-                              "-" :up
-                              "." :toggle_show_hidden
-                              "R" :rename
-                              "N" :newfile
-                              "K" :mkdir
-                              "D" :delete}]
-                (vim.tbl_map #(. actions $1) bindings))
-              config {:show_hidden_files false
-                      :hide_cursor true
-                      : mappings}
-              {: setup} (require :lir)]
+       #(let [mappings (let [actions (require :lir.actions)
+                             bindings {"<C-]>" :edit
+                                       "<C-s>" :split
+                                       "<C-v>" :vsplit
+                                       "q" :quit
+                                       "-" :up
+                                       "." :toggle_show_hidden
+                                       "R" :rename
+                                       "N" :newfile
+                                       "K" :mkdir
+                                       "D" :delete}]
+                         (vim.tbl_map #(. actions $1) bindings))
+          config {:show_hidden_files false
+                  :hide_cursor true
+                  : mappings}
+          {: setup} (require :lir)]
+          ; Makes `nvim <dir>` work as intended
+          (vim.cmd.packloadall)
           (setup config))})
 
 (add! "norcalli/nvim-colorizer.lua"

@@ -10,9 +10,10 @@
 (var pkgs {})
 
 (fn reponame->dirname [reponame]
-  (-> reponame
-      (string.gsub :/ :_)
-      (string.gsub "%." :_)))
+  (match (-> reponame
+             (string.gsub :/ :_)
+             (string.gsub "%." :_))
+    (dirname _) dirname))
 
 (fn reponame->url [reponame]
   (.. "https://github.com/" reponame))
@@ -86,9 +87,16 @@
   (table.insert pkgs reponame)
   ; Install and setup
   (let [path (reponame->path reponame)
-        setup (or (-?> ?opts
-                       (. :setup))
-                  (fn []))]
+        call #($1)
+        setup (fn []
+                (-?> ?opts
+                     (. :setup)
+                     (call))
+                (->> reponame
+                     (reponame->dirname)
+                     (vim.cmd.packadd!))
+              (vim.cmd.packloadall)
+                )]
     (if (dir? path)
       ; Plugin ist already installed, setup synchronously
       (setup)
