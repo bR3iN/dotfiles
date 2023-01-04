@@ -221,19 +221,11 @@
                     (nmap! lhs rhs))
                   ; Setup python debugging, `debugpy` needs to be
                   ; installed in project environment.
-                  (add! "mfussenegger/nvim-dap-python"
-                        {:setup (let [{: setup} (require :dap-python)]
-                                  ; Takes python from PATH, so start Neovim in venv
-                                  (setup :python))}
-                        ; {:setup (let [{: setup} (require :dap-python)
-                        ;               dap-setup #(prompt-path
-                        ;                            "Choose venv: "
-                        ;                            #(-> $1
-                        ;                                 (.. :/bin/python)
-                        ;                                 (setup)))]
-                        ;           (nmap! "<leader>ds" dap-setup)
-                        ;           )}
-                        )))})
+                  ; (add! "mfussenegger/nvim-dap-python"
+                  ;       {:setup (let [{: setup} (require :dap-python)]
+                  ;                 ; Takes python from PATH, so start Neovim in venv
+                  ;                 (setup :python))})
+                        ))})
 
 ; (add! :Maan2003/lsp_lines.nvim
 ;        {:setup (fn []
@@ -534,8 +526,8 @@
                   :hide_cursor true
                   : mappings}
           {: setup} (require :lir)]
-          ; Makes `nvim <dir>` work as intended
-          (vim.cmd.packloadall)
+          ; Disables netrw to make `nvim <dir>` work as intended
+          (let! loaded_netrwPlugin :yes)
           (setup config))})
 
 (add! "norcalli/nvim-colorizer.lua"

@@ -94,9 +94,7 @@
                      (call))
                 (->> reponame
                      (reponame->dirname)
-                     (vim.cmd.packadd!))
-              (vim.cmd.packloadall)
-                )]
+                     (vim.cmd.packadd!)))]
     (if (dir? path)
       ; Plugin ist already installed, setup synchronously
       (setup)
