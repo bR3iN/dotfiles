@@ -1,3 +1,4 @@
+# Base colors
 set $base00 #{{base00-hex}}
 set $base01 #{{base01-hex}}
 set $base02 #{{base02-hex}}
@@ -14,3 +15,11 @@ set $base0C #{{base0C-hex}}
 set $base0D #{{base0D-hex}}
 set $base0E #{{base0E-hex}}
 set $base0F #{{base0F-hex}}
+
+# Property Name         Border  BG      Text    Indicator Child Border
+client.focused          $base01 $base04 $base02 $base0B $base0B
+client.focused_inactive $base01 $base02 $base04 $base03 $base03
+client.unfocused        $base01 $base00 $base04 $base00 $base01
+client.urgent           $base08 $base08 $base00 $base08 $base08
+client.placeholder      $base00 $base00 $base04 $base00 $base00
+client.background       $base07
