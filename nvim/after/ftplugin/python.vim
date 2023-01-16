@@ -1,1 +1,1 @@
-nnoremap <Plug>RunFile :w !python<CR>
+nnoremap <Plug>RunFile :w !python3<CR>
