@@ -82,7 +82,7 @@
                  (config.setup ?arg)))
       other (error (.. "Unrecognized action '" other ";")))))
 
-(fn add2! [reponame ?opts]
+(fn add! [reponame ?opts]
   ; Add plugin to internal list
   (table.insert pkgs reponame)
   ; Install and setup
@@ -110,21 +110,6 @@
               (setup))
             (print (.. "Failed to install " reponame))))
         {:env [:GIT_TERMINAL_PROMPT=0]}))))
-
-(fn add! [reponame action ?arg]
-  (table.insert pkgs reponame)
-  (let [?cb (action->callback action reponame)
-        path (reponame->path reponame)]
-    (if (dir? path)
-      (if ?cb (?cb ?arg))
-      (let [url (reponame->url reponame)]
-        (spawn-with-callback
-          [:git :clone url path]
-          (fn [code]
-            (print (.. "Installed " reponame))
-            (gen-helptags path)
-            (packloadall!)
-            (if ?cb (?cb ?arg))))))))
 
 (fn list! []
   (table.sort pkgs)
@@ -158,9 +143,6 @@
 (nmap! "<Plug>PkgList"   #(list!))
 (nmap! "<Plug>PkgClean"  #(clean!))
 
-{
- : add!
- : add2!
+{: add!
  : init
- :clean clean!
- }
+ :clean clean!}

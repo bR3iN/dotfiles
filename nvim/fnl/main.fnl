@@ -1,6 +1,6 @@
 ;; Imports
 (import-macros {: set! : setl! : setg! : set+ : let! } :utils.macros)
-(local {:add2! add!} (require :pkg))
+(local {: add!} (require :pkg))
 (local {: nmap! : vmap! : tmap! : cmap! : imap!
         : command! : augroup! : color!}
   (require :utils.nvim))
@@ -144,7 +144,7 @@
 (imap! "<c-u>" "<Esc>viwUea")
 
 ; Edit parent directory
-(nmap! "-" ":edit %:p:h<CR>")
+; (nmap! "-" ":edit %:p:h<CR>") ; See oil.nvim
 
 ; Creates current directory
 (command! "Mkdir" #(vim.fn.mkdir (vim.fn.expand "%:h") :p))
@@ -157,46 +157,52 @@
 (vim.cmd.colorscheme :base16)
 (set! fillchars { :vert :| })
 
-;; LSP setup
+
+;; Load and configure plugins
+(fn setup [mod ?opts]
+  ; Setup plugin by requiring `mod` and calling its `setup` function
+  (let [{: setup} (require mod)
+        opts (or ?opts {})]
+    (setup opts)))
+
+; LSP setup
 (add! "neovim/nvim-lspconfig"
        {:setup
-        #(let [{: setup} (require :lsp)]
-           (setup
-             {:default-keymaps
-              {[:n "gD"]         vim.lsp.buf.declaration
-               [:n "gd"]         vim.lsp.buf.definition
-               [:n "K"]          vim.lsp.buf.hover
-               [:n "gi"]         vim.lsp.buf.implementation
-               [:n "<C-k>"]      vim.lsp.buf.signature_help
-               [:n "<leader>D"]  vim.lsp.buf.type_definition
-               [:n "<leader>rn"] vim.lsp.buf.rename
-               [:n "<leader>ca"] vim.lsp.buf.code_action
-               [:n "gr"]         vim.lsp.buf.references
-               [:n "gqq"]        vim.lsp.buf.format
-               [:v "gq"]         vim.lsp.buf.format
-               [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
-               [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
-               [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})}
+        #(setup
+           :lsp
+           {:default-keymaps
+            {[:n "gD"]         vim.lsp.buf.declaration
+             [:n "gd"]         vim.lsp.buf.definition
+             [:n "K"]          vim.lsp.buf.hover
+             [:n "gi"]         vim.lsp.buf.implementation
+             [:n "<C-k>"]      vim.lsp.buf.signature_help
+             [:n "<leader>D"]  vim.lsp.buf.type_definition
+             [:n "<leader>rn"] vim.lsp.buf.rename
+             [:n "<leader>ca"] vim.lsp.buf.code_action
+             [:n "gr"]         vim.lsp.buf.references
+             [:n "gqq"]        vim.lsp.buf.format
+             [:v "gq"]         vim.lsp.buf.format
+             [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
+             [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
+             [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})}
 
-              :language-server
-              [
-               {:name :clangd
-                :config {}
-                :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
+            :language-server
+            [{:name :clangd
+              :config {}
+              :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
 
-               {:name :sumneko_lua
-                :config (require :lsp.configs.sumneko_lua)
-                :keymaps {}}
+             {:name :sumneko_lua
+              :config (require :lsp.configs.sumneko_lua)
+              :keymaps {}}
 
-               (->> [:bashls
-                     :vimls
-                     :pyright
-                     :rust_analyzer
-                     :hls
-                     :racket_langserver]
-                    (vim.tbl_map #{:name $1 :config {} :keymaps {}})
-                    (unpack))
-               ]}))})
+             (->> [:bashls
+                   :vimls
+                   :pyright
+                   :rust_analyzer
+                   :hls
+                   :racket_langserver]
+                  (vim.tbl_map #{:name $1 :config {} :keymaps {}})
+                  (unpack))]})})
 
 (add! "mfussenegger/nvim-dap"
       {:setup (fn []
@@ -235,7 +241,6 @@
 ;                   (vim.diagnostic.config {:virtual_text false}))})
 
 
-;; Load and configure plugins
 (add! "rktjmp/hotpot.nvim")
 (add! "tpope/vim-repeat")
 (add! "tpope/vim-commentary")
@@ -244,15 +249,14 @@
 
 ; Filetype plugins
 (add! "georgewitteman/vim-fish")
-(add! "jaawerth/fennel.vim")
+(add! "jaawerth/fennel.vim") ; TODO: Check if needed (there is a treesitter parser)
 
 (add! "ibhagwan/fzf-lua"
        {:setup
         (fn []
           ;Setup plugin
-          (let [{: setup} (require :fzf-lua)]
-            (setup {:files {:file_icons false}
-                    :hl {:cursorline "CursorLineFzfLua"}}))
+          (setup :fzf-lua {:files {:file_icons false}
+                           :hl {:cursorline "CursorLineFzfLua"}})
           ; Setup keymaps
           (each [[mode lhs] action
                  (pairs {[:n "<leader>ff"] :files
@@ -294,26 +298,27 @@
       {:setup
        (fn []
          (add! "nvim-treesitter/nvim-treesitter-textobjects")
-         (let [{: setup} (require :nvim-treesitter.configs)]
-           (setup {:highlight {:enable true}
-                   :indent {:enable false}
-                   :textobjects {:select {:enable true
-                                          :keymaps {"if" "@function.inner"
-                                                    "af" "@function.outer"
-                                                    "ic" "@call.inner"
-                                                    "ac" "@call.outer"
-                                                    "il" "@loop.inner"
-                                                    "al" "@loop.outer"
-                                                    "ik" "@conditional.inner"
-                                                    "ak" "@conditional.outer"}}
-                                 :swap {:enable true
-                                        :swap_next {"<leader>." "@parameter.inner"}
-                                        :swap_previous {"<leader>," "@parameter.inner"}}}
-                   :incremental_selection {:enable true
-                                           :keymaps {; :init_selection "gnn"
-                                                     :node_incremental "-"
-                                                     :scope_incremental "g-"
-                                                     :node_decremental "_"}}})))})
+         (setup
+           :nvim-treesitter.configs
+           {:highlight {:enable true}
+            :indent {:enable false}
+            :textobjects {:select {:enable true
+                                   :keymaps {"if" "@function.inner"
+                                             "af" "@function.outer"
+                                             "ic" "@call.inner"
+                                             "ac" "@call.outer"
+                                             "il" "@loop.inner"
+                                             "al" "@loop.outer"
+                                             "ik" "@conditional.inner"
+                                             "ak" "@conditional.outer"}}
+                          :swap {:enable true
+                                 :swap_next {"<leader>." "@parameter.inner"}
+                                 :swap_previous {"<leader>," "@parameter.inner"}}}
+            :incremental_selection {:enable true
+                                    :keymaps {; :init_selection "gnn"
+                                              :node_incremental "-"
+                                              :scope_incremental "g-"
+                                              :node_decremental "_"}}}))})
 
 
 (add! "hrsh7th/nvim-cmp"
@@ -357,7 +362,6 @@
                      {:name :vsnip}
                      {:name :path}
                      {:name :latex_symbols}
-                     {:name :calc}
                      {:name :omni}
                      {:name :buffer
                       :option {:keyword_pattern "\\k\\+"}}]
@@ -435,7 +439,7 @@
                          (each [_ mk-map (ipairs [nmap! tmap!])]
                            (mk-map lhs rhs)))))))})
 
-; Used by `lir.nvim` and `neorg`
+; Used by `neorg`
 (add! "nvim-lua/plenary.nvim")
 
 (add! "nvim-neorg/neorg"
@@ -480,27 +484,26 @@
                 (remap_key :norg :n "gtr" "<LocalLeader>tr")
                 (remap_key :norg :n "gti" "<LocalLeader>ti")))
 
-            ; Main config and setup
-            (let [configs
-                  {:core.defaults {}
-                   :core.norg.concealer {}
-                   ; :core.norg.qol.toc {:close_split_on_jump true}
-                   :core.norg.dirman {:workspaces {:notes "~/neorg/notes"
-                                                   :gtd "~/neorg/tasks"}
-                                      :default :notes
-                                      ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
-                                      :open_last_workspace false}
-                   :core.norg.completion {:engine :nvim-cmp}
-                   ; :core.gtd.base {:workspace :gtd
-                   ;                 :default_lists {:inbox :index.norg
-                   ;                                 :someday :someday.norg}
-                   ;                 :custom_tag_completion true}
-                   :core.keybinds {:default_keybinds true
-                                   :hook keybinds-hook}}
-
-                  config {:load (vim.tbl_map #{:config $1} configs)}
-                  {: setup} (require :neorg)]
-              (setup config))))})
+           ; Main config and setup
+           (let [configs
+                 {:core.defaults {}
+                  :core.norg.concealer {}
+                  ; :core.norg.qol.toc {:close_split_on_jump true}
+                  :core.norg.dirman {:workspaces {:notes "~/neorg/notes"
+                                                  :gtd "~/neorg/tasks"}
+                                     :default :notes
+                                     ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
+                                     :open_last_workspace false}
+                  :core.norg.completion {:engine :nvim-cmp}
+                  ; :core.gtd.base {:workspace :gtd
+                  ;                 :default_lists {:inbox :index.norg
+                  ;                                 :someday :someday.norg}
+                  ;                 :custom_tag_completion true}
+                  :core.keybinds {:default_keybinds true
+                                  :hook keybinds-hook}}]
+             (setup
+               :neorg
+               {:load (vim.tbl_map #{:config $1} configs)}))))})
 
 
 (add! "ggandor/leap.nvim"
@@ -508,31 +511,29 @@
                   (set_default_keymaps)
                   (setup {:safe_labels {}}))})
 
-(add! "tamago324/lir.nvim"
-      {:setup
-       #(let [mappings (let [actions (require :lir.actions)
-                             bindings {"<C-]>" :edit
-                                       "<C-s>" :split
-                                       "<C-v>" :vsplit
-                                       "q" :quit
-                                       "-" :up
-                                       "." :toggle_show_hidden
-                                       "R" :rename
-                                       "N" :newfile
-                                       "K" :mkdir
-                                       "D" :delete}]
-                         (vim.tbl_map #(. actions $1) bindings))
-          config {:show_hidden_files false
-                  :hide_cursor true
-                  : mappings}
-          {: setup} (require :lir)]
-          ; Disables netrw to make `nvim <dir>` work as intended
-          (let! loaded_netrwPlugin :yes)
-          (setup config))})
+(add! "karb94/neoscroll.nvim"
+      {:setup #(setup :neoscroll)})
+
+(add! "stevearc/oil.nvim"
+      {:setup #(let [{: setup : open} (require :oil)]
+                (setup
+                 {:use_default_keymaps false
+                  :keymaps {"g?" :actions.show_help
+                            "<C-]>" :actions.select
+                            "<C-v>" :actions.select_vsplit
+                            "<C-s>" :actions.select_split
+                            "gp" :actions.preview
+                            "<C-p>" :actions.close
+                            "gf" :actions.refresh
+                            "-" :actions.parent
+                            "_" :actions.open_cwd
+                            "`" :actions.cd
+                            "~" :actions.tcd
+                            "g." :actions.toggle_hidden}})
+                 (nmap! "-" open))})
 
 (add! "norcalli/nvim-colorizer.lua"
-       {:setup #(let [{: setup} (require :colorizer)]
-                  (setup))})
+       {:setup #(setup :colorizer)})
 
 ;; Load local plugins
 (require :plugin.toggle-comments)

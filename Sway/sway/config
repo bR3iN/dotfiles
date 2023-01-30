@@ -150,8 +150,7 @@ bindsym --locked $mod+XF86AudioRaiseVolume exec playerctl next
 bindsym --locked $mod+XF86AudioMicMute     exec playerctl stop
 
 # Bind player keys (used e.g. by bluetooth headset)
-bindsym --locked XF86AudioPlay  exec playerctl play
-bindsym --locked XF86AudioPause exec playerctl pause
+bindsym --locked XF86AudioPlay  exec playerctl play-pause
 bindsym --locked XF86AudioNext  exec playerctl next
 bindsym --locked XF86AudioPrev  exec playerctl previous
 

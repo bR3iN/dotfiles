@@ -7,7 +7,7 @@ pkg_groups=(
 pkgs=(
     dunst
     feh
-    i3-gaps
+    i3
     lightdm
     lightdm-gtk
     picom
