@@ -1,18 +1,20 @@
 #!/usr/bin/bash
 
-FF_DIR="$HOME/.mozilla/firefox"
+FF_DIR="$HOME/.firefox"
 
 PROMPT="Choose Firefox Profile"
 ROFI_OPTIONS=(-no-fixed-num-lines)
 
 list_options()
 {
-    awk '/Name=/{sub("Name=",""); print}' "$FF_DIR/profiles.ini"
+    ls "$FF_DIR/profiles"
 }
 
 callback()
 {
-    firefox -p "$1"
+    # Weird workaround for playing DRM content
+    ln -sf "$FF_DIR/profiles/$1" "/tmp/ff-profile-$1"
+    firefox --profile "/tmp/ff-profile-$1"
 }
 
 source ~/.config/rofi/scripts/prompt.sh
