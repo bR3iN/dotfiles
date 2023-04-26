@@ -1,2 +1,2 @@
-" Close floating window with <C-c>
+" tnoremap <buffer> <Esc> <Esc>
 call clearmatches()
