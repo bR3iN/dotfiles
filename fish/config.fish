@@ -45,4 +45,5 @@ end
 
 if [ -f /usr/share/fzf/shell/key-bindings.fish ]
     source /usr/share/fzf/shell/key-bindings.fish
+    fzf_key_bindings
 end
