@@ -1,7 +1,8 @@
 [gradience]
-rewrite = "~/.config/presets/user/base16.json"
+rewrite = "~/.var/app/com.github.GradienceTeam.Gradience/config/presets/user/Base16.json"
 mkdir = true
-enable_if = "[ -x /usr/bin/gradience ]"
+# enable_if = "[ -x /usr/bin/gradience ]"
+hook = "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16"
 
 [dunst]
 rewrite = "~/.config/dunst/dunstrc"
@@ -17,8 +18,7 @@ enable_if = "[ \"$XDG_SESSION_DESKTOP\" = i3 ]"
 [kitty]
 rewrite = "~/.config/kitty/base16.conf"
 
-[custom]
-template = "mako"
+[mako]
 rewrite = "~/.config/mako/config"
 
 [neovim]
