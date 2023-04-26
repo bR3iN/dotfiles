@@ -15,6 +15,7 @@
                                   (extend default-keymaps)
                                   (mk-on_attach)))
       ; Setup nvim-cmp integration if applicable
+      ; TODO: What does this do?
       (let [(ok mod) (pcall require :cmp_nvim_lsp)]
         (when ok
           (let [{: default_capabilities} mod]

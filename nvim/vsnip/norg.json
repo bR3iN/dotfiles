@@ -1,4 +1,12 @@
 {
+    "Note metadata": {
+        "prefix": ["@d"],
+        "body": [
+            "@document.meta",
+            "@type: $1",
+            "@end"
+        ]
+    },
     "Ranged tag": {
         "prefix": ["@@"],
         "body": [

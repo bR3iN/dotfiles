@@ -75,7 +75,7 @@
 ;         (trim-lines lines (+ col1 1) (+ col2 1))))))
 
 
-(fn create [name lines-cb]
+(fn mk-op [name lines-cb]
   ; Make callback globally accessible
   (tset _G.__user_operators name
         (fn [mode]
@@ -93,4 +93,4 @@
     (set-keymap
       :v (.. ":<C-u>call v:lua.__user_operators." name "(visualmode())<CR>"))))
 
-{: create}
+{: mk-op}

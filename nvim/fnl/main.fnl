@@ -1,11 +1,11 @@
-;; Imports
 (import-macros {: set! : setl! : setg! : set+ : let! } :utils.macros)
 (local {: add!} (require :pkg))
 (local {: nmap! : vmap! : tmap! : cmap! : imap!
-        : command! : augroup! : color!}
+        : command! : augroup!}
   (require :utils.nvim))
 (local {: nil?} (require :utils))
 (local {: spawn} (require :utils.async))
+(local {: mk-op} (require :utils.operator))
 
 ;; General Options and Keymaps
 ; set leader keys
@@ -35,9 +35,6 @@
 ; Show cursor coordinates in status bar
 (set! ruler)
 
-(set! cmdheight 2)
-(set! scrolloff 5)
-
 ; Set split behaviour
 (set! splitbelow)
 (set! splitright)
@@ -56,28 +53,38 @@
 (set! wrap)
 
 ; Default tab behaviour
-(setg! shiftwidth 4)  ; messes with fennel.vim
+(set! shiftwidth 4)  ; messes with fennel.vim
 (set! tabstop 4)
 (set! expandtab)
 
 ; Start with folds expanded
 (set! foldlevelstart 99)
 
-; let :find search subdirectories recursively
-(set+ path :**)
+; Appearance
+(set! termguicolors)
+(vim.cmd.colorscheme :base16)
+(set! fillchars { :vert :| })
 
-; Load custom operators
-(require :operators)
-(nmap! "gp"   "<Plug>Print")
-(vmap! "gp"   "<Plug>Print")
+(set! conceallevel 2)
+(set! cmdheight 2)
+(set! scrolloff 5)
 
+; Open text in browser
+(mk-op :OpenInBrowser
+       (let [open-in-browser #(spawn [vim.g.browser $1])]
+         (fn [lines]
+           (vim.tbl_map open-in-browser lines))))
+
+(nmap! "gb" "<Plug>OpenInBrowser")
+(vmap! "gb" "<Plug>OpenInBrowser")
+
+; Correctly indent when pasting multiple lines in insert mode
 (imap! "<C-r>" "<C-r><C-o>")
 
-; select until end of line (like `C`, `D`, etc.)
+; select until end of line (like `C`, `D` and `Y`)
 (nmap! "<leader>v" "vg_")
 
-; Goto alternative file
-; (nmap! "<C-c>" "<C-^>")
+; Goto alternative/[p]revious file
 (nmap! "<C-p>" "<C-^>")
 
 ; Toggle the color of comments
@@ -89,16 +96,13 @@
 
 (nmap! "<leader>mk" ":make!<CR>")
 
-; <Plug>RunFile bindings are defined in ftplugin/ where applicable to run the current file
+; Run current file; <Plug>RunFile bindings are defined in
+; ftplugins where applicable
 (nmap! "<leader>rr" "<Plug>RunFile")
 
 ; Sane `<Esc>` behaviour in terminal mode
 (tmap! "<Esc>" "<C-\\><C-n>")
 (tmap! "<C-v><Esc>" "<Esc>")
-
-; Open text in browser
-(nmap! "gb" "<Plug>OpenInBrowser")
-(vmap! "gb" "<Plug>OpenInBrowser")
 
 ; Open terminal
 (nmap! :<leader>ot "<Plug>OpenTerminal")
@@ -127,9 +131,9 @@
 
 ; Write and quit
 (nmap! "<leader>w"  ":<C-u>w<cr>")
-(nmap! "<leader>sw" ":<C-u>w !pkexec tee % >/dev/null<CR>")  ;"sudo write" via polkit agent
+; "sudo write"-trick via polkit agent
+(nmap! "<leader>sw" ":<C-u>w !pkexec tee % >/dev/null<CR>")
 (nmap! "<leader>qq" ":<C-u>quit<cr>")
-(nmap! "<leader>QQ" ":<C-u>quitall<cr>")
 
 ; Manage plugins
 (nmap! "<leader>pu" "<Plug>PkgUpdate")
@@ -137,30 +141,16 @@
 (nmap! "<leader>pl" "<Plug>PkgList")
 
 ; Navigate history containing substring
-(cmap! "<M-p>" "<up>")
-(cmap! "<M-n>" "<down>")
+; FIXME: Buggy, doesn't update screen
+(cmap! "<M-p>" "<Up>")
+(cmap! "<M-n>" "<Down>")
 
 ; Capitalize word in front of cursor
 (imap! "<c-u>" "<Esc>viwUea")
 
-; Edit parent directory
-; (nmap! "-" ":edit %:p:h<CR>") ; See oil.nvim
-
-; Creates current directory
-(command! "Mkdir" #(vim.fn.mkdir (vim.fn.expand "%:h") :p))
-
-; Create tags asynchrounously
-(command! "MakeTags" #(spawn ["ctags" "-R" "."]))
-
-;; Appearance
-(set! termguicolors)
-(vim.cmd.colorscheme :base16)
-(set! fillchars { :vert :| })
-
-
 ;; Load and configure plugins
 (fn setup [mod ?opts]
-  ; Setup plugin by requiring `mod` and calling its `setup` function
+  ; Loads module and calls its `setup` function
   (let [{: setup} (require mod)
         opts (or ?opts {})]
     (setup opts)))
@@ -191,66 +181,58 @@
               :config {}
               :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
 
-             {:name :sumneko_lua
+             {:name :lua_ls
               :config (require :lsp.configs.sumneko_lua)
               :keymaps {}}
 
              (->> [:bashls
                    :vimls
+                   :fennel_ls
                    :pyright
                    :rust_analyzer
                    :hls
                    :racket_langserver]
                   (vim.tbl_map #{:name $1 :config {} :keymaps {}})
-                  (unpack))]})})
+                  (table.unpack))]})})
 
 (add! "mfussenegger/nvim-dap"
       {:setup (fn []
                 ; Setup common keymaps
                 (let [dap (require :dap)
-                      mappings {
-                                "<leader>db" (. dap :toggle_breakpoint)
+                      mappings {"<leader>db" (. dap :toggle_breakpoint)
                                 "<leader>dl" (. dap :list_breakpoints)
                                 "<leader>ds" (. dap :step_into)
                                 "<leader>dn" (. dap :step_over)
                                 "<leader>dr" (. dap :continue)
                                 "<leader>dt" (. dap :terminate)
                                 "<leader>dc" (. dap :clear_breakpoints)
-                                "<leader>do" (. dap :repl :open)
-                                }
+                                "<leader>do" (. dap :repl :open)}
                       autocmd! (augroup! :nvim-dap)
                       prompt-path (fn [prompt cb]
                                     (vim.ui.input
                                       {: prompt :default (vim.loop.cwd)}
                                       #(if $1 (cb $1))))]
                   (each [lhs rhs (pairs mappings)]
-                    (nmap! lhs rhs))
-                  ; Setup python debugging, `debugpy` needs to be
-                  ; installed in project environment.
-                  ; (add! "mfussenegger/nvim-dap-python"
-                  ;       {:setup (let [{: setup} (require :dap-python)]
-                  ;                 ; Takes python from PATH, so start Neovim in venv
-                  ;                 (setup :python))})
-                        ))})
+                    (nmap! lhs rhs))))})
 
 ; (add! :Maan2003/lsp_lines.nvim
 ;        {:setup (fn []
-;                   (let [{: setup} (require :lsp_lines)]
-;                     (setup))
-;                   ; Disable virtual_text since it's redundant due to `lsp_lines.nvim`
-;                   (vim.diagnostic.config {:virtual_text false}))})
+;                  (setup :lsp_lines)
+;                  ; Disable virtual_text since it's redundant due to `lsp_lines.nvim`
+;                  (vim.diagnostic.config {:virtual_text false}))})
 
 
 (add! "rktjmp/hotpot.nvim")
 (add! "tpope/vim-repeat")
 (add! "tpope/vim-commentary")
 (add! "tpope/vim-surround"
-      {:setup #(let! surround_66 "{\r}\1\1")})  ; "B"
+      {:setup (fn []
+                ; Find numbers with `:echo char2nr("B")`
+                (let! surround_66  "{\r}\1\1")         ; "B"
+                (let! surround_114 "{:\r:}")           ; "r"
+                (let! surround_82  "{:\r:}[\1\1]"))})  ; "R"
 
-; Filetype plugins
-(add! "georgewitteman/vim-fish")
-(add! "jaawerth/fennel.vim") ; TODO: Check if needed (there is a treesitter parser)
-
+; TODO: try telescope
 (add! "ibhagwan/fzf-lua"
        {:setup
         (fn []
@@ -278,12 +260,6 @@
          (let! vimtex_view_method :zathura)
          (let! tex_flavor :latex))})
 
-(add! "rust-lang/rust.vim"
-      {:setup
-       (fn []
-         (let! rust_conceal 0)
-         (let! rust_fold 1))})
-
 (add! "hrsh7th/vim-vsnip"
        {:setup
         (fn []
@@ -291,9 +267,10 @@
           (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))
           ; Community maintained snippet collection
           (add! "rafamadriz/friendly-snippets")
-          ; Snippet integration (TODO: check if needed)
+          ; Snippet integration with neovims builtin LSP client
           (add! "hrsh7th/vim-vsnip-integ"))})
 
+(add! "nvim-treesitter/playground")
 (add! "nvim-treesitter/nvim-treesitter"
       {:setup
        (fn []
@@ -302,6 +279,7 @@
            :nvim-treesitter.configs
            {:highlight {:enable true}
             :indent {:enable false}
+            ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
             :textobjects {:select {:enable true
                                    :keymaps {"if" "@function.inner"
                                              "af" "@function.outer"
@@ -313,12 +291,7 @@
                                              "ak" "@conditional.outer"}}
                           :swap {:enable true
                                  :swap_next {"<leader>." "@parameter.inner"}
-                                 :swap_previous {"<leader>," "@parameter.inner"}}}
-            :incremental_selection {:enable true
-                                    :keymaps {; :init_selection "gnn"
-                                              :node_incremental "-"
-                                              :scope_incremental "g-"
-                                              :node_decremental "_"}}}))})
+                                 :swap_previous {"<leader>," "@parameter.inner"}}}}))})
 
 
 (add! "hrsh7th/nvim-cmp"
@@ -416,31 +389,34 @@
                         :NeomakeVirtualtextWarning :DiagnosticWarn
                         :NeomakeVirtualtextMessage :DiagnosticHint
                         :NeomakeVirtualtextInfo    :DiagnosticInfo}
-                 hl-set #(each [name link (pairs links)]
+                 set-hl #(each [name link (pairs links)]
                            (vim.api.nvim_set_hl 0 name {: link}))
                  autocmd! (augroup! :neomake_highlighting)]
-             (hl-set)
-             (autocmd! :ColorScheme "*" hl-set)))})
+             (set-hl)
+             (autocmd! :ColorScheme "*" set-hl)))})
 
 (add! "christoomey/vim-tmux-navigator"
-       {:setup (fn []
-                 ; Disable default mappings
-                 (let! tmux_navigator_no_mappings 1)
-                 ; Set custom mappings
-                 (let [mk-lhs #(.. :<M- $1 :>)]
-                   (each [direction keys (pairs
-                                           {:Left  [:h :left]
-                                            :Right [:l :right]
-                                            :Up    [:k :up]
-                                            :Down  [:j :down]})]
-                     (each [_ key (ipairs keys)]
-                       (let [lhs (mk-lhs key)
-                             rhs #(vim.cmd (.. :TmuxNavigate direction))]
-                         (each [_ mk-map (ipairs [nmap! tmap!])]
-                           (mk-map lhs rhs)))))))})
+      {:setup (fn []
+                ; Disable default mappings
+                (let! tmux_navigator_no_mappings 1)
+                ; Set custom mappings
+                (let [mk-lhs #(.. :<M- $1 :>)]
+                  (each [direction keys (pairs
+                                          {:Left  [:h :left]
+                                           :Right [:l :right]
+                                           :Up    [:k :up]
+                                           :Down  [:j :down]})]
+                    (each [_ key (ipairs keys)]
+                      (let [lhs (mk-lhs key)
+                            rhs #(vim.cmd (.. :TmuxNavigate direction))]
+                        (each [_ mk-map (ipairs [nmap! tmap!])]
+                          (mk-map lhs rhs)))))))})
 
-; Used by `neorg`
+; Required by `neorg`
 (add! "nvim-lua/plenary.nvim")
+
+; Treesitter indentation for fennel is messed up
+(add! "bakpakin/fennel.vim")
 
 (add! "nvim-neorg/neorg"
       {:setup
@@ -452,6 +428,9 @@
                          "<leader>gv" #(Neorg [:gtd :views])
                          "<leader>ge" #(Neorg [:gtd :edit])
                          "<leader>go" #(do (Neorg [:workspace :gtd]) (cd))
+                         "<leader>gz" #(do (Neorg [:workspace :zettelkasten]) (cd))
+                         "<leader>gj" #(do (Neorg [:workspace :workspace1]) (cd))
+                         "<leader>gr" #(do (Neorg [:workspace :references]) (cd))
                          "<leader>gn" #(do (Neorg [:workspace :notes]) (cd))}
                running? #(->> :Neorg
                               (. (vim.api.nvim_get_commands {}))
@@ -487,14 +466,17 @@
            ; Main config and setup
            (let [configs
                  {:core.defaults {}
-                  :core.norg.concealer {}
-                  ; :core.norg.qol.toc {:close_split_on_jump true}
-                  :core.norg.dirman {:workspaces {:notes "~/neorg/notes"
+                  :core.concealer {}
+                  :core.qol.toc {:close_after_use true}
+                  :core.dirman {:workspaces {:notes "~/neorg/notes"
+                                                  :zettelkasten "~/neorg/zettelkasten"
+                                                  :workspace1 "~/neorg/workspace1"
+                                                  :references "~/neorg/references"
                                                   :gtd "~/neorg/tasks"}
                                      :default :notes
                                      ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
                                      :open_last_workspace false}
-                  :core.norg.completion {:engine :nvim-cmp}
+                  :core.completion {:engine :nvim-cmp}
                   ; :core.gtd.base {:workspace :gtd
                   ;                 :default_lists {:inbox :index.norg
                   ;                                 :someday :someday.norg}
@@ -511,42 +493,59 @@
                   (set_default_keymaps)
                   (setup {:safe_labels {}}))})
 
+; Configure or look for alternative
 (add! "karb94/neoscroll.nvim"
-      {:setup #(setup :neoscroll)})
+      {:setup (fn []
+                (let [{: setup : scroll : zt : zz : zb} (require :neoscroll)
+                      get-height #(vim.api.nvim_win_get_height 0)]
+                  ; Disable default mappings
+                  (setup {:mappings {}})
+                  ; Add custom mappings
+                  (nmap! :<C-u> #(scroll (- vim.wo.scroll) true 150))
+                  (nmap! :<C-d> #(scroll vim.wo.scroll true 150))
+                  (nmap! :<C-b> #(scroll (- (get-height)) true 350))
+                  (nmap! :<C-f> #(scroll (get-height) true 350))
+                  (nmap! :zt #(zt 125))
+                  (nmap! :zz #(zz 125))
+                  (nmap! :zb #(zb 125))))})
 
+; Split file explorer
 (add! "stevearc/oil.nvim"
       {:setup #(let [{: setup : open} (require :oil)]
-                (setup
-                 {:use_default_keymaps false
-                  :keymaps {"g?" :actions.show_help
-                            "<C-]>" :actions.select
-                            "<C-v>" :actions.select_vsplit
-                            "<C-s>" :actions.select_split
-                            "gp" :actions.preview
-                            "<C-p>" :actions.close
-                            "gf" :actions.refresh
-                            "-" :actions.parent
-                            "_" :actions.open_cwd
-                            "`" :actions.cd
-                            "~" :actions.tcd
-                            "g." :actions.toggle_hidden}})
+                 (setup
+                   {:use_default_keymaps false
+                    :keymaps {"g?"    :actions.show_help
+                              "<C-]>" :actions.select
+                              "<C-v>" :actions.select_vsplit
+                              "<C-s>" :actions.select_split
+                              "gp"    :actions.preview
+                              "<C-p>" :actions.close
+                              "gf"    :actions.refresh
+                              "-"     :actions.parent
+                              "_"     :actions.open_cwd
+                              "`"     :actions.cd
+                              "~"     :actions.tcd
+                              "g."    :actions.toggle_hidden}})
                  (nmap! "-" open))})
 
+; Highlights hex color codes with their color
 (add! "norcalli/nvim-colorizer.lua"
-       {:setup #(setup :colorizer)})
+      {:setup #(setup :colorizer)})
+
+; Floating preview in quickfix window
+(add! "kevinhwang91/nvim-bqf"
+      {:setup #(setup :bqf {:func_map {:fzffilter ""}})})
 
 ;; Load local plugins
 (require :plugin.toggle-comments)
 (require :plugin.highlight-trailing-whitespace)
-(command! :Rename (require :plugin.rename))
 
-; Open hotpot-compiled fennel file
+; Open hotpot-compiled fennel file; mapped in fennel ftplugin
 (require :plugin.open-cache)
-(nmap! "ghoc" "<Plug>OpenCache")
 
 ;; Misc. autocmds
 (let [autocmd! (augroup! :init.lua)]
-  ; Autoload config files on save
+  ; Autoreload config files on save
   (autocmd! :BufWritePost (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
             #(dofile vim.env.MYVIMRC))
 
@@ -554,11 +553,11 @@
   (autocmd! :BufRead (.. vim.env.HOME "/.{config,dotfiles}/*")
             #(setl! foldmethod :marker))
 
-  ; Don't save undofiles for tempfiles
+  ; Don't create undofiles for temporary files
   (autocmd! :BufWritePre "/tmp/*"
             #(setl! noundofile))
 
-  ; Highlight yanks
+  ; Highlight on yank
   (autocmd! :TextYankPost "*"
             #(vim.highlight.on_yank {:higroup :IncSearch
                                      :timeout 150})))

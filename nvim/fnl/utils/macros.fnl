@@ -1,3 +1,4 @@
+;; fennel-ls: macro-file.
 (local {: starts-with : remove-prefix : nil? : string?} (require :utils))
 
 (local M {})
