@@ -344,7 +344,7 @@ BEGIN { comment_or_empty = "^" whitespace "(;|" whitespace "$)" }
 
 $0 ~ header_left valid_target header_tail header_right {
     header = parse_header($0)
-    in_target = header ~ TARGET header_tail
+    in_target = header ~ "^" TARGET header_tail "$"
     TYPE = parse_type(header)
 }
 
