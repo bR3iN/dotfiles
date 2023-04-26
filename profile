@@ -1,4 +1,4 @@
-export PATH="$PATH:$HOME/.local/bin:$HOME/.node_modules/bin:$HOME/.cargo/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.node_modules/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin"
 
 export EDITOR=nvim
 export VISUAL=nvim
