@@ -6,10 +6,10 @@ if ! which flatpak &>/dev/null; then
 fi
 
 # Install gradience
-flatpak install com.github.GradienceTeam.Gradience
+flatpak install -y com.github.GradienceTeam.Gradience
 
 # Install adw-gtk3
-flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
+flatpak install -y org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
 
 if [ -d "/usr/share/themes/adw-gtk3" ]; then
     echo "adw-gtk3 is already installed"
@@ -22,9 +22,15 @@ else
 fi
 
 flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience flatpak-overrides -e both
+
+if [ -n "$INSTALLER_DIR" ]; then
+    # Allows following symlinks into the dotfile directory
+    sudo flatpak override --filesystem="$INSTALLER_DIR" com.github.GradienceTeam.Gradience
+fi
+
+# Allow flatpak apps to read color overwrites
 sudo flatpak override --filesystem=xdg-config/gtk-4.0
 sudo flatpak override --filesystem=xdg-config/gtk-3.0
 
 # Set adw-gtk3 as theme
 gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3'
-sudo gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3'
