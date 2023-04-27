@@ -21,7 +21,7 @@ else
     rm "$TMP_PATH"
 fi
 
-sudo flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience flatpak-overrides -e both
+flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience flatpak-overrides -e both
 sudo flatpak override --filesystem=xdg-config/gtk-4.0
 sudo flatpak override --filesystem=xdg-config/gtk-3.0
 

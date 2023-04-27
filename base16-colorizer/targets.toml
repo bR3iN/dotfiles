@@ -1,6 +1,5 @@
 [gradience]
 rewrite = "~/.var/app/com.github.GradienceTeam.Gradience/config/presets/user/Base16.json"
-mkdir = true
 # enable_if = "[ -x /usr/bin/gradience ]"
 hook = "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16"
 
