@@ -41,7 +41,7 @@ pkgs=(
     pipewire-codec-aptx
     playerctl
     plymouth-theme-spinner
-    power-profiles-daemon
+    tlp
     pulseaudio-utils
     qutebrowser
     seahorse
