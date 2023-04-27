@@ -530,7 +530,8 @@
 
 ; Highlights hex color codes with their color
 (add! "norcalli/nvim-colorizer.lua"
-      {:setup #(setup :colorizer)})
+      {:setup (let [{: setup} (require :colorizer)]
+                (setup))})
 
 ; Floating preview in quickfix window
 (add! "kevinhwang91/nvim-bqf"
