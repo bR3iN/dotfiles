@@ -6,7 +6,7 @@ if ! which flatpak &>/dev/null; then
 fi
 
 # Install gradience
-flatpak install -y com.github.GradienceTeam.Gradience
+sudo flatpak install -y com.github.GradienceTeam.Gradience
 
 flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience flatpak-overrides -e both
 
@@ -16,7 +16,7 @@ if [ -n "$INSTALLER_DIR" ]; then
 fi
 
 # Install adw-gtk3
-flatpak install -y org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
+sudo flatpak install -y org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
 
 if [ -d "/usr/share/themes/adw-gtk3" ]; then
     echo "adw-gtk3 is already installed"
