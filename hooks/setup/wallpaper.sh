@@ -12,9 +12,9 @@ add "/shared/Wallpaper/nord.png" "Nord"
 add "/shared/Wallpaper/tumbleweed.png" "OpenSUSE(dark)"
 
 if [ ! -f ~/Wallpaper/current ]; then
-    ~/.local/bin/wm set pop-os
+    ~/.local/bin/wm set Pop-OS
 fi
 
 if [ ! -f ~/Wallpaper/default ]; then
-    ~/.local/bin/wm set-default pop-os
+    ~/.local/bin/wm set-default Pop-OS
 fi
