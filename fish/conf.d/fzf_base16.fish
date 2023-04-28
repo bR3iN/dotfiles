@@ -1,23 +1,23 @@
-# Base16 Nord
-# Author: arcticicestudio
+# Base16 Pop-OS
+# Author: bR3iN
 
-set -l color00 '#2E3440'
-set -l color01 '#3B4252'
-set -l color02 '#434C5E'
-set -l color03 '#4C566A'
-set -l color04 '#D8DEE9'
-set -l color05 '#E5E9F0'
-set -l color06 '#ECEFF4'
-set -l color07 '#8FBCBB'
-set -l color08 '#BF616A'
-set -l color09 '#D08770'
-set -l color0A '#EBCB8B'
-set -l color0B '#A3BE8C'
-set -l color0C '#88C0D0'
-set -l color0D '#81A1C1'
-set -l color0E '#B48EAD'
-set -l color0F '#5E81AC'
-set -l bg      '#292E39'
+set -l color00 '#202020'
+set -l color01 '#2A2A2A'
+set -l color02 '#333333'
+set -l color03 '#3D3D3D'
+set -l color04 '#E3E3E3'
+set -l color05 '#EBEBEB'
+set -l color06 '#F2F2F2'
+set -l color07 '#F4F4F4'
+set -l color08 '#E23434'
+set -l color09 '#F19822'
+set -l color0A '#FFCE51'
+set -l color0B '#73C48F'
+set -l color0C '#34E2E2'
+set -l color0D '#48B9C7'
+set -l color0E '#AD7FA8'
+set -l color0F '#AD9B7F'
+set -l bg      '#1C1C1C'
 
 set -l FZF_NON_COLOR_OPTS
 

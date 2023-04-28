@@ -9,17 +9,17 @@ padding=10
 border-size=1
 border-radius=8
 
-background-color=#2E3440
-text-color=#E5E9F0
-border-color=#88C0D0
+background-color=#202020
+text-color=#EBEBEB
+border-color=#34E2E2
 
 [urgency=low]
-background-color=#2E3440
-text-color=#E5E9F0
-border-color=#A3BE8C
+background-color=#202020
+text-color=#EBEBEB
+border-color=#73C48F
 
 [urgency=high]
 border-size=2
-background-color=#2E3440
-text-color=#8FBCBB
-border-color=#BF616A
+background-color=#202020
+text-color=#F4F4F4
+border-color=#E23434

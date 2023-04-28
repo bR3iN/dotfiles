@@ -9,7 +9,7 @@
     horizontal_padding = 10
 
     frame_width = 1
-    frame_color = #3B4252
+    frame_color = #2A2A2A
 
     separator_color = frame
 
@@ -40,22 +40,22 @@
     mouse_right_click = close_current
 
 [urgency_low]
-    highlight = "#E5E9F0"
-    foreground = "#E5E9F0"
-    background = "#2E3440"
-    frame_color = "#A3BE8C"
+    highlight = "#EBEBEB"
+    foreground = "#EBEBEB"
+    background = "#202020"
+    frame_color = "#73C48F"
     timeout = 10
 
 [urgency_normal]
-    highlight = "#E5E9F0"
-    foreground = "#E5E9F0"
-    background = "#2E3440"
-    frame_color = "#88C0D0"
+    highlight = "#EBEBEB"
+    foreground = "#EBEBEB"
+    background = "#202020"
+    frame_color = "#34E2E2"
     timeout = 10
 
 [urgency_critical]
-    highlight = "#8FBCBB"
-    foreground = "#8FBCBB"
-    background = "#2E3440"
-    frame_color = "#BF616A"
+    highlight = "#F4F4F4"
+    foreground = "#F4F4F4"
+    background = "#202020"
+    frame_color = "#E23434"
     timeout = 0
