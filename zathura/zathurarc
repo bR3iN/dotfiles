@@ -1,6 +1,6 @@
 set window-title-basename true
 set selection-clipboard clipboard
-set font "Fira Sans Regular 10"
+set font "Noto Sans Regular 10"
 map <C-l> nohlsearch
 
 # For vimtex backward search

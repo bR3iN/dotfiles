@@ -23,7 +23,7 @@ set $menu rofi -show drun -run-command "swaymsg exec -- {cmd}"
 
 ## Appearance {{{
 
-font Fira Sans Regular 9
+font Noto Sans Regular 9
 
 hide_edge_borders --i3 smart_no_gaps
 default_floating_border normal
