@@ -71,6 +71,7 @@ function fish_prompt --description 'Write out the prompt'
     else
         set_color normal
     end
-    echo -n "$suffix "
+    # Non-breaking space to prevent glyph enlargement
+    echo -n "$suffix "
     set_color normal
 end

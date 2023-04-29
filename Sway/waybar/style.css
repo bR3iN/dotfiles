@@ -5,14 +5,14 @@
     border-radius: 0;
     /* `otf-font-awesome` is required to be installed for icons */
     /*font-family: Fira Sans, Symbols Nerd Font, Roboto, Helvetica, Arial, sans-serif;*/
-    font-family: Fira Sans, Symbols Nerd Font;
+    font-family: Noto Sans Nerd Font;
     font-size: 100%;
     min-height: 0;
 }
 
 window#waybar {
     background-color: shade(@base01, 0.7);
-    border-bottom: 2 solid @base03;
+    border-bottom: 2px solid @base03;
     color: @base08;
     opacity: 1.0;
 }
@@ -159,6 +159,5 @@ window#waybar.hidden {
 }
 
 #clock {
-    font-family: Fira Sans SemiBold;
-    font-size: 115%;
+    font-size: 110%;
 }

@@ -6,47 +6,48 @@ set -o nounset
 
 FONT_DIR="/usr/local/share/fonts"
 
+for cmd in wget unzip sudo; do
+    if ! which "$cmd" &>/dev/null; then
+        echo "ERROR: '$cmd' not found"
+        exit 1
+    fi
+done
+
 function install_fonts {
     local name="$1"
     local url="$2"
-    # For idempotency; a match in $FONT_DIR indicates that the fonts are
-    # already installed.
     local regex="$3"
 
-    if ! ls "$FONT_DIR" 2>/dev/null | egrep -q "$regex"; then
-        sudo mkdir -p "$FONT_DIR"
-        echo "Downloading $name to $FONT_DIR"
+    # Rest of arguments are file patterns matched in `unzip` below.
+    shift; shift; shift
 
-        case "${url##*.}" in
-            zip)
-                local tmp="$FONT_DIR/tmp.zip"
-                sudo wget "$url" -O "$tmp" &>> /dev/null
-                echo "Extracting fonts"
-                sudo unzip -d "$FONT_DIR" "$tmp" &>> /dev/null
-                sudo rm "$tmp"
-                ;;
-            ttf)
-                sudo wget -P "$FONT_DIR" "$url"
-                ;;
-            *)
-                echo "URL $url points to file of unsupported type"
-                exit 1
-                ;;
-        esac
+    if ls "$FONT_DIR" 2>/dev/null | grep -q "$regex"; then
+        echo "'$name' is already installed"
+        return
     fi
+
+    sudo mkdir -p "$FONT_DIR"
+    echo "Downloading '$name'"
+
+    local tmp="$FONT_DIR/$name.zip"
+    if [ ! -f "$tmp" ]; then
+        sudo wget "$url" -O "$tmp" &>> /dev/null
+    fi
+
+    echo "Extracting fonts"
+    sudo unzip -d "$FONT_DIR" "$tmp" "$@" >/dev/null
+    # sudo rm "$tmp"
 }
 
 install_fonts \
-    "Fira Code Nerd Fonts" \
+    'Noto Fonts' \
+    'https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Noto.zip' \
+    'Noto Sans.*Nerd Font Complete.ttf' \
+    'Noto Sans * Nerd Font Complete.ttf' \
+    'Noto Serif * Nerd Font Complete.ttf'
+
+install_fonts \
+    'Fira Code Nerd Fonts' \
     'https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip' \
-    'Fira.*Code.*Nerd Font'
-
-install_fonts \
-    "Fira Fonts" \
-    'https://github.com/mozilla/Fira/archive/refs/tags/4.202.zip' \
-    'Fira-.*'
-
-install_fonts \
-    "Symbols Nerd Font Complete" \
-    'https://raw.githubusercontent.com/ryanoasis/nerd-fonts/master/patched-fonts/NerdFontsSymbolsOnly/complete/Symbols-1000-em%20Nerd%20Font%20Complete%20Mono.ttf' \
-    'Symbols.*Nerd.*Font'
+    'Fira Code.*Nerd Font Complete.ttf' \
+    'Fira Code * Nerd Font Complete.ttf'
