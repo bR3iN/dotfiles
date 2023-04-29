@@ -28,7 +28,7 @@ config.bind('<Space>m', 'config-cycle -p messages.timeout 0 3000')
 
 ## Appearance
 c.fonts.default_size = '11pt'
-c.fonts.default_family = "Fira"
+c.fonts.default_family = "Noto Sans"
 c.tabs.title.format = '{current_title}'
 
 # Load colors and change some
