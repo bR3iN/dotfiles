@@ -159,5 +159,6 @@ window#waybar.hidden {
 }
 
 #clock {
+    margin-bottom: 4px;
     font-size: 110%;
 }
