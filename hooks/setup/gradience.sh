@@ -37,3 +37,4 @@ mkdir -p ~/.config/gtk-{4,3}.0
 # Allow flatpak apps to read color overwrites and in particular Gradience to write them
 sudo flatpak override --filesystem=xdg-config/gtk-4.0
 sudo flatpak override --filesystem=xdg-config/gtk-3.0
+sudo flatpak override --env=GTK_THEME=adw-gtk3
