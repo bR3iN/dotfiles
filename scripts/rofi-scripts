@@ -11,7 +11,7 @@ fi
 
 list_options()
 {
-    find "$SCRIPTS_DIR" -type f,l -executable | sed "s#${SCRIPTS_DIR}/\?##"
+    find "$SCRIPTS_DIR"/ -type f,l -executable | sed "s#${SCRIPTS_DIR}/\?##"
 }
 
 callback()

@@ -3,6 +3,10 @@ set selection-clipboard clipboard
 set font "Noto Sans Regular 10"
 map <C-l> nohlsearch
 
+# Open bookmarks
+unmap <C-b>
+map <C-b> feedkeys :blist<Space><Tab>
+
 # For vimtex backward search
 set synctex-editor-command "nvr --remote +%{line} %{input}"
 

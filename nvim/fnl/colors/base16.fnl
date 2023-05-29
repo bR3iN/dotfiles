@@ -129,7 +129,7 @@
   (hi! :TabLine nil 2)
   (hi! :Title 15)
   (hi! :VertSplit 4 nil {:cterm nil})
-  (hi! :Visual nil 3)
+  (hi! :Visual nil 4)
   (hi! :WarningMsg 9)
   (hi! :SignColumn nil 3)
 
