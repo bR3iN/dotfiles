@@ -14,6 +14,9 @@ for_window {
     [class="Setroubleshoot"]         floating enable
     [app_id="system-config-printer"] floating enable
     [title="Event Tester"]           floating enable
+    [title="Firefox — Sharing Indicator"] floating enable
+    [title="File Operation Progress"] floating enable
+    [title="Confirm to replace files"] floating enable
     [app_id="com.github.wwmm.easyeffects"] floating enable
     [app_id="com.github.GradienceTeam.Gradience"] floating enable
 }

@@ -68,6 +68,7 @@
 (set! conceallevel 2)
 (set! cmdheight 2)
 (set! scrolloff 5)
+(set! linebreak)
 
 ; Open text in browser
 (mk-op :OpenInBrowser
@@ -193,7 +194,7 @@
                    :hls
                    :racket_langserver]
                   (vim.tbl_map #{:name $1 :config {} :keymaps {}})
-                  (table.unpack))]})})
+                  (unpack))]})})
 
 (add! "mfussenegger/nvim-dap"
       {:setup (fn []
@@ -266,7 +267,8 @@
           ; set snippet directory
           (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))
           ; Community maintained snippet collection
-          (add! "rafamadriz/friendly-snippets")
+          ; FIXME: contains faulty norg snippets
+          ; (add! "rafamadriz/friendly-snippets")
           ; Snippet integration with neovims builtin LSP client
           (add! "hrsh7th/vim-vsnip-integ"))})
 

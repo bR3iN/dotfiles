@@ -34,7 +34,9 @@ set -x VISUAL nvim
 set -x CDPATH . ~
 set -x MANPAGER 'nvim +Man!'
 
-bind -e --preset \eh
+bind \el true
+bind \eh true
+bind \eo __fish_list_current_token
 bind \em __fish_man_page
 bind \e, history-token-search-forward
 
