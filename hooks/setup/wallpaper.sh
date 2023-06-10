@@ -4,7 +4,7 @@ set -u
 
 mkdir -p ~/Wallpaper/blurred
 
-function add { ~/.local/bin/wm add --no-to-all "$@" || true; }
+function add { ~/.local/bin/wm add --no-to-all "$@" 2>/dev/null || true; }
 
 add --resize default 'https://raw.githubusercontent.com/pop-os/wallpapers/master/original/nasa-89125.jpg' 'Pop-OS'
 
