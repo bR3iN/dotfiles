@@ -157,44 +157,52 @@
 
 (add! "bR3iN/pkg.nvim")
 
+
 ; LSP setup
-(add! "neovim/nvim-lspconfig"
-      #(setup
-         :lsp
-         {:default-keymaps
-          {[:n "gD"]         vim.lsp.buf.declaration
-           [:n "gd"]         vim.lsp.buf.definition
-           [:n "K"]          vim.lsp.buf.hover
-           [:n "gi"]         vim.lsp.buf.implementation
-           [:n "<C-k>"]      vim.lsp.buf.signature_help
-           [:n "<leader>D"]  vim.lsp.buf.type_definition
-           [:n "<leader>rn"] vim.lsp.buf.rename
-           [:n "<leader>ca"] vim.lsp.buf.code_action
-           [:n "gr"]         vim.lsp.buf.references
-           [:n "gqq"]        vim.lsp.buf.format
-           [:v "gq"]         vim.lsp.buf.format
-           [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
-           [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
-            [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})}
+(add! ["neovim/nvim-lspconfig"
+       "mickael-menu/zk-nvim"]
+      (fn []
+        (let [{: set-default-keymaps!
+               : ls-setup!
+               : mk-on_attach
+               : mk-capabilities} (require :lsp)]
+          (set-default-keymaps!
+            {[:n "gD"]         vim.lsp.buf.declaration
+             [:n "gd"]         vim.lsp.buf.definition
+             [:n "K"]          vim.lsp.buf.hover
+             [:n "gi"]         vim.lsp.buf.implementation
+             [:n "<C-k>"]      vim.lsp.buf.signature_help
+             [:n "<leader>D"]  vim.lsp.buf.type_definition
+             [:n "<leader>rn"] vim.lsp.buf.rename
+             [:n "<leader>ca"] vim.lsp.buf.code_action
+             [:n "gr"]         vim.lsp.buf.references
+             [:n "gqq"]        vim.lsp.buf.format
+             [:v "gq"]         vim.lsp.buf.format
+             [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
+             [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
+             [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})})
 
-          :language-server
-          [{:name :clangd
-            :config {}
-            :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
+          (ls-setup!
+            :clangd
+            {}
+            {[:n "<C-c>"] #(vim.cmd.ClangdSwitchSourceHeader)})
 
-           ; {:name :lua_ls
-           ;  :config (require :lsp.configs.sumneko_lua)
-           ;  :keymaps {}}
+          ; {:name :lua_ls
+          ;  :config (require :lsp.configs.sumneko_lua)
+          ;  :keymaps {}}
 
-           (->> [:bashls
-                 ; :vimls
-                 ; :fennel_ls
-                 :pyright
-                 :rust_analyzer
-                 :hls
-                 :racket_langserver]
-                (vim.tbl_map #{:name $1 :config {} :keymaps {}})
-                (unpack))]}))
+          (ls-setup! :bashls)
+          ; (ls-setup! :vimls)
+          ; (ls-setup! :fennel_ls)
+          (ls-setup! :pyright)
+          (ls-setup! :rust_analyzer)
+          (ls-setup! :hls)
+          (ls-setup! :racket_langserver)
+
+          (setup :zk {:picker :select ; TODO
+                      :lsp {:config {:on_attach (mk-on_attach {})
+                                     :capabilities (mk-capabilities)}}
+                      }))))
 
 (add! "mfussenegger/nvim-dap"
       (fn []

@@ -1,26 +1,34 @@
 (local lspconfig (require :lspconfig))
-(local extend (partial vim.tbl_deep_extend :error))
+(local extend (partial vim.tbl_extend :force))
 
-(fn mk-on_attach [keymaps]
-  (fn [client bufnr]
-    ; Create keymaps
-    (let [opts {:noremap true :silent true :buffer bufnr}]
-      (each [[mode lhs] rhs (pairs keymaps)]
-        (vim.keymap.set mode lhs rhs opts)))))
+(var default-keymaps {})
 
-(fn setup [lsp-config]
-  (let [{: default-keymaps : language-server} lsp-config]
-    (each [_ {: name  : config : keymaps} (ipairs language-server)]
-      (tset config :on_attach (-> keymaps
-                                  (extend default-keymaps)
-                                  (mk-on_attach)))
-      ; Setup nvim-cmp integration if applicable
-      ; TODO: What does this do?
-      (let [(ok mod) (pcall require :cmp_nvim_lsp)]
-        (when ok
-          (let [{: default_capabilities} mod]
-            (tset config :capabilities (default_capabilities)))))
-      (let [{: setup} (. lspconfig name)]
-        (setup config)))))
+(fn set-default-keymaps! [keymaps]
+  (set default-keymaps keymaps))
 
-{: setup}
+(fn mk-on_attach [extra-keymaps]
+  (let [keymaps (extend default-keymaps extra-keymaps)]
+    (fn [client bufnr]
+      (let [opts {:noremap true :silent true :buffer bufnr}]
+        (each [[mode lhs] rhs (pairs keymaps)]
+          (vim.keymap.set mode lhs rhs opts))))))
+
+(fn mk-capabilities []
+  (let [(ok mod) (pcall require :cmp_nvim_lsp)]
+    (if ok
+      (let [{: default_capabilities} mod]
+        (default_capabilities))
+      (vim.lsp.protocol.make_client_capabilitites))))
+
+(fn ls-setup! [name ?config ?extra-keymaps]
+  (let [config (or ?config {})
+        extra-keymaps (or ?extra-keymaps {})
+        default-config {:capabilities (mk-capabilities)
+                        :on_attach (mk-on_attach extra-keymaps)}
+        {: setup} (. lspconfig name)]
+    (setup (extend default-config config))))
+
+{: set-default-keymaps!
+ : ls-setup!
+ : mk-on_attach
+ : mk-capabilities}
