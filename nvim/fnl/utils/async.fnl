@@ -4,19 +4,33 @@
 
 (local M {})
 
-(macro dispatch! [ls ...]
-  (fn prepend [el ls]
-    (table.insert ls 1 el)
-    ls)
-  (fn append [el ls]
-    (table.insert ls el)
-    ls)
-  (let [func-wo-cb (table.remove ls)
-        cb '(fn ,(prepend 'err# ls)
+; Hide callbacks and error handling in low-level luvit calls.
+; `args` are the output paramters of the call minus the error
+; value as well the call itself minus the callback parameter.
+; Example: `(dispatch!
+;             [dir (uv.fs_opendir path)]
+;             (use dir))`
+; translates to
+;          `(uv.fs_opendir
+;             path
+;             (fn [err dir]
+;               (assert (not err) err)
+;               (use dir)))`
+(macro dispatch! [args ...]
+  ; Split off the luvit call
+  (let [call (table.remove args)
+        ; Create the callback
+        cb '(fn ,(doto args
+                   ; Insert error paramter into function signature
+                   (table.insert 1 'err#))
               (do
+                ; Add error handling
                 (assert (not err#) err#)
+                ; Actual callback body
                 ,...))]
-    (append cb func-wo-cb)))
+    ; Insert callback into libuv call
+    (doto call
+      (table.insert cb))))
 
 (fn connect! [pipe buffer]
   (dispatch!
@@ -56,9 +70,9 @@
   (M.spawn-with-callback cmd nil ?opt-tbl))
 
 (fn M.scan-dir [path cb]
-  (let [entry-cb (vim.schedule_wrap
-                   (fn [entry]
-                     (cb entry.name entry.type)))]
+  (let [wrapped-cb (vim.schedule_wrap
+                     (fn [entry]
+                       (cb entry.name entry.type)))]
     (dispatch!
       [dir (uv.fs_opendir path)]
       (fn iter []
@@ -66,7 +80,7 @@
           [entries (dir:readdir)]
           (if entries
             (do
-              (vim.tbl_map entry-cb entries)
+              (vim.tbl_map wrapped-cb entries)
               (iter))
             (dir:closedir))))
       (iter))))

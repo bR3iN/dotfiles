@@ -1,5 +1,8 @@
--- Bootstrap fennel support
-require('setup_hotpot')
+-- Bootstrap hotpot and pkg.nvim
+require('bootstrap')
+
+-- Setup hotpot
+require('hotpot')
 
 -- Initialize plugin manager; resets internal plugin list
 require('pkg').init()

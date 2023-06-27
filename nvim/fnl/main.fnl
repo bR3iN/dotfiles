@@ -53,7 +53,7 @@
 (set! wrap)
 
 ; Default tab behaviour
-(set! shiftwidth 4)  ; messes with fennel.vim
+(setg! shiftwidth 4)
 (set! tabstop 4)
 (set! expandtab)
 
@@ -152,69 +152,69 @@
 ;; Load and configure plugins
 (fn setup [mod ?opts]
   ; Loads module and calls its `setup` function
-  (let [{: setup} (require mod)
-        opts (or ?opts {})]
-    (setup opts)))
+  (let [{: setup} (require mod)]
+    (setup (or ?opts {}))))
+
+(add! "bR3iN/pkg.nvim")
 
 ; LSP setup
 (add! "neovim/nvim-lspconfig"
-       {:setup
-        #(setup
-           :lsp
-           {:default-keymaps
-            {[:n "gD"]         vim.lsp.buf.declaration
-             [:n "gd"]         vim.lsp.buf.definition
-             [:n "K"]          vim.lsp.buf.hover
-             [:n "gi"]         vim.lsp.buf.implementation
-             [:n "<C-k>"]      vim.lsp.buf.signature_help
-             [:n "<leader>D"]  vim.lsp.buf.type_definition
-             [:n "<leader>rn"] vim.lsp.buf.rename
-             [:n "<leader>ca"] vim.lsp.buf.code_action
-             [:n "gr"]         vim.lsp.buf.references
-             [:n "gqq"]        vim.lsp.buf.format
-             [:v "gq"]         vim.lsp.buf.format
-             [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
-             [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
-             [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})}
+      #(setup
+         :lsp
+         {:default-keymaps
+          {[:n "gD"]         vim.lsp.buf.declaration
+           [:n "gd"]         vim.lsp.buf.definition
+           [:n "K"]          vim.lsp.buf.hover
+           [:n "gi"]         vim.lsp.buf.implementation
+           [:n "<C-k>"]      vim.lsp.buf.signature_help
+           [:n "<leader>D"]  vim.lsp.buf.type_definition
+           [:n "<leader>rn"] vim.lsp.buf.rename
+           [:n "<leader>ca"] vim.lsp.buf.code_action
+           [:n "gr"]         vim.lsp.buf.references
+           [:n "gqq"]        vim.lsp.buf.format
+           [:v "gq"]         vim.lsp.buf.format
+           [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
+           [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
+            [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})}
 
-            :language-server
-            [{:name :clangd
-              :config {}
-              :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
+          :language-server
+          [{:name :clangd
+            :config {}
+            :keymaps {[:n "<C-c>"] #(vim.cmd :ClangdSwitchSourceHeader)}}
 
-             {:name :lua_ls
-              :config (require :lsp.configs.sumneko_lua)
-              :keymaps {}}
+           ; {:name :lua_ls
+           ;  :config (require :lsp.configs.sumneko_lua)
+           ;  :keymaps {}}
 
-             (->> [:bashls
-                   :vimls
-                   :fennel_ls
-                   :pyright
-                   :rust_analyzer
-                   :hls
-                   :racket_langserver]
-                  (vim.tbl_map #{:name $1 :config {} :keymaps {}})
-                  (unpack))]})})
+           (->> [:bashls
+                 ; :vimls
+                 ; :fennel_ls
+                 :pyright
+                 :rust_analyzer
+                 :hls
+                 :racket_langserver]
+                (vim.tbl_map #{:name $1 :config {} :keymaps {}})
+                (unpack))]}))
 
 (add! "mfussenegger/nvim-dap"
-      {:setup (fn []
-                ; Setup common keymaps
-                (let [dap (require :dap)
-                      mappings {"<leader>db" (. dap :toggle_breakpoint)
-                                "<leader>dl" (. dap :list_breakpoints)
-                                "<leader>ds" (. dap :step_into)
-                                "<leader>dn" (. dap :step_over)
-                                "<leader>dr" (. dap :continue)
-                                "<leader>dt" (. dap :terminate)
-                                "<leader>dc" (. dap :clear_breakpoints)
-                                "<leader>do" (. dap :repl :open)}
-                      autocmd! (augroup! :nvim-dap)
-                      prompt-path (fn [prompt cb]
-                                    (vim.ui.input
-                                      {: prompt :default (vim.loop.cwd)}
-                                      #(if $1 (cb $1))))]
-                  (each [lhs rhs (pairs mappings)]
-                    (nmap! lhs rhs))))})
+      (fn []
+        ; Setup common keymaps
+        (let [dap (require :dap)
+              mappings {"<leader>db" (. dap :toggle_breakpoint)
+                        "<leader>dl" (. dap :list_breakpoints)
+                        "<leader>ds" (. dap :step_into)
+                        "<leader>dn" (. dap :step_over)
+                        "<leader>dr" (. dap :continue)
+                        "<leader>dt" (. dap :terminate)
+                        "<leader>dc" (. dap :clear_breakpoints)
+                        "<leader>do" (. dap :repl :open)}
+              autocmd! (augroup! :nvim-dap)
+              prompt-path (fn [prompt cb]
+                            (vim.ui.input
+                              {: prompt :default (vim.loop.cwd)}
+                              #(if $1 (cb $1))))]
+          (each [lhs rhs (pairs mappings)]
+            (nmap! lhs rhs)))))
 
 ; (add! :Maan2003/lsp_lines.nvim
 ;        {:setup (fn []
@@ -227,317 +227,309 @@
 (add! "tpope/vim-repeat")
 (add! "tpope/vim-commentary")
 (add! "tpope/vim-surround"
-      {:setup (fn []
-                ; Find numbers with `:echo char2nr("B")`
-                (let! surround_66  "{\r}\1\1")         ; "B"
-                (let! surround_114 "{:\r:}")           ; "r"
-                (let! surround_82  "{:\r:}[\1\1]"))})  ; "R"
+      (fn []
+        ; Find numbers with `:echo char2nr("B")`
+        (let! surround_66  "{\r}\1\1")         ; "B"
+        (let! surround_114 "{:\r:}")           ; "r"
+        (let! surround_82  "{:\r:}[\1\1]")))  ; "R"
 
 ; TODO: try telescope
 (add! "ibhagwan/fzf-lua"
-       {:setup
-        (fn []
-          ;Setup plugin
-          (setup :fzf-lua {:files {:file_icons false}
-                           :hl {:cursorline "CursorLineFzfLua"}})
-          ; Setup keymaps
-          (each [[mode lhs] action
-                 (pairs {[:n "<leader>ff"] :files
-                         [:n "<leader>fl"] :lines
-                         [:n "<leader>b"]  :buffers
-                         [:n "<leader>fg"] :live_grep
-                         [:n "<leader>fG"] :grep
-                         [:v "<leader>fg"] :grep_visual
-                         [:n "<leader>fd"] :lsp_declarations
-                         [:n "<leader>fD"] :lsp_definitions})]
-            (let [rhs #(vim.cmd.FzfLua {:args [action]})]
-              (vim.keymap.set mode lhs rhs))))})
+      (fn []
+        ;Setup plugin
+        (setup :fzf-lua {:files {:file_icons false}
+                         :hl {:cursorline "CursorLineFzfLua"}})
+        ; Setup keymaps
+        (each [[mode lhs] action
+               (pairs {[:n "<leader>ff"] :files
+                       [:n "<leader>fl"] :lines
+                       [:n "<leader>b"]  :buffers
+                       [:n "<leader>fg"] :live_grep
+                       [:n "<leader>fG"] :grep
+                       [:v "<leader>fg"] :grep_visual
+                       [:n "<leader>fd"] :lsp_declarations
+                       [:n "<leader>fD"] :lsp_definitions})]
+          (let [rhs #(vim.cmd.FzfLua {:args [action]})]
+            (vim.keymap.set mode lhs rhs)))))
 
 (add! "lervag/vimtex"
-      {:setup
-       (fn []
-         (let! vimtex_format_enabled 1)
-         (let! vimtex_quickfix_mode 0)
-         (let! vimtex_view_method :zathura)
-         (let! tex_flavor :latex))})
+      (fn []
+        (let! vimtex_format_enabled 1)
+        (let! vimtex_quickfix_mode 0)
+        (let! vimtex_view_method :zathura)
+        (let! tex_flavor :latex)))
 
-(add! "hrsh7th/vim-vsnip"
-       {:setup
-        (fn []
-          ; set snippet directory
-          (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))
-          ; Community maintained snippet collection
-          ; FIXME: contains faulty norg snippets
-          ; (add! "rafamadriz/friendly-snippets")
-          ; Snippet integration with neovims builtin LSP client
-          (add! "hrsh7th/vim-vsnip-integ"))})
+(add! ["hrsh7th/vim-vsnip"
+       ; Community maintained snippet collection
+       ; FIXME: contains faulty norg snippets
+       ; (add! "rafamadriz/friendly-snippets")
+       ; Snippet integration with neovims builtin LSP client
+       "hrsh7th/vim-vsnip-integ"]
+      (fn []
+        ; set snippet directory
+        (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))))
 
-(add! "nvim-treesitter/playground")
-(add! "nvim-treesitter/nvim-treesitter"
-      {:setup
-       (fn []
-         (add! "nvim-treesitter/nvim-treesitter-textobjects")
-         (setup
-           :nvim-treesitter.configs
-           {:highlight {:enable true}
-            :indent {:enable false}
-            ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
-            :textobjects {:select {:enable true
-                                   :keymaps {"if" "@function.inner"
-                                             "af" "@function.outer"
-                                             "ic" "@call.inner"
-                                             "ac" "@call.outer"
-                                             "il" "@loop.inner"
-                                             "al" "@loop.outer"
-                                             "ik" "@conditional.inner"
-                                             "ak" "@conditional.outer"}}
-                          :swap {:enable true
-                                 :swap_next {"<leader>." "@parameter.inner"}
-                                 :swap_previous {"<leader>," "@parameter.inner"}}}}))})
+(add! ["nvim-treesitter/nvim-treesitter"
+       "nvim-treesitter/playground"
+       "nvim-treesitter/nvim-treesitter-textobjects"]
+      (fn []
+        (setup
+          :nvim-treesitter.configs
+          {:highlight {:enable true}
+           :indent {:enable false}
+           ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
+           :textobjects {:select {:enable true
+                                  :keymaps {"if" "@function.inner"
+                                            "af" "@function.outer"
+                                            "ic" "@call.inner"
+                                            "ac" "@call.outer"
+                                            "il" "@loop.inner"
+                                            "al" "@loop.outer"
+                                            "ik" "@conditional.inner"
+                                            "ak" "@conditional.outer"}}
+                         :swap {:enable true
+                                :swap_next {"<leader>." "@parameter.inner"}
+                                :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
 
-(add! "hrsh7th/nvim-cmp"
-      {:setup
-       (fn []
-         (add! "hrsh7th/cmp-nvim-lsp")
-         (add! "hrsh7th/cmp-nvim-lua")
-         (add! "kdheepak/cmp-latex-symbols")
-         (add! "hrsh7th/cmp-path")
-         (add! "hrsh7th/cmp-buffer")
-         (add! "hrsh7th/cmp-vsnip")
-         (let
-           [cmp (require :cmp)
-            jumpable (. vim.fn :vsnip#jumpable)
-            feed #(-> $1
-                      (vim.api.nvim_replace_termcodes true true true)
-                      (vim.fn.feedkeys))
-            config {:mapping
-                    {:<Tab>  (fn [fallback]
+(add! ["hrsh7th/nvim-cmp"
+       "hrsh7th/cmp-nvim-lsp"
+       "hrsh7th/cmp-nvim-lua"
+       "kdheepak/cmp-latex-symbols"
+       "hrsh7th/cmp-path"
+       "hrsh7th/cmp-buffer"
+       "hrsh7th/cmp-vsnip"]
+      (fn []
+        (let
+          [cmp (require :cmp)
+           jumpable (. vim.fn :vsnip#jumpable)
+           feed #(-> $1
+                     (vim.api.nvim_replace_termcodes true true true)
+                     (vim.fn.feedkeys))
+           config {:mapping
+                   {:<Tab>  (fn [fallback]
+                              (if
+                                (cmp.visible) (cmp.select_next_item)
+                                (= 1 (jumpable 1)) (feed "<Plug>(vsnip-jump-next)")
+                                (fallback)))
+                    :<S-Tab> (fn [fallback]
                                (if
-                                 (cmp.visible) (cmp.select_next_item)
-                                 (= 1 (jumpable 1)) (feed "<Plug>(vsnip-jump-next)")
-                                 (fallback)))
-                     :<S-Tab> (fn [fallback]
-                                (if
-                                  (cmp.visible) (cmp.select_prev_item)
-                                  (= 1 (jumpable -1)) (feed "<Plug>(vsnip-jump-prev)")
-                                  (cmp.complete)))
-                     :<CR> (cmp.mapping.confirm {:select false})
-                     :<C-e> (cmp.mapping.close)
-                     :<C-Space> (cmp.mapping.complete)}
+                                 (cmp.visible) (cmp.select_prev_item)
+                                 (= 1 (jumpable -1)) (feed "<Plug>(vsnip-jump-prev)")
+                                 (cmp.complete)))
+                    :<CR> (cmp.mapping.confirm {:select false})
+                    :<C-e> (cmp.mapping.close)
+                    :<C-Space> (cmp.mapping.complete)}
 
-                    :snippet
-                    {:expand (fn [{: body}]
-                               ((. vim.fn :vsnip#anonymous) body))}
+                   :snippet
+                   {:expand (fn [{: body}]
+                              ((. vim.fn :vsnip#anonymous) body))}
 
-                    :sources
-                    [{:name :nvim_lsp}
-                     {:name :nvim_lua}
-                     {:name :neorg}
-                     {:name :vsnip}
-                     {:name :path}
-                     {:name :latex_symbols}
-                     {:name :omni}
-                     {:name :buffer
-                      :option {:keyword_pattern "\\k\\+"}}]
+                   :sources
+                   [{:name :nvim_lsp}
+                    {:name :nvim_lua}
+                    {:name :neorg}
+                    {:name :vsnip}
+                    {:name :path}
+                    {:name :latex_symbols}
+                    {:name :omni}
+                    {:name :buffer
+                     :option {:keyword_pattern "\\k\\+"}}]
 
-                    :formatting
-                    {:format (let [display-names
-                                   {:nvim_lsp      "[LSP]"
-                                    :nvim_lua      "[Lua]"
-                                    :vsnip         "[Vsp]"
-                                    :latex_symbols "[LTX]"
-                                    :path          "[Pth]"
-                                    :calc          "[Clc]"
-                                    :buffer        "[Buf]"}]
-                               (fn [{:source {: name}} item]
-                                 (->> name
-                                      (. display-names)
-                                      (#(or $1 "[???]"))
-                                      (tset item :menu))
-                                 item))}}]
-           (cmp.setup config)))})
+                   :formatting
+                   {:format (let [display-names
+                                  {:nvim_lsp      "[LSP]"
+                                   :nvim_lua      "[Lua]"
+                                   :vsnip         "[Vsp]"
+                                   :latex_symbols "[LTX]"
+                                   :path          "[Pth]"
+                                   :calc          "[Clc]"
+                                   :buffer        "[Buf]"}]
+                              (fn [{:source {: name}} item]
+                                (->> name
+                                     (. display-names)
+                                     (#(or $1 "[???]"))
+                                     (tset item :menu))
+                                item))}}]
+          (cmp.setup config))))
 
 (add! "neomake/neomake"
-       {:setup
-        (fn []
-          (nmap! "<leader>nm" #(vim.cmd :Neomake))
-          (nmap! "<leader>nc" #(vim.cmd :NeomakeClean))
+      (fn []
+        (nmap! "<leader>nm" #(vim.cmd :Neomake))
+        (nmap! "<leader>nc" #(vim.cmd :NeomakeClean))
 
-           ; Appearance
-           (let! neomake_error_sign
-             {:text "➤"
-              ; :texthl "NeomakeErrorSign"
-              })
-           (let! neomake_warning_sign
-             {:text "➤"
-              ; :texthl "NeomakeWarningSign"
-              })
-           (let! neomake_message_sign
-             {:text "➤"
-              ; :texthl "NeomakemessageSign"
-              })
-           (let! neomake_info_sign
-             {:text "➤"
-              ; :texthl "NeomakeInfoSign"
-              })
+        ; Appearance
+        (let! neomake_error_sign
+          {:text "➤"
+           ; :texthl "NeomakeErrorSign"
+           })
+        (let! neomake_warning_sign
+          {:text "➤"
+           ; :texthl "NeomakeWarningSign"
+           })
+        (let! neomake_message_sign
+          {:text "➤"
+           ; :texthl "NeomakemessageSign"
+           })
+        (let! neomake_info_sign
+          {:text "➤"
+           ; :texthl "NeomakeInfoSign"
+           })
 
-           ; Link Neomake highlight groups and relink them on colorscheme change
-           (let [links {:NeomakeErrorSign          :DiagnosticSignError
-                        :NeomakeWarningSign        :DiagnosticSignWarn
-                        :NeomakeMessageSign        :DiagnosticSignHint
-                        :NeomakeInfoSign           :DiagnosticSignInfo
-                        :NeomakeVirtualtextError   :DiagnosticError
-                        :NeomakeVirtualtextWarning :DiagnosticWarn
-                        :NeomakeVirtualtextMessage :DiagnosticHint
-                        :NeomakeVirtualtextInfo    :DiagnosticInfo}
-                 set-hl #(each [name link (pairs links)]
-                           (vim.api.nvim_set_hl 0 name {: link}))
-                 autocmd! (augroup! :neomake_highlighting)]
-             (set-hl)
-             (autocmd! :ColorScheme "*" set-hl)))})
+        ; Link Neomake highlight groups and relink them on colorscheme change
+        (let [links {:NeomakeErrorSign          :DiagnosticSignError
+                     :NeomakeWarningSign        :DiagnosticSignWarn
+                     :NeomakeMessageSign        :DiagnosticSignHint
+                     :NeomakeInfoSign           :DiagnosticSignInfo
+                     :NeomakeVirtualtextError   :DiagnosticError
+                     :NeomakeVirtualtextWarning :DiagnosticWarn
+                     :NeomakeVirtualtextMessage :DiagnosticHint
+                     :NeomakeVirtualtextInfo    :DiagnosticInfo}
+              set-hl #(each [name link (pairs links)]
+                        (vim.api.nvim_set_hl 0 name {: link}))
+              autocmd! (augroup! :neomake_highlighting)]
+          (set-hl)
+          (autocmd! :ColorScheme "*" set-hl))))
 
 (add! "christoomey/vim-tmux-navigator"
-      {:setup (fn []
-                ; Disable default mappings
-                (let! tmux_navigator_no_mappings 1)
-                ; Set custom mappings
-                (let [mk-lhs #(.. :<M- $1 :>)]
-                  (each [direction keys (pairs
-                                          {:Left  [:h :left]
-                                           :Right [:l :right]
-                                           :Up    [:k :up]
-                                           :Down  [:j :down]})]
-                    (each [_ key (ipairs keys)]
-                      (let [lhs (mk-lhs key)
-                            rhs #(vim.cmd (.. :TmuxNavigate direction))]
-                        (each [_ mk-map (ipairs [nmap! tmap!])]
-                          (mk-map lhs rhs)))))))})
-
-; Required by `neorg`
-(add! "nvim-lua/plenary.nvim")
+      (fn []
+        ; Disable default mappings
+        (let! tmux_navigator_no_mappings 1)
+        ; Set custom mappings
+        (let [mk-lhs #(.. :<M- $1 :>)]
+          (each [direction keys (pairs
+                                  {:Left  [:h :left]
+                                   :Right [:l :right]
+                                   :Up    [:k :up]
+                                   :Down  [:j :down]})]
+            (each [_ key (ipairs keys)]
+              (let [lhs (mk-lhs key)
+                    rhs #(vim.cmd (.. :TmuxNavigate direction))]
+                (each [_ mk-map (ipairs [nmap! tmap!])]
+                  (mk-map lhs rhs))))))))
 
 ; Treesitter indentation for fennel is messed up
 (add! "bakpakin/fennel.vim")
 
-(add! "nvim-neorg/neorg"
-      {:setup
-       (fn []
-         ; Wrap bindings to lazily start Neorg before executing them
-         (let [Neorg #(vim.cmd.Neorg {:args $1})
-               cd #(vim.cmd.cd "%:h")
-               bindings {"<leader>gc" #(Neorg [:gtd :capture])
-                         "<leader>gv" #(Neorg [:gtd :views])
-                         "<leader>ge" #(Neorg [:gtd :edit])
-                         "<leader>go" #(do (Neorg [:workspace :gtd]) (cd))
-                         "<leader>gz" #(do (Neorg [:workspace :zettelkasten]) (cd))
-                         "<leader>gj" #(do (Neorg [:workspace :workspace1]) (cd))
-                         "<leader>gr" #(do (Neorg [:workspace :references]) (cd))
-                         "<leader>gn" #(do (Neorg [:workspace :notes]) (cd))}
-               running? #(->> :Neorg
-                              (. (vim.api.nvim_get_commands {}))
-                              (nil?)
-                              (not))]
-           (each [lhs func (pairs bindings)]
-             (let [rhs (fn []
-                         (when (not (running?))
-                           (vim.cmd.NeorgStart))
-                         (func))]
-               (nmap! lhs rhs)))
+(add! ["nvim-neorg/neorg"
+       "nvim-lua/plenary.nvim"]
+      (fn []
+        ; Wrap bindings to lazily start Neorg before executing them
+        (let [Neorg #(vim.cmd.Neorg {:args $1})
+              cd #(vim.cmd.cd "%:h")
+              bindings {"<leader>gc" #(Neorg [:gtd :capture])
+                        "<leader>gv" #(Neorg [:gtd :views])
+                        "<leader>ge" #(Neorg [:gtd :edit])
+                        "<leader>go" #(do (Neorg [:workspace :gtd]) (cd))
+                        "<leader>gz" #(do (Neorg [:workspace :zettelkasten]) (cd))
+                        "<leader>gj" #(do (Neorg [:workspace :workspace1]) (cd))
+                        "<leader>gr" #(do (Neorg [:workspace :references]) (cd))
+                        "<leader>gn" #(do (Neorg [:workspace :notes]) (cd))}
+              running? #(->> :Neorg
+                             (. (vim.api.nvim_get_commands {}))
+                             (nil?)
+                             (not))]
+          (each [lhs func (pairs bindings)]
+            (let [rhs (fn []
+                        (when (not (running?))
+                          (vim.cmd.NeorgStart))
+                        (func))]
+              (nmap! lhs rhs)))
 
-            ; Configures keybindings for navigating Neorg
-            (fn keybinds-hook [keybinds]
-              (let [remap_key keybinds.remap_key
-                    unmap     keybinds.unmap]
-                (unmap :norg :n "<LocalLeader>tc")
-                (unmap :norg :n "<LocalLeader>tv")
-                (unmap :norg :n "<LocalLeader>te")
+          ; Configures keybindings for navigating Neorg
+          (fn keybinds-hook [keybinds]
+            (let [remap_key keybinds.remap_key
+                  unmap     keybinds.unmap]
+              (unmap :norg :n "<LocalLeader>tc")
+              (unmap :norg :n "<LocalLeader>tv")
+              (unmap :norg :n "<LocalLeader>te")
 
-                (remap_key :norg         :n "<CR>" "<C-]>")
-                (remap_key :toc-split    :n "<CR>" "<C-]>")
-                (remap_key :gtd-displays :n "<CR>" "<C-]>")
+              (remap_key :norg         :n "<CR>" "<C-]>")
+              (remap_key :toc-split    :n "<CR>" "<C-]>")
+              (remap_key :gtd-displays :n "<CR>" "<C-]>")
 
-                (remap_key :norg :n "gtu" "<LocalLeader>tu")
-                (remap_key :norg :n "gtp" "<LocalLeader>tp")
-                (remap_key :norg :n "gtd" "<LocalLeader>td")
-                (remap_key :norg :n "gth" "<LocalLeader>th")
-                (remap_key :norg :n "gtc" "<LocalLeader>tc")
-                (remap_key :norg :n "gtr" "<LocalLeader>tr")
-                (remap_key :norg :n "gti" "<LocalLeader>ti")))
+              (remap_key :norg :n "gtu" "<LocalLeader>tu")
+              (remap_key :norg :n "gtp" "<LocalLeader>tp")
+              (remap_key :norg :n "gtd" "<LocalLeader>td")
+              (remap_key :norg :n "gth" "<LocalLeader>th")
+              (remap_key :norg :n "gtc" "<LocalLeader>tc")
+              (remap_key :norg :n "gtr" "<LocalLeader>tr")
+              (remap_key :norg :n "gti" "<LocalLeader>ti")))
 
-           ; Main config and setup
-           (let [configs
-                 {:core.defaults {}
-                  :core.concealer {}
-                  :core.qol.toc {:close_after_use true}
-                  :core.dirman {:workspaces {:notes "~/neorg/notes"
-                                                  :zettelkasten "~/neorg/zettelkasten"
-                                                  :workspace1 "~/neorg/workspace1"
-                                                  :references "~/neorg/references"
-                                                  :gtd "~/neorg/tasks"}
-                                     :default :notes
-                                     ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
-                                     :open_last_workspace false}
-                  :core.completion {:engine :nvim-cmp}
-                  ; :core.gtd.base {:workspace :gtd
-                  ;                 :default_lists {:inbox :index.norg
-                  ;                                 :someday :someday.norg}
-                  ;                 :custom_tag_completion true}
-                  :core.keybinds {:default_keybinds true
-                                  :hook keybinds-hook}}]
-             (setup
-               :neorg
-               {:load (vim.tbl_map #{:config $1} configs)}))))})
+          ; Main config and setup
+          (let [configs
+                {:core.defaults {}
+                 :core.concealer {}
+                 :core.qol.toc {:close_after_use true}
+                 :core.dirman {:workspaces {:notes "~/neorg/notes"
+                                            :zettelkasten "~/neorg/zettelkasten"
+                                            :workspace1 "~/neorg/workspace1"
+                                            :references "~/neorg/references"
+                                            :gtd "~/neorg/tasks"}
+                               :default :notes
+                               ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
+                               :open_last_workspace false}
+                 :core.completion {:engine :nvim-cmp}
+                 ; :core.gtd.base {:workspace :gtd
+                                   ;                 :default_lists {:inbox :index.norg
+                                                                     ;                                 :someday :someday.norg}
+                                   ;                 :custom_tag_completion true}
+                 :core.keybinds {:default_keybinds true
+                                 :hook keybinds-hook}}]
+            (setup
+              :neorg
+              {:load (vim.tbl_map #{:config $1} configs)})))))
 
 
 (add! "ggandor/leap.nvim"
-       {:setup #(let [{: set_default_keymaps : setup} (require :leap)]
-                  (set_default_keymaps)
-                  (setup {:safe_labels {}}))})
+      (fn []
+        (let [{: set_default_keymaps : setup} (require :leap)]
+          (set_default_keymaps)
+          (setup {:safe_labels {}}))))
 
 ; Configure or look for alternative
 (add! "karb94/neoscroll.nvim"
-      {:setup (fn []
-                (let [{: setup : scroll : zt : zz : zb} (require :neoscroll)
-                      get-height #(vim.api.nvim_win_get_height 0)]
-                  ; Disable default mappings
-                  (setup {:mappings {}})
-                  ; Add custom mappings
-                  (nmap! :<C-u> #(scroll (- vim.wo.scroll) true 150))
-                  (nmap! :<C-d> #(scroll vim.wo.scroll true 150))
-                  (nmap! :<C-b> #(scroll (- (get-height)) true 350))
-                  (nmap! :<C-f> #(scroll (get-height) true 350))
-                  (nmap! :zt #(zt 125))
-                  (nmap! :zz #(zz 125))
-                  (nmap! :zb #(zb 125))))})
+      (fn []
+        (let [{: setup : scroll : zt : zz : zb} (require :neoscroll)
+              get-height #(vim.api.nvim_win_get_height 0)]
+          ; Disable default mappings
+          (setup {:mappings {}})
+          ; Add custom mappings
+          (nmap! :<C-u> #(scroll (- vim.wo.scroll) true 150))
+          (nmap! :<C-d> #(scroll vim.wo.scroll true 150))
+          (nmap! :<C-b> #(scroll (- (get-height)) true 350))
+          (nmap! :<C-f> #(scroll (get-height) true 350))
+          (nmap! :zt #(zt 125))
+          (nmap! :zz #(zz 125))
+          (nmap! :zb #(zb 125)))))
 
 ; Split file explorer
 (add! "stevearc/oil.nvim"
-      {:setup #(let [{: setup : open} (require :oil)]
-                 (setup
-                   {:use_default_keymaps false
-                    :keymaps {"g?"    :actions.show_help
-                              "<C-]>" :actions.select
-                              "<C-v>" :actions.select_vsplit
-                              "<C-s>" :actions.select_split
-                              "gp"    :actions.preview
-                              "<C-p>" :actions.close
-                              "gf"    :actions.refresh
-                              "-"     :actions.parent
-                              "_"     :actions.open_cwd
-                              "`"     :actions.cd
-                              "~"     :actions.tcd
-                              "g."    :actions.toggle_hidden}})
-                 (nmap! "-" open))})
+      #(let [{: setup : open} (require :oil)]
+         (setup
+           {:use_default_keymaps false
+            :keymaps {"g?"    :actions.show_help
+                      "<C-]>" :actions.select
+                      "<C-v>" :actions.select_vsplit
+                      "<C-s>" :actions.select_split
+                      "gp"    :actions.preview
+                      "<C-p>" :actions.close
+                      "gf"    :actions.refresh
+                      "-"     :actions.parent
+                      "_"     :actions.open_cwd
+                      "`"     :actions.cd
+                      "~"     :actions.tcd
+                      "g."    :actions.toggle_hidden}})
+         (nmap! "-" open)))
 
 ; Highlights hex color codes with their color
 (add! "norcalli/nvim-colorizer.lua"
-      {:setup #(let [{: setup} (require :colorizer)]
-                (setup))})
+      #(let [{: setup} (require :colorizer)]
+         (setup)))
 
 ; Floating preview in quickfix window
 (add! "kevinhwang91/nvim-bqf"
-      {:setup #(setup :bqf {:func_map {:fzffilter ""}})})
+       #(setup :bqf {:func_map {:fzffilter ""}}))
 
 ;; Load local plugins
 (require :plugin.toggle-comments)
