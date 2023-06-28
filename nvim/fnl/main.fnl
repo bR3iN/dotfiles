@@ -206,7 +206,7 @@
                                                  (if (= 0 code)
                                                    (put! stdout)
                                                    (error stderr))))}]
-            (setup :zk {:picker :select ; TODO
+            (setup :zk {:picker :telescope
                         :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
                                        :capabilities (mk-capabilities)}}})))))
 
@@ -247,23 +247,28 @@
         (let! surround_114 "{:\r:}")           ; "r"
         (let! surround_82  "{:\r:}[\1\1]")))  ; "R"
 
-; TODO: try telescope
-(add! "ibhagwan/fzf-lua"
+(add! ["nvim-telescope/telescope.nvim"
+       "nvim-lua/plenary.nvim"]
       (fn []
         ;Setup plugin
-        (setup :fzf-lua {:files {:file_icons false}
-                         :hl {:cursorline "CursorLineFzfLua"}})
+        (setup :telescope {:defaults
+                           {:sorting_strategy :ascending
+                            :scroll_strategy :limit
+                            :layout_config {:prompt_position :top}
+                            :layout_strategy :flex}})
         ; Setup keymaps
-        (each [[mode lhs] action
-               (pairs {[:n "<leader>ff"] :files
-                       [:n "<leader>fl"] :lines
-                       [:n "<leader>b"]  :buffers
-                       [:n "<leader>fg"] :live_grep
-                       [:n "<leader>fG"] :grep
-                       [:v "<leader>fg"] :grep_visual
-                       [:n "<leader>fd"] :lsp_declarations
-                       [:n "<leader>fD"] :lsp_definitions})]
-          (let [rhs #(vim.cmd.FzfLua {:args [action]})]
+        (let [builtins (require :telescope.builtin)
+              pick (fn [action ?opts]
+                     (let [picker (. builtins action)]
+                       (picker ?opts)))]
+          (each [[mode lhs] rhs
+                 (pairs {[:n "<leader>ff"] #(pick :find_files)
+                         [:n "<leader>fz"] #(pick :buffers)
+                         [:n "<leader>f."] #(pick :resume)
+                         [:n "<leader>b"]  #(pick :buffers)
+                         [:n "<leader>fg"] #(pick :live_grep)
+                         [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
+                         [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
             (vim.keymap.set mode lhs rhs)))))
 
 (add! "lervag/vimtex"
