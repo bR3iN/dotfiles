@@ -41,33 +41,31 @@
 (fn parse-cmd [[file & args]]
   (values file args))
 
-(fn M.spawn-with-callback [cmd ?cb ?opts]
-  (let [?cb (-?> ?cb (vim.schedule_wrap))
-        (file args) (parse-cmd cmd)
+(fn M.spawn [cmd ?opts ?cb]
+  (let [opts (or ?opts {})
+        ?wrapped-cb (-?> ?cb (vim.schedule_wrap))]
+    (uv.spawn cmd opts ?wrapped-cb)))
+
+(fn M.spawn-capture-output [cmd ?opts cb]
+  (var handle nil)
+  (let [stdout (uv.new_pipe)
+        stderr (uv.new_pipe)
+        stdout-buf {}
+        stderr-buf {}
         opts (doto (or ?opts {})
-                   (tset :args args))]
-    (uv.spawn file opts ?cb)))
-
-; (fn M.spawn-with-lines-callback [cmd ?cb ?opt-tbl]
-;     (let [stdout (uv.new_pipe)
-;           stderr (uv.new_pipe)
-;           stdout-buf {}
-;           stderr-buf {}]
-;         (connect! stdout stdout-buf)
-;         (connect! stderr stderr-buf)
-
-;         (let [(file args) (parse-cmd cmd)
-;               opt-tb (vim.tbl_extend
-;                          "force"
-;                          (or ?opt-tbl {})
-;                          {: args :stdio [nil stdout stderr]})
-;               handle
-
-;             ))
-
-
-(fn M.spawn [cmd ?opt-tbl]
-  (M.spawn-with-callback cmd nil ?opt-tbl))
+               (tset :stdio [nil stdout stderr]))
+        cb (vim.schedule_wrap
+             (fn [code signal]
+               (stdout:close)
+               (stderr:close)
+               (handle:close)
+               (let [stdout (table.concat stdout-buf)
+                     stderr (table.concat stderr-buf)]
+                 (cb code signal stdout stderr))))]
+    ;; Order matters here
+    (set handle (uv.spawn cmd opts (vim.schedule_wrap cb)))
+    (connect! stdout stdout-buf)
+    (connect! stderr stderr-buf)))
 
 (fn M.scan-dir [path cb]
   (let [wrapped-cb (vim.schedule_wrap

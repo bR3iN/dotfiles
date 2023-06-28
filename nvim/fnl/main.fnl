@@ -1,10 +1,10 @@
 (import-macros {: set! : setl! : setg! : set+ : let! } :utils.macros)
 (local {: add!} (require :pkg))
 (local {: nmap! : vmap! : tmap! : cmap! : imap!
-        : command! : augroup!}
+        : command! : augroup! : put!}
   (require :utils.nvim))
 (local {: nil?} (require :utils))
-(local {: spawn} (require :utils.async))
+(local {: spawn : spawn-capture-output} (require :utils.async))
 (local {: mk-op} (require :utils.operator))
 
 ;; General Options and Keymaps
@@ -72,7 +72,7 @@
 
 ; Open text in browser
 (mk-op :OpenInBrowser
-       (let [open-in-browser #(spawn [vim.g.browser $1])]
+       (let [open-in-browser #(spawn [vim.g.browser $1] {:args [$1]})]
          (fn [lines]
            (vim.tbl_map open-in-browser lines))))
 
@@ -183,8 +183,7 @@
              [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})})
 
           (ls-setup!
-            :clangd
-            {}
+            :clangd {}
             {[:n "<C-c>"] #(vim.cmd.ClangdSwitchSourceHeader)})
 
           ; {:name :lua_ls
@@ -199,10 +198,17 @@
           (ls-setup! :hls)
           (ls-setup! :racket_langserver)
 
-          (setup :zk {:picker :select ; TODO
-                      :lsp {:config {:on_attach (mk-on_attach {})
-                                     :capabilities (mk-capabilities)}}
-                      }))))
+          (let [extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
+                               [:i "<C-l>"] "<Esc>2la"
+                               [:i "<C-p>"] #(spawn-capture-output
+                                               :zk-screenshot nil
+                                               (fn [code _ stdout stderr]
+                                                 (if (= 0 code)
+                                                   (put! stdout)
+                                                   (error stderr))))}]
+            (setup :zk {:picker :select ; TODO
+                        :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
+                                       :capabilities (mk-capabilities)}}})))))
 
 (add! "mfussenegger/nvim-dap"
       (fn []

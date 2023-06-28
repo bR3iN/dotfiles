@@ -49,4 +49,10 @@
         (vim.api.nvim_create_autocmd event opt-tbl)))
     create-autocmd))
 
+(fn M.replace-termcodes [keys]
+  (vim.api.nvim_replace_termcodes keys true false true))
+
+(fn M.put! [text]
+  (vim.api.nvim_put [text] "" false true))
+
 M
