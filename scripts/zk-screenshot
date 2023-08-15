@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+set -e
+
+filename=$(mktemp -u XXXXXX).png
+grim -g "$(slurp)" ~/Zettelkasten/screenshots/"$filename"
+echo -n "$filename"

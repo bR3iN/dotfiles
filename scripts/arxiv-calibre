@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+from subprocess import run, PIPE
+from sys import argv
+from tempfile import TemporaryDirectory
+import arxiv
+import os.path
+
+
+# CALIBRE_CMD = ['calibredb']
+CALIBRE_CMD = ['flatpak', 'run', '--filesystem=/tmp', '--command=calibredb', 'com.calibre_ebook.calibre']
+
+
+def get_id(arg: str) -> str:
+    cmps = arg.split('/')
+    if '.' in cmps[-1]:
+        # Modern id
+        return cmps[-1]
+    elif len(cmps) >= 2:
+        # Old style id
+        return '/'.join(cmps[-2:])
+    else:
+        raise RuntimeError(f"Invalid argument '{arg}'")
+
+
+# Read in ids to import
+id_list = list(map(get_id, argv[1:]))
+
+
+with TemporaryDirectory() as tmp_dir:
+    for res in arxiv.Search(id_list=id_list).results():
+        print(f"Adding '{res.title}'")
+
+        filename = f'tmp.pdf'
+        path_raw = os.path.join(tmp_dir, filename)
+
+        # Fetch PDF
+        res.download_pdf(tmp_dir, filename)
+
+        # Import and get internal id
+        stdout = run([*CALIBRE_CMD, 'add', path_raw], stdout=PIPE).stdout.strip()
+        id = stdout.split(b' ')[-1]
+
+        if not id.decode().isdigit():
+            print(f"Failed to add '{res.title}': {stdout}")
+            continue
+
+        fmt_list = lambda l: ' & '.join(map(str, l))
+
+        # Set metadata
+        run([*CALIBRE_CMD, 'set_metadata', id,
+             '-f', f'title:{res.title}',
+             '-f', f'authors:{fmt_list(res.authors)}',
+             '-f', f'comments:{res.summary}',
+             '-f', f'pubdate:{res.published.strftime("%Y-%m-%d")}',
+             '-f', 'publisher:arXiv'], stdout=PIPE)
