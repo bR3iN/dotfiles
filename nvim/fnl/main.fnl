@@ -198,18 +198,32 @@
           (ls-setup! :hls)
           (ls-setup! :racket_langserver)
 
-          (let [extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
+          (let [zk (require :zk)
+                util (require :zk.util)
+                create-and-insert-link #(let [loc (util.get_lsp_location_from_caret)
+                                              title (vim.fn.input "Title: ")]
+                                          (if (not= (# title) 0)
+                                            (zk.new {: title
+                                                     :edit false
+                                                     :insertLinkAtLocation loc})))
+                create-note #(let [title (vim.fn.input "Title: ")]
+                               (if (not= (# title) 0)
+                                 (zk.new {: title})))
+                find-notes #(zk.edit)
+                extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
                                [:i "<C-l>"] "<Esc>2la"
+                               [:n "<localleader>nz"] create-note
+                               [:n "<localleader>no"] find-notes
+                               [:i "<C-j>"] create-and-insert-link
                                [:i "<C-p>"] #(spawn-capture-output
                                                :zk-screenshot nil
                                                (fn [code _ stdout stderr]
                                                  (if (= 0 code)
-                                                   (put! stdout)
+                                                   (put! (.. "![[" stdout "]]"))
                                                    (error stderr))))}]
-            (setup :zk {:picker :telescope
-                        :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
-                                       :capabilities (mk-capabilities)}}})))))
-
+            (zk.setup {:picker :telescope
+                       :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
+                                      :capabilities (mk-capabilities)}}})))))
 (add! "mfussenegger/nvim-dap"
       (fn []
         ; Setup common keymaps
@@ -316,6 +330,7 @@
        "hrsh7th/cmp-nvim-lua"
        "kdheepak/cmp-latex-symbols"
        "hrsh7th/cmp-path"
+       "hrsh7th/cmp-omni"
        "hrsh7th/cmp-buffer"
        "hrsh7th/cmp-vsnip"]
       (fn []
@@ -362,6 +377,7 @@
                                    :vsnip         "[Vsp]"
                                    :latex_symbols "[LTX]"
                                    :path          "[Pth]"
+                                   :omni          "[Omn]"
                                    :calc          "[Clc]"
                                    :buffer        "[Buf]"}]
                               (fn [{:source {: name}} item]
@@ -459,32 +475,23 @@
           (fn keybinds-hook [keybinds]
             (let [remap_key keybinds.remap_key
                   unmap     keybinds.unmap]
-              (unmap :norg :n "<LocalLeader>tc")
-              (unmap :norg :n "<LocalLeader>tv")
-              (unmap :norg :n "<LocalLeader>te")
-
               (remap_key :norg         :n "<CR>" "<C-]>")
               (remap_key :toc-split    :n "<CR>" "<C-]>")
-              (remap_key :gtd-displays :n "<CR>" "<C-]>")
-
-              (remap_key :norg :n "gtu" "<LocalLeader>tu")
-              (remap_key :norg :n "gtp" "<LocalLeader>tp")
-              (remap_key :norg :n "gtd" "<LocalLeader>td")
-              (remap_key :norg :n "gth" "<LocalLeader>th")
-              (remap_key :norg :n "gtc" "<LocalLeader>tc")
-              (remap_key :norg :n "gtr" "<LocalLeader>tr")
-              (remap_key :norg :n "gti" "<LocalLeader>ti")))
+              (remap_key :gtd-displays :n "<CR>" "<C-]>")))
 
           ; Main config and setup
           (let [configs
                 {:core.defaults {}
                  :core.concealer {}
                  :core.qol.toc {:close_after_use true}
+                 :core.qol.todo_items {}
+                 :core.export {}
+                 :core.export.markdown {}
                  :core.dirman {:workspaces {:notes "~/neorg/notes"
                                             :zettelkasten "~/neorg/zettelkasten"
                                             :workspace1 "~/neorg/workspace1"
                                             :references "~/neorg/references"
-                                            :gtd "~/neorg/tasks"}
+                                            :gtd "~/neorg/projects"}
                                :default :notes
                                ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
                                :open_last_workspace false}
