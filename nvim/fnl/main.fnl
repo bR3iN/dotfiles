@@ -209,11 +209,12 @@
                 create-note #(let [title (vim.fn.input "Title: ")]
                                (if (not= (# title) 0)
                                  (zk.new {: title})))
-                find-notes #(zk.edit)
                 extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
                                [:i "<C-l>"] "<Esc>2la"
+                               [:i "<C-y>"] "<Esc>2hvT|uf]3li"
                                [:n "<localleader>nz"] create-note
-                               [:n "<localleader>no"] find-notes
+                               [:n "<localleader>no"] #(zk.edit)
+                               [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
                                [:i "<C-j>"] create-and-insert-link
                                [:i "<C-p>"] #(spawn-capture-output
                                                :zk-screenshot nil
@@ -276,10 +277,9 @@
                      (let [picker (. builtins action)]
                        (picker ?opts)))]
           (each [[mode lhs] rhs
-                 (pairs {[:n "<leader>ff"] #(pick :find_files)
-                         [:n "<leader>fz"] #(pick :buffers)
+                 (pairs {[:n "<leader>ff"] #(pick :find_files {:follow true})
                          [:n "<leader>f."] #(pick :resume)
-                         [:n "<leader>b"]  #(pick :buffers)
+                         [:n "<leader>b"]  #(pick :buffers {:sort_lastused true :sort_mru true})
                          [:n "<leader>fg"] #(pick :live_grep)
                          [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
                          [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]

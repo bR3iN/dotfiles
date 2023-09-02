@@ -2,6 +2,7 @@ for_window {
     [app_id="thunderbird"]           move window to workspace 5
     [class="GParted"]                floating enable
     [app_id="blueberry.py"]          floating enable
+    [app_id="stlink-gui"]          floating enable
     [app_id="d-feet"]                floating enable
     [app_id="zenity"]                floating enable
     [app_id="firewall-config"]       floating enable
@@ -12,6 +13,7 @@ for_window {
     [app_id="polkit"]                floating enable
     [app_id="seahorse"]              floating enable
     [class="Setroubleshoot"]         floating enable
+    [class="com-st-microxplorer-maingui-STM32CubeMX"]         floating enable
     [app_id="system-config-printer"] floating enable
     [title="Event Tester"]           floating enable
     [title="Firefox — Sharing Indicator"] floating enable
