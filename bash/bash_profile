@@ -3,8 +3,4 @@ if [ -n "${TOOLBOX_PATH}" ] && [ -x /usr/bin/fish ]; then
     exec /usr/bin/fish
 fi
 
-if [ -x "/usr/bin/ssh-agent" ]; then
-    eval `ssh-agent` > /dev/null
-fi
-
 # vim: filetype=sh

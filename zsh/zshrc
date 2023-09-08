@@ -1,0 +1,35 @@
+# Prevent Ctrl+s from freezing the terminal
+stty -ixon
+
+export CDPATH=.:~
+
+# Treat path components as separate words for incremental deletion
+WORDCHARS="${WORDCHARS/\/}"
+
+# Can skip `cd` when changing directories
+setopt auto_cd
+
+# Push to dir stack on `cd`, but silently and without duplicates
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushd_silent
+
+# Efficient directory stack navigation
+alias d='dirs -v'
+for i in {0..9}; do
+    alias $i="cd +$i >/dev/null"
+done; unset i
+
+# Fail hard if shell expansions fails
+setopt nomatch
+
+# History configuration
+HISTFILE="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/history"
+HISTSIZE=10000
+SAVEHIST=10000
+
+autoload -U colors; colors
+
+for file in "$ZDOTDIR"/zshrc.d/*.zsh; do
+    source "$file"
+done
