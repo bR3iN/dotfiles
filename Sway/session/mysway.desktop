@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MySway
+Comment=Wrapper for Sway
+Exec=/usr/local/bin/mysway
+TryExec=/usr/local/bin/mysway
+Type=Application

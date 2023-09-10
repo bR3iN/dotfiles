@@ -2,8 +2,6 @@
 set -e
 set -u
 
-echo "export ZDOTDIR=~/.config/zsh" > ~/.profile.d/zsh_env.sh
-
 # Used for history file
 mkdir -p "${XDG_DATA_HOME:-$HOME/.local/share}/zsh"
 
@@ -23,4 +21,4 @@ for url in "${urls[@]}"; do
     git clone "$url" || true
 done
 
-usermod --shell=/usr/bin/zsh "$(whoami)"
+sudo usermod --shell=/usr/bin/zsh "$(whoami)"
