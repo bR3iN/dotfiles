@@ -1,0 +1,104 @@
+@import "base16.scss";
+
+$underline_height: 2px;
+$underline_color: $base03;
+
+* {
+    all: unset;
+    font-family: Noto Sans Nerd Font;
+    font-size: 100%;
+    opacity: 1;
+    // min-height: 0px;
+}
+
+.bar {
+    background-color: shade($base00, 0.7);
+    border-bottom: $underline_height solid $underline_color;
+    border-color: $base03;
+    color: $base08;
+    opacity: 1.0;
+}
+
+.scale {
+    // margin: 0 14px;
+    // min-width: 10px;
+    // min-height: 10px;
+    border-radius: 4px;
+    background-size: 0;
+    padding: 0px 14px;
+}
+
+.scale trough {
+    min-height: 3px;
+    min-width: 70px;
+    background-color: shade($base03, 1.2);
+    color: shade($base03, 1.2);
+    border-radius: 2px;
+}
+
+.scale trough highlight {
+    background-color: shade($base04, 0.6);
+    color: shade($base04, 0.7);
+    border-radius: 2px;
+}
+
+.scale slider {
+    // min-height: 14px;
+    // min-width: 14px;
+    border-radius: 8px;
+    margin: -7px;
+    background-color: shade($base04, 0.9);
+}
+
+.scale slider:hover {
+    background-color: shade($base04, 1.0);
+}
+
+.widget {
+    color: $base04;
+    padding: 0px 14px;
+    border-bottom: $underline_height solid $underline_color;
+    margin: 0 0 0 -$underline_height;
+}
+
+.widget.slim {
+    padding: 0px 0px;
+}
+
+.brightness         { border-color: shade($base08, 0.7); }
+.brightness_slider  { border-color: shade($base08, 0.7); }
+.volume             { border-color: shade($base09, 0.7); }
+.volume_highlighted { border-color: $base09; background: shade($base09, 0.7); }
+.volume_slider      { border-color: shade($base09, 0.7); }
+.cpu                { border-color: shade($base0A, 0.7); }
+.memory             { border-color: shade($base0E, 0.7); }
+.vpn                { border-color: shade($base0D, 0.7); font-size: 120%; }
+.vpn_connected      { border-color: $base0D; background: shade($base0D, 0.7); font-size: 120%; }
+.network            { border-color: shade($base0C, 0.7); }
+.battery            { border-color: shade($base0B, 0.7); }
+.battery_charging   { border-color: shade($base0B, 1.0); background: shade($base0B, 0.7) }
+.battery_critical   { border-color: transparent; background: shade($base08, 1.0)}
+
+
+.clock {
+    font-weight: bold;
+    font-size: 110%;
+}
+
+.navigation {
+    opacity: 0.8;
+    background: transparent;
+}
+
+.ws_button {
+    border-bottom: $underline_height solid $underline_color;
+    color: shade($base04, 0.9);
+    padding: 0 7px;
+    margin: 0 0 0 -$underline_height;
+    font-weight: bold;
+}
+
+.ws_button.focused {
+    border-bottom: $underline_height solid $base0B;
+    background-color: $base02;
+}
