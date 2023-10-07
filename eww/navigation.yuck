@@ -1,0 +1,73 @@
+(defwindow navigation
+  :monitor 0
+  :geometry (geometry
+              :x "15"
+              :y "0"
+              :anchor "top right")
+  :stacking "fg"
+  :focusable false
+  (navigation_menu))
+
+(defvar navigation_visible false)
+
+(defwidget navigation_menu []
+  (revealer
+    :style "padding-top: 15px"
+    :reveal navigation_visible
+    :transition "slidedown"
+    (navigation_buttons)))
+
+(defwidget nav-button [onclick ?color]
+  (button
+    :class "navigation_button ${color ?: ""}"
+    :onclick onclick
+    :timeout "500ms"
+    (children)))
+
+(defwidget vbox [even]
+  (box :orientation "v"
+       :space-evenly even
+       (children)))
+
+(defwidget hbox [even]
+  (box :orientation "h"
+       :space-evenly even
+       (children)))
+
+(defvar goto "swaymsg workspace")
+(defvar moveto "swaymsg move container to workspace")
+
+(defwidget navigation_buttons []
+  (vbox :even false
+        (hbox :even true
+              (nav-button :color "magenta" :onclick "${moveto} 1; ${goto} 1" "1")
+              (nav-button :color "magenta" :onclick "${moveto} 2; ${goto} 2" "2")
+              (nav-button :color "magenta" :onclick "${moveto} 3; ${goto} 3" "3")
+              (nav-button :color "magenta" :onclick "${moveto} 4; ${goto} 4" "4")
+              (nav-button :color "magenta" :onclick "${moveto} 5; ${goto} 5" "5")
+              )
+        (hbox :even false
+              (vbox :even false
+                    (nav-button :color "yellow" :onclick "swaymsg focus parent" "󰘖")
+                    (nav-button :color "yellow" :onclick "swaymsg focus child" "󰘕")
+                    (nav-button :color "red" :onclick "${EWW_CMD} update navigation_visible=false" "")
+                    )
+              (vbox :even true
+                    :hexpand true
+                    (hbox :even true
+                          (nav-button :color "cyan" :onclick "swaymsg layout toggle split" "󰑤")
+                          (nav-button :color "cyan" :onclick "swaymsg splith" "")
+                          (nav-button :color "cyan" :onclick "swaymsg splitv" "")
+                          )
+                    (hbox :even true
+                          (nav-button :color "orange" :onclick "swaymsg floating toggle" "󰡏")
+                          (nav-button :color "blue" :onclick "swaymsg layout stacking" "")
+                          (nav-button :color "blue" :onclick "swaymsg layout tabbed" "")
+                          )
+                    (hbox :even false
+                          (nav-button :color "green" :onclick "swaymsg move left"  "")
+                          (nav-button :color "green" :onclick "swaymsg move down"  "")
+                          (nav-button :color "green" :onclick "swaymsg move up"  "")
+                          (nav-button :color "green" :onclick "swaymsg move right"  "")
+                          )))))
+

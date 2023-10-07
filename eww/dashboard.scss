@@ -1,0 +1,125 @@
+.dashboard-slider.red trough highlight { background-color: $red; }
+.dashboard-slider.orange trough highlight { background-color: $orange; }
+.dashboard-slider.yellow trough highlight { background-color: $yellow; }
+.dashboard-slider.green trough highlight { background-color: $green; }
+.dashboard-slider.magenta trough highlight { background-color: $magenta; }
+.dashboard-slider.blue trough highlight { background-color: $blue; }
+.dashboard-slider.cyan trough highlight { background-color: $cyan; }
+
+.dashboard-slider trough {
+    min-width: 250px;
+    min-height: 30px;
+    background-color: $base01;
+    border-color: shade($base01, 1.05);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 15px;
+}
+
+.dashboard {
+    opacity: 1;
+    // background-color: $base01;
+    background-image: url("../../Wallpaper/current_resized_blurred.png");
+    color: $base04;
+}
+
+.dashboard-slider-label {
+    font-size: 26px;
+}
+
+.dashboard-slider trough highlight {
+    background-color: $base04;
+    border-radius: 15px;
+}
+
+.dashboard-datetime {
+    padding: 30px 45px;
+    margin-top: 50px;
+    border-color: shade($base03, 1.05);
+    border-width: 1px;
+    border-radius: 8px;
+    background-color: $base03;
+}
+
+.dashboard-date {
+    font-size: 140%;
+}
+
+.dashboard-clock {
+    font-size: 350%;
+}
+
+.dashboard-topright{
+    margin-right: 30px;
+    margin-top: 30px;
+}
+
+.dashboard-topcenter{
+    margin-top: 30px;
+}
+
+.dashboard-bottomleft{
+    margin-left: 30px;
+    margin-bottom: 30px;
+}
+
+.dashboard-bottomright{
+    margin-right: 30px;
+    margin-bottom: 30px;
+}
+
+.dashboard-button {
+    font-size: 250%;
+    min-height: 50px;
+    min-width: 50px;
+    // padding: 10px 18px;
+    border-color: shade($base03, 1.05);
+    border-width: 1px;
+    border-radius: 8px;
+    background-color: $base03;
+}
+
+.inner {
+    color: $base03;
+}
+
+.dashboard-systray {
+    padding: 30px;
+    border-color: shade($base02, 1.05);
+    border-width: 1px;
+    border-radius: 8px;
+    background-color: $base02;
+}
+
+.dashboard-systray-button {
+    background-color: shade($base03, 1.0);
+    border-color: shade($base03, 1.05);
+    border-radius: 8px;
+    border-width: 1px;
+    min-height: 50px;
+    min-width: 50px;
+    font-size: 250%;
+}
+
+.dashboard-systray-button.toggled {
+    color: $foreground;
+}
+
+.dashboard-systray-button.toggled.red { background-color: $red; }
+.dashboard-systray-button.toggled.orange { background-color: $orange; }
+.dashboard-systray-button.toggled.yellow { background-color: $yellow; }
+.dashboard-systray-button.toggled.green { background-color: $green; }
+.dashboard-systray-button.toggled.magenta { background-color: $magenta; }
+.dashboard-systray-button.toggled.blue { background-color: $blue; }
+.dashboard-systray-button.toggled.cyan { background-color: $cyan; }
+
+.dashboard-settingstray {
+    padding: 15px 0;
+}
+
+.dashboard-resourcetray {
+    padding: 15px;
+    border-color: shade($base03, 1.05);
+    border-radius: 8px;
+    background-color: $base03;
+}

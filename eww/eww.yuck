@@ -1,2 +1,4 @@
+(include "./config.yuck")
 (include "./bar.yuck")
 (include "./navigation.yuck")
+(include "./dashboard.yuck")

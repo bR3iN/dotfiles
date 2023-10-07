@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 get() {
-    fmt_ws='"(workspace_button :focused \(.focused) :name \"\(.name)\" :urgent \(.urgent))"'
+    fmt_ws='"(workspace_button :focused \(.focused) :name \"\(.name)\" :urgent \(.urgent) :exists true)"'
     swaymsg -r -t get_workspaces \
         | jq -r -c "map($fmt_ws) | join(\" \")"
 }

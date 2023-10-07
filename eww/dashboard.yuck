@@ -1,0 +1,209 @@
+(defwindow dashboard
+  :monitor 0
+  :geometry (geometry :width "100%"
+                      :height "100%"
+                      :x 0
+                      :y 0
+                      :anchor "bottom center"
+                      )
+  :stacking "overlay"
+  :exclusive true
+  :focusable false
+  (dashboard))
+
+(defwidget dashboard []
+    (box :orientation "v"
+         :class "dashboard"
+         :space-evenly false
+         (centerbox :orientation "h"
+                    (box)
+                    (box
+                      :class "dashboard-topcenter"
+                      (clockwidget))
+                    (box
+                      :valign "start"
+                      :halign "end"
+                      :class "dashboard-topright"
+                      (button
+                        :class "dashboard-button"
+                        :onclick "${EWW_CMD} close dashboard"
+                        "󰅖")))
+         (box :orientation "h"
+              :valign "end"
+              :vexpand true
+              (box
+                :vexpand true
+                :hexpand true
+                :valign "end"
+                :halign "start"
+                :class "dashboard-bottomleft"
+                (systray))
+              (box
+                :vexpand true
+                :hexpand true
+                :valign "end"
+                :halign "end"
+                :class "dashboard-bottomright"
+                (powerbuttontray)))))
+
+(defwidget clockwidget []
+  (box :orientation "v"
+       :space-evenly false
+       :class "dashboard-datetime"
+       (label :class "dashboard-clock"
+              :text "${formattime(EWW_TIME, "%H:%M")}")
+       (label :class "dashboard-date"
+              :text "${formattime(EWW_TIME, "%a, %d. %b")}")))
+
+; (deflisten brightness :initial 0
+;   './scripts/listen-brightness.sh')
+
+; (defvar brightness_set "brightnessctl -q --min-value=1 set")
+
+(defwidget dashboard-slider-bright [class]
+  ; Box-wrapping needed to correctly display borders
+  (box :space-evenly false
+       :spacing 15
+       (label :class "dashboard-slider-label ${class}"
+              :text "")
+       (scale :class "dashboard-slider ${class}"
+              :min 0
+              :max 101
+              :onchange "${brightness_set} {}%"
+              :value {brightness})
+       (label :class "dashboard-slider-label ${class}"
+              :text "${brightness}%")
+       ))
+
+    ;TODO: rename slider to scale
+    (defwidget dashboard-slider-vol [class]
+      ; Box-wrapping needed to correctly display borders
+      (box :space-evenly false
+           :spacing 15
+           (label :class "dashboard-slider-label ${class}"
+                  :text "墳")
+           (scale :class "dashboard-slider ${class}"
+                  :min 0
+                  :max 101
+                  :onchange "${volume_set} {}%"
+                  :value "${volume.volume}")
+           (label :class "dashboard-slider-label ${class}"
+                  :text "${volume.volume}%")
+           ))
+
+(defwidget systray []
+  (box :orientation "v"
+       :space-evenly false
+       :spacing 30
+       :class "dashboard-systray"
+       (box :class "dashboard-resourcetray"
+            :halign "fill"
+            (box :halign "center"
+                 (resource-tray
+                   :c1 "cyan"
+                   :c2 "blue"
+                   :c3 "magenta")))
+       (box :halign "fill"
+            :class "dashboard-settingstray"
+            (box :halign "center"
+                 (settings-tray)))
+       (box :space-evenly false
+            :spacing 15
+            :orientation "v"
+            (dashboard-slider-vol :class "orange")
+            (dashboard-slider-bright :class "green"))))
+
+
+(defwidget settings-tray []
+  (box :space-evenly false
+       :halign "center"
+       :spacing 35
+       (setting-button
+         :color "red"
+         :icon "󰖩"
+         :onclick "kitty -e nmtui & ${EWW_CMD} close dashboard")
+       (setting-button
+         :color "orange"
+         :icon "󰂯"
+         :onclick "blueberry & ${EWW_CMD} close dashboard")
+       (setting-button
+         :color "yellow"
+         :icon "󰌌"
+         :toggled osk_state
+         :onclick "${osk_state ? osk_unset : osk_set} & ${EWW_CMD} update osk_state=${! osk_state}")
+       (setting-button
+         :color "green"
+         :icon ""
+         :toggled rotate-screen
+         :onclick {rotate-screen ? "systemctl --user stop rot8 & ${EWW_CMD} update rotate-screen=false"
+         : "systemctl --user start rot8 & ${EWW_CMD} update rotate-screen=true"})))
+
+(defvar rotate-screen false)
+
+(defwidget setting-button [?onclick color icon ?toggled]
+  (button
+    :class "dashboard-systray-button ${color}${toggled ?: false ? " toggled" : ""}"
+    :onclick onclick
+    icon))
+
+
+(defwidget systray-circle [class icon value]
+  (overlay
+    (circular-progress
+      :class "inner"
+      :value 100
+      :thickness 40)
+    (circular-progress
+      :class class
+      :value value
+      :thickness 10)
+    (label :style "font-size: 150%"
+           :class class
+           :text icon)))
+
+
+(defwidget resource-tray [c1 c2 c3]
+  (box :space-evenly false
+       :spacing 30
+  (box
+    :orientation "v"
+    :space-evenly false
+    :spacing 5
+    (systray-circle :icon "" :class "${c1}" :value {EWW_CPU.avg})
+    (label :class "dashboard-slider-label ${c1}"
+           :text "${round(EWW_CPU.avg, 0)}%"))
+  (box
+    :orientation "v"
+    :space-evenly false
+    :spacing 5
+    (systray-circle :icon "󰍛" :class "${c2}" :value {EWW_RAM.used_mem_perc})
+    (label :class "dashboard-slider-label ${c2}"
+           :text "${round(EWW_RAM.used_mem / 1073741824, 1)}GiB"))
+  (box
+    :orientation "v"
+    :space-evenly false
+    :spacing 5
+    (systray-circle :icon "󰉉" :class "${c3}" :value {EWW_DISK["/"].used_perc})
+    (label :class "dashboard-slider-label ${c3}"
+           :text "${round(EWW_DISK["/"].free / 1073741824, 1)}GiB"))
+  ))
+
+(defwidget powerbuttontray []
+  (box :space-evenly false
+       :spacing 10
+       (button
+         :class "dashboard-button green"
+         "󰌆")
+       (button
+         :class "dashboard-button yellow"
+         "󰖔")
+       (button
+         :class "dashboard-button orange"
+         "󰑥")
+       (button
+         :class "dashboard-button red"
+         "󰐥")))
+
+; (defwidget powermenu []
+;   (
+;   )

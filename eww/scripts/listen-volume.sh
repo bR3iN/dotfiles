@@ -15,5 +15,5 @@ print() {
 
 print
 pactl subscribe \
-    | grep --line-buffered "Event 'change' on sink" \
+    | grep --line-buffered -E "Event 'change' on (sink|server)" \
     | while read; do print; done

@@ -1,0 +1,21 @@
+(deflisten volume :initial '{"volume": "0", "muted": true}'
+  './scripts/listen-volume.sh')
+
+(defvar volume_set "pactl set-sink-volume @DEFAULT_SINK@")
+(defvar volume_toggle "pactl set-sink-mute @DEFAULT_SINK@ toggle")
+(defvar volume_icons '["奄", "奔", "墳"]')
+
+(deflisten brightness :initial 0
+  './scripts/listen-brightness.sh')
+
+(defvar brightness_icons '["", "", ""]')
+(defvar brightness_set "brightnessctl -q --min-value=1 set")
+
+; (defvar osk_set "gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true")
+; (defvar osk_unset "gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled false")
+; (deflisten osk_state :initial false
+;   "gsettings get org.gnome.desktop.a11y.applications screen-keyboard-enabled")
+
+(defvar osk_set "systemctl --user start squeekboard")
+(defvar osk_unset "systemctl --user stop squeekboard")
+(defvar osk_state false)
