@@ -17,4 +17,4 @@ callback()
     firefox --profile "/tmp/ff-profile-$1"
 }
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh

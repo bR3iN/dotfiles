@@ -14,4 +14,4 @@ callback()
     xdg-open "${DOC_DIR}/$1"
 }
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh

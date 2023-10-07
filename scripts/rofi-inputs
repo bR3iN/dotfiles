@@ -21,4 +21,4 @@ elif [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
     }
 fi
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh

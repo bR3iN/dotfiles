@@ -19,4 +19,4 @@ callback()
     "$SCRIPTS_DIR"/"$1" >> /tmp/rofi-scripts-"${1%.*}".log
 }
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh
