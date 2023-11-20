@@ -38,8 +38,8 @@ gaps inner $gaps_inner
 gaps outer $gaps_outer
 
 exec eww daemon
-exec eww open-many bar navigation
-exec_always eww reload
+# exec eww open-many bar navigation
+bar swaybar_command waybar
 
 # Load colors
 include ~/.config/sway/base16
