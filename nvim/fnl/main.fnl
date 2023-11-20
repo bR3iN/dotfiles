@@ -211,7 +211,7 @@
                                  (zk.new {: title})))
                 extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
                                [:i "<C-l>"] "<Esc>2la"
-                               [:i "<C-y>"] "<Esc>2hvT|uf]3li"
+                               [:i "<C-y>"] "<Esc>2hvT|uf]2la"
                                [:n "<localleader>nz"] create-note
                                [:n "<localleader>no"] #(zk.edit)
                                [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
@@ -536,7 +536,7 @@
            {:use_default_keymaps false
             :keymaps {"g?"    :actions.show_help
                       "<C-]>" :actions.select
-                      "<C-v>" :actions.select_vsplit
+                      ; "<C-v>" :actions.select_vsplit ; TODO: find alternative
                       "<C-s>" :actions.select_split
                       "gp"    :actions.preview
                       "<C-p>" :actions.close
@@ -582,3 +582,5 @@
   (autocmd! :TextYankPost "*"
             #(vim.highlight.on_yank {:higroup :IncSearch
                                      :timeout 150})))
+
+(add! :elkowar/yuck.vim)
