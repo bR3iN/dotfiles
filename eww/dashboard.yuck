@@ -192,15 +192,19 @@
   (box :space-evenly false
        :spacing 10
        (button
+         :onclick "${EWW_CMD} close dashboard & lock-wrapper gtklock"
          :class "dashboard-button green"
          "󰌆")
        (button
+         :onclick "${EWW_CMD} close dashboard & systemctl suspend"
          :class "dashboard-button yellow"
          "󰖔")
        (button
+         :onclick "${EWW_CMD} close dashboard & systemctl reboot"
          :class "dashboard-button orange"
          "󰑥")
        (button
+         :onclick "${EWW_CMD} close dashboard & systemctl poweroff"
          :class "dashboard-button red"
          "󰐥")))
 

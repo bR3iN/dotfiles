@@ -84,8 +84,8 @@ window#waybar {
 }
 
 #mode {
-    background-color: shade(@yellow, 1.0);
-    border-color: shade(@yellow, 0.95);
+    background-color: shade(@green, 1.0);
+    border-color: shade(@green, 0.7);
     font-style: italic;
     color: @base00;
 }
@@ -93,11 +93,11 @@ window#waybar {
 
 #backlight { border-color: @magenta; }
 
-#battery { border-color: @blue; }
+#battery { border-color: @green; }
 
-#battery.charging, #battery.plugged {
-    border-color: shade(@blue, 1.1);
-    background-color: shade(@blue, 0.9);
+#battery.charging {
+    border-color: shade(@green, 1.1);
+    background-color: shade(@green, 0.9);
 }
 
 @keyframes blink {
@@ -131,30 +131,30 @@ window#waybar {
 #custom-vpn { font-size: 120%; }
 
 #custom-vpn.disconnected {
-    border-color: @cyan;
+    border-color: @blue;
 }
 
 #custom-vpn.connected {
+    background-color: shade(@blue, 0.9);
+    border-color: shade(@blue, 1.1);
+}
+
+#pulseaudio {
     background-color: shade(@cyan, 0.9);
     border-color: shade(@cyan, 1.1);
 }
 
-#pulseaudio {
-    background-color: shade(@magenta, 0.9);
-    border-color: shade(@magenta, 1.1);
-}
-
 #pulseaudio.muted {
     background-color: @base02;
-    border-color: @magenta;
+    border-color: @cyan;
 }
 
-#disk { border-color: @yellow; }
-#memory { border-color: @orange; }
-#cpu    { border-color: @red; }
+/* #disk   { border-color: @yellow; } */
+/* #memory { border-color: @orange; } */
+/* #cpu    { border-color: @red; } */
 
-#custom-launcher { border-color: @magenta; }
-/* #custom-navigation { border-color: @yellow; } */
-#custom-settings { border-color: @cyan; }
+#custom-launcher { border-color: @red; }
+#custom-navigation { border-color: @orange; }
+#custom-settings { border-color: @yellow; }
 
-#clock { font-size: 110%; font-weight: bold; border-color: @green; }
+#clock { font-size: 110%; font-weight: bold; border-color: @magenta; }

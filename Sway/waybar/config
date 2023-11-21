@@ -1,9 +1,9 @@
 {
     "modules-left": [
         "custom/launcher",
-        "sway/workspaces",
         "custom/navigation",
         "custom/settings",
+        "sway/workspaces",
         "sway/mode",
     ],
     "modules-center": [],
@@ -12,7 +12,6 @@
         "cpu",
         "memory",
         "disk",
-        // "backlight",
         "pulseaudio",
         "custom/vpn",
         "battery",
@@ -114,15 +113,17 @@
             "car": "",
             "default": ["奄", "奔", "墳"]
         },
-        "on-click": "pavucontrol"
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
     },
 
     "custom/launcher": {
         "format": "",
+        "on-click": "eww update launcher_visible=true",
     },
 
     "custom/navigation": {
         "format": "",
+        "on-click": "eww update navigation_visible=true",
     },
 
     "custom/settings": {
@@ -134,6 +135,7 @@
         "format": "嬨",
         "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
         // "interval": 5
+        "on-click": "rofi-vpn",
     }
 }
 
