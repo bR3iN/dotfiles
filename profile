@@ -12,6 +12,6 @@ fi
 
 for file in ~/.profile.d/*; do
     source "$file" 2> /dev/null
-done
+done &> /dev/null
 
 # vim: ft=bash

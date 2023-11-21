@@ -52,9 +52,6 @@ client.unfocused        $base01 $base00 $base04 $base00 $base01
 client.urgent           $base08 $base08 $base00 $base08 $base08
 client.placeholder      $base00 $base00 $base04 $base00 $base00
 
-# Set Wallpaper
-output * bg ~/Wallpaper/current fill
-
 ## }}}
 
 ## Idle configuration {{{
@@ -268,7 +265,6 @@ exec kanshi
 
 ## }}}
 
-include /etc/sway/config.d/*
 include ~/.config/sway/config.d/*
 
 # vim: ft=conf
