@@ -38,7 +38,7 @@ gaps inner $gaps_inner
 gaps outer $gaps_outer
 
 exec eww daemon
-exec eww open navgation
+exec eww open navigation
 exec eww open launcher
 bar swaybar_command waybar
 
