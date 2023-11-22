@@ -15,4 +15,4 @@ callback()
     "${CONFIG_DIR}/${1}.sh"
 }
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh

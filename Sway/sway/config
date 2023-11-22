@@ -17,7 +17,10 @@ set $gaps_outer 0
 set $browser qutebrowser
 
 # application launcher
-set $menu rofi -show drun -run-command "swaymsg exec -- {cmd}"
+# set $menu rofi -show drun -run-command "swaymsg exec -- {cmd}"
+set $menu wofi --show drun --run-command "swaymsg exec -- {cmd}"
+
+set $lock_cmd gtklock -m /usr/lib/gtklock/powerbar-module.so
 
 ## }}}
 
@@ -34,6 +37,9 @@ smart_gaps on
 gaps inner $gaps_inner
 gaps outer $gaps_outer
 
+exec eww daemon
+exec eww open navigation
+exec eww open launcher
 bar swaybar_command waybar
 
 # Load colors
@@ -50,7 +56,7 @@ client.placeholder      $base00 $base00 $base04 $base00 $base00
 
 ## Idle configuration {{{
 
-exec swayidle -w before-sleep 'swaylock -f'
+exec swayidle -w before-sleep "$lock_cmd -d"
 
 ## }}}
 
@@ -80,10 +86,11 @@ input "2:14:ETPS/2_Elantech_Touchpad" {
 floating_modifier $mod
 
 # Lock screen and power menu
-bindsym $mod+Escape exec wlock
+bindsym $mod+Escape exec lock-wrapper $lock_cmd
 
 # Toggle waybar and gaps
 bindsym $mod+o exec "killall -SIGUSR1 waybar"
+bindsym $mod+Control+o exec "eww open --toggle dashboard"
 bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
                        gaps outer current toggle $gaps_outer
 
@@ -248,11 +255,13 @@ exec powerprofilesctl set power-saver
 # exec thunderbird
 # exec org.gnome.GTG
 
+# TODO: check if needed
+exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY
 exec wlsunset -l 51.9 -L 9.9 -T 5000 -t 3200
 exec /usr/libexec/kdeconnectd
 exec kdeconnect-indicator
 exec mako
-exec systemctl --user import-environment WAYLAND_DISPLAY
+exec kanshi
 
 ## }}}
 

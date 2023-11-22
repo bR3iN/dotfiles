@@ -1,55 +1,33 @@
 @import "base16.css";
 
+@define-color red alpha(shade(@base08, 0.75), 0.8);
+@define-color orange alpha(shade(@base09, 0.8), 0.8);
+@define-color yellow alpha(shade(@base0A, 0.7), 0.8);
+@define-color green alpha(shade(@base0B, 0.8), 0.8);
+@define-color magenta alpha(shade(@base0E, 0.8), 0.8);
+@define-color blue alpha(shade(@base0D, 0.8), 0.8);
+@define-color cyan alpha(shade(@base0C, 0.8), 0.8);
+
+@define-color foreground @base04;
+@define-color border-color @base03;
+
+
 * {
-    border: none;
-    border-radius: 0;
-    /* `otf-font-awesome` is required to be installed for icons */
-    /*font-family: Fira Sans, Symbols Nerd Font, Roboto, Helvetica, Arial, sans-serif;*/
+    /* all: unset; */
+    border-style: solid;
     font-family: Noto Sans Nerd Font;
-    font-size: 100%;
-    min-height: 0;
 }
+
+.modules-left   { margin: 2px; }
+.modules-right  { margin: 2px; }
+.modules-center { margin: 2px; }
 
 window#waybar {
-    background-color: shade(@base01, 0.7);
-    border-bottom: 2px solid @base03;
+    background-color: shade(@base00, 0.7);
+    border-bottom-width: 1px;
+    border-color: @base01;
     color: @base08;
-    opacity: 1.0;
-}
-
-window#waybar.hidden {
-    opacity: 0.2;
-}
-
-#workspaces button {
-    padding: 0 3px;
-    margin: 0;
-    background-color: transparent;
-    color: shade(@base04, 0.9);
-    /* Use box-shadow instead of border so the text isn't offset */
-    box-shadow: inset 0 -2px transparent;
-}
-
-/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
-#workspaces button:hover {
-    background: alpha(@base01, 0.6);
-    box-shadow: inset 0 -2px alpha(shade(@base0B, 0.8), 0.6);
-}
-
-#workspaces button.focused {
-    background-color: @base01;
-    box-shadow: inset 0 -2px shade(@base0B, 0.8);
-}
-
-#workspaces button.urgent {
-    box-shadow: inset 0 -2px shade(@base08, 0.8);
-}
-
-#mode {
-    background-color: shade(@base0B, 0.8);
-    color: @base01;
-    padding: 0 10px;
-    border-bottom: 2px solid alpha(@base03, 0.95);
+    opacity: 0.98;
 }
 
 #clock,
@@ -63,102 +41,120 @@ window#waybar.hidden {
 #pulseaudio,
 #tray,
 #idle_inhibitor,
+#mode,
 #custom-vpn,
 #mpd {
-    padding: 0 14px;
+    color: @foreground;
+    background-color: @base02;
+    padding: 0px 14px;
+    border-width: 2px;
+    border-color: @border-color;
+    border-radius: 20px;
+    margin: 0px 2px;
+}
+
+#custom-launcher,
+#custom-navigation,
+#custom-settings,
+#workspaces button {
+    border-width: 2px;
+    border-color: @border-color;
+    border-radius: 20px;
     color: shade(@base04, 0.9);
-    background-color: transparent;
+    background-color: @base02;
+    padding: 0 9px;
+    margin: 0px 2px;
+    min-width: 25px;
+    min-height: 25px;
+    font-weight: bold;
 }
 
-#tray {
-    border-bottom: 2px solid transparent;
+
+#workspaces button:hover {
+    background-color: shade(@base02, 1.4);
 }
 
-#backlight {
-    border-bottom: 2px solid shade(@base08, 0.7);
+#workspaces button.focused {
+    border-color: @green;
 }
 
-#battery {
-    border-bottom: 2px solid shade(@base0B, 0.7);
+#workspaces button.urgent {
+    border-color: shade(@base08, 0.8);
+    border-color: shade(@base0B, 0.7);
 }
 
-#battery.charging, #battery.plugged {
-    border-bottom: 2px solid @base0B;
+#mode {
+    background-color: shade(@green, 1.0);
+    border-color: shade(@green, 0.7);
+    font-style: italic;
+    color: @base00;
+}
+
+
+#backlight { border-color: @magenta; }
+
+#battery { border-color: @green; }
+
+#battery.charging {
+    border-color: shade(@green, 1.1);
+    background-color: shade(@green, 0.9);
 }
 
 @keyframes blink {
     to {
         background-color: transparent;
-        border-bottom: 2px solid transparent;
+        border-color: transparent;
     }
 }
 
-#battery.critical:not(.charging) {
-    background-color: @base08;
-    border-bottom: 2px solid transparent;
+#battery.warning:not(.charging) {
+    background-color: shade(@orange, 0.9);
+    border-color: shade(@orange, 1.1);
     animation-name: blink;
-    animation-duration: 2s;
+    animation-duration: 1.5s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     animation-direction: alternate;
 }
 
-#network {
-    border-bottom: 2px solid shade(@base0C, 0.7);
+#battery.critical:not(.charging) {
+    background-color: shade(@red, 0.9);
+    border-color: shade(@red, 1.1);
+    animation-name: blink;
+    animation-duration: 0.2s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
-#custom-vpn {
-    border-bottom: 2px solid shade(@base0D, 0.7);
-    font-size: 120%;
+
+#custom-vpn { font-size: 120%; }
+
+#custom-vpn.disconnected {
+    border-color: @blue;
 }
 
 #custom-vpn.connected {
-    background-color: shade(@base0D, 0.7);
-    border-bottom: 2px solid @base0D;
+    background-color: shade(@blue, 0.9);
+    border-color: shade(@blue, 1.1);
 }
 
 #pulseaudio {
-    background-color: alpha(@base09, 0.7);
-    border-bottom: 2px solid @base09;
+    background-color: shade(@cyan, 0.9);
+    border-color: shade(@cyan, 1.1);
 }
 
 #pulseaudio.muted {
-    background-color: transparent;
-    border-bottom: 2px solid shade(@base09, 0.7);
+    background-color: @base02;
+    border-color: @cyan;
 }
 
-#idle_inhibitor {
-    border-bottom: 2px solid shade(@base0D, 0.7);
-}
+/* #disk   { border-color: @yellow; } */
+/* #memory { border-color: @orange; } */
+/* #cpu    { border-color: @red; } */
 
-#idle_inhibitor.activated {
-    border-bottom: 2px solid @base0D;
-}
+#custom-launcher { border-color: @red; }
+#custom-navigation { border-color: @orange; }
+#custom-settings { border-color: @yellow; }
 
-#memory {
-    border-bottom: 2px solid shade(@base0E, 0.7);
-}
-
-#cpu {
-    border-bottom: 2px solid shade(@base0A, 0.7);
-}
-
-#window,
-#workspaces {
-    margin: 0 4px;
-}
-
-/* If workspaces is the leftmost module, omit left margin */
-.modules-left > widget:first-child > #workspaces {
-    margin-left: 0;
-}
-
-/* If workspaces is the rightmost module, omit right margin */
-.modules-right > widget:last-child > #workspaces {
-    margin-right: 0;
-}
-
-#clock {
-    margin-bottom: 2px;
-    font-size: 110%;
-}
+#clock { font-size: 110%; font-weight: bold; border-color: @magenta; }

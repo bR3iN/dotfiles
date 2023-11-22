@@ -1,15 +1,17 @@
 #!/usr/bin/bash
+set -e
+set -u
+set -o pipefail
 
 # tmp file used to store current brightness when toggling
 # as well as fallback when file can't be found
-TMP_FILE=/tmp/backlight_toggle_current
+TMP_FILE=/tmp/backlight_toggled_off
 TOGGLE_FALLBACK="50%"
 
 # default increase/decrese
 DEFAULT_CHANGE="5%"
 
-main ()
-{
+main() {
     case "$1" in
         toggle)
             toggle
@@ -20,53 +22,59 @@ main ()
         decrease)
             decrease
             ;;
+        listen)
+            listen
+            ;;
+        set-clipped)
+            set_clipped "$2"
+            ;;
         *)
-            set_brightness "$1" &>/dev/null
+            echo "Invalid subcommand '$1'"
+            exit 1
             ;;
     esac
 }
 
-toggle ()
-{
-    local current=$(get_brightness)
-    if [ "$current" != "0" ]; then
-        echo "$current" > "$TMP_FILE"
-        set_brightness 0
+toggle() {
+    if [ ! -f "$TMP_FILE" ]; then
+        brightnessctl -q --save
+        touch "$TMP_FILE"
+        brightnessctl -q set 0 
     else
-        local old=$(cat "$TMP_FILE" 2>/dev/null)
-        if [ -n "$old" ]; then
-            set_brightness "$old"
-        else
-            set_brightness "$TOGGLE_FALLBACK"
-        fi
+        brightnessctl -q --restore
+        rm "$TMP_FILE"
     fi
 }
 
-increase ()
-{
-    set_brightness +"$DEFAULT_CHANGE"
+set_clipped() {
+    brightnessctl set -q --min-value=1 "$1"
 }
 
-decrease ()
-{
-    set_brightness "$DEFAULT_CHANGE"-
-    if [ "$(get_brightness)" = "0" ]; then
-        set_brightness 1
-    fi
+increase() {
+    set_clipped +"$DEFAULT_CHANGE"
 }
 
-set_brightness ()
-{
-    # Set brightness and print current brightness as
-    # absulute value and as percentage to stdout (e.g 2345 40)
-    # brightnessctl set "$1" \
-    #     | sed -n 's/.*Current brightness: \([0-9]*\) (\(.*\)%)/\1 \2/p'
-    brightnessctl set "$1" > /dev/null
+decrease() {
+    set_clipped "$DEFAULT_CHANGE"-
 }
 
-get_brightness()
-{
-    brightnessctl get
+get_percentage() {
+    local max_brightness="$1"
+    local current="$(brightnessctl get)"
+    echo $(("$current" * 100 / "$max_brightness"))
+}
+
+listen() {
+    local max_brightness="$(brightnessctl max)"
+
+    get_percentage "$max_brightness"
+
+    udevadm monitor --property --subsystem-match=backlight \
+        | grep --line-buffered ACTION=change \
+        | while read;
+    do
+        get_percentage "$max_brightness"
+    done
 }
 
 main "$@"

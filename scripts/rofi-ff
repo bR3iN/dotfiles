@@ -13,8 +13,9 @@ list_options()
 callback()
 {
     # Weird workaround for playing DRM content
-    ln -sf "$FF_DIR/profiles/$1" "/tmp/ff-profile-$1"
-    firefox --profile "/tmp/ff-profile-$1"
+    # ln -sf "$FF_DIR/profiles/$1" "/tmp/ff-profile-$1"
+    # firefox --profile "/tmp/ff-profile-$1"
+    flatpak run org.mozilla.firefox --profile "$FF_DIR/profiles/$1"
 }
 
-source ~/.config/rofi/scripts/prompt.sh
+source ~/.local/libexec/prompt.sh

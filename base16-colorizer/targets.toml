@@ -32,6 +32,9 @@ rewrite = "~/.config/qutebrowser/base16.py"
 [rofi]
 rewrite = "~/.config/rofi/base16.rasi"
 
+[wofi]
+rewrite = "~/.config/wofi/base16"
+
 [sway]
 rewrite = "~/.config/sway/base16"
 
@@ -51,3 +54,7 @@ rewrite = "~/.config/zathura/base16"
 
 [helix]
 rewrite = "~/.config/helix/themes/base16.toml"
+
+[eww]
+template = "scss"
+rewrite = "~/.config/eww/base16.scss"

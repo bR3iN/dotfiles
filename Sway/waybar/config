@@ -1,19 +1,21 @@
 {
-    "height": 25, // Waybar height (to be removed for auto height)
     "modules-left": [
+        "custom/launcher",
+        "custom/navigation",
+        "custom/settings",
         "sway/workspaces",
-        "sway/mode"
+        "sway/mode",
     ],
-    "modules-center": ["clock"],
+    "modules-center": [],
     "modules-right": [
         "tray",
-        "backlight",
-        "pulseaudio",
         "cpu",
         "memory",
+        "disk",
+        "pulseaudio",
         "custom/vpn",
-        "network",
-        "battery"
+        "battery",
+        "clock",
     ],
 
     "sway/workspaces": {
@@ -33,7 +35,7 @@
     },
 
     "sway/mode": {
-        "format": "<span style=\"italic\">{}</span>"
+        "format": "{}"
     },
 
     "idle_inhibitor": {
@@ -58,8 +60,9 @@
     },
 
     "clock": {
-        "format": "<b>{:%H:%M}</b>",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+        "format": "{:%H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "notify-send \"$(date)\""
     },
 
     "cpu": {
@@ -71,15 +74,21 @@
         "tooltip": false
     },
 
+    "disk": {
+        "format": "{free} 󰻂",
+        "tooltip": false
+    },
+
     "battery": {
         "states": {
-            "warning": 30,
-            "critical": 10
+            "warning": 20,
+            "critical": 5
         },
         "format": "{capacity}% {icon}",
         "format-charging": "{capacity}% ",
         "format-plugged": "{capacity}% ",
-        "format-icons": ["", "", "", "", "", "", "", "", "", "", ""]
+        "format-icons": ["", "", "", "", "", "", "", "", "", "", ""],
+
     },
 
     "network": {
@@ -104,14 +113,29 @@
             "car": "",
             "default": ["奄", "奔", "墳"]
         },
-        "on-click": "pavucontrol"
+        "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+
+    "custom/launcher": {
+        "format": "",
+        "on-click": "eww update launcher_visible=true",
+    },
+
+    "custom/navigation": {
+        "format": "",
+        "on-click": "eww update navigation_visible=true",
+    },
+
+    "custom/settings": {
+        "format": "",
     },
 
     "custom/vpn": {
         "return-type": "json",
         "format": "嬨",
         "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
-        "interval": 5
+        // "interval": 5
+        "on-click": "rofi-vpn",
     }
 }
 

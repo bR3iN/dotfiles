@@ -1,0 +1,57 @@
+@define-color base00 --wofi-color0;
+@define-color base01 --wofi-color1;
+@define-color base02 --wofi-color2;
+@define-color base03 --wofi-color3;
+@define-color base04 --wofi-color4;
+@define-color base05 --wofi-color5;
+@define-color base06 --wofi-color6;
+@define-color base07 --wofi-color7;
+@define-color base08 --wofi-color8;
+@define-color base09 --wofi-color9;
+@define-color base0A --wofi-color10;
+@define-color base0B --wofi-color11;
+@define-color base0C --wofi-color12;
+@define-color base0D --wofi-color13;
+@define-color base0E --wofi-color14;
+@define-color base0F --wofi-color15;
+
+* {
+    font-family: Noto Sans Nerd Font;
+    font-size: 18px;
+    color: @base05;
+    border-radius: 8px;
+}
+
+window {
+    background-color: @base01;
+    border-color: @base03;
+    border-width: 2px;
+    border-style: solid;
+}
+
+#input {
+    margin: 0 0 8px 0;
+    background-color: @base03;
+}
+
+#outer-box {
+    margin: 2px;
+    padding: 10px;
+    background-color: @base01;
+}
+
+#text {
+    padding: 0 0 0 5px;
+}
+
+#entry {
+    border-radius: 0px;
+}
+
+#entry:nth-child(even){
+    background-color: @base02;
+}
+
+#entry:selected {
+    background-color: @base0D;
+}

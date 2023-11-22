@@ -1,0 +1,7 @@
+single_click=true
+key_exit=Escape,Control_L-bracketleft,Control_R-bracketleft
+allow_images=true
+no_actions=true
+insensitive=true
+matching=multi-contains
+colors=base16
