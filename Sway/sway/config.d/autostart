@@ -1,0 +1,13 @@
+exec start-polkit-agent
+exec Thunar --daemon
+
+exec wlsunset -l 51.9 -L 9.9 -T 5000 -t 3200
+exec /usr/libexec/kdeconnectd
+exec kdeconnect-indicator
+exec mako
+exec kanshi
+exec blueman-applet
+
+# TODO: Figure out xdg-desktop-portal problems
+exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY
+exec /usr/libexec/xdg-desktop-portal
