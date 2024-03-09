@@ -1,0 +1,14 @@
+{
+    "Named Bullet Point": {
+        "prefix": ["-*("],
+        "body": [
+            "- **($1):** "
+        ]
+    },
+    "Highlighed Bullet Point": {
+        "prefix": ["-*"],
+        "body": [
+            "- **$1:** "
+        ]
+    }
+}

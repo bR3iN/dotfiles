@@ -2,6 +2,9 @@
 
 (set _G.__user_operators {})
 
+; Takes a list of strings `[@&']<name>`, each identifying a register, option or
+; mark, respectively, and returns a function that (re)sets them to their
+; current value.
 (fn save [ls]
   (local cbs [])
   (each [_ v (ipairs ls)]
@@ -20,9 +23,12 @@
 
 (fn yank-to-unnamed [mode]
   (let [vselect (match mode
+                  ; Motions
                   :char "`[v`]"
                   :line "`[V`]"
                   :block "`[`]"
+                  ; Visual selection; `gv` correctly handles $ while in visual
+                  ; block mode, which the neovim API doesn't do.
                   (where (or :v :V "")) "gv"
                   _ (error (.. "Unknown mode: " mode)))
         cmd (.. "silent noautocmd keepjumps normal! " vselect "y")]
@@ -75,7 +81,10 @@
 ;         (trim-lines lines (+ col1 1) (+ col2 1))))))
 
 
-(fn mk-op [name lines-cb]
+; Correctly handles the combination of <C-v> with $, which isn't possible only
+; using the neovim api.
+; TODO: Check if any plugins have started to correctly handle this case.
+(fn mk-op! [name lines-cb]
   ; Make callback globally accessible
   (tset _G.__user_operators name
         (fn [mode]
@@ -93,4 +102,4 @@
     (set-keymap
       :v (.. ":<C-u>call v:lua.__user_operators." name "(visualmode())<CR>"))))
 
-{: mk-op}
+{: mk-op!}

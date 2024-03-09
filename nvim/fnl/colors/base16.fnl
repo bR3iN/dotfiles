@@ -112,7 +112,7 @@
   (hi! :LineNr 4)
   (hi! :MatchParen 1 13)
   (hi! :MoreMsg 10)
-  (hi! :NonText 13)
+  (hi! :NonText 2)
   (hi! :Pmenu (darken 11 0.15) 2)
   (hi! :PmenuSbar nil 3)
   (hi! :PmenuSel 1 (darken 11 0.15))

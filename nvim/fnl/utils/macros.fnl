@@ -27,10 +27,12 @@
 (fn M.let! [name val]
   '(tset vim.g ,(tostring name) ,val))
 
+; Execute code with a callback called at the end of the block, even if
+; encountering an error.
 (fn M.with-cb [[cb] ...]
   '(let [cb# ,cb]
-     (match (table.pack (pcall #(do ,...)))
-       [true & vs#] (do (cb#) (table.unpack vs#))
+     (case (#[$...] (pcall #(do ,...)))
+       [true & vs#] (do (cb#) (unpack vs#))
        [false err#] (do (cb#) (error err#)))))
 
 M

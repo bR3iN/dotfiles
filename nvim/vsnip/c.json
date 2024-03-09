@@ -1,0 +1,8 @@
+{
+    "Attribute unused": {
+        "prefix": ["un"],
+        "body": [
+            "__attribute((unused))"
+        ]
+    }
+}

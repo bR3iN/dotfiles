@@ -5,6 +5,7 @@ abbreviate <buffer> \bf \mathbf
 abbreviate <buffer> \rm \mathrm
 abbreviate <buffer> \cal \mathcal
 abbreviate <buffer> \bb \mathbb
+abbreviate <buffer> \frak \mathfrak
 abbreviate <buffer> iff if and only if
 
 let b:surround_66="**\r**"
