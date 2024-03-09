@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+from subprocess import run, PIPE
+import requests
+import sys
+
+# CALIBRE_CMD = ['calibredb']
+CALIBRE_CMD = ['flatpak', 'run', '--filesystem=/tmp', '--command=calibredb', 'com.calibre_ebook.calibre']
+
+path = sys.argv[1]
+doi = sys.argv[2]
+
+resp = requests.get(f'https://api.crossref.org/works/{doi}')
+assert resp.status_code == 200, resp.text
+msg = resp.json()['message']
+
+fmt_name = lambda a: f'{a["given"]} {a["family"]}'
+
+authors = ' & '.join((f'{a["given"]} {a["family"]}' for a in msg['author']))
+title = msg['title'][0]
+pubdate = '-'.join(map(str, msg['created']['date-parts'][0]))
+publisher = msg['publisher']
+
+print(f"Adding '{title}'")
+
+stdout = run([*CALIBRE_CMD, 'add', path], stdout=PIPE, check=True).stdout.strip()
+id = stdout.split(b' ')[-1]
+
+if not id.decode().isdigit():
+    print(f"Failed to add '{title}': {stdout}")
+
+# Set metadata
+run([*CALIBRE_CMD, 'set_metadata', id,
+     '-f', f'title:{title}',
+     '-f', f'authors:{authors}',
+     '-f', f'pubdate:{pubdate}',
+     '-f', f'publisher:{publisher}'], stdout=PIPE, check=True)
