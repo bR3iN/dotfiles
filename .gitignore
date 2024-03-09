@@ -1,6 +1,2 @@
 local.*
 *.local
-
-# neovim
-nvim/undo/
-nvim/spell/

@@ -22,7 +22,7 @@ CONF="${INSTALLER_DIR}/dotfiles.ini"
 declare -A INSTALLED
 
 
-function main {
+main() {
     while [[ "${1-}" =~ ^- ]]; do
         case "${1-}" in
             -c|--copy)
@@ -75,7 +75,7 @@ function main {
 }
 
 
-function installTarget {
+installTarget() {
     local target="$1"
 
     if [ -z "$target" ]; then
@@ -145,27 +145,27 @@ function installTarget {
 }
 
 
-function is_dry_run {
+is_dry_run() {
     [ "${DRY_RUN-}" = true ]
     return "$?"
 }
 
 
-function runHook {
+runHook() {
     info "Running hook $(cwrap "$PURPLE" "'$1'")."
     is_dry_run && return
     runIndented "${INSTALLER_DIR}/hooks/$1"
 }
 
 
-function runCommand {
+runCommand() {
     info "Running command $(cwrap "$PURPLE" "'$1'")."
     is_dry_run && return
     runIndented "$1"
 }
 
 
-function runIndented {
+runIndented() {
     pushd "$INSTALLER_DIR" &> /dev/null
 
     bash -c "$1" 2>&1 | indentStdout || local exit_code="$?"
@@ -177,12 +177,12 @@ function runIndented {
 }
 
 
-function indentStdout {
+indentStdout() {
     sed 's/^/    /' | cpipe "$CYAN"
 }
 
 
-function userInstall {
+userInstall() {
     local file="$1"
     info "Installing $(cwrap "$PURPLE" "'$file'")."
     is_dry_run && return
@@ -200,7 +200,7 @@ function userInstall {
 }
 
 
-function systemInstall {
+systemInstall() {
     local file="$1"
     info "Installing $(cwrap "$PURPLE" "'$file'")."
     is_dry_run && return
@@ -217,7 +217,7 @@ function systemInstall {
 }
 
 
-function createSymlink {
+createSymlink() {
     local dest="${INSTALLER_DIR}/$1"
     local path="$(expandPath "$2")"
 
@@ -251,7 +251,7 @@ function createSymlink {
 }
 
 
-function confirmAndDelete {
+confirmAndDelete() {
     local path="$1"
 
     if [ "${NO_DELETION-}" = true ]; then
@@ -289,7 +289,7 @@ function confirmAndDelete {
 }
 
 
-function expandPath {
+expandPath() {
     if [[ "$1" =~ ^~/ ]]; then
         echo "$HOME/${1#"~/"}"
     elif [[ ! "$1" =~ ^/ ]]; then
@@ -300,7 +300,7 @@ function expandPath {
 }
 
 
-function listTargets {
+listTargets() {
     echo "Available targets:"
     echo "=================="
     awk "$AWK_LIST_TARGETS" "$CONF" | sort
@@ -308,7 +308,7 @@ function listTargets {
 }
 
 
-function parseTarget {
+parseTarget() {
     awk "$AWK_PARSE_TARGET" OFS='\t' TARGET="$1" "$CONF"
 }
 
@@ -380,36 +380,36 @@ function parse_header(line) {
 }'
 
 
-function cwrap {
+cwrap() {
     echo -ne "$1$2\e[0m"
 }
 
 
-function cpipe {
+cpipe() {
     echo -ne "$1"
     cat
     echo -ne "\e[0m"
 }
 
 
-function clog {
+clog() {
     echo -n "$(cwrap "$1" "$2: ")"
     shift; shift
     echo -e "$@"
 }
 
 
-function error {
+error() {
     clog "$ERROR" "Error" "$@"
 }
 
 
-function warning {
+warning() {
     clog "$WARNING" "Warning" "$@"
 }
 
 
-function info {
+info() {
     clog "$INFO" "Info" "$@"
 }
 

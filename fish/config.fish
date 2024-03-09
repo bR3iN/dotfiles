@@ -25,6 +25,7 @@ alias gd 'git diff'
 alias se sudoedit
 alias te 'TERM=xterm toolbox enter'
 alias tc 'toolbox create --image toolbox'
+alias gdb 'gdb -tui'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
