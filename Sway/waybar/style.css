@@ -53,9 +53,6 @@ window#waybar {
     margin: 0px 2px;
 }
 
-#custom-launcher,
-#custom-navigation,
-#custom-settings,
 #workspaces button {
     border-width: 2px;
     border-color: @border-color;
@@ -72,6 +69,7 @@ window#waybar {
 
 #workspaces button:hover {
     background-color: shade(@base02, 1.4);
+    border-color: shade(@border-color, 1.4);
 }
 
 #workspaces button.focused {
@@ -80,7 +78,6 @@ window#waybar {
 
 #workspaces button.urgent {
     border-color: shade(@base08, 0.8);
-    border-color: shade(@base0B, 0.7);
 }
 
 #mode {
@@ -148,13 +145,5 @@ window#waybar {
     background-color: @base02;
     border-color: @cyan;
 }
-
-/* #disk   { border-color: @yellow; } */
-/* #memory { border-color: @orange; } */
-/* #cpu    { border-color: @red; } */
-
-#custom-launcher { border-color: @red; }
-#custom-navigation { border-color: @orange; }
-#custom-settings { border-color: @yellow; }
 
 #clock { font-size: 110%; font-weight: bold; border-color: @magenta; }

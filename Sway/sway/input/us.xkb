@@ -1,5 +1,5 @@
 xkb_keymap {
-xkb_keycodes "(unnamed)" {
+xkb_keycodes "evdev+aliases(qwerty)" {
     minimum = 8;
     maximum = 255;
      <ESC> = 9;
@@ -195,7 +195,7 @@ xkb_keycodes "(unnamed)" {
     <FK22> = 200;
     <FK23> = 201;
     <FK24> = 202;
-    <MDSW> = 203;
+    <LVL5> = 203;
      <ALT> = 204;
     <META> = 205;
     <SUPR> = 206;
@@ -259,10 +259,11 @@ xkb_keycodes "(unnamed)" {
     indicator 9 = "Misc";
     indicator 10 = "Mail";
     indicator 11 = "Charging";
-    indicator 12 = "Shift Lock";
-    indicator 13 = "Group 2";
-    indicator 14 = "Mouse Keys";
+    virtual indicator 12 = "Shift Lock";
+    virtual indicator 13 = "Group 2";
+    virtual indicator 14 = "Mouse Keys";
     alias <AC12> = <BKSL>;
+    alias <ALGR> = <RALT>;
     alias <MENU> = <COMP>;
     alias <HZTG> = <TLDE>;
     alias <LMTA> = <LWIN>;
@@ -306,7 +307,7 @@ xkb_keycodes "(unnamed)" {
     alias <I200> = <FK22>;
     alias <I201> = <FK23>;
     alias <I202> = <FK24>;
-    alias <ALGR> = <RALT>;
+    alias <MDSW> = <LVL5>;
     alias <KPPT> = <I129>;
     alias <LatQ> = <AD01>;
     alias <LatW> = <AD02>;
@@ -336,9 +337,9 @@ xkb_keycodes "(unnamed)" {
     alias <LatM> = <AB07>;
 };
 
-xkb_types "(unnamed)" {
+xkb_types "complete" {
 
-    virtual_modifiers NumLock,Alt,LevelThree,LAlt,RAlt,RControl,LControl,ScrollLock,LevelFive,AltGr,Meta,Super,Hyper;
+    virtual_modifiers NumLock,Alt,LevelThree,LevelFive,Meta,Super,Hyper,ScrollLock;
 
     type "ONE_LEVEL" {
         modifiers= none;
@@ -363,11 +364,11 @@ xkb_types "(unnamed)" {
         level_name[Level1]= "Base";
         level_name[Level2]= "Number";
     };
-    type "SHIFT+ALT" {
-        modifiers= Shift+Alt;
-        map[Shift+Alt]= Level2;
+    type "PC_ALT_LEVEL2" {
+        modifiers= Alt;
+        map[Alt]= Level2;
         level_name[Level1]= "Base";
-        level_name[Level2]= "Shift+Alt";
+        level_name[Level2]= "Alt";
     };
     type "PC_SUPER_LEVEL2" {
         modifiers= Mod4;
@@ -381,36 +382,6 @@ xkb_types "(unnamed)" {
         level_name[Level1]= "Base";
         level_name[Level2]= "Control";
     };
-    type "PC_LCONTROL_LEVEL2" {
-        modifiers= LControl;
-        map[LControl]= Level2;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "LControl";
-    };
-    type "PC_RCONTROL_LEVEL2" {
-        modifiers= RControl;
-        map[RControl]= Level2;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "RControl";
-    };
-    type "PC_ALT_LEVEL2" {
-        modifiers= Alt;
-        map[Alt]= Level2;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Alt";
-    };
-    type "PC_LALT_LEVEL2" {
-        modifiers= LAlt;
-        map[LAlt]= Level2;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "LAlt";
-    };
-    type "PC_RALT_LEVEL2" {
-        modifiers= RAlt;
-        map[RAlt]= Level2;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "RAlt";
-    };
     type "CTRL+ALT" {
         modifiers= Shift+Control+Alt+LevelThree;
         map[Shift]= Level2;
@@ -421,34 +392,9 @@ xkb_types "(unnamed)" {
         map[Control+Alt]= Level5;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
         level_name[Level5]= "Ctrl+Alt";
-    };
-    type "LOCAL_EIGHT_LEVEL" {
-        modifiers= Shift+Lock+Control+LevelThree;
-        map[Shift]= Level2;
-        map[Lock]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+Lock+LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Lock+LevelThree]= Level4;
-        map[Control]= Level5;
-        map[Shift+Lock+Control]= Level5;
-        map[Shift+Control]= Level6;
-        map[Lock+Control]= Level6;
-        map[Control+LevelThree]= Level7;
-        map[Shift+Lock+Control+LevelThree]= Level7;
-        map[Shift+Control+LevelThree]= Level8;
-        map[Lock+Control+LevelThree]= Level8;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "Level3";
-        level_name[Level4]= "Shift Level3";
-        level_name[Level5]= "Ctrl";
-        level_name[Level6]= "Shift Ctrl";
-        level_name[Level7]= "Level3 Ctrl";
-        level_name[Level8]= "Shift Level3 Ctrl";
     };
     type "THREE_LEVEL" {
         modifiers= Shift+LevelThree;
@@ -458,6 +404,111 @@ xkb_types "(unnamed)" {
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
         level_name[Level3]= "Level3";
+    };
+    type "FOUR_LEVEL" {
+        modifiers= Shift+LevelThree;
+        map[Shift]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+    };
+    type "FOUR_LEVEL_ALPHABETIC" {
+        modifiers= Shift+Lock+LevelThree;
+        map[Shift]= Level2;
+        map[Lock]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[Lock+LevelThree]= Level4;
+        map[Shift+Lock+LevelThree]= Level3;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+    };
+    type "FOUR_LEVEL_SEMIALPHABETIC" {
+        modifiers= Shift+Lock+LevelThree;
+        map[Shift]= Level2;
+        map[Lock]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[Lock+LevelThree]= Level3;
+        preserve[Lock+LevelThree]= Lock;
+        map[Shift+Lock+LevelThree]= Level4;
+        preserve[Shift+Lock+LevelThree]= Lock;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+    };
+    type "FOUR_LEVEL_KEYPAD" {
+        modifiers= Shift+NumLock+LevelThree;
+        map[Shift]= Level2;
+        map[NumLock]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[NumLock+LevelThree]= Level4;
+        map[Shift+NumLock+LevelThree]= Level3;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift/Numlock";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift/Numlock AltGr";
+    };
+    type "FOUR_LEVEL_MIXED_KEYPAD" {
+        modifiers= Shift+NumLock+LevelThree;
+        map[Shift]= Level2;
+        map[NumLock]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[NumLock+LevelThree]= Level3;
+        map[Shift+NumLock+LevelThree]= Level4;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Number";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+    };
+    type "FOUR_LEVEL_X" {
+        modifiers= Shift+Control+Alt+LevelThree;
+        map[Shift]= Level1;
+        map[LevelThree]= Level2;
+        map[Shift+LevelThree]= Level3;
+        map[Control+Alt]= Level4;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "AltGr";
+        level_name[Level3]= "Shift AltGr";
+        level_name[Level4]= "Ctrl+Alt";
+    };
+    type "SEPARATE_CAPS_AND_SHIFT_ALPHABETIC" {
+        modifiers= Shift+Lock+LevelThree;
+        map[Shift]= Level2;
+        map[Lock]= Level4;
+        preserve[Lock]= Lock;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[Lock+LevelThree]= Level3;
+        preserve[Lock+LevelThree]= Lock;
+        map[Shift+Lock+LevelThree]= Level3;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Caps / Shift AltGr";
+    };
+    type "FOUR_LEVEL_PLUS_LOCK" {
+        modifiers= Shift+Lock+LevelThree;
+        map[Shift]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[Lock]= Level5;
+        map[Shift+Lock]= Level2;
+        map[Lock+LevelThree]= Level3;
+        map[Shift+Lock+LevelThree]= Level4;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+        level_name[Level5]= "Lock";
     };
     type "EIGHT_LEVEL" {
         modifiers= Shift+LevelThree+LevelFive;
@@ -470,12 +521,12 @@ xkb_types "(unnamed)" {
         map[Shift+LevelThree+LevelFive]= Level8;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
         level_name[Level5]= "X";
         level_name[Level6]= "X Shift";
-        level_name[Level7]= "X Alt Base";
-        level_name[Level8]= "X Shift Alt";
+        level_name[Level7]= "X AltGr";
+        level_name[Level8]= "X Shift AltGr";
     };
     type "EIGHT_LEVEL_ALPHABETIC" {
         modifiers= Shift+Lock+LevelThree+LevelFive;
@@ -488,21 +539,51 @@ xkb_types "(unnamed)" {
         map[LevelFive]= Level5;
         map[Shift+LevelFive]= Level6;
         map[Lock+LevelFive]= Level6;
+        map[Shift+Lock+LevelFive]= Level5;
         map[LevelThree+LevelFive]= Level7;
         map[Shift+LevelThree+LevelFive]= Level8;
         map[Lock+LevelThree+LevelFive]= Level8;
         map[Shift+Lock+LevelThree+LevelFive]= Level7;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
         level_name[Level5]= "X";
         level_name[Level6]= "X Shift";
-        level_name[Level7]= "X Alt Base";
-        level_name[Level8]= "X Shift Alt";
+        level_name[Level7]= "X AltGr";
+        level_name[Level8]= "X Shift AltGr";
     };
-    type "EIGHT_LEVEL_LEVEL_FIVE_LOCK" {
-        modifiers= Shift+Lock+NumLock+LevelThree+LevelFive;
+    type "EIGHT_LEVEL_SEMIALPHABETIC" {
+        modifiers= Shift+Lock+LevelThree+LevelFive;
+        map[Shift]= Level2;
+        map[Lock]= Level2;
+        map[LevelThree]= Level3;
+        map[Shift+LevelThree]= Level4;
+        map[Lock+LevelThree]= Level3;
+        preserve[Lock+LevelThree]= Lock;
+        map[Shift+Lock+LevelThree]= Level4;
+        preserve[Shift+Lock+LevelThree]= Lock;
+        map[LevelFive]= Level5;
+        map[Shift+LevelFive]= Level6;
+        map[Lock+LevelFive]= Level6;
+        map[Shift+Lock+LevelFive]= Level5;
+        map[LevelThree+LevelFive]= Level7;
+        map[Shift+LevelThree+LevelFive]= Level8;
+        map[Lock+LevelThree+LevelFive]= Level7;
+        preserve[Lock+LevelThree+LevelFive]= Lock;
+        map[Shift+Lock+LevelThree+LevelFive]= Level8;
+        preserve[Shift+Lock+LevelThree+LevelFive]= Lock;
+        level_name[Level1]= "Base";
+        level_name[Level2]= "Shift";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
+        level_name[Level5]= "X";
+        level_name[Level6]= "X Shift";
+        level_name[Level7]= "X AltGr";
+        level_name[Level8]= "X Shift AltGr";
+    };
+    type "EIGHT_LEVEL_WITH_LEVEL5_LOCK" {
+        modifiers= Shift+NumLock+LevelThree+LevelFive;
         map[Shift]= Level2;
         map[LevelThree]= Level3;
         map[Shift+LevelThree]= Level4;
@@ -519,32 +600,16 @@ xkb_types "(unnamed)" {
         map[Shift+NumLock+LevelFive]= Level2;
         map[NumLock+LevelThree+LevelFive]= Level3;
         map[Shift+NumLock+LevelThree+LevelFive]= Level4;
-        map[Shift+Lock]= Level2;
-        map[Lock+LevelThree]= Level3;
-        map[Shift+Lock+LevelThree]= Level4;
-        map[Lock+LevelFive]= Level5;
-        map[Shift+Lock+LevelFive]= Level6;
-        preserve[Shift+Lock+LevelFive]= Shift;
-        map[Lock+LevelThree+LevelFive]= Level7;
-        map[Shift+Lock+LevelThree+LevelFive]= Level8;
-        map[Lock+NumLock]= Level5;
-        map[Shift+Lock+NumLock]= Level6;
-        preserve[Shift+Lock+NumLock]= Shift;
-        map[Lock+NumLock+LevelThree]= Level7;
-        map[Shift+Lock+NumLock+LevelThree]= Level8;
-        map[Shift+Lock+NumLock+LevelFive]= Level2;
-        map[Lock+NumLock+LevelThree+LevelFive]= Level3;
-        map[Shift+Lock+NumLock+LevelThree+LevelFive]= Level4;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
         level_name[Level5]= "X";
         level_name[Level6]= "X Shift";
-        level_name[Level7]= "X Alt Base";
-        level_name[Level8]= "X Shift Alt";
+        level_name[Level7]= "X AltGr";
+        level_name[Level8]= "X Shift AltGr";
     };
-    type "EIGHT_LEVEL_ALPHABETIC_LEVEL_FIVE_LOCK" {
+    type "EIGHT_LEVEL_ALPHABETIC_WITH_LEVEL5_LOCK" {
         modifiers= Shift+Lock+NumLock+LevelThree+LevelFive;
         map[Shift]= Level2;
         map[LevelThree]= Level3;
@@ -574,157 +639,53 @@ xkb_types "(unnamed)" {
         map[Lock+NumLock+LevelThree]= Level7;
         map[Shift+Lock+NumLock+LevelThree]= Level8;
         map[Lock+NumLock+LevelFive]= Level2;
-        map[Lock+NumLock+LevelThree+LevelFive]= Level4;
-        map[Shift+Lock+NumLock+LevelThree+LevelFive]= Level3;
+        map[Lock+NumLock+LevelThree+LevelFive]= Level3;
+        map[Shift+Lock+NumLock+LevelThree+LevelFive]= Level4;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "AltGr";
+        level_name[Level4]= "Shift AltGr";
         level_name[Level5]= "X";
         level_name[Level6]= "X Shift";
-        level_name[Level7]= "X Alt Base";
-        level_name[Level8]= "X Shift Alt";
+        level_name[Level7]= "X AltGr";
+        level_name[Level8]= "X Shift AltGr";
     };
-    type "EIGHT_LEVEL_SEMIALPHABETIC" {
-        modifiers= Shift+Lock+LevelThree+LevelFive;
-        map[Shift]= Level2;
-        map[Lock]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Lock+LevelThree]= Level3;
-        preserve[Lock+LevelThree]= Lock;
-        map[Shift+Lock+LevelThree]= Level4;
-        preserve[Shift+Lock+LevelThree]= Lock;
-        map[LevelFive]= Level5;
-        map[Shift+LevelFive]= Level6;
-        map[Lock+LevelFive]= Level6;
-        preserve[Lock+LevelFive]= Lock;
-        map[Shift+Lock+LevelFive]= Level6;
-        preserve[Shift+Lock+LevelFive]= Lock;
-        map[LevelThree+LevelFive]= Level7;
-        map[Shift+LevelThree+LevelFive]= Level8;
-        map[Lock+LevelThree+LevelFive]= Level7;
-        preserve[Lock+LevelThree+LevelFive]= Lock;
-        map[Shift+Lock+LevelThree+LevelFive]= Level8;
-        preserve[Shift+Lock+LevelThree+LevelFive]= Lock;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
-        level_name[Level5]= "X";
-        level_name[Level6]= "X Shift";
-        level_name[Level7]= "X Alt Base";
-        level_name[Level8]= "X Shift Alt";
-    };
-    type "FOUR_LEVEL" {
-        modifiers= Shift+LevelThree;
-        map[Shift]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
-    };
-    type "FOUR_LEVEL_ALPHABETIC" {
-        modifiers= Shift+Lock+LevelThree;
+    type "EIGHT_LEVEL_BY_CTRL" {
+        modifiers= Shift+Lock+Control+LevelThree;
         map[Shift]= Level2;
         map[Lock]= Level2;
         map[LevelThree]= Level3;
         map[Shift+LevelThree]= Level4;
         map[Lock+LevelThree]= Level4;
         map[Shift+Lock+LevelThree]= Level3;
+        map[Control]= Level5;
+        map[Shift+Control]= Level6;
+        map[Lock+Control]= Level6;
+        map[Shift+Lock+Control]= Level5;
+        map[Control+LevelThree]= Level7;
+        map[Shift+Control+LevelThree]= Level8;
+        map[Lock+Control+LevelThree]= Level8;
+        map[Shift+Lock+Control+LevelThree]= Level7;
         level_name[Level1]= "Base";
         level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
+        level_name[Level3]= "Level3";
+        level_name[Level4]= "Shift Level3";
+        level_name[Level5]= "Ctrl";
+        level_name[Level6]= "Shift Ctrl";
+        level_name[Level7]= "Level3 Ctrl";
+        level_name[Level8]= "Shift Level3 Ctrl";
     };
-    type "FOUR_LEVEL_SEMIALPHABETIC" {
-        modifiers= Shift+Lock+LevelThree;
-        map[Shift]= Level2;
-        map[Lock]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Lock+LevelThree]= Level3;
-        preserve[Lock+LevelThree]= Lock;
-        map[Shift+Lock+LevelThree]= Level4;
-        preserve[Shift+Lock+LevelThree]= Lock;
+    type "SHIFT+ALT" {
+        modifiers= Shift+Alt;
+        map[Shift+Alt]= Level2;
         level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
-    };
-    type "FOUR_LEVEL_MIXED_KEYPAD" {
-        modifiers= Shift+NumLock+LevelThree;
-        map[NumLock]= Level2;
-        map[Shift]= Level2;
-        map[LevelThree]= Level3;
-        map[NumLock+LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Shift+NumLock+LevelThree]= Level4;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Number";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
-    };
-    type "FOUR_LEVEL_X" {
-        modifiers= Shift+Control+Alt+LevelThree;
-        map[LevelThree]= Level2;
-        map[Shift+LevelThree]= Level3;
-        map[Control+Alt]= Level4;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Alt Base";
-        level_name[Level3]= "Shift Alt";
-        level_name[Level4]= "Ctrl+Alt";
-    };
-    type "SEPARATE_CAPS_AND_SHIFT_ALPHABETIC" {
-        modifiers= Shift+Lock+LevelThree;
-        map[Shift]= Level2;
-        map[Lock]= Level4;
-        preserve[Lock]= Lock;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Lock+LevelThree]= Level3;
-        preserve[Lock+LevelThree]= Lock;
-        map[Shift+Lock+LevelThree]= Level3;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "AltGr Base";
-        level_name[Level4]= "Shift AltGr";
-    };
-    type "FOUR_LEVEL_PLUS_LOCK" {
-        modifiers= Shift+Lock+LevelThree;
-        map[Shift]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[Lock]= Level5;
-        map[Shift+Lock]= Level2;
-        map[Lock+LevelThree]= Level3;
-        map[Shift+Lock+LevelThree]= Level4;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Shift";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Shift Alt";
-        level_name[Level5]= "Lock";
-    };
-    type "FOUR_LEVEL_KEYPAD" {
-        modifiers= Shift+NumLock+LevelThree;
-        map[Shift]= Level2;
-        map[NumLock]= Level2;
-        map[LevelThree]= Level3;
-        map[Shift+LevelThree]= Level4;
-        map[NumLock+LevelThree]= Level4;
-        map[Shift+NumLock+LevelThree]= Level3;
-        level_name[Level1]= "Base";
-        level_name[Level2]= "Number";
-        level_name[Level3]= "Alt Base";
-        level_name[Level4]= "Alt Number";
+        level_name[Level2]= "Shift+Alt";
     };
 };
 
-xkb_compatibility "(unnamed)" {
+xkb_compatibility "complete" {
 
-    virtual_modifiers NumLock,Alt,LevelThree,LAlt,RAlt,RControl,LControl,ScrollLock,LevelFive,AltGr,Meta,Super,Hyper;
+    virtual_modifiers NumLock,Alt,LevelThree,LevelFive,Meta,Super,Hyper,ScrollLock;
 
     interpret.useModMapMods= AnyLevel;
     interpret.repeat= False;
@@ -807,8 +768,6 @@ xkb_compatibility "(unnamed)" {
         action= LockMods(modifiers=LevelFive);
     };
     interpret Mode_switch+AnyOfOrNone(all) {
-        virtualModifier= AltGr;
-        useModMapMods=level1;
         action= SetGroup(group=+1);
     };
     interpret ISO_Level3_Shift+AnyOfOrNone(all) {
@@ -821,18 +780,12 @@ xkb_compatibility "(unnamed)" {
         action= LockMods(modifiers=LevelThree);
     };
     interpret ISO_Group_Latch+AnyOfOrNone(all) {
-        virtualModifier= AltGr;
-        useModMapMods=level1;
         action= LatchGroup(group=2);
     };
     interpret ISO_Next_Group+AnyOfOrNone(all) {
-        virtualModifier= AltGr;
-        useModMapMods=level1;
         action= LockGroup(group=+1);
     };
     interpret ISO_Prev_Group+AnyOfOrNone(all) {
-        virtualModifier= AltGr;
-        useModMapMods=level1;
         action= LockGroup(group=-1);
     };
     interpret ISO_First_Group+AnyOfOrNone(all) {
@@ -1062,10 +1015,10 @@ xkb_compatibility "(unnamed)" {
         action= LockControls(controls=MouseKeysAccel);
     };
     interpret Overlay1_Enable+AnyOfOrNone(all) {
-        action= LockControls(controls=none);
+        action= LockControls(controls=Overlay1);
     };
     interpret Overlay2_Enable+AnyOfOrNone(all) {
-        action= LockControls(controls=none);
+        action= LockControls(controls=Overlay2);
     };
     interpret AudibleBell_Enable+AnyOfOrNone(all) {
         action= LockControls(controls=AudibleBell);
@@ -1098,6 +1051,9 @@ xkb_compatibility "(unnamed)" {
         action= SetMods(modifiers=Hyper,clearLocks);
     };
     interpret Shift_L+AnyOfOrNone(all) {
+        action= SetMods(modifiers=Shift,clearLocks);
+    };
+    interpret Shift_R+AnyOfOrNone(all) {
         action= SetMods(modifiers=Shift,clearLocks);
     };
     interpret XF86Switch_VT_1+AnyOfOrNone(all) {
@@ -1182,11 +1138,16 @@ xkb_compatibility "(unnamed)" {
     interpret Any+AnyOf(all) {
         action= SetMods(modifiers=modMapMods,clearLocks);
     };
+    group 2 = Mod5;
+    group 3 = Mod5;
+    group 4 = Mod5;
     indicator "Caps Lock" {
+        !allowExplicit;
         whichModState= locked;
         modifiers= Lock;
     };
     indicator "Num Lock" {
+        !allowExplicit;
         whichModState= locked;
         modifiers= NumLock;
     };
@@ -1195,18 +1156,21 @@ xkb_compatibility "(unnamed)" {
         modifiers= ScrollLock;
     };
     indicator "Shift Lock" {
+        !allowExplicit;
         whichModState= locked;
         modifiers= Shift;
     };
     indicator "Group 2" {
+        !allowExplicit;
         groups= 0xfe;
     };
     indicator "Mouse Keys" {
+        indicatorDrivesKeyboard;
         controls= mouseKeys;
     };
 };
 
-xkb_symbols "(unnamed)" {
+xkb_symbols "pc+us+inet(evdev)+altwin(prtsc_rwin)" {
 
     name[group1]="English (US)";
 
@@ -1436,12 +1400,9 @@ xkb_symbols "(unnamed)" {
     };
     key <PRSC> {
         type= "PC_ALT_LEVEL2",
-        symbols[Group1]= [           Print,         Sys_Req ]
+        symbols[Group1]= [         Super_R,         Super_R ]
     };
-    key <RALT> {
-        type= "TWO_LEVEL",
-        symbols[Group1]= [           Alt_R,          Meta_R ]
-    };
+    key <RALT> {         [           Alt_R,          Meta_R ] };
     key <LNFD> {         [        Linefeed ] };
     key <HOME> {         [            Home ] };
     key   <UP> {         [              Up ] };
@@ -1529,7 +1490,7 @@ xkb_symbols "(unnamed)" {
     key <FK21> {         [ XF86TouchpadToggle ] };
     key <FK22> {         [  XF86TouchpadOn ] };
     key <FK23> {         [ XF86TouchpadOff ] };
-    key <MDSW> {         [     Mode_switch ] };
+    key <LVL5> {         [ ISO_Level5_Shift ] };
     key  <ALT> {         [        NoSymbol,           Alt_L ] };
     key <META> {         [        NoSymbol,          Meta_L ] };
     key <SUPR> {         [        NoSymbol,         Super_L ] };
@@ -1585,13 +1546,361 @@ xkb_symbols "(unnamed)" {
     modifier_map Mod2 { <NMLK> };
     modifier_map Mod5 { <LVL3> };
     modifier_map Control { <RCTL> };
+    modifier_map Mod4 { <PRSC> };
     modifier_map Mod1 { <RALT> };
     modifier_map Mod4 { <LWIN> };
     modifier_map Mod4 { <RWIN> };
-    modifier_map Mod5 { <MDSW> };
+    modifier_map Mod3 { <LVL5> };
+    modifier_map Mod1 { <ALT> };
     modifier_map Mod1 { <META> };
     modifier_map Mod4 { <SUPR> };
     modifier_map Mod4 { <HYPR> };
+};
+
+xkb_geometry "pc(pc105)" {
+
+    width=       470;
+    height=      180;
+
+    alias <AC00> = <CAPS>;
+    alias <AA00> = <LCTL>;
+
+    baseColor=   "white";
+    labelColor=  "black";
+    xfont=       "-*-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1";
+    description= "Generic 105-key PC";
+
+    shape "NORM" {
+        corner= 1,
+        { [  18,  18 ] },
+        { [   2,   1 ], [  16,  16 ] }
+    };
+    shape "BKSP" {
+        corner= 1,
+        { [  38,  18 ] },
+        { [   2,   1 ], [  36,  16 ] }
+    };
+    shape "TABK" {
+        corner= 1,
+        { [  28,  18 ] },
+        { [   2,   1 ], [  26,  16 ] }
+    };
+    shape "BKSL" {
+        corner= 1,
+        { [  28,  18 ] },
+        { [   2,   1 ], [  26,  16 ] }
+    };
+    shape "RTRN" {
+        corner= 1,
+        { [   0,   0 ], [  28,   0 ], [  28,  37 ], [   5,  37 ],
+          [   5,  18 ], [   0,  18 ] },
+        { [   2,   1 ], [  26,   1 ], [  26,  35 ], [   7,  35 ],
+          [   7,  16 ], [   2,  16 ] },
+        approx= { [   5,   0 ], [  28,  37 ] }
+    };
+    shape "CAPS" {
+        corner= 1,
+        { [  33,  18 ] },
+        { [   2,   1 ], [  31,  16 ] }
+    };
+    shape "LFSH" {
+        corner= 1,
+        { [  25,  18 ] },
+        { [   2,   1 ], [  23,  16 ] }
+    };
+    shape "RTSH" {
+        corner= 1,
+        { [  50,  18 ] },
+        { [   2,   1 ], [  48,  16 ] }
+    };
+    shape "MODK" {
+        corner= 1,
+        { [  27,  18 ] },
+        { [   2,   1 ], [  25,  16 ] }
+    };
+    shape "SMOD" {
+        corner= 1,
+        { [  23,  18 ] },
+        { [   2,   1 ], [  21,  16 ] }
+    };
+    shape "SPCE" {
+        corner= 1,
+        { [ 113,  18 ] },
+        { [   2,   1 ], [ 111,  16 ] }
+    };
+    shape "KP0" {
+        corner= 1,
+        { [  37,  18 ] },
+        { [   2,   1 ], [  35,  16 ] }
+    };
+    shape "KPAD" {
+        corner= 1,
+        { [  18,  37 ] },
+        { [   2,   1 ], [  16,  35 ] }
+    };
+    shape "LEDS" { { [  75,  20 ] } };
+    shape "LED" { { [   5,   1 ] } };
+    section "Function" {
+        key.color= "grey20";
+        priority=  7;
+        top=       22;
+        left=      19;
+        width=     351;
+        height=    19;
+        row {
+            top=  1;
+            left= 1;
+            keys {
+                {  <ESC>, "NORM",   1 },
+                { <FK01>, "NORM",  20, color="white" },
+                { <FK02>, "NORM",   1, color="white" },
+                { <FK03>, "NORM",   1, color="white" },
+                { <FK04>, "NORM",   1, color="white" },
+                { <FK05>, "NORM",  11, color="white" },
+                { <FK06>, "NORM",   1, color="white" },
+                { <FK07>, "NORM",   1, color="white" },
+                { <FK08>, "NORM",   1, color="white" },
+                { <FK09>, "NORM",  11, color="white" },
+                { <FK10>, "NORM",   1, color="white" },
+                { <FK11>, "NORM",   1, color="white" },
+                { <FK12>, "NORM",   1, color="white" },
+                { <PRSC>, "NORM",   8, color="white" },
+                { <SCLK>, "NORM",   1, color="white" },
+                { <PAUS>, "NORM",   1, color="white" }
+            };
+        };
+    }; // End of "Function" section
+
+    section "Alpha" {
+        key.color= "white";
+        priority=  8;
+        top=       61;
+        left=      19;
+        width=     287;
+        height=    95;
+        row {
+            top=  1;
+            left= 1;
+            keys {
+                { <TLDE>, "NORM",   1 }, { <AE01>, "NORM",   1 },
+                { <AE02>, "NORM",   1 }, { <AE03>, "NORM",   1 },
+                { <AE04>, "NORM",   1 }, { <AE05>, "NORM",   1 },
+                { <AE06>, "NORM",   1 }, { <AE07>, "NORM",   1 },
+                { <AE08>, "NORM",   1 }, { <AE09>, "NORM",   1 },
+                { <AE10>, "NORM",   1 }, { <AE11>, "NORM",   1 },
+                { <AE12>, "NORM",   1 },
+                { <BKSP>, "BKSP",   1, color="grey20" }
+            };
+        };
+        row {
+            top=  20;
+            left= 1;
+            keys {
+                {  <TAB>, "TABK",   1, color="grey20" },
+                { <AD01>, "NORM",   1 }, { <AD02>, "NORM",   1 },
+                { <AD03>, "NORM",   1 }, { <AD04>, "NORM",   1 },
+                { <AD05>, "NORM",   1 }, { <AD06>, "NORM",   1 },
+                { <AD07>, "NORM",   1 }, { <AD08>, "NORM",   1 },
+                { <AD09>, "NORM",   1 }, { <AD10>, "NORM",   1 },
+                { <AD11>, "NORM",   1 }, { <AD12>, "NORM",   1 },
+                { <RTRN>, "RTRN",   1, color="grey20" }
+            };
+        };
+        row {
+            top=  39;
+            left= 1;
+            keys {
+                { <CAPS>, "CAPS",   1, color="grey20" },
+                { <AC01>, "NORM",   1 }, { <AC02>, "NORM",   1 },
+                { <AC03>, "NORM",   1 }, { <AC04>, "NORM",   1 },
+                { <AC05>, "NORM",   1 }, { <AC06>, "NORM",   1 },
+                { <AC07>, "NORM",   1 }, { <AC08>, "NORM",   1 },
+                { <AC09>, "NORM",   1 }, { <AC10>, "NORM",   1 },
+                { <AC11>, "NORM",   1 }, { <BKSL>, "NORM",   1 }
+            };
+        };
+        row {
+            top=  58;
+            left= 1;
+            keys {
+                { <LFSH>, "LFSH",   1, color="grey20" },
+                { <LSGT>, "NORM",   1 }, { <AB01>, "NORM",   1 },
+                { <AB02>, "NORM",   1 }, { <AB03>, "NORM",   1 },
+                { <AB04>, "NORM",   1 }, { <AB05>, "NORM",   1 },
+                { <AB06>, "NORM",   1 }, { <AB07>, "NORM",   1 },
+                { <AB08>, "NORM",   1 }, { <AB09>, "NORM",   1 },
+                { <AB10>, "NORM",   1 },
+                { <RTSH>, "RTSH",   1, color="grey20" }
+            };
+        };
+        row {
+            top=  77;
+            left= 1;
+            keys {
+                { <LCTL>, "MODK",   1, color="grey20" },
+                { <LWIN>, "SMOD",   1, color="grey20" },
+                { <LALT>, "SMOD",   1, color="grey20" },
+                { <SPCE>, "SPCE",   1 },
+                { <RALT>, "SMOD",   1, color="grey20" },
+                { <RWIN>, "SMOD",   1, color="grey20" },
+                { <MENU>, "SMOD",   1, color="grey20" },
+                { <RCTL>, "SMOD",   1, color="grey20" }
+            };
+        };
+    }; // End of "Alpha" section
+
+    section "Editing" {
+        key.color= "grey20";
+        priority=  9;
+        top=       61;
+        left=      312;
+        width=     58;
+        height=    95;
+        row {
+            top=  1;
+            left= 1;
+            keys {
+                {  <INS>, "NORM",   1 }, { <HOME>, "NORM",   1 },
+                { <PGUP>, "NORM",   1 }
+            };
+        };
+        row {
+            top=  20;
+            left= 1;
+            keys {
+                { <DELE>, "NORM",   1 }, {  <END>, "NORM",   1 },
+                { <PGDN>, "NORM",   1 }
+            };
+        };
+        row {
+            top=  58;
+            left= 20;
+            keys {
+                {   <UP>, "NORM",   1 }
+            };
+        };
+        row {
+            top=  77;
+            left= 1;
+            keys {
+                { <LEFT>, "NORM",   1 }, { <DOWN>, "NORM",   1 },
+                { <RGHT>, "NORM",   1 }
+            };
+        };
+    }; // End of "Editing" section
+
+    section "Keypad" {
+        key.color= "grey20";
+        priority=  10;
+        top=       61;
+        left=      376;
+        width=     77;
+        height=    95;
+        row {
+            top=  1;
+            left= 1;
+            keys {
+                { <NMLK>, "NORM",   1 }, { <KPDV>, "NORM",   1 },
+                { <KPMU>, "NORM",   1 }, { <KPSU>, "NORM",   1 }
+            };
+        };
+        row {
+            top=  20;
+            left= 1;
+            keys {
+                {  <KP7>, "NORM",   1, color="white" },
+                {  <KP8>, "NORM",   1, color="white" },
+                {  <KP9>, "NORM",   1, color="white" },
+                { <KPAD>, "KPAD",   1 }
+            };
+        };
+        row {
+            top=  39;
+            left= 1;
+            keys {
+                {  <KP4>, "NORM",   1, color="white" },
+                {  <KP5>, "NORM",   1, color="white" },
+                {  <KP6>, "NORM",   1, color="white" }
+            };
+        };
+        row {
+            top=  58;
+            left= 1;
+            keys {
+                {  <KP1>, "NORM",   1, color="white" },
+                {  <KP2>, "NORM",   1, color="white" },
+                {  <KP3>, "NORM",   1, color="white" },
+                { <KPEN>, "KPAD",   1 }
+            };
+        };
+        row {
+            top=  77;
+            left= 1;
+            keys {
+                {  <KP0>, "KP0",   1, color="white" },
+                { <KPDL>, "NORM",   1, color="white" }
+            };
+        };
+    }; // End of "Keypad" section
+
+    solid "LedPanel" {
+        top=      22;
+        left=     377;
+        priority= 0;
+        color= "grey10";
+        shape= "LEDS";
+    };
+    indicator "Num Lock" {
+        top=      37;
+        left=     382;
+        priority= 1;
+        onColor= "green";
+        offColor= "green30";
+        shape= "LED";
+    };
+    indicator "Caps Lock" {
+        top=      37;
+        left=     407;
+        priority= 2;
+        onColor= "green";
+        offColor= "green30";
+        shape= "LED";
+    };
+    indicator "Scroll Lock" {
+        top=      37;
+        left=     433;
+        priority= 3;
+        onColor= "green";
+        offColor= "green30";
+        shape= "LED";
+    };
+    text "NumLockLabel" {
+        top=      25;
+        left=     378;
+        priority= 4;
+        width=  19.8;
+        height=  10;
+        XFont= "-*-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1";
+        text=  "Num\nLock";
+    };
+    text "CapsLockLabel" {
+        top=      25;
+        left=     403;
+        priority= 5;
+        width=  26.4;
+        height=  10;
+        XFont= "-*-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1";
+        text=  "Caps\nLock";
+    };
+    text "ScrollLockLabel" {
+        top=      25;
+        left=     428;
+        priority= 6;
+        width=  39.6;
+        height=  10;
+        XFont= "-*-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1";
+        text=  "Scroll\nLock";
+    };
 };
 
 };

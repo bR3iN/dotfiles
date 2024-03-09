@@ -2,7 +2,8 @@ for_window {
     [app_id="thunderbird"]           move window to workspace 5
     [class="GParted"]                floating enable
     [app_id="blueberry.py"]          floating enable
-    [app_id="stlink-gui"]          floating enable
+    [app_id="blueman-manager"]       floating enable
+    [app_id="stlink-gui"]            floating enable
     [app_id="d-feet"]                floating enable
     [app_id="zenity"]                floating enable
     [app_id="firewall-config"]       floating enable

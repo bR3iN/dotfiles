@@ -1,24 +1,24 @@
-bindsym $mod+Control+q mode "powermenu"
+bindsym --locked $mod+Control+q mode "powermenu"
 mode "powermenu" {
     # Poweroff
-    bindsym p exec systemctl poweroff 
+    bindsym --locked p mode "default"; exec systemctl poweroff
 
     # Reboot
-    bindsym r exec systemctl reboot
+    bindsym --locked r mode "default"; exec systemctl reboot
 
     # Lock screen
-    bindsym l mode "default"; exec $lock
+    bindsym l mode "default"; exec $lock_cmd
 
     # Suspend
-    bindsym s mode "default"; exec systemctl suspend
+    bindsym --locked s mode "default"; exec systemctl suspend
 
     # Exit sway/logout
     bindsym e mode "default"; exit
 
     # Return to default mode
-    bindsym Return              mode "default"
-    bindsym Escape              mode "default"
-    bindsym Control+bracketleft mode "default"
+    bindsym --locked Return              mode "default"
+    bindsym --locked Escape              mode "default"
+    bindsym --locked Control+bracketleft mode "default"
 }
 
 # vim: ft=conf
