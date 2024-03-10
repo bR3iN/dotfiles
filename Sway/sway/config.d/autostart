@@ -9,5 +9,5 @@ exec kanshi
 exec blueman-applet
 
 # TODO: Figure out xdg-desktop-portal problems
-exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY
+exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 exec /usr/libexec/xdg-desktop-portal
