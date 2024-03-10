@@ -1,6 +1,6 @@
 (import-macros {: set! : setl! : setg! : set+ : let! : with-cb} :utils.macros)
 (local {: add!} (require :pkg))
-(local {: nmap! : vmap! : tmap! : cmap! : imap!
+(local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap!
         : command! : augroup! : put!}
   (require :utils.nvim))
 (local {: nil?} (require :utils))
@@ -467,9 +467,9 @@
 
 (nmap! "<leader>mk" ":make!<CR>")
 (nmap! "<leader>mf" ":make! flash<CR>")
-(nmap! "<leader>mc" ":make! clean")
-(nmap! "<leader>mt" ":make! test")
-(nmap! "<leader>mb" ":make! build")
+(nmap! "<leader>mc" ":make! clean<CR>")
+(nmap! "<leader>mt" ":make! test<CR>")
+(nmap! "<leader>mb" ":make! build<CR>")
 
 (add! "neomake/neomake"
       (fn []
@@ -679,3 +679,12 @@
 
           ; Setup python debugging via dedicated extension
           (setup :dap-python "python"))))
+
+(add! ["dccsillag/magma-nvim"]
+      (fn []
+        ; TODO: Can one do this in lua?
+        (nmap! [:expr] "<LocalLeader>jj" "nvim_exec('MagmaEvaluateOperator', v:true)")
+        (nmap! "<LocalLeader>jl" vim.cmd.MagmaEvaluateLine)
+        (xmap! "<LocalLeader>j" vim.cmd.MagmaEvaluateVisual)
+        (nmap! "<LocalLeader>jc" vim.cmd.MagmaReevaluateCell)
+        (nmap! "<LocalLeader>jd" vim.cmd.MagmaDelete)))
