@@ -1,5 +1,9 @@
 ### Template for local configuration; copied to config.d/config.local by dotfile installer
 
+# Machine specific keybindings
+# bindsym $mod+b         exec qutebrowser
+# bindsym $mod+Control+b exec rofi-ff
+
 # Switch 2-in-1 to tablet mode
 # bindswitch --locked tablet:on exec systemctl --user start tablet-mode.service
 # bindswitch --locked tablet:off exec systemctl --user stop tablet-mode.service
@@ -7,7 +11,7 @@
 ## Output configuration, see `man 5 sway-output` for details
 
 # Set background
-output * background #000000
+output * background #000000 solid_color
 # output * background ~/Wallpaper/pop-os.jpg fill
 
 # Position outputs manually, should be done with kanshi instead

@@ -17,10 +17,6 @@ bindsym $mod+t exec kitty
 # Open documents
 bindsym $mod+d exec rofi-open
 
-# Open browser
-bindsym $mod+b         exec qutebrowser
-bindsym $mod+Control+b exec rofi-ff
-
 # Open emoji selector
 bindsym $mod+Control+e exec wofi-emoji
 
