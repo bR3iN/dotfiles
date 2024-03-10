@@ -1,6 +1,7 @@
 [gradience]
 rewrite = "~/.var/app/com.github.GradienceTeam.Gradience/config/presets/user/Base16.json"
-# hook = "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16 && ~/.local/libexec/propagate-theme.sh"
+ hook = "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16"
+ # hook = "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16 && ~/.local/libexec/propagate-theme.sh"
 
 [dunst]
 rewrite = "~/.config/dunst/dunstrc"
