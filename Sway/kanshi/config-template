@@ -1,0 +1,10 @@
+# profile laptop-undocked {
+#     output eDP-1 enable
+#     # exec execute-on-change
+# }
+#
+# profile laptop-docked {
+#     output eDP-1 disable
+#     output "XMI Mi Monitor Unknown" mode 3440x1440@59.999
+#     # exec execute-on-change
+# }
