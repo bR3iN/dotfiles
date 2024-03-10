@@ -36,7 +36,7 @@ function install_fonts {
 
     echo "Extracting fonts"
     sudo unzip -d "$FONT_DIR" "$tmp" "$@" >/dev/null
-    # sudo rm "$tmp"
+    sudo rm "$tmp"
 }
 
 install_fonts \
