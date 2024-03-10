@@ -18,7 +18,9 @@ if [ -n "$INSTALLER_DIR" ]; then
 fi
 
 # Install adw-gtk3
-sudo flatpak install -y org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
+# Doesn't currently work for some reason, instead we expose home/.themes below.
+# Could be related to https://github.com/lassekongo83/adw-gtk3/issues/235
+# sudo flatpak install -y org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark
 
 if [ -d "/usr/share/themes/adw-gtk3" ] && [ -d "$HOME/.themes/adw-gtk3" ]; then
     echo "adw-gtk3 is already installed"
@@ -27,11 +29,13 @@ else
     wget -O "$TMP_PATH" "https://github.com/lassekongo83/adw-gtk3/releases/download/v4.5/adw-gtk3v4-5.tar.xz"
 
     if [ ! -d "/usr/share/themes/adw-gtk3" ]; then
+        echo "Installing adw-gtk3 system-wide"
         sudo mkdir -p /usr/share/themes
         sudo tar xaf "$TMP_PATH" --directory=/usr/share/themes
     fi
     # Flatpak can't expose /usr/share/themes and flatpak theme doesn't work that well (TODO), so install also into ~/.themes
-    if [ -d "$HOME/.themes/adw-gtk3" ]; then
+    if [ ! -d "$HOME/.themes/adw-gtk3" ]; then
+        echo "Installing adw-gtk3 for the current user"
         mkdir -p "$HOME/.themes"
         tar xaf "$TMP_PATH" --directory="$HOME/.themes"
     fi
