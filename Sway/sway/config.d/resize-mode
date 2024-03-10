@@ -1,33 +1,33 @@
 bindsym $mod+r mode "resize"
 mode "resize" {
     # Resize
-    bindsym $left  resize shrink width  10px
-    bindsym $down  resize grow   height 10px
-    bindsym $up    resize shrink height 10px
-    bindsym $right resize grow   width  10px
+    bindsym h      resize shrink width  10px
+    bindsym j      resize grow   height 10px
+    bindsym k      resize shrink height 10px
+    bindsym l      resize grow   width  10px
     bindsym Left   resize shrink width  10px
     bindsym Down   resize grow   height 10px
     bindsym Up     resize shrink height 10px
     bindsym Right  resize grow   width  10px
 
     # Resize in bigger steps
-    bindsym Shift+$left  resize shrink width  40px
-    bindsym Shift+$down  resize grow   height 40px
-    bindsym Shift+$up    resize shrink height 40px
-    bindsym Shift+$right resize grow   width  40px
+    bindsym Shift+h      resize shrink width  40px
+    bindsym Shift+j      resize grow   height 40px
+    bindsym Shift+k      resize shrink height 40px
+    bindsym Shift+l      resize grow   width  40px
     bindsym Shift+Left   resize shrink width  40px
     bindsym Shift+Down   resize grow   height 40px
     bindsym Shift+Up     resize shrink height 40px
     bindsym Shift+Right  resize grow   width  40px
 
     # Move around while resizing
-    bindsym $mod+$left focus left
-    bindsym $mod+$down focus down
-    bindsym $mod+$up focus up
-    bindsym $mod+$right focus right
-    bindsym $mod+Left focus left
-    bindsym $mod+Down focus down
-    bindsym $mod+Up focus up
+    bindsym $mod+h     focus left
+    bindsym $mod+j     focus down
+    bindsym $mod+k     focus up
+    bindsym $mod+l     focus right
+    bindsym $mod+Left  focus left
+    bindsym $mod+Down  focus down
+    bindsym $mod+Up    focus up
     bindsym $mod+Right focus right
 
     # Return to default mode
