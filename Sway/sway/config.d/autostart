@@ -8,6 +8,9 @@ exec mako
 exec kanshi
 exec blueman-applet
 
-# TODO: Figure out xdg-desktop-portal problems
+# XDG_SESSION_TYPE and XDG_CURRENT_DESKTOP are for xdg-desktop-portal, the rest to fix hanging gtk3 apps on start
 exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+# Needed by gnome-keyring/seahorse
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY
 exec /usr/libexec/xdg-desktop-portal
+exec nextcloud --background

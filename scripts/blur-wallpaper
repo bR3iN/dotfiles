@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+set -e
+set -u
+set -o pipefail
+
+WALLPAPER_DIR="$HOME/Wallpaper"
+BLURRED_DIR="$HOME/Wallpaper/blurred"
+
+mkdir -p "$BLURRED_DIR"
+shopt -s nullglob
+
+for file in "$WALLPAPER_DIR"/*{.png,.jpg}; do
+    blurred="$BLURRED_DIR/$(basename "$file")"
+    if ! [ -f "$blurred" ]; then
+        echo "blurring $file"
+        convert -blur 0x30 "$file" "$blurred"
+    else
+        echo "skipping already blurred wallpaper: $blurred"
+    fi
+done

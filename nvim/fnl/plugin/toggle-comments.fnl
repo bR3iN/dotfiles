@@ -9,12 +9,12 @@
 
 (var saved nil)
 
+; Replace saved value, returning previous value
 (fn replace-saved [new]
-  ; Lazily load initial value so we don't get the wrong one
-  ; if loaded before the colorscheme.
-  ; TODO: Alternate between two named highlight groups instead?
+  ; Lazily load initial value (i.e. the highlighted state) so we don't get the
+  ; wrong one if loaded before the colorscheme.
   (when (nil? saved)
-    (let [init (get_hl :NormalFloat)]
+    (let [init (get_hl :CommentHighlighted)]
       (set saved init)))
   (let [tmp saved]
     (set saved new)

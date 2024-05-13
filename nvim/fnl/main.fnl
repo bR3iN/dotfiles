@@ -122,7 +122,44 @@
 ;; Appearance
 
 (set! termguicolors)
-(vim.cmd.colorscheme :base16)
+
+; Custom color setup; load colorscheme description (name + base16 colors)
+(let [(ok color-config) (pcall require :base16-colors)]
+  (if (not ok)
+    (print "Couldn't find base16-colors.lua")
+    (let [{: colors : name} color-config]
+      ; Decide if we use an external colorscheme or our own base16-based one
+      (match name
+        "Tokyonight Moon" (add! "folke/tokyonight.nvim"
+                                #(do
+                                   (setup :tokyonight {:transparent true})
+                                   (vim.cmd.colorscheme "tokyonight-moon")))
+        "Nord" (add! "shaunsingh/nord.nvim"
+                     #(do
+                        (let! nord_disable_background true)
+                        (vim.cmd.colorscheme "nord")))
+        "Gruvbox" (add! "ellisonleao/gruvbox.nvim"
+                        #(do
+                           (setup :gruvbox {:transparent_mode true})
+                           (vim.cmd.colorscheme "gruvbox")))
+        "Kanagawa" (add! "rebelot/kanagawa.nvim"
+                         #(do
+                            (setup :kanagawa {:transparent true})
+                            (vim.cmd.colorscheme "kanagawa")))
+        "Catppuccin" (add! "catppuccin/nvim"
+                           #(do
+                              (vim.cmd.colorscheme "catppuccin-mocha")
+                              (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg None})
+                              (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg None})))
+        ; Fallback if we don't want to use an external colorscheme
+        _ (do
+            (let! base16_colors_lua :base16-colors)
+            (vim.cmd.colorscheme :base16)))
+      ; Highlights overrides and groups for local plugins
+      (vim.api.nvim_set_hl 0 :Comment {:fg colors.base03})
+      (vim.api.nvim_set_hl 0 :CommentHighlighted {:fg colors.base08})
+      (vim.api.nvim_set_hl 0 :TrailingWhitespace {:fg colors.base09 :bg colors.base09}))))
+
 (set! fillchars { :vert :| })
 
 (set! conceallevel 2)
@@ -133,14 +170,15 @@
 (require :plugin.highlight-trailing-whitespace)
 
 ; Highlights hex color codes with their color
-(add! "norcalli/nvim-colorizer.lua"
-      #(let [{: setup} (require :colorizer)]
-         (setup)))
+(add! "NvChad/nvim-colorizer.lua"
+      #(setup :colorizer {:user_default_options {:names false}}))
 
-; Toggle the color of comments
+; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
 (require :plugin.toggle-comments)
 (nmap! "<C-h>" ":ToggleComments<CR>")
 (imap! "<C-h>" "<C-o>:ToggleComments<CR>")
+
+; (add! "lukas-reineke/headlines.nvim" #(setup :headlines))
 
 ; (add! "lukas-reineke/indent-blankline.nvim"
 ;       (fn []
@@ -532,44 +570,7 @@
                                             "ak" "@conditional.outer"}}
                          :swap {:enable true
                                 :swap_next {"<leader>." "@parameter.inner"}
-                                :swap_previous {"<leader>," "@parameter.inner"}}}})
-
-        ; TODO: Highlight fixes, shouldn't be necessary forever
-        (each [old new
-               (pairs {"@parameter" "@variable.parameter"
-                       "@field" "@variable.member"
-                       "@namespace" "@module"
-                       "@float" "@number.float"
-                       "@symbol" "@string.special.symbol"
-                       "@string.regex" "@string.regexp"
-                       "@text.strong" "@markup.strong"
-                       "@text.italic" "@markup.italic"
-                       "@text.link" "@markup.link"
-                       "@text.strikethrough" "@markup.strikethrough"
-                       "@text.title" "@markup.heading"
-                       "@text.literal" "@markup.raw"
-                       "@text.reference" "@markup.link"
-                       "@text.uri" "@markup.link.url"
-                       "@string.special" "@markup.link.label"
-                       "@punctuation.special" "@markup.list"
-                       "@method" "@function.method"
-                       "@method.call" "@function.method.call"
-                       "@text.todo" "@comment.todo"
-                       "@text.warning" "@comment.warning"
-                       "@text.note" "@comment.info"
-                       "@text.danger" "@comment.error"
-                       "@text.diff.dete" "@diff.minus"
-                       "@text.diff.add" "@diff.plus"
-                       "@text.uri" "@string.special.url"
-                       "@preproc" "@keyword.directive"
-                       "@define" "@keyword.directive"
-                       "@storageclass" "@keyword.storage"
-                       "@conditional" "@keyword.conditional"
-                       "@debug" "@keyword.debug"
-                       "@exception" "@keyword.exception"
-                       "@include" "@keyword.import"
-                       "@repeat" "@keyword.repeat"})]
-          (vim.cmd.highlight {:args [:link new old]}))))
+                                :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
 ; (add! :Maan2003/lsp_lines.nvim
 ;        {:setup (fn []
@@ -634,6 +635,7 @@
                                [:n "<localleader>nz"] create-note
                                [:n "<localleader>no"] #(zk.edit)
                                [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
+                               [:i "<C-o>"] "<Esc>:ZkInsertLink<CR>"
                                [:i "<C-j>"] create-and-insert-link
                                [:i "<C-p>"] #(spawn-capture-output
                                                :zk-screenshot nil
@@ -679,12 +681,3 @@
 
           ; Setup python debugging via dedicated extension
           (setup :dap-python "python"))))
-
-(add! ["dccsillag/magma-nvim"]
-      (fn []
-        ; TODO: Can one do this in lua?
-        (nmap! [:expr] "<LocalLeader>jj" "nvim_exec('MagmaEvaluateOperator', v:true)")
-        (nmap! "<LocalLeader>jl" vim.cmd.MagmaEvaluateLine)
-        (xmap! "<LocalLeader>j" vim.cmd.MagmaEvaluateVisual)
-        (nmap! "<LocalLeader>jc" vim.cmd.MagmaReevaluateCell)
-        (nmap! "<LocalLeader>jd" vim.cmd.MagmaDelete)))

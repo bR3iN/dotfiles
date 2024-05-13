@@ -4,6 +4,9 @@ for_window {
     [app_id="blueberry.py"]          floating enable
     [app_id="blueman-manager"]       floating enable
     [app_id="stlink-gui"]            floating enable
+    [app_id="nwg-displays"]          floating enable
+    [app_id="nwg-look"]              floating enable
+    [app_id="nwg-panel-config"]      floating enable
     [app_id="d-feet"]                floating enable
     [app_id="zenity"]                floating enable
     [app_id="firewall-config"]       floating enable
@@ -16,6 +19,7 @@ for_window {
     [class="Setroubleshoot"]         floating enable
     [class="com-st-microxplorer-maingui-STM32CubeMX"]         floating enable
     [app_id="system-config-printer"] floating enable
+    [app_id="com.nextcloud.desktopclient.nextcloud"] floating enable
     [title="Event Tester"]           floating enable
     [title="Firefox — Sharing Indicator"] floating enable
     [title="File Operation Progress"] floating enable

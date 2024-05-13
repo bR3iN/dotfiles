@@ -8,9 +8,9 @@
 @define-color blue alpha(shade(@base0D, 0.8), 0.8);
 @define-color cyan alpha(shade(@base0C, 0.8), 0.8);
 
-@define-color foreground @base04;
-@define-color border-color @base03;
-
+@define-color foreground shade(@base04, 1.15);
+@define-color widget-background shade(@base01, 1.2);
+@define-color border-color shade(@widget-background, 1.1);
 
 * {
     /* all: unset; */
@@ -45,7 +45,7 @@ window#waybar {
 #custom-vpn,
 #mpd {
     color: @foreground;
-    background-color: @base02;
+    background-color: @widget-background;
     padding: 0px 14px;
     border-width: 2px;
     border-color: @border-color;
@@ -57,8 +57,8 @@ window#waybar {
     border-width: 2px;
     border-color: @border-color;
     border-radius: 20px;
-    color: shade(@base04, 0.9);
-    background-color: @base02;
+    color: shade(@foreground, 0.9);
+    background-color: @widget-background;
     padding: 0 9px;
     margin: 0px 2px;
     min-width: 25px;
@@ -68,7 +68,7 @@ window#waybar {
 
 
 #workspaces button:hover {
-    background-color: shade(@base02, 1.4);
+    background-color: shade(@widget-background, 1.4);
     border-color: shade(@border-color, 1.4);
 }
 
@@ -95,6 +95,7 @@ window#waybar {
 #battery.charging {
     border-color: shade(@green, 1.1);
     background-color: shade(@green, 0.9);
+    color: @widget-background;
 }
 
 @keyframes blink {
@@ -137,12 +138,14 @@ window#waybar {
 }
 
 #pulseaudio {
+    color: @widget-background;
     background-color: shade(@cyan, 0.9);
     border-color: shade(@cyan, 1.1);
 }
 
 #pulseaudio.muted {
-    background-color: @base02;
+    color: @foreground;
+    background-color: @widget-background;
     border-color: @cyan;
 }
 

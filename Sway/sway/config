@@ -2,7 +2,7 @@
 set $mod Mod4
 
 # Set lock-screen
-exec swayidle -w before-sleep "$lock_cmd -d"
+exec swayidle -w before-sleep "swaylock -f"
 set $lock_cmd gtklock
 
 
@@ -26,27 +26,31 @@ bindsym $mod+x exec rofi-scripts
 # Connect vpn
 bindsym $mod+Control+v exec rofi-vpn
 
+# Make screenshot
+bindsym $mod+Control+p exec grim -g "$(slurp)" - | swappy -f -
+
 
 ## Appearance
 
 font Noto Sans Regular 9
 
-hide_edge_borders --i3 smart_no_gaps
+hide_edge_borders smart_no_gaps
+# hide_edge_borders --i3 smart_no_gaps  # hides titlebar on containers with one child
 default_floating_border normal
 default_border pixel 1
 titlebar_padding 4 1
 
 smart_gaps on
-gaps inner 15
+gaps inner 5
 gaps outer 0
 
 bar swaybar_command waybar
 bindsym $mod+o exec "killall -SIGUSR1 waybar"  # Toggle waybar
 
 # TODO: WIP
-exec eww daemon
-exec eww open navigation
-exec eww open launcher
+# exec eww daemon
+# exec eww open navigation
+# exec eww open launcher
 
 # Load colors
 include ~/.config/sway/base16

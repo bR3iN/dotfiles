@@ -39,11 +39,14 @@ rewrite = "~/.config/wofi/base16"
 [sway]
 rewrite = "~/.config/sway/base16"
 
-[Wallpaper]
-template = "null"
-rewrite = "/dev/null"
-enable_if = "which wm"
-hook = "wm try-set $SCHEME_NAME"
+[swaylock]
+rewrite = "~/.config/swaylock/config"
+
+# [Wallpaper]
+# template = "null"
+# rewrite = "/dev/null"
+# enable_if = "which wm"
+# hook = "wm try-set $SCHEME_NAME"
 
 [waybar]
 template = "css"
