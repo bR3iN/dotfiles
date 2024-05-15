@@ -198,7 +198,7 @@
 (tmap! "<C-v><Esc>" "<Esc>")
 
 ; Open main.fnl
-(nmap! "<leader>ev" ":<C-u>edit ~/.config/nvim/fnl/main.fnl<CR>")
+(nmap! "<leader>ov" ":<C-u>edit ~/.config/nvim/fnl/main.fnl<CR>")
 
 ; Goto alternative/[p]revious file
 (nmap! "<C-p>" "<C-^>")
@@ -213,14 +213,14 @@
 (nmap! "]Q"         ":<C-u>clast<CR>")
 (nmap! "[Q"         ":<C-u>cfirst<CR>")
 (nmap! "<leader>oq" ":<C-u>copen<CR>")
-(nmap! "<leader>cq" ":<C-u>cclose<CR>")
+(nmap! "<leader>qq" ":<C-u>cclose<CR>")
 
 (nmap! "]l"         ":<C-u>lnext<CR>")
 (nmap! "[l"         ":<C-u>lprev<CR>")
 (nmap! "]L"         ":<C-u>llast<CR>")
 (nmap! "[L"         ":<C-u>lfirst<CR>")
 (nmap! "<leader>ol" ":<C-u>lopen<CR>")
-(nmap! "<leader>cl" ":<C-u>lclose<CR>")
+(nmap! "<leader>ql" ":<C-u>lclose<CR>")
 
 ; Floating preview in quickfix window
 (add! "kevinhwang91/nvim-bqf"
@@ -241,7 +241,7 @@
 
 ; Write and quit
 (nmap! "<leader>w"  ":<C-u>w<cr>")
-(nmap! "<leader>qq" ":<C-u>quit<cr>")
+(nmap! "<leader>qv" ":<C-u>quit<cr>")
 ; "sudo write"-trick via polkit agent
 (nmap! "<leader>sw" ":<C-u>w !pkexec tee % >/dev/null<CR>")
 
@@ -288,6 +288,7 @@
                            ; Resumes previous picker
                            [:n "<leader>f."] #(pick :resume)
                            [:n "<leader>b"]  #(pick :buffers {:sort_lastused true :sort_mru true})
+                           [:n "<leader>fd"] #(pick :diagnostics)
                            [:n "<leader>fg"] #(pick :live_grep)
                            [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
                            [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
@@ -695,3 +696,9 @@
 
 ; Forked as plugin doesn't have an API for custom keybindings
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
+
+(add! ["folke/trouble.nvim" "nvim-tree/nvim-web-devicons"]
+      ; #(setup :trouble {:auto_open true :auto_close true})
+      )
+(nmap! "<leader>ot" ":<C-u>Trouble<CR>")
+(nmap! "<leader>qt" ":<C-u>TroubleClose<CR>")
