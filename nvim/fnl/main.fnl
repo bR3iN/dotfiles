@@ -131,9 +131,9 @@
       ; Decide if we use an external colorscheme or our own base16-based one
       (match name
         "Tokyonight Moon" (add! "folke/tokyonight.nvim"
-                                #(do
-                                   (setup :tokyonight {:transparent true})
-                                   (vim.cmd.colorscheme "tokyonight-moon")))
+                                 #(do
+                                    (setup :tokyonight {:transparent true})
+                                    (vim.cmd.colorscheme "tokyonight-moon")))
         "Nord" (add! "shaunsingh/nord.nvim"
                      #(do
                         (let! nord_disable_background true)
@@ -151,13 +151,14 @@
                               (vim.cmd.colorscheme "catppuccin-mocha")
                               (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg None})
                               (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg None})))
-        ; Fallback if we don't want to use an external colorscheme
-        _ (do
-            (let! base16_colors_lua :base16-colors)
-            (vim.cmd.colorscheme :base16)))
+        ; Fallback; derives colorscheme from base16 colors
+        _ (add! "bR3iN/base16.nvim"
+                #(do
+                   (let! base16_colors_lua :base16-colors)
+                   (vim.cmd.colorscheme :base16))))
       ; Highlights overrides and groups for local plugins
       (vim.api.nvim_set_hl 0 :Comment {:fg colors.base03})
-      (vim.api.nvim_set_hl 0 :CommentHighlighted {:fg colors.base08})
+      (vim.api.nvim_set_hl 0 :CommentHighlighted {:fg colors.base0F})
       (vim.api.nvim_set_hl 0 :TrailingWhitespace {:fg colors.base09 :bg colors.base09}))))
 
 (set! fillchars { :vert :| })
@@ -174,11 +175,11 @@
       #(setup :colorizer {:user_default_options {:names false}}))
 
 ; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
-(require :plugin.toggle-comments)
+(setup :plugin.toggle-comments)
 (nmap! "<C-h>" ":ToggleComments<CR>")
 (imap! "<C-h>" "<C-o>:ToggleComments<CR>")
 
-; (add! "lukas-reineke/headlines.nvim" #(setup :headlines))
+(add! "lukas-reineke/headlines.nvim" #(setup :headlines))
 
 ; (add! "lukas-reineke/indent-blankline.nvim"
 ;       (fn []
@@ -259,15 +260,23 @@
                              :scroll_strategy :limit
                              :layout_config {:prompt_position :top}
                              :layout_strategy :flex
-                             :mappings {:i {"<C-j>" actions.move_selection_next
-                                            "<C-k>" actions.move_selection_previous
-                                            "<C-f>" actions.preview_scrolling_right
-                                            "<C-b>" actions.preview_scrolling_left
+                             :mappings {:i {"<C-j>" actions.preview_scrolling_down
+                                            "<C-k>" actions.preview_scrolling_up
+                                            "<C-l>" actions.preview_scrolling_right
+                                            "<C-h>" actions.preview_scrolling_left
                                             "<C-q>" (+ actions.smart_send_to_qflist actions.open_qflist)
                                             "<C-x>" false
+                                            "<C-d>" actions.results_scrolling_down
+                                            "<C-u>" actions.results_scrolling_up
                                             "<C-s>" actions.select_horizontal}
-                                        :n {"<C-q>" (+ actions.smart_send_to_qflist actions.open_qflist)
+                                        :n {"<C-j>" actions.preview_scrolling_down
+                                            "<C-k>" actions.preview_scrolling_up
+                                            "<C-l>" actions.preview_scrolling_right
+                                            "<C-h>" actions.preview_scrolling_left
+                                            "<C-q>" (+ actions.smart_send_to_qflist actions.open_qflist)
                                             "<C-x>" false
+                                            "<C-d>" actions.results_scrolling_down
+                                            "<C-u>" actions.results_scrolling_up
                                             "<C-s>" actions.select_horizontal}}}})
           ; Setup keymaps
           (let [pick (fn [action ?opts]
@@ -681,3 +690,8 @@
 
           ; Setup python debugging via dedicated extension
           (setup :dap-python "python"))))
+
+(add! "bR3iN/emanote.nvim")
+
+; Forked as plugin doesn't have an API for custom keybindings
+(add! "bR3iN/jupynium.nvim" #(setup :jupynium))

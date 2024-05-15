@@ -11,8 +11,6 @@
 
 ; Replace saved value, returning previous value
 (fn replace-saved [new]
-  ; Lazily load initial value (i.e. the highlighted state) so we don't get the
-  ; wrong one if loaded before the colorscheme.
   (when (nil? saved)
     (let [init (get_hl :CommentHighlighted)]
       (set saved init)))
@@ -27,4 +25,12 @@
     (set_hl :Comment new)
     (vim.cmd :redraw {:bang true})))
 
-(command! :ToggleComments toggle)
+
+(fn setup []
+  (command! :ToggleComments toggle)
+  ; Lazily load initial value (i.e. the highlighted state) so we don't get the
+  ; wrong one if loaded before the colorscheme.
+  (let [init (get_hl :CommentHighlighted)]
+    (set saved init)))
+
+{: setup}
