@@ -124,42 +124,52 @@
 (set! termguicolors)
 
 ; Custom color setup; load colorscheme description (name + base16 colors)
-(let [(ok color-config) (pcall require :base16-colors)]
-  (if (not ok)
-    (print "Couldn't find base16-colors.lua")
-    (let [{: colors : name} color-config]
-      ; Decide if we use an external colorscheme or our own base16-based one
-      (match name
-        "Tokyonight Moon" (add! "folke/tokyonight.nvim"
-                                 #(do
-                                    (setup :tokyonight {:transparent true})
-                                    (vim.cmd.colorscheme "tokyonight-moon")))
-        "Nord" (add! "shaunsingh/nord.nvim"
-                     #(do
-                        (let! nord_disable_background true)
-                        (vim.cmd.colorscheme "nord")))
-        "Gruvbox" (add! "ellisonleao/gruvbox.nvim"
+(add!
+  "bR3iN/base16.nvim"
+  #(let [hl-ext! (fn [name hl]
+                   (->> {: name}
+                        (vim.api.nvim_get_hl 0)
+                        (vim.tbl_extend :keep hl)
+                        (vim.api.nvim_set_hl 0 name)))
+         {: colors : name} (require :base16-colors)
+             {: darken} (require :base16.utils)]
+     ; Decide if we use an external colorscheme or our own base16-based one
+     (match name
+       "Tokyonight Moon" (add! "folke/tokyonight.nvim"
+                               #(do
+                                  (setup :tokyonight {:transparent true})
+                                  (vim.cmd.colorscheme "tokyonight-moon")))
+       "Nord" (add! "shaunsingh/nord.nvim"
+                    #(do
+                       (let! nord_disable_background true)
+                       (vim.cmd.colorscheme "nord")))
+       "Gruvbox" (add! "ellisonleao/gruvbox.nvim"
+                       #(do
+                          (setup :gruvbox {:transparent_mode true})
+                          (vim.cmd.colorscheme "gruvbox")))
+       "Kanagawa" (add! "rebelot/kanagawa.nvim"
                         #(do
-                           (setup :gruvbox {:transparent_mode true})
-                           (vim.cmd.colorscheme "gruvbox")))
-        "Kanagawa" (add! "rebelot/kanagawa.nvim"
-                         #(do
-                            (setup :kanagawa {:transparent true})
-                            (vim.cmd.colorscheme "kanagawa")))
-        "Catppuccin" (add! "catppuccin/nvim"
-                           #(do
-                              (vim.cmd.colorscheme "catppuccin-mocha")
-                              (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg None})
-                              (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg None})))
-        ; Fallback; derives colorscheme from base16 colors
-        _ (add! "bR3iN/base16.nvim"
-                #(do
-                   (let! base16_colors_lua :base16-colors)
-                   (vim.cmd.colorscheme :base16))))
-      ; Highlights overrides and groups for local plugins
-      (vim.api.nvim_set_hl 0 :Comment {:fg colors.base03})
-      (vim.api.nvim_set_hl 0 :CommentHighlighted {:fg colors.base0F})
-      (vim.api.nvim_set_hl 0 :TrailingWhitespace {:fg colors.base09 :bg colors.base09}))))
+                           (setup :kanagawa {:transparent true})
+                           (vim.cmd.colorscheme "kanagawa")))
+       "Catppuccin" (add! "catppuccin/nvim"
+                          #(do
+                             (vim.cmd.colorscheme "catppuccin-mocha")
+                             (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg None})
+                             (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg None})))
+       ; Fallback; derives colorscheme from base16 colors
+       _ (do
+            (let! base16_colors_lua :base16-colors)
+            (vim.cmd.colorscheme :base16)))
+     ; Highlights overrides and groups for local plugins
+     (hl-ext! :WinSeparator {:fg colors.base01})
+     (hl-ext! :SignColumn {:bg colors.base02})
+     (hl-ext! :LineNrAbove {:bg colors.base01})
+     (hl-ext! :LineNrBelow {:bg colors.base01})
+     (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
+     (hl-ext! :CursorLine {:bg (darken colors.base02 0.1)})
+     (hl-ext! :Comment {:fg colors.base03})
+     (hl-ext! :CommentHighlighted {:fg colors.base0F})
+     (hl-ext! :TrailingWhitespace {:fg colors.base09 :bg colors.base09})))
 
 (set! fillchars { :vert :| })
 
@@ -321,7 +331,8 @@
 (add! "stevearc/oil.nvim"
       #(let [{: setup : open} (require :oil)]
          (setup
-           {:use_default_keymaps false
+           {:columns [] ; disables icons
+            :use_default_keymaps false
             :keymaps {"g?"    :actions.show_help
                       "<C-]>" :actions.select
                       "<C-s>v" :actions.select_vsplit
@@ -697,8 +708,250 @@
 ; Forked as plugin doesn't have an API for custom keybindings
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
 
-(add! ["folke/trouble.nvim" "nvim-tree/nvim-web-devicons"]
-      ; #(setup :trouble {:auto_open true :auto_close true})
-      )
+(add! ["folke/trouble.nvim" "nvim-tree/nvim-web-devicons"])
 (nmap! "<leader>ot" ":<C-u>Trouble<CR>")
 (nmap! "<leader>qt" ":<C-u>TroubleClose<CR>")
+
+(add! "b0o/incline.nvim"
+      #(let [{: colors} (require :base16-colors)
+             diag-colors [colors.red colors.orange colors.green colors.blue]
+             diag-icons [ "" "" "" "" ]
+             ; Extends first argument (table) with the tail of the arg list; incline
+             ; mixes arrays with maps, which is otherwise a bit ugly in fennel.
+             comp (fn [hl & comps]
+                      (vim.tbl_extend :error comps hl))
+             sep (comp {:guifg colors.bg0} " | " )]
+         (setup
+           :incline
+           {:hide {:cursorline true}
+            :render
+            (fn [{: buf}]
+              (let [get-opt #(. vim.bo buf $1)
+                    filename (let [name (-> buf
+                                            (vim.api.nvim_buf_get_name)
+                                            (vim.fn.fnamemodify ":t"))
+                                   has-name (not= "" name)]
+                               (comp
+                                 {:guifg colors.fg0 :gui :bold}
+                                 (if has-name name "[No Name]")))
+                    diag-indicator (icollect
+                                     [severity level (ipairs [ :Error :Warn :Info :Hint ])]
+                                     (let [n (length
+                                               (vim.diagnostic.get buf {: severity}))]
+                                       (if (> n 0)
+                                         [(comp
+                                            {:guifg (. diag-colors severity)}
+                                            (. diag-icons severity) " " n)
+                                          sep])))]
+                (comp
+                  {:guibg colors.bg2}
+                  " " diag-indicator filename " "
+                  (let [is-ro (or
+                                (get-opt :readonly)
+                                (not (get-opt :modifiable)))]
+                    (if
+                      is-ro (comp {:guifg colors.green} " ")
+                      ""))
+                  (if
+                    (get-opt :modified) (comp {:guifg colors.yellow} " ")
+                    ""))))})))
+
+(add! "lewis6991/gitsigns.nvim"
+      #(setup
+         :gitsigns
+         {:signcolumn false}))
+
+(add! ["rebelot/heirline.nvim"
+       "SmiteshP/nvim-navic"]
+      #(let [{: colors} (require :base16-colors)
+             {: lsp_attached : is_git_repo} (require :heirline.conditions)
+             ;; Statusline components
+             sep-right {:provider "" :hl {:fg colors.base00 :bold true}}
+             sep-left {:provider "" :hl {:fg colors.base00 :bold true}}
+             ; Current mode
+             vi_mode (let [get-color #(let [{: mode_colors : mode} $1]
+                                        (. mode_colors mode))]
+                       {:provider #(.. " " (. $1 :mode) " ")
+                        1 {:provider ""
+                           :hl #{:fg (get-color $1) :reverse false}}
+                        2 {:provider " "
+                           :hl {:reverse false}}
+                        :init #(let [{: mode_names} $1]
+                                 (->> (vim.fn.mode 1)
+                                      (. mode_names)
+                                      (tset $1 :mode)))
+                        :hl #{:reverse true :bold true
+                              :fg (get-color $1)}
+                        :update {1 :ModeChanged :pattern "*:*"
+                                 :callback #(vim.schedule_wrap #(vim.cmd :redrawstatus))}
+                        :static (let [mode_map {"NORMAL" {:color colors.base0B
+                                                          :modes ["n" "niI" "niR" "niV"]}
+                                                "OP" {:color colors.base0B
+                                                      :modes ["no" "nov" "noV" "no\22"]}
+                                                "VISUAL" {:color colors.base0D
+                                                          :modes ["v" "vs"]}
+                                                "LINES" {:color colors.base0D
+                                                         :modes ["V" "Vs"]}
+                                                "BLOCK" {:color colors.base0D
+                                                         :modes ["\22" "\22s" "\19"]}
+                                                "SELECT" {:color colors.base09
+                                                          :modes ["s" "S"]}
+                                                "INSERT" {:color colors.base08
+                                                          :modes ["i" "ic" "ix"]}
+                                                "REPLACE" {:color colors.base0E
+                                                           :modes ["R" "Rc" "Rx"]}
+                                                "V-REPLACE" {:color colors.base0E
+                                                             :modes ["Rv" "Rvc" "Rvx"]}
+                                                "COMMAND" {:color colors.base0B
+                                                           :modes ["c" "cv" "ce"]}
+                                                "ENTER" {:color colors.base0C
+                                                         :modes ["r"]}
+                                                "MORE" {:color colors.base0C
+                                                        :modes ["rm"]}
+                                                "CONFIRM" {:color colors.base09
+                                                           :modes ["r?"]}
+                                                "SHELL" {:color colors.base0B
+                                                         :modes [" !"]}
+                                                "TERM" {:color colors.base0B
+                                                        :modes ["nt" "t"]}
+                                                "NONE" {:color colors.base0A
+                                                        :modes ["null"]}}]
+                                  (var res {:mode_names {} :mode_colors {}})
+                                  (each [name {: color : modes} (pairs mode_map)]
+                                    (tset res :mode_colors name color)
+                                    (each [_ mode (ipairs modes)]
+                                      (tset res :mode_names mode name)))
+                                  res)})
+             lsps {:hl {:fg colors.yellow}
+                   1 {:provider " ["}
+                   2 {:provider #(table.concat
+                                   (icollect [_ {: name}
+                                              (pairs (vim.lsp.get_active_clients {:bufnr 0}))]
+                                             name)
+                                   " ")}
+                   3 {:provider "]"}}
+             ; Breadcrumbs
+             navic-available (. (require :nvim-navic) :is_available)
+             navic (let [{: get_location} (require :nvim-navic)]
+                     {:hl {:bg colors.base02}
+                      :update :CursorMoved
+                      1 {:flexible 1
+                         1 {:provider get_location}
+                         2 {:provider #(get_location {:depth_limit 1})}}})
+             no-cmd #(= vim.o.cmdheight 0)
+             ; Number of search results
+             has-search-count #(not= vim.v.hlsearch 0)
+             search-count {:init #(let [(ok search) (pcall vim.fn.searchcount)]
+                                    (if (and ok search.total) (tset $1 :search search)))
+                           :provider #(let [{:search {: current : total : maxcount}} $1]
+                                        (string.format "[%d/%d]" current (math.min total maxcount)))}
+             ; Macro currently recording
+             is-macrorec #(not= (vim.fn.reg_recording) "")
+             macrorec {:provider #(.. "[" (vim.fn.reg_recording) "]")
+                       :hl {:fg colors.orange :bold true}
+                       :update [:RecordingEnter :RecordingLeave]}
+             cursor-pos [{:provider " %l"
+                          :hl {:fg colors.blue}}
+                         {:provider ":"}
+                         {:provider "%c"
+                          :hl {:fg colors.blue}}]]
+         (set! cmdheight 0)
+         (set! laststatus 3)
+         (set! showcmdloc :statusline)
+         ; Setup navic highlight groups
+         (each
+           [hl-name hl-opt
+            (pairs
+              {:NavicIconsArray { :fg colors.yellow }
+               :NavicIconsBoolean { :fg colors.cyan :bold true}
+               :NavicIconsClass { :fg colors.cyan }
+               :NavicIconsConstant { :fg colors.yellow }
+               :NavicIconsConstructor { :fg colors.cyan }
+               :NavicIconsEnum { :fg colors.cyan }
+               :NavicIconsEnumMember { :fg colors.fg0 }
+               :NavicIconsEvent { :fg colors.fg0 }
+               :NavicIconsField { :fg colors.fg0 :italic true}
+               :NavicIconsFile { :fg colors.green }
+               :NavicIconsFunction { :fg colors.blue :italic true}
+               :NavicIconsInterface { :fg colors.cyan }
+               :NavicIconsKey { :fg colors.cyan }
+               :NavicIconsMethod { :fg colo :italic true }
+               :NavicIconsModule { :fg colors.fg0 :italic true }
+               :NavicIconsNamespace { :fg colors.fg0 :italic true }
+               :NavicIconsNull { :fg colors.cyan }
+               :NavicIconsNumber { :fg colors.magenta }
+               :NavicIconsObject { :fg colors.cyan }
+               :NavicIconsOperator { :fg colors.cyan }
+               :NavicIconsPackage { :fg colors.fg0 :italic true }
+               :NavicIconsProperty { :fg colors.fg0 :italic true }
+               :NavicIconsString { :fg colors.green :italic true }
+               :NavicIconsStruct { :fg colors.cyan }
+               :NavicIconsTypeParameter { :fg colors.blue }
+               :NavicIconsVariable { :fg colors.fg0 :bold true }
+               :NavicText { :fg colors.fg1 }
+               :NavicSeparator { :fg colors.bg0 }})]
+           (tset hl-opt :bg colors.base02)
+           (vim.api.nvim_set_hl 0 hl-name hl-opt))
+; Setup plugins we depend on
+(setup
+  :nvim-navic
+  {:highlight true
+   :separator "  "
+   :lsp {:auto_attach true}})
+; Setup the statusline itself
+(setup
+  :heirline
+  {:statusline
+   {:hl {:fg colors.fg0 :bg colors.bg2}
+    ; left side
+    1 [vi_mode
+       {:condition lsp_attached
+        1 {:provider " "}
+        2 lsps}
+       {:condition #(no-cmd)
+        :provider " %3.5(%S%)"
+        :hl {:bold true}}]
+    2 {:provider "%="}
+    ; middle
+    3 [{:provider "%f"
+        :hl {:fg colors.green :reverse false :bold true}}
+       {:condition #(navic-available)
+        1 [{:provider " "}
+           sep-left
+           {:provider " "}
+           navic]}]
+    4 {:provider "%="}
+    ; right side
+    5 [{:condition #(and (is-macrorec) (no-cmd))
+        1 macrorec
+        2 {:provider " "}}
+       {:condition #(and (has-search-count) (no-cmd))
+        1 search-count
+        2 {:provider " "}}
+       {:condition is_git_repo
+        :init #(tset $1  :status_dict vim.b.gitsigns_status_dict)
+        1 [sep-right
+           {:provider (fn [self]
+                        (.. "  " self.status_dict.head))
+            :hl {:fg colors.orange :bold true}}
+           {:provider " "}
+           {:provider (fn [self]
+                        (.. "+" (or self.status_dict.added 0)))
+            :hl {:fg colors.green}}
+           {:provider (fn [self]
+                        (.. "-" (or self.status_dict.removed 0)))
+            :hl {:fg colors.red}}
+           {:provider (fn [self]
+                        (.. "~" (or self.status_dict.changed 0)))
+            :hl {:fg colors.yellow}}
+           {:provider " "}]}
+       sep-right
+       ; Line count
+       {:provider " %L "}
+       sep-right
+       ; Cursor position
+       cursor-pos
+       ; Percentage in file
+       {:hl {:fg colors.green :bold true :reverse true}
+        1 {:provider " " :hl {:reverse false}}
+        2 {:provider " %p%% "}}]}})))
