@@ -593,11 +593,11 @@
                                 :swap_next {"<leader>." "@parameter.inner"}
                                 :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
-; (add! :Maan2003/lsp_lines.nvim
-;        {:setup (fn []
-;                  (setup :lsp_lines)
-;                  ; Disable virtual_text since it's redundant due to `lsp_lines.nvim`
-;                  (vim.diagnostic.config {:virtual_text false}))})
+; (add! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
+;       #(fn []
+;          (setup :lsp_lines)
+;          ; Disable virtual_text since it's redundant due to `lsp_lines.nvim`
+;          (vim.diagnostic.config {:virtual_text false})))
 
 (add! ["neovim/nvim-lspconfig"
        "mickael-menu/zk-nvim"]
@@ -708,7 +708,7 @@
 ; Forked as plugin doesn't have an API for custom keybindings
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
 
-(add! ["folke/trouble.nvim" "nvim-tree/nvim-web-devicons"])
+(add! ["folke/trouble.nvim"])
 (nmap! "<leader>ot" ":<C-u>Trouble<CR>")
 (nmap! "<leader>qt" ":<C-u>TroubleClose<CR>")
 
@@ -914,7 +914,7 @@
     2 {:provider "%="}
     ; middle
     3 [{:provider "%f"
-        :hl {:fg colors.green :reverse false :bold true}}
+        :hl {:fg colors.green :bold true}}
        {:condition #(navic-available)
         1 [{:provider " "}
            sep-left
