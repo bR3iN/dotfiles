@@ -831,7 +831,7 @@
                                                        (-> vim.g.actual_curbuf
                                                            (tonumber)
                                                            (#{:bufnr $1})
-                                                           (vim.lsp.get_active_clients)))]
+                                                           (vim.lsp.get_clients)))]
                                                     name)
                                           " ")}
                                     3 {:provider "]"}}
@@ -914,7 +914,7 @@
        {:condition #(-> vim.g.actual_curbuf
                         (tonumber)
                         (#{:bufnr $1})
-                        (vim.lsp.get_active_clients)
+                        (vim.lsp.get_clients)
                         (next)
                         (not= nil))
         1 {:provider " "}
