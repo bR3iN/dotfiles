@@ -161,11 +161,11 @@
             (let! base16_colors_lua :base16-colors)
             (vim.cmd.colorscheme :base16)))
      ; Highlights overrides and groups for local plugins
-     (hl-ext! :WinSeparator {:fg colors.base01})
-     (hl-ext! :SignColumn {:bg colors.base02})
-     (hl-ext! :LineNrAbove {:bg colors.base01})
-     (hl-ext! :LineNrBelow {:bg colors.base01})
-     (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
+     (hl-ext! :WinSeparator {:fg colors.base02})
+     ; (hl-ext! :SignColumn {:bg colors.base02})
+     ; (hl-ext! :LineNrAbove {:bg colors.base01})
+     ; (hl-ext! :LineNrBelow {:bg colors.base01})
+     ; (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
      (hl-ext! :CursorLine {:bg (darken colors.base02 0.1)})
      (hl-ext! :Comment {:fg colors.base03})
      (hl-ext! :CommentHighlighted {:fg colors.base0F})
@@ -766,8 +766,8 @@
       #(let [{: colors} (require :base16-colors)
              {: lsp_attached : is_git_repo} (require :heirline.conditions)
              ;; Statusline components
-             sep-right {:provider "" :hl {:fg colors.base00 :bold true}}
-             sep-left {:provider "" :hl {:fg colors.base00 :bold true}}
+             sep-right {:provider "" :hl {:fg colors.bg0 :bold true}}
+             sep-left {:provider "" :hl {:fg colors.bg0 :bold true}}
              ; Current mode
              vi_mode (let [get-color #(let [{: mode_colors : mode} $1]
                                         (. mode_colors mode))]
@@ -824,12 +824,17 @@
                                   res)})
              lsps {:hl {:fg colors.yellow}
                    1 {:provider " ["}
-                   2 {:provider #(table.concat
-                                   (icollect [_ {: name}
-                                              (pairs (vim.lsp.get_active_clients {:bufnr 0}))]
-                                             name)
-                                   " ")}
-                   3 {:provider "]"}}
+                                    2 {:provider
+                                       #(table.concat
+                                          (icollect [_ {: name}
+                                                     (pairs
+                                                       (-> vim.g.actual_curbuf
+                                                           (tonumber)
+                                                           (#{:bufnr $1})
+                                                           (vim.lsp.get_active_clients)))]
+                                                    name)
+                                          " ")}
+                                    3 {:provider "]"}}
              ; Breadcrumbs
              navic-available (. (require :nvim-navic) :is_available)
              navic (let [{: get_location} (require :nvim-navic)]
@@ -859,39 +864,39 @@
          (set! laststatus 3)
          (set! showcmdloc :statusline)
          ; Setup navic highlight groups
-         (each
-           [hl-name hl-opt
-            (pairs
-              {:NavicIconsArray { :fg colors.yellow }
-               :NavicIconsBoolean { :fg colors.cyan :bold true}
-               :NavicIconsClass { :fg colors.cyan }
-               :NavicIconsConstant { :fg colors.yellow }
-               :NavicIconsConstructor { :fg colors.cyan }
-               :NavicIconsEnum { :fg colors.cyan }
-               :NavicIconsEnumMember { :fg colors.fg0 }
-               :NavicIconsEvent { :fg colors.fg0 }
-               :NavicIconsField { :fg colors.fg0 :italic true}
-               :NavicIconsFile { :fg colors.green }
-               :NavicIconsFunction { :fg colors.blue :italic true}
-               :NavicIconsInterface { :fg colors.cyan }
-               :NavicIconsKey { :fg colors.cyan }
-               :NavicIconsMethod { :fg colo :italic true }
-               :NavicIconsModule { :fg colors.fg0 :italic true }
-               :NavicIconsNamespace { :fg colors.fg0 :italic true }
-               :NavicIconsNull { :fg colors.cyan }
-               :NavicIconsNumber { :fg colors.magenta }
-               :NavicIconsObject { :fg colors.cyan }
-               :NavicIconsOperator { :fg colors.cyan }
-               :NavicIconsPackage { :fg colors.fg0 :italic true }
-               :NavicIconsProperty { :fg colors.fg0 :italic true }
-               :NavicIconsString { :fg colors.green :italic true }
-               :NavicIconsStruct { :fg colors.cyan }
-               :NavicIconsTypeParameter { :fg colors.blue }
-               :NavicIconsVariable { :fg colors.fg0 :bold true }
-               :NavicText { :fg colors.fg1 }
-               :NavicSeparator { :fg colors.bg0 }})]
-           (tset hl-opt :bg colors.base02)
-           (vim.api.nvim_set_hl 0 hl-name hl-opt))
+(each
+  [hl-name hl-opt
+   (pairs
+     {:NavicIconsArray { :fg colors.yellow }
+      :NavicIconsBoolean { :fg colors.cyan :bold true}
+      :NavicIconsClass { :fg colors.cyan }
+      :NavicIconsConstant { :fg colors.yellow }
+      :NavicIconsConstructor { :fg colors.cyan }
+      :NavicIconsEnum { :fg colors.cyan }
+      :NavicIconsEnumMember { :fg colors.fg0 }
+      :NavicIconsEvent { :fg colors.fg0 }
+      :NavicIconsField { :fg colors.fg0 :italic true}
+      :NavicIconsFile { :fg colors.green }
+      :NavicIconsFunction { :fg colors.blue :italic true}
+      :NavicIconsInterface { :fg colors.cyan }
+      :NavicIconsKey { :fg colors.cyan }
+      :NavicIconsMethod { :fg colo :italic true }
+      :NavicIconsModule { :fg colors.fg0 :italic true }
+      :NavicIconsNamespace { :fg colors.fg0 :italic true }
+      :NavicIconsNull { :fg colors.cyan }
+      :NavicIconsNumber { :fg colors.magenta }
+      :NavicIconsObject { :fg colors.cyan }
+      :NavicIconsOperator { :fg colors.cyan }
+      :NavicIconsPackage { :fg colors.fg0 :italic true }
+      :NavicIconsProperty { :fg colors.fg0 :italic true }
+      :NavicIconsString { :fg colors.green :italic true }
+      :NavicIconsStruct { :fg colors.cyan }
+      :NavicIconsTypeParameter { :fg colors.blue }
+      :NavicIconsVariable { :fg colors.fg0 :bold true }
+      :NavicText { :fg colors.fg1 }
+      :NavicSeparator { :fg colors.bg0 }})]
+  (tset hl-opt :bg colors.base02)
+  (vim.api.nvim_set_hl 0 hl-name hl-opt))
 ; Setup plugins we depend on
 (setup
   :nvim-navic
@@ -905,21 +910,34 @@
    {:hl {:fg colors.fg0 :bg colors.bg2}
     ; left side
     1 [vi_mode
-       {:condition lsp_attached
+       ; lsp_attached uses deprecated api function, check again in future
+       {:condition #(-> vim.g.actual_curbuf
+                        (tonumber)
+                        (#{:bufnr $1})
+                        (vim.lsp.get_active_clients)
+                        (next)
+                        (not= nil))
         1 {:provider " "}
         2 lsps}
        {:condition #(no-cmd)
-        :provider " %3.5(%S%)"
+        :provider " %3.5(%S%) "
         :hl {:bold true}}]
     2 {:provider "%="}
     ; middle
-    3 [{:provider "%f"
-        :hl {:fg colors.green :bold true}}
+    3 [{:hl {:fg colors.fg0 :bold true}
+        :flexible 2
+        1 {:provider "%f"}
+        2 {:provider #(let [name (-> vim.g.actual_curbuf
+                                     (tonumber)
+                                     (vim.api.nvim_buf_get_name)
+                                     (vim.fn.fnamemodify ":t"))]
+                        (if (not= "" name) name "[No Name]"))}}
        {:condition #(navic-available)
         1 [{:provider " "}
            sep-left
            {:provider " "}
-           navic]}]
+           navic
+           {:provider " "}]}]
     4 {:provider "%="}
     ; right side
     5 [{:condition #(and (is-macrorec) (no-cmd))
