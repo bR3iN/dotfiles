@@ -161,6 +161,7 @@
             (let! base16_colors_lua :base16-colors)
             (vim.cmd.colorscheme :base16)))
      ; Highlights overrides and groups for local plugins
+     (vim.api.nvim_set_hl 0 :GitSignsCurrentLineBlame {:link :CommentHighlighted})
      (hl-ext! :WinSeparator {:fg colors.base02})
      ; (hl-ext! :SignColumn {:bg colors.base02})
      ; (hl-ext! :LineNrAbove {:bg colors.base01})
@@ -708,7 +709,8 @@
 ; Forked as plugin doesn't have an API for custom keybindings
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
 
-(add! ["folke/trouble.nvim"])
+(add! ["folke/trouble.nvim"]
+      #(setup :trouble {:icons false}))
 (nmap! "<leader>ot" ":<C-u>Trouble<CR>")
 (nmap! "<leader>qt" ":<C-u>TroubleClose<CR>")
 
