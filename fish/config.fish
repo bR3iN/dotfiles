@@ -46,7 +46,8 @@ if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty +kitten ssh'
 end
 
-if [ -f /usr/share/fzf/shell/key-bindings.fish ]
-    source /usr/share/fzf/shell/key-bindings.fish
-    fzf_key_bindings
-end
+# TODO: BROKEN
+# if [ -f /usr/share/fzf/shell/key-bindings.fish ]
+#     source /usr/share/fzf/shell/key-bindings.fish
+#     fzf_key_bindings
+# end

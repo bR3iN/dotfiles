@@ -50,4 +50,4 @@ install_fonts \
     'Fira Code Nerd Fonts' \
     'https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip' \
     'Fira Code.*Nerd Font Complete.ttf' \
-    'Fira Code * Nerd Font Complete.ttf'
+    'Fira Code * Nerd Font Complete*.ttf'
