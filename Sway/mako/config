@@ -3,23 +3,23 @@
 # directly.
 
 default-timeout=5000
-font=Fira Sans 10
+font=Noto Sans 10
 width=250
 padding=10
-border-size=1
+border-size=2
 border-radius=8
 
-background-color=#202020
-text-color=#EBEBEB
-border-color=#34E2E2
+background-color=#1E2030
+text-color=#C8D3F5
+border-color=#86E1FC
 
 [urgency=low]
-background-color=#202020
-text-color=#EBEBEB
-border-color=#73C48F
+background-color=#1E2030
+text-color=#C8D3F5
+border-color=#C3E88D
 
 [urgency=high]
 border-size=2
-background-color=#202020
-text-color=#F4F4F4
-border-color=#E23434
+background-color=#1E2030
+text-color=#B4F9F8
+border-color=#FF757F

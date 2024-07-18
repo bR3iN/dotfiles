@@ -1,23 +1,23 @@
-# Base16 Pop-OS
+# Base16 Tokyonight Moon
 # Author: bR3iN
 
-set -l color00 '#202020'
-set -l color01 '#2A2A2A'
-set -l color02 '#333333'
-set -l color03 '#3D3D3D'
-set -l color04 '#E3E3E3'
-set -l color05 '#EBEBEB'
-set -l color06 '#F2F2F2'
-set -l color07 '#F4F4F4'
-set -l color08 '#E23434'
-set -l color09 '#F19822'
-set -l color0A '#FFCE51'
-set -l color0B '#73C48F'
-set -l color0C '#34E2E2'
-set -l color0D '#48B9C7'
-set -l color0E '#AD7FA8'
-set -l color0F '#AD9B7F'
-set -l bg      '#1C1C1C'
+set -l color00 '#1E2030'
+set -l color01 '#222436'
+set -l color02 '#2F334D'
+set -l color03 '#444A73'
+set -l color04 '#828BB8'
+set -l color05 '#C8D3F5'
+set -l color06 '#89DDFF'
+set -l color07 '#B4F9F8'
+set -l color08 '#FF757F'
+set -l color09 '#FF966C'
+set -l color0A '#FFC777'
+set -l color0B '#C3E88D'
+set -l color0C '#86E1FC'
+set -l color0D '#82AAFF'
+set -l color0E '#C099FF'
+set -l color0F '#4FD6BE'
+set -l bg      '#1B1C2B'
 
 set -l FZF_NON_COLOR_OPTS
 
