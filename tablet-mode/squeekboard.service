@@ -1,0 +1,8 @@
+[Unit]
+BindsTo=tablet-mode.service
+
+[Service]
+ExecStart=/usr/bin/squeekboard
+
+[Install]
+WantedBy=tablet-mode.service

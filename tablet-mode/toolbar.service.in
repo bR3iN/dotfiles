@@ -1,0 +1,11 @@
+[Unit]
+BindsTo=tablet-mode.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart={EWW} open toolbar-left
+ExecStop={EWW} close toolbar-right toolbar-left
+
+[Install]
+WantedBy=tablet-mode.service

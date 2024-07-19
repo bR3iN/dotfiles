@@ -1,0 +1,8 @@
+[Unit]
+BindsTo=tablet-mode.service
+
+[Service]
+ExecStart=/home/ben/.cargo/bin/rot8 --hooks "eww reload"
+
+[Install]
+WantedBy=tablet-mode.service

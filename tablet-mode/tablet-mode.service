@@ -1,0 +1,7 @@
+[Unit]
+Description=Other units can bind to this unit to be running only in tablet mode
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/true
+RemainAfterExit=yes
