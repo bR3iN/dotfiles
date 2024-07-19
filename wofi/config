@@ -1,5 +1,5 @@
 single_click=true
-key_exit=Escape,Control_L-bracketleft,Control_R-bracketleft
+key_exit=Escape,Ctrl-bracketleft,Ctrl-bracketleft
 allow_images=true
 no_actions=true
 insensitive=true
