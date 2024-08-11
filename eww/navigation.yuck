@@ -4,7 +4,7 @@
               :x "15"
               :y "0"
               :anchor "top right")
-  :stacking "fg"
+  :stacking "overlay"
   :focusable false
   (navigation_menu))
 

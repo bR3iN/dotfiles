@@ -161,7 +161,6 @@
             (let! base16_colors_lua :base16-colors)
             (vim.cmd.colorscheme :base16)))
      ; Highlights overrides and groups for local plugins
-     (vim.api.nvim_set_hl 0 :GitSignsCurrentLineBlame {:link :CommentHighlighted})
      (hl-ext! :WinSeparator {:fg colors.base02})
      ; (hl-ext! :SignColumn {:bg colors.base02})
      ; (hl-ext! :LineNrAbove {:bg colors.base01})
@@ -170,7 +169,13 @@
      (hl-ext! :CursorLine {:bg (darken colors.base02 0.1)})
      (hl-ext! :Comment {:fg colors.base03})
      (hl-ext! :CommentHighlighted {:fg colors.base0F})
-     (hl-ext! :TrailingWhitespace {:fg colors.base09 :bg colors.base09})))
+     (vim.api.nvim_set_hl 0 :GitSignsCurrentLineBlame {:link :CommentHighlighted})
+     (hl-ext! :TrailingWhitespace {:fg colors.base09 :bg colors.base09})
+     ; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
+     ; Load after setting `CommentHighlighted` above
+     (setup :plugin.toggle-comments)
+     (nmap! "<C-h>" ":ToggleComments<CR>")
+     (imap! "<C-h>" "<C-o>:ToggleComments<CR>")))
 
 (set! fillchars { :vert :| })
 
@@ -185,10 +190,6 @@
 (add! "NvChad/nvim-colorizer.lua"
       #(setup :colorizer {:user_default_options {:names false}}))
 
-; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
-(setup :plugin.toggle-comments)
-(nmap! "<C-h>" ":ToggleComments<CR>")
-(imap! "<C-h>" "<C-o>:ToggleComments<CR>")
 
 (add! "lukas-reineke/headlines.nvim" #(setup :headlines))
 
@@ -922,8 +923,7 @@
        {:condition lsp_attached
         1 {:provider " "}
         2 lsps}
-       {:condition #(no-cmd)
-        :provider " %3.5(%S%) "
+       {:provider " %3.5(%S%) "
         :hl {:bold true}}]
     2 {:provider "%="}
     ; middle

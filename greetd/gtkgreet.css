@@ -1,12 +1,12 @@
 window, window.background {
-    background-color: transparent;
+    background-color: shade(@theme_bg_color, 0.75);
 }
 #body {
-  background: alpha(@theme_bg_color, 0.95);
+  background: shade(@theme_bg_color, 1.0);
   padding: 50px;
   padding-top: 80px;
   border-radius: 3px;
   border-style: solid;
-  border-width: 1px;
-  border-color: alpha(@theme_selected_bg_color, 0.7);
+  border-width: 2px;
+  border-color: shade(@theme_bg_color, 1.1);
 }

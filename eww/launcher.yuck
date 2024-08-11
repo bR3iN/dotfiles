@@ -1,28 +1,103 @@
-(defwindow launcher
+(defvar toolbar_visible true)
+
+(defwindow toolbar
   :monitor 0
   :geometry (geometry
-              :x "0"
-              :y "0"
-              :anchor "top left")
-  :stacking "fg"
+              ; :x "0"
+              ; :y "0"
+              :height "100%"
+              :anchor "left center"
+              )
+  ; Needed to not get pushed up by squeekboard
+  :stacking "overlay"
+  :exclusive true
   :focusable false
-  (launcher))
+  (eventbox
+    :class "bar_inner${toolbar_visible ? "" : " hidden"}"
+    :onhover "${EWW_CMD} update toolbar_visible=true"
+    :hexpand true
+    (revealer
+      :reveal toolbar_visible
+      (centerbox
+        :orientation "v"
+        (toolbar_top)
+        ; (zathura-helper)
+        (window-helper)
+        (button
+          :class "toolbar_button blue"
+          :valign "end"
+          :onclick "sleep 0.2 && ${EWW_CMD} update toolbar_visible=false"
+          :timeout "300ms"
+          "")
+        ))))
 
-(defvar launcher_visible false)
+(defwidget toolbar_top []
+  (box
+    :orientation "v"
+    :spacing 4
+    :space-evenly false
+    (launcher)
+    (button
+      :class "toolbar_button yellow${navigation_visible ? " toggled" : ""}"
+      :onclick "${EWW_CMD} update navigation_visible=${! navigation_visible}"
+      "")
+    (button
+      :class "toolbar_button orange"
+      :onclick "busctl call --user sm.puri.OSK0 /sm/puri/OSK0 sm.puri.OSK0 SetVisible b true"
+      "󰌌")
+    ; (button
+        ;   :class "toolbar_button orange${navigation_visible ? " toggled" : ""}"
+        ;   :onclick "${EWW_CMD} close toolbar-${isleft ? "left" : "right"}; ${EWW_CMD} open toolbar-${isleft ? "right" : "left"}"
+        ;   switch-icon)
+    ))
+
+
+
+(defvar launcher_extended false)
 
 (defwidget launcher []
-       (revealer :reveal launcher_visible
-                 :transition "slidedown"
-                 (box :space-evenly false
-                      :spacing 4
-                      :orientation "v"
-                      :style "margin-top: 2px"
-                      (button :class "widget orange" :onclick "wofi --show drun & ${EWW_CMD} update launcher_visible=false" "󱓞")
-                      (button :class "widget yellow" :onclick "rofi-ff & ${EWW_CMD} update launcher_visible=false" "󰈹")
-                      (button :class "widget cyan" :onclick "rofi-open & ${EWW_CMD} update launcher_visible=false" "󰈙")
-                      (button :class "widget blue" :onclick "(cd; kitty) & ${EWW_CMD} update launcher_visible=false" "")
-                      (button :class "widget green" :onclick "rofi-mpv & ${EWW_CMD} update launcher_visible=false" "󰎁")
-                      (button :class "widget magenta" :onclick "${EWW_CMD} update launcher_visible=false" ""))))
+  (box
+      :orientation "v"
+      :space-evenly false
+      (revealer
+        :reveal launcher_extended
+        :transition "slideup"
+        (box
+          :space-evenly false
+          :spacing 4
+          :orientation "v"
+          :style "margin-bottom: 4px"
+          (button
+            :class "toolbar_button"
+            :onclick "wofi --show drun & ${EWW_CMD} update launcher_extended=false"
+            "󱓞")
+          (button
+            :class "toolbar_button"
+            :onclick "rofi-ff & ${EWW_CMD} update launcher_extended=false"
+            "󰈹")
+          (button
+            :class "toolbar_button"
+            :onclick "rofi-open & ${EWW_CMD} update launcher_extended=false"
+            "󰈙")
+          (button
+            :class "toolbar_button"
+            :onclick "(cd; kitty) & ${EWW_CMD} update launcher_extended=false"
+            "")
+          (button
+            :class "toolbar_button"
+            :onclick "rofi-mpv & ${EWW_CMD} update launcher_extended=false"
+            "󰎁")
+          ; (button
+              ;   :class "toolbar_button magenta"
+              ;   :onclick "${EWW_CMD} update launcher_extended=false"
+              ;   "")
+          ))
+      (button
+        :class "toolbar_button green"
+        :onclick "${EWW_CMD} update launcher_extended=${! launcher_extended}"
+        "${launcher_extended ? "" : "󰍜"}")
+      )
+  )
 
 
 
@@ -68,42 +143,54 @@
 ;       "󰌌")))
 
 
-; (defvar window-helper-map '{ "org.pwmt.zathura": "(zathura-helper)" }')
+(defvar window-helper-map '{ "org.pwmt.zathura": "(zathura-helper)" }')
 
-; (deflisten focused-window :initial "kitty"
-;   "./scripts/listen-focus.sh")
+(deflisten focused-window :initial "NONE"
+  "./scripts/listen-focus.sh")
 
-; (defwidget window-helper []
-;   (revealer
-;     :transition "slideright"
-;     :duration "100ms"
-;     :reveal {window-helper-map[focused-window] != 'null'}
-;     (literal :content "${window-helper-map[focused-window] ?: ""}")))
+(defwidget window-helper []
+  (revealer
+    :transition "slideright"
+    :duration "100ms"
+    :reveal {window-helper-map[focused-window] != 'null'}
+    (literal :content "${window-helper-map[focused-window] ?: ""}")))
 
-; (defwidget zathura-helper []
-;   (box
-;     :class "widget slim"
-;     :space-evenly false
-;     (button
-;       :onclick "wtype -k minus"
-;       :class "separator"
-;       :style "border-width: 0 1px 0 0; padding-right: 10px; padding-left: 14px"
-;       "󰍴")
-;     (button
-;       :class "separator"
-;       :style "border-width: 0 1px; padding: 0 10px"
-;       :onclick "wtype -k tab"
-;       "󰍜")
-;     (button
-;       :class "separator"
-;       :style "border-width: 0 1px; padding: 0 10px"
-;       :onclick "wtype -k equal"
-;       "󰘞")
-;     (button
-;       :class "separator"
-;       :style "border-width: 0 0 0 1px; padding-left: 10px; padding-right: 14px"
-;       :onclick "wtype -k plus"
-;       "󰐕")))
+(defwidget zathura-helper []
+  (box
+    :class "toolbar_button"
+    :orientation 'v'
+    :space-evenly false
+    (button
+      :class "separator"
+      :style "border-width: 0 0 1px 0; padding: 4px 0"
+      :onclick "wtype -k tab"
+      "󰍜")
+    (button
+      :class "separator"
+      :style "border-width: 1px 0; padding: 4px 0"
+      :onclick "wtype -k plus"
+      "󰐕")
+    (button
+      :class "separator"
+      :style "border-width: 1px 0; padding: 4px 0"
+      :onclick "wtype -k minus"
+      "󰍴")
+    (button
+      :class "separator"
+      :style "border-width: 1px 0; padding: 4px 0"
+      :onclick "wtype -k equal"
+      "󰘞")
+    (button
+      :class "separator"
+      :style "border-width: 1px 0; padding: 4px 0"
+      :onclick "wtype -M ctrl -k i -m ctrl"
+      "󰮱")
+    (button
+      :class "separator"
+      :style "border-width: 1px 0 0 0; padding: 4px 0"
+      :onclick "wtype -M ctrl -k o -m ctrl"
+      "󰮳")
+    ))
 
 
 ; (defvar launcher_visible false)

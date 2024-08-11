@@ -16,11 +16,17 @@ $border_color: $base03;
     // margin: 15px 15px 0 15px;
     padding: 2px 2px;
     background-color: shade($base00, 0.7);
-    border-bottom-width: 1px;
+    border-right-width: 1px;
     // border-radius: 20px;
-    border-color: shade($base01, 1.0);
+    border-color: $base01;
     color: $base08;
     opacity: 0.98;
+}
+
+.bar_inner.hidden {
+    background-color: #000000;
+    border-width: 0px;
+    opacity: 1.00;
 }
 
 .widget {
@@ -70,13 +76,22 @@ $border_color: $base03;
 //     background-color: $base0B;
 // }
 
-$red: shade($base08, 0.75);
-$orange: shade($base09, 0.8);
-$yellow: shade($base0A, 0.7);
-$green: shade($base0B, 0.8);
-$magenta: shade($base0E, 0.8);
-$blue: shade($base0D, 0.8);
-$cyan: shade($base0C, 0.8);
+// $red: shade($base08, 0.75);
+// $orange: shade($base09, 0.8);
+// $yellow: shade($base0A, 0.7);
+// $green: shade($base0B, 0.8);
+// $magenta: shade($base0E, 0.8);
+// $blue: shade($base0D, 0.8);
+// $cyan: shade($base0C, 0.8);
+
+$red: unquote("alpha(shade(#{$base08}, 0.75), 0.8)");
+$orange: unquote("alpha(shade(#{$base09}, 0.8), 0.8)");
+$yellow: unquote("alpha(shade(#{$base0A}, 0.7), 0.8)");
+$green: unquote("alpha(shade(#{$base0B}, 0.8), 0.8)");
+$magenta: unquote("alpha(shade(#{$base0E}, 0.8), 0.8)");
+$blue: unquote("alpha(shade(#{$base0D}, 0.8), 0.8)");
+$cyan: unquote("alpha(shade(#{$base0C}, 0.8), 0.8)");
+
 
 .red     { color: $red; }
 .orange  { color: $orange; }
@@ -101,6 +116,14 @@ $cyan: shade($base0C, 0.8);
 .widget.toggled.magenta { background-color: shade($magenta, 0.9); border-color: shade($magenta, 1.1); }
 .widget.toggled.blue    { background-color: shade($blue, 0.9); border-color: shade($blue, 1.1); }
 .widget.toggled.cyan    { background-color: shade($cyan, 0.9); border-color: shade($cyan, 1.1); }
+
+.toolbar_button.toggled.red     { background-color: shade($red, 0.9); border-color: shade($red, 1.1); }
+.toolbar_button.toggled.orange  { background-color: shade($orange, 0.9); border-color: shade($orange, 1.1); }
+.toolbar_button.toggled.yellow  { background-color: shade($yellow, 0.9); border-color: shade($yellow, 1.1); }
+.toolbar_button.toggled.green   { background-color: shade($green, 0.9); border-color: shade($green, 1.1); }
+.toolbar_button.toggled.magenta { background-color: shade($magenta, 0.9); border-color: shade($magenta, 1.1); }
+.toolbar_button.toggled.blue    { background-color: shade($blue, 0.9); border-color: shade($blue, 1.1); }
+.toolbar_button.toggled.cyan    { background-color: shade($cyan, 0.9); border-color: shade($cyan, 1.1); }
 
 .battery            { border-color: shade($base0B, 0.5); }
 .battery_charging   { border-color: shade($base0B, 1.0); background: shade($base0B, 0.7) }
@@ -157,5 +180,25 @@ $cyan: shade($base0C, 0.8);
 //     font-size: 250%;
 //     color: shade($base03, 1.2);
 // }
+
+.toolbar_button {
+    color: $foreground;
+    background-color: $base02;
+    padding: 1px 4px;
+    border-width: $border_size;
+    border-color: $border_color;
+    border-radius: 5px;
+    min-height: 25px;
+    min-width: 25px;
+    margin: 0 2px;
+}
+
+.toolbar_button.red     { color: $foreground; border-color: $red; }
+.toolbar_button.orange  { color: $foreground; border-color: $orange; }
+.toolbar_button.yellow  { color: $foreground; border-color: $yellow; }
+.toolbar_button.green   { color: $foreground; border-color: $green; }
+.toolbar_button.magenta { color: $foreground; border-color: $magenta; }
+.toolbar_button.blue    { color: $foreground; border-color: $blue; }
+.toolbar_button.cyan    { color: $foreground; border-color: $cyan; }
 
 @import "./dashboard.scss"
