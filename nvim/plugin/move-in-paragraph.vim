@@ -1,7 +1,7 @@
 " The keybindings for g{ and g} below move the cursor to the
 " beginning and the end of the current paragraph, respectively.
 " Think of { and } but the cursor moves one row less and
-" preserves the column.
+" preserves the column. Especially useful in virtual block mode.
 
 if exists('g:move_in_paragraph_loaded')
     finish

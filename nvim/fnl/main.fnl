@@ -1,7 +1,7 @@
-(import-macros {: set! : setl! : setg! : set+ : let! : with-cb} :utils.macros)
+(import-macros {: set! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb} :utils.macros)
 (local {: add!} (require :pkg))
-(local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap!
-        : command! : augroup! : put!}
+(local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap! : smap! : omap!
+        : command! : augroup! : autocmd! : put!}
   (require :utils.nvim))
 (local {: nil?} (require :utils))
 (local {: spawn : spawn-capture-output} (require :utils.async))
@@ -80,36 +80,56 @@
 (imap! "<C-q>" "<Esc>a")
 
 ; Clear highlight search
-(nmap! "<C-L>" ":<c-u>nohlsearch<CR><C-L>")
+(nmap! "<C-L>" ":<C-u>nohlsearch<CR><C-L>")
 
 ; Capitalize word in front of cursor
-(imap! "<c-u>" "<Esc>viwUea")
+(imap! "<C-u>" "<Esc>viwUea")
 
 ; Select until end of line (like `C`, `D` and `Y`)
 (nmap! "<leader>v" "vg_")
 
+(vmap! "<C-y>" "\"+y")
+(imap! "<C-p>" "<C-r>+")
+
 (add! "tpope/vim-repeat")
 (add! "tpope/vim-commentary")
-(add! "tpope/vim-surround"
-      (fn []
-        ; Find numbers with `:echo char2nr("B")`
-        ; "B"
-        (let! surround_66  "{\r}\1\1")))
+(add! "kylechui/nvim-surround"
+      #(setup :nvim-surround {:keymaps {:insert :<C-s> :insert_line :<C-s><C-s>}}))
 
-; Misc. autocmds
-(let [autocmd! (augroup! :init.lua)]
-  ; Autoreload config files on save
-  (autocmd! :BufWritePost (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
-            #(dofile vim.env.MYVIMRC))
+; (add! "echasnovski/mini.surround"
+;       #(setup :mini.surround {:mappings {:add "ys"
+;                                          :delete "ds"
+;                                          :find ""
+;                                          :find_left ""
+;                                          :highlight ""
+;                                          :replace "cs"
+;                                          :update_n_lines ""
+;                                          :suffix_last "p"
+;                                          :suffix_next "n"}
+;                               :search_method "cover_or_next"}))
 
-  ; Don't create undofiles for temporary files
-  (autocmd! :BufWritePre "/tmp/*"
-            #(setl! noundofile))
+; (vim.keymap.del :i "<C-s>")
+; (add! "tpope/vim-surround"
+;       (fn []
+;         ; Find numbers with `:echo char2nr("B")`
+;         ; "B"
+;         (let! surround_66  "{\r}\1\1")))
 
-  ; Highlight on yank
-  (autocmd! :TextYankPost "*"
-            #(vim.highlight.on_yank {:higroup :IncSearch
-                                     :timeout 150})))
+
+(autocmd!
+  :init_fnl
+  [; Autoreload config files on save
+   {:event :BufWritePost
+    :pattern (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
+    :callback #(dofile vim.env.MYVIMRC)}
+   ; Don't create undofiles for temporary files
+   {:event :BufWritePre
+    :pattern "/tmp/*"
+    :callback #(setl! noundofile)}
+   ; Highlight on yank
+   {:event :TextYankPost
+    :pattern "*"
+    :callback #(vim.highlight.on_yank {:higroup :IncSearch :timeout 150})}])
 
 
 ;; Package management
@@ -117,6 +137,7 @@
 (nmap! "<leader>pu" "<Plug>PkgUpdate")
 (nmap! "<leader>pc" "<Plug>PkgClean")
 (nmap! "<leader>pl" "<Plug>PkgList")
+(nmap! "<leader>op" ":edit ~/.local/share/nvim/site/pack/pkgs/start/<CR>")
 
 
 ;; Appearance
@@ -132,7 +153,7 @@
                         (vim.tbl_extend :keep hl)
                         (vim.api.nvim_set_hl 0 name)))
          {: colors : name} (require :base16-colors)
-             {: darken} (require :base16.utils)]
+         {: darken} (require :base16.utils)]
      ; Decide if we use an external colorscheme or our own base16-based one
      (match name
        "Tokyonight Moon" (add! "folke/tokyonight.nvim"
@@ -161,6 +182,7 @@
             (let! base16_colors_lua :base16-colors)
             (vim.cmd.colorscheme :base16)))
      ; Highlights overrides and groups for local plugins
+     (hl-ext! :FloatBorder {:fg colors.base03})
      (hl-ext! :WinSeparator {:fg colors.base02})
      ; (hl-ext! :SignColumn {:bg colors.base02})
      ; (hl-ext! :LineNrAbove {:bg colors.base01})
@@ -170,7 +192,7 @@
      (hl-ext! :Comment {:fg colors.base03})
      (hl-ext! :CommentHighlighted {:fg colors.base0F})
      (vim.api.nvim_set_hl 0 :GitSignsCurrentLineBlame {:link :CommentHighlighted})
-     (hl-ext! :TrailingWhitespace {:fg colors.base09 :bg colors.base09})
+     (hl-ext! :TrailingWhitespace {:fg colors.base03 :bg colors.base03})
      ; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
      ; Load after setting `CommentHighlighted` above
      (setup :plugin.toggle-comments)
@@ -191,7 +213,10 @@
       #(setup :colorizer {:user_default_options {:names false}}))
 
 
-(add! "lukas-reineke/headlines.nvim" #(setup :headlines))
+(add! "lukas-reineke/headlines.nvim"
+      #(setup
+         :headlines
+         {:markdown {:fat_headlines false}}))
 
 (add!
   "nvim-orgmode/orgmode"
@@ -204,17 +229,15 @@
                  :org {:org_open_at_point "<C-]>"}
                  :org_return_uses_meta_return true}}))
 
-; (add! "lukas-reineke/indent-blankline.nvim"
-;       (fn []
-;         (setup :ibl)))
-
-
 ;; Navigation
 
 (nmap! "<Tab>" "ge")
 (vmap! "<Tab>" "ge")
+(omap! "<Tab>" "ge")
 (nmap! "<S-Tab>" "gE")
 (vmap! "<S-Tab>" "gE")
+(omap! "<S-Tab>" "gE")
+(nmap! "<C-i>" "<C-i>")
 
 ; Sane `<Esc>` behaviour in terminal mode
 (tmap! "<Esc>" "<C-\\><C-n>")
@@ -247,20 +270,24 @@
 
 ; Floating preview in quickfix window
 (add! "kevinhwang91/nvim-bqf"
-       #(setup :bqf {:func_map {:fzffilter ""}}))
+       #(setup :bqf {:func_map {:fzffilter ""
+                                :open "<C-]>"}}))
 
 ; Better folds
 (add! ["kevinhwang91/nvim-ufo" "kevinhwang91/promise-async"]
       #(setup :ufo {:provider_selector #[:treesitter :indent]}))
 
-; Open text in browser
-(let! browser :qutebrowser)
-(mk-op! :OpenInBrowser
-       (let [open-in-browser #(spawn vim.g.browser {:args [$1]})]
-         (fn [lines]
-           (vim.tbl_map open-in-browser lines))))
-(nmap! "gb" "<Plug>OpenInBrowser")
-(vmap! "gb" "<Plug>OpenInBrowser")
+; Open urls externally with xdg-open
+(mk-op! :OpenExternally
+        (let [cmd :xdg-open
+              open #(let [on-exit (fn [exit]
+                                    (if (not= exit 0)
+                                      (error (.. cmd " '" $1 "' failed with exit code " exit))))]
+                      (spawn cmd {:args [$1]} on-exit))]
+          (fn [lines]
+            (vim.tbl_map open lines))))
+(nmap! "go" "<Plug>OpenExternally")
+(vmap! "go" "<Plug>OpenExternally")
 
 ; Write and quit
 (nmap! "<leader>w"  ":<C-u>w<cr>")
@@ -276,7 +303,12 @@
        "nvim-lua/plenary.nvim"]
       (fn []
         (let [builtins (require :telescope.builtin)
-              actions (require :telescope.actions)]
+              actions (require :telescope.actions)
+              {: buffer_dir} (require :telescope.utils)
+              smart_qf_and_open (fn [bufnr]
+                                  (actions.smart_send_to_qflist bufnr)
+                                  ; (actions.open_qflist bufnr)
+                                  (vim.cmd.cfirst))]
           ;Setup plugin
           (setup :telescope
                  {:defaults {:sorting_strategy :ascending
@@ -287,8 +319,10 @@
                                             "<C-k>" actions.preview_scrolling_up
                                             "<C-l>" actions.preview_scrolling_right
                                             "<C-h>" actions.preview_scrolling_left
-                                            "<C-q>" (+ actions.smart_send_to_qflist actions.open_qflist)
-                                            "<C-x>" false
+                                            "<C-q>" smart_qf_and_open
+                                            "<C-]>" actions.select_default
+                                            "<C-x>" actions.drop_all
+                                            "<C-a>" actions.select_all
                                             "<C-d>" actions.results_scrolling_down
                                             "<C-u>" actions.results_scrolling_up
                                             "<C-s>" actions.select_horizontal}
@@ -296,23 +330,34 @@
                                             "<C-k>" actions.preview_scrolling_up
                                             "<C-l>" actions.preview_scrolling_right
                                             "<C-h>" actions.preview_scrolling_left
-                                            "<C-q>" (+ actions.smart_send_to_qflist actions.open_qflist)
-                                            "<C-x>" false
+                                            "<C-q>" smart_qf_and_open
+                                            "<C-]>" actions.select_default
+                                            "<C-x>" actions.drop_all
+                                            "<C-a>" actions.select_all
                                             "<C-d>" actions.results_scrolling_down
                                             "<C-u>" actions.results_scrolling_up
-                                            "<C-s>" actions.select_horizontal}}}})
-          ; Setup keymaps
-          (let [pick (fn [action ?opts]
-                       (let [picker (. builtins action)]
-                         (picker ?opts)))]
+                                            "<C-s>" actions.select_horizontal}}}
+                  :pickers {:buffers {:mappings
+                                      {:n {"<C-x>" :delete_buffer}
+                                       :i {"<C-x>" :delete_buffer}}}}})
+          ; Setup keymaps; if in an oil buffer, use the buffer's directory as `cwd`
+          (let [try-get-cwd #(if (= vim.o.filetype :oil)
+                               (let [{: get_current_dir} (require :oil)]
+                                 (get_current_dir))
+                               nil)
+                pick (fn [action ?opts]
+                       (let [picker (. builtins action)
+                             opts (vim.tbl_extend
+                                    :force {:cwd (try-get-cwd)} (or ?opts {}))]
+                         (picker opts)))]
             (each [[mode lhs] rhs
-                   ; TODO: Try out <C-r><C-[fp(files)wa(words)l(line)]>
                    (pairs {[:n "<leader>ff"] #(pick :find_files {:follow true})
-                           ; Resumes previous picker
-                           [:n "<leader>f."] #(pick :resume)
+                           [:n "<leader>f."] #(pick :resume)  ; Resumes previous picker
                            [:n "<leader>b"]  #(pick :buffers {:sort_lastused true :sort_mru true})
                            [:n "<leader>fd"] #(pick :diagnostics)
                            [:n "<leader>fg"] #(pick :live_grep)
+                           [:n "<leader>fw"] #(pick :grep_string)
+                           [:v "<leader>fg"]  #(pick :grep_string)
                            [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
                            [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
               (vim.keymap.set mode lhs rhs))))))
@@ -328,17 +373,18 @@
 (add! "karb94/neoscroll.nvim"
       (fn []
         (let [{: setup : scroll : zt : zz : zb} (require :neoscroll)
-              get-height #(vim.api.nvim_win_get_height 0)]
+              get-height #(vim.api.nvim_win_get_height 0)
+              ]
           ; Disable default mappings
           (setup {:mappings {}})
           ; Add custom mappings
-          (nmap! :<C-u> #(scroll (- vim.wo.scroll) true 150))
-          (nmap! :<C-d> #(scroll vim.wo.scroll true 150))
-          (nmap! :<C-b> #(scroll (- (get-height)) true 350))
-          (nmap! :<C-f> #(scroll (get-height) true 350))
-          (nmap! :zt #(zt 125))
-          (nmap! :zz #(zz 125))
-          (nmap! :zb #(zb 125)))))
+          (nmap! :<C-u> #(scroll (- vim.wo.scroll) {:duration 150}))
+          (nmap! :<C-d> #(scroll vim.wo.scroll {:duration 150}))
+          (nmap! :<C-b> #(scroll (- (get-height)) {:duration 350}))
+          (nmap! :<C-f> #(scroll (get-height) {:duration 350}))
+          (nmap! :zt #(zt {:half_win_duration 125}))
+          (nmap! :zz #(zz {:half_win_duration 125}))
+          (nmap! :zb #(zb {:half_win_duration 125})))))
 
 ; Split file explorer
 (add! "stevearc/oil.nvim"
@@ -360,12 +406,10 @@
                       "g."    :actions.toggle_hidden}})
          (nmap! "-" open)))
 
-; Tmux interop
-(add! "christoomey/vim-tmux-navigator"
+; TODO: Use fork until https://github.com/numToStr/Navigator.nvim/pull/35 is merged
+(add! "Vinh-CHUC/Navigator.nvim"
       (fn []
-        ; Disable default mappings
-        (let! tmux_navigator_no_mappings 1)
-        ; Set custom mappings
+        (setup :Navigator)
         (let [mk-lhs #(.. :<M- $1 :>)]
           (each [direction keys (pairs
                                   {:Left  [:h :left]
@@ -374,9 +418,27 @@
                                    :Down  [:j :down]})]
             (each [_ key (ipairs keys)]
               (let [lhs (mk-lhs key)
-                    rhs #(vim.cmd (.. :TmuxNavigate direction))]
+                    rhs (. vim.cmd (.. :Navigator direction))]
                 (each [_ mk-map (ipairs [nmap! tmap!])]
                   (mk-map lhs rhs))))))))
+
+; Tmux interop
+; (add! "christoomey/vim-tmux-navigator"
+;       (fn []
+;         ; Disable default mappings
+;         (let! tmux_navigator_no_mappings 1)
+;         ; Set custom mappings
+;         (let [mk-lhs #(.. :<M- $1 :>)]
+;           (each [direction keys (pairs
+;                                   {:Left  [:h :left]
+;                                    :Right [:l :right]
+;                                    :Up    [:k :up]
+;                                    :Down  [:j :down]})]
+;             (each [_ key (ipairs keys)]
+;               (let [lhs (mk-lhs key)
+;                     rhs #(vim.cmd (.. :TmuxNavigate direction))]
+;                 (each [_ mk-map (ipairs [nmap! tmap!])]
+;                   (mk-map lhs rhs))))))))
 
 
 ;; Filetype plugins
@@ -459,6 +521,15 @@
 
 ;; Autocompletion and snippets
 
+; (add! ["hrsh7th/vim-vsnip"
+;        ; Community maintained snippet collection
+;        ; FIXME: contains faulty norg snippets
+;        ; Snippet integration with neovims builtin LSP client
+;        "hrsh7th/vim-vsnip-integ"]
+;       (fn []
+;         ; set snippet directory
+;         (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))))
+
 (add! ["hrsh7th/nvim-cmp"
        "hrsh7th/cmp-nvim-lsp"
        "hrsh7th/cmp-nvim-lua"
@@ -466,77 +537,119 @@
        "hrsh7th/cmp-path"
        "hrsh7th/cmp-omni"
        "hrsh7th/cmp-buffer"
-       "hrsh7th/cmp-vsnip"]
+       "L3MON4D3/LuaSnip"
+       "saadparwaiz1/cmp_luasnip"
+       "rafamadriz/friendly-snippets"]
       (fn []
-        (let
-          [cmp (require :cmp)
-           jumpable (. vim.fn :vsnip#jumpable)
-           feed #(-> $1
-                     (vim.api.nvim_replace_termcodes true true true)
-                     (vim.fn.feedkeys))
-           config {:mapping
-                   {:<Tab>  (fn [fallback]
-                              (if
-                                (cmp.visible) (cmp.select_next_item)
-                                (= 1 (jumpable 1)) (feed "<Plug>(vsnip-jump-next)")
-                                (fallback)))
-                    :<S-Tab> (fn [fallback]
-                               (if
-                                 (cmp.visible) (cmp.select_prev_item)
-                                 (= 1 (jumpable -1)) (feed "<Plug>(vsnip-jump-prev)")
-                                 (cmp.complete)))
-                    :<CR> (cmp.mapping.confirm {:select false})
-                    :<C-e> (cmp.mapping.close)
-                    :<C-Space> (cmp.mapping.complete)}
+        (let [cmp (require :cmp)
+              selected? #(not= (cmp.get_selected_entry) nil)
+              {: locally_jumpable : jump : lsp_expand} (require :luasnip)
+              feed #(-> $1
+                        (vim.api.nvim_replace_termcodes true true true)
+                        (vim.fn.feedkeys))
+              config {:mapping
+                      {:<C-n>  (cmp.mapping
+                                 (fn [fallback]
+                                   (if
+                                     (cmp.visible) (cmp.select_next_item {:behavior cmp.SelectBehavior.Insert})
+                                     (cmp.complete)))
+                                 [:i :s])
+                       :<C-p> (cmp.mapping
+                                (fn [fallback]
+                                  (if
+                                    (cmp.visible) (cmp.select_prev_item {:behavior cmp.SelectBehavior.Insert})
+                                    (fallback)))
+                                [:i :s])
+                       "<CR>" (cmp.mapping
+                                (fn [fallback]
+                                  (if
+                                    (cmp.visible) (cmp.confirm {:select true})
+                                    (fallback)))
+                                [:i :s])
+                       "<C-]>" (cmp.mapping
+                                (fn [fallback]
+                                  (if
+                                    (cmp.visible) (cmp.confirm {:select true})
+                                    (fallback)))
+                                [:i :s])
+                       "<C-l>" (cmp.mapping
+                                (fn [fallback]
+                                  (if
+                                    (cmp.visible) (cmp.confirm {:select true})
+                                    (fallback)))
+                                [:i :s])
+                       :<Tab> (cmp.mapping
+                                (fn [fallback]
+                                  (if
+                                    (locally_jumpable 1) (jump 1)
+                                    (fallback)))
+                                [:i :s])
+                       :<S-Tab> (cmp.mapping
+                                  (fn [fallback]
+                                    (if
+                                      (locally_jumpable -1) (jump -1)
+                                      (fallback)))
+                                  [:i :s])
+                       :<C-e> (cmp.mapping.abort)}
 
-                   :snippet
-                   {:expand (fn [{: body}]
-                              ((. vim.fn :vsnip#anonymous) body))}
+                      :completion
+                      {:completeopt "menu,menuone"}
 
-                   :sources
-                   [{:name :nvim_lsp}
-                    {:name :orgmode}
-                    {:name :nvim_lua}
-                    {:name :neorg}
-                    {:name :vsnip}
-                    {:name :path}
-                    {:name :latex_symbols}
-                    {:name :omni}
-                    {:name :buffer
-                     :option {:keyword_pattern "\\k\\+"}}]
+                      :snippet
+                      {:expand (fn [{: body}]
+                                 (lsp_expand body))}
 
-                   :formatting
-                   {:format (let [display-names
-                                  {:nvim_lsp      "[LSP]"
-                                   :nvim_lua      "[Lua]"
-                                   :vsnip         "[Vsp]"
-                                   :latex_symbols "[LTX]"
-                                   :path          "[Pth]"
-                                   :omni          "[Omn]"
-                                   :calc          "[Clc]"
-                                   :buffer        "[Buf]"}]
-                              (fn [{:source {: name}} item]
-                                (->> name
-                                     (. display-names)
-                                     (#(or $1 "[???]"))
-                                     (tset item :menu))
-                                item))}}]
-          (cmp.setup config))))
+                      ; The LSP specifies that certain items should be preselected, ignoring their position in the suggestion list. This disables this.
+                      :preselect cmp.PreselectMode.None
 
-(add! ["hrsh7th/vim-vsnip"
-       ; Community maintained snippet collection
-       ; FIXME: contains faulty norg snippets
-       ; (add! "rafamadriz/friendly-snippets")
-       ; Snippet integration with neovims builtin LSP client
-       "hrsh7th/vim-vsnip-integ"]
-      (fn []
-        ; set snippet directory
-        (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))))
+                      :sources
+                      [{:name :nvim_lsp}
+                       {:name :luasnip}
+                       {:name :orgmode}
+                       {:name :nvim_lua}
+                       {:name :neorg}
+                       {:name :path}
+                       {:name :latex_symbols}
+                       {:name :omni}
+                       {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
+
+                      :window
+                      {:completion (cmp.config.window.bordered)
+                       :documentation (cmp.config.window.bordered)}
+
+                      :formatting
+                      {:format (let [display-names
+                                     {:nvim_lsp      "[LSP]"
+                                      :luasnip       "[Snp]"
+                                      :nvim_lua      "[Lua]"
+                                      :latex_symbols "[LTX]"
+                                      :path          "[Pth]"
+                                      :omni          "[Omn]"
+                                      :calc          "[Clc]"
+                                      :buffer        "[Buf]"}]
+                                 (fn [{:source {: name}} item]
+                                   (->> name
+                                        (. display-names)
+                                        (#(or $1 "[???]"))
+                                        (tset item :menu))
+                                   item))}}]
+          (cmp.setup config))
+
+        (let [{: lazy_load} (require :luasnip.loaders.from_vscode)]
+          (lazy_load {:exclude [:norg]}))))
+
 
 ;; Coding related stuff
 
-; Run current file; <Plug>RunFile bindings are defined in ftplugins where applicable
-(nmap! "<leader>rr" "<Plug>RunFile")
+; Run current file, if applicable
+(let [ft-to-runner {:fennel #(vim.cmd.Fnlfile "%")
+                    :python #(vim.cmd ":w !python3<CR>")
+                    :sh #(vim.cmd ":w !bash<CR>")
+                    :fish #(vim.cmd ":w !fish<cr>")
+                    :lua #(vim.cmd ":lua dofile(vim.fn.expand('%'))<cr>")}]
+  (nmap! "<leader>rr" #(-?>> vim.o.filetype
+                             (. ft-to-runner)
+                             ())))
 
 (nmap! "<leader>mk" ":make!<CR>")
 (nmap! "<leader>mf" ":make! flash<CR>")
@@ -607,12 +720,6 @@
                                 :swap_next {"<leader>." "@parameter.inner"}
                                 :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
-; (add! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
-;       #(fn []
-;          (setup :lsp_lines)
-;          ; Disable virtual_text since it's redundant due to `lsp_lines.nvim`
-;          (vim.diagnostic.config {:virtual_text false})))
-
 (add! ["neovim/nvim-lspconfig"
        "mickael-menu/zk-nvim"]
       (fn []
@@ -632,17 +739,17 @@
              [:n "gr"]         vim.lsp.buf.references
              [:n "gqq"]        vim.lsp.buf.format
              [:v "gq"]         vim.lsp.buf.format
-             [:n "<leader>od"] #(vim.diagnostic.open_float {:border :single})
-             [:n "[d"]         #(vim.diagnostic.goto_prev {:float {:border :single}})
-             [:n "]d"]         #(vim.diagnostic.goto_next {:float {:border :single}})})
+             [:n "<leader>od"] vim.diagnostic.open_float
+             [:n "[d"]         vim.diagnostic.goto_prev ; fixes auto-indentation ]
+             [:n "]d"]         vim.diagnostic.goto_next})
 
           (ls-setup!
             :clangd {}
             {[:n "<C-c>"] #(vim.cmd.ClangdSwitchSourceHeader)})
 
           ; {:name :lua_ls
-          ;  :config (require :lsp.configs.sumneko_lua)
-          ;  :keymaps {}}
+             ;  :config (require :lsp.configs.sumneko_lua)
+             ;  :keymaps {}}
 
           (ls-setup! :bashls)
           ; (ls-setup! :vimls)
@@ -652,6 +759,14 @@
           (ls-setup! :rust_analyzer)
           (ls-setup! :hls)
           (ls-setup! :racket_langserver)
+
+          (let [border "rounded"
+                        cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
+                                                                :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
+                (vim.diagnostic.config {:float {: border}})
+                (tset (require :lspconfig.ui.windows) :default_options {: border})
+                (each [cap handler (pairs cap-to-handler)]
+                        (tset vim.lsp.handlers cap (vim.lsp.with handler {: border}))))
 
           (let [zk (require :zk)
                 util (require :zk.util)
@@ -681,19 +796,38 @@
                        :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
                                       :capabilities (mk-capabilities)}}})))))
 
+(add! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
+      #(let [{: setup : toggle} (require :lsp_lines)
+             toggle-diags #(let [lines-on (toggle)]
+                             (vim.diagnostic.config {:virtual_text (not lines-on)}))]
+         (setup)
+         (vim.diagnostic.config {:virtual_lines false})
+         ; (toggle-diags) ; Start with lines off
+         (nmap! "<leader>tl" toggle-diags)))
+
+(add! "lukas-reineke/indent-blankline.nvim"
+      #(let [{: colors} (require :base16-colors)
+             {: setup} (require :ibl)
+             enable-at-start false]
+         ; Have to setup highlight groups before setup
+         (vim.api.nvim_set_hl 0 :IblScope {:fg colors.dark_green :bold true})
+         (vim.api.nvim_set_hl 0 :IblIndent {:fg colors.bg2 :bold true})
+         (nmap! "<leader>ti" vim.cmd.IBLToggle)
+         (setup {:enabled enable-at-start})))
+
 (add! ["mfussenegger/nvim-dap"
        "mfussenegger/nvim-dap-python"]
       (fn []
         ; Setup common keymaps
         (let [dap (require :dap)
               adapter-configs {:gdb
-                              {:type "executable"
-                               :command "gdb"
-                               :args ["-i" "dap"]}}
+                               {:type "executable"
+                                :command "gdb"
+                                :args ["-i" "dap"]}}
               filetype-configs {:cpp [{:name "Launch C++"
-                                      :type "gdb"
-                                      :request "launch"
-                                      :program "build/main"}]}
+                                       :type "gdb"
+                                       :request "launch"
+                                       :program "build/main"}]}
               mappings {"<leader>db" (. dap :toggle_breakpoint)
                         "<leader>dl" (. dap :list_breakpoints)
                         "<leader>ds" (. dap :step_into)
@@ -723,9 +857,12 @@
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
 
 (add! ["folke/trouble.nvim"]
-      #(setup :trouble {:icons false}))
-(nmap! "<leader>ot" ":<C-u>Trouble<CR>")
-(nmap! "<leader>qt" ":<C-u>TroubleClose<CR>")
+      #(setup
+         :trouble
+         {:icons {:indent {:last "╰╴"}}}))
+
+(nmap! "<leader>ot" ":<C-u>Trouble diagnostics focus<CR>")
+(nmap! "<leader>qt" ":<C-u>Trouble diagnostics close<CR>")
 
 (add! "b0o/incline.nvim"
       #(let [{: colors} (require :base16-colors)
@@ -734,7 +871,7 @@
              ; Extends first argument (table) with the tail of the arg list; incline
              ; mixes arrays with maps, which is otherwise a bit ugly in fennel.
              comp (fn [hl & comps]
-                      (vim.tbl_extend :error comps hl))
+                    (vim.tbl_extend :error comps hl))
              sep (comp {:guifg colors.bg0} " | " )]
          (setup
            :incline
@@ -748,7 +885,9 @@
                                    has-name (not= "" name)]
                                (comp
                                  {:guifg colors.fg0 :gui :bold}
-                                 (if has-name name "[No Name]")))
+                                 (if has-name
+                                   name
+                                   "[No Name]")))
                     diag-indicator (icollect
                                      [severity level (ipairs [ :Error :Warn :Info :Hint ])]
                                      (let [n (length
@@ -764,11 +903,11 @@
                   (let [is-ro (or
                                 (get-opt :readonly)
                                 (not (get-opt :modifiable)))]
-                    (if
-                      is-ro (comp {:guifg colors.green} " ")
+                    (if is-ro
+                      (comp {:guifg colors.green} " ")
                       ""))
-                  (if
-                    (get-opt :modified) (comp {:guifg colors.yellow} " ")
+                  (if (get-opt :modified)
+                    (comp {:guifg colors.yellow} " ")
                     ""))))})))
 
 (add! "lewis6991/gitsigns.nvim"
@@ -799,9 +938,9 @@
                               :fg (get-color $1)}
                         :update {1 :ModeChanged :pattern "*:*"
                                  :callback #(vim.schedule_wrap #(vim.cmd :redrawstatus))}
-                        :static (let [mode_map {"NORMAL" {:color colors.base0B
+                        :static (let [mode_map {"NORMAL" {:color colors.dark_green
                                                           :modes ["n" "niI" "niR" "niV"]}
-                                                "OP" {:color colors.base0B
+                                                "OP" {:color colors.dark_green
                                                       :modes ["no" "nov" "noV" "no\22"]}
                                                 "VISUAL" {:color colors.base0D
                                                           :modes ["v" "vs"]}
@@ -817,7 +956,7 @@
                                                            :modes ["R" "Rc" "Rx"]}
                                                 "V-REPLACE" {:color colors.base0E
                                                              :modes ["Rv" "Rvc" "Rvx"]}
-                                                "COMMAND" {:color colors.base0B
+                                                "COMMAND" {:color colors.dark_green
                                                            :modes ["c" "cv" "ce"]}
                                                 "ENTER" {:color colors.base0C
                                                          :modes ["r"]}
@@ -825,9 +964,9 @@
                                                         :modes ["rm"]}
                                                 "CONFIRM" {:color colors.base09
                                                            :modes ["r?"]}
-                                                "SHELL" {:color colors.base0B
+                                                "SHELL" {:color colors.dark_green
                                                          :modes [" !"]}
-                                                "TERM" {:color colors.base0B
+                                                "TERM" {:color colors.dark_green
                                                         :modes ["nt" "t"]}
                                                 "NONE" {:color colors.base0A
                                                         :modes ["null"]}}]
@@ -841,7 +980,7 @@
                    1 {:provider " ["}
                                     2 {:provider #(table.concat
                                                     (icollect [_ {: name}
-                                                               (pairs (vim.lsp.get_active_clients {:bufnr 0}))]
+                                                               (pairs (vim.lsp.get_clients {:bufnr 0}))]
                                                               name)
                                                     " ")}
                                     3 {:provider "]"}}
@@ -973,6 +1112,53 @@
        ; Cursor position
        cursor-pos
        ; Percentage in file
-       {:hl {:fg colors.green :bold true :reverse true}
+       {:hl {:fg colors.dark_green :bold true :reverse true}
         1 {:provider " " :hl {:reverse false}}
         2 {:provider " %p%% "}}]}})))
+
+; Keep ftplugin logic inline here to not spread the config too much
+(let [ftplugins
+      {:fennel #(let [{: find_files} (require :telescope.builtin)
+                      {: cache-prefix} (require :hotpot.api.cache)]
+                  (setl- iskeyword ".")
+                  ; Search in cache
+                  (vim.keymap.set :n "<leader>fc"
+                                  #(find_files
+                                     {:cwd (cache-prefix)
+                                      :hidden true})
+                                  {:buffer true
+                                   :silent true}))
+       :c #(setl! shiftwidth 2)
+       :cpp #(setl! shiftwidth 2)
+       :dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
+       :markdown (fn []
+                   (setl! nobackup)
+                   (setl! nowritebackup)
+                   (setl+ iskeyword "\\")
+                   (vim.cmd
+                     "abbreviate <buffer> \\bf \\mathbf
+                     abbreviate <buffer> \\rm \\mathrm
+                     abbreviate <buffer> \\cal \\mathcal
+                     abbreviate <buffer> \\bb \\mathbb
+                     abbreviate <buffer> \\frak \\mathfrak
+                     abbreviate <buffer> iff if and only if"))
+       :org #(vim.cmd "abbreviate -- - [ ]")
+       :qf #(nmap! [:buffer] "<Esc>" "<Cmd>cclose<CR>")
+       :rust (fn []
+               (nmap! [:buffer] "<leader>cr" ":<C-u>Crun<CR>")
+               (nmap! [:buffer] "<leader>cb" ":<C-u>make build<CR>")
+               (nmap! [:buffer] "<leader>ct" ":<C-u>make test<CR>")
+               (nmap! [:buffer] "<leader>cl" ":<C-u>make clippy<CR>")
+               (nmap! [:buffer] "<leader>rf" ":<C-u>RustFmt<CR>")
+               (vmap! [:buffer] "<leader>rf" ":RustfmtRange<CR>"))
+       :sh #(setl! shiftwidth 4)
+       :zsh #(setl! shiftwidth 4)}]
+  (autocmd!
+    :ftplugins
+    (icollect
+      [filetype callback (pairs ftplugins)]
+      {:event :FileType
+       :pattern filetype
+       : callback})))
+
+(vim.keymap.set ["" :! :t :l] "<C-;>" "<C-]>" {:remap true})

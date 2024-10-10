@@ -37,6 +37,16 @@ return {
              cyan = "#86E1FC",
              blue = "#82AAFF",
              magenta = "#C099FF",
-             brown = "#4FD6BE"
+             brown = "#4FD6BE",
+
+             -- Extension colors, derived from the above
+             dark_red = "#CC5D65",
+             dark_orange = "#CC7856",
+             dark_yellow = "#CC9F5F",
+             dark_green = "#9CB970",
+             dark_cyan = "#6BB4C9",
+             dark_blue = "#6888CC",
+             dark_magenta = "#997ACC",
+             dark_brown = "#3FAB98",
          }
 }

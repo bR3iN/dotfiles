@@ -22,7 +22,7 @@
       (tset opt-tbl :noremap false))
     (vim.keymap.set mode lhs rhs opt-tbl)))
 
-; Define the `<mode>map!` macros, e.g. `nmap!`; they can be called as
+; Define the `<mode>map!` functions, e.g. `nmap!`; they can be called as
 ; either `(nmap! lhs rhs)` or `(nmap! [:opt1 :opt2] lhs rhs)`
 (each [_ mode (ipairs [:n :v :x :s :o :i :l :c :t])]
   (tset M (.. mode :map!)
@@ -34,20 +34,30 @@
   (let [opt-tbl (or ?opt-tbl {})]
     (vim.api.nvim_create_user_command lhs rhs opt-tbl)))
 
+(set M.autocmd!
+     (let [inner (fn [name clear cmds]
+                   (let [group (vim.api.nvim_create_augroup name {: clear})]
+                     (each [_ {: event & opt_tbl} (ipairs cmds)]
+                       (vim.api.nvim_create_autocmd
+                         event
+                         (vim.tbl_extend :error opt_tbl {: group})))))]
+       #(if (nil? $3)
+          (inner $1 true $2)
+          (inner $1 $2 $3))))
+
 (fn M.augroup! [name ?clear]
   (let [id (let [clear (or ?clear true)]
              (vim.api.nvim_create_augroup name {: clear}))]
-    (fn create-autocmd [event pattern callback ?opt-tbl]
+    (fn [event pattern callback ?opt-tbl]
       (let [set-cb (fn [tbl]
                      (match (type callback)
                        :string (tset tbl :command callback)
                        :function (tset tbl :callback callback)))
             opt-tbl (doto (or ?opt-tbl {})
-                      (tset :group id)
-                      (tset :pattern pattern)
-                      (set-cb))]
-        (vim.api.nvim_create_autocmd event opt-tbl)))
-    create-autocmd))
+                          (tset :group id)
+                          (tset :pattern pattern)
+                          (set-cb))]
+        (vim.api.nvim_create_autocmd event opt-tbl)))))
 
 (fn M.replace-termcodes [keys]
   (vim.api.nvim_replace_termcodes keys true false true))

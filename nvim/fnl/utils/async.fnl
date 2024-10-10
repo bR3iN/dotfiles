@@ -9,13 +9,13 @@
 ; value as well the call itself minus the callback parameter.
 ; Example: `(dispatch!
 ;             [dir (uv.fs_opendir path)]
-;             (use dir))`
+;             (do-smth-with dir))`
 ; translates to
 ;          `(uv.fs_opendir
 ;             path
 ;             (fn [err dir]
 ;               (assert (not err) err)
-;               (use dir)))`
+;               (do-smth-with dir)))`
 (macro dispatch! [args ...]
   ; Split off the luvit call
   (let [call (table.remove args)
