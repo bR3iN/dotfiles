@@ -2,7 +2,9 @@
 require('bootstrap')
 
 -- Setup hotpot
-require('hotpot')
+require('hotpot').setup{
+    compiler = {modules = {correlate = true}}
+}
 
 -- Initialize plugin manager; resets internal plugin list
 require('pkg').init()

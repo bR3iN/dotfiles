@@ -13,6 +13,7 @@ else
 end
 
 alias ll 'ls -AhlF'
+alias z zellij
 
 alias usage 'du -hd 1'
 alias igrep 'grep -i'
@@ -46,8 +47,7 @@ if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty +kitten ssh'
 end
 
-# TODO: BROKEN
-# if [ -f /usr/share/fzf/shell/key-bindings.fish ]
-#     source /usr/share/fzf/shell/key-bindings.fish
-#     fzf_key_bindings
-# end
+if [ -f /usr/share/fzf/shell/key-bindings.fish ] && status is-interactive
+    source /usr/share/fzf/shell/key-bindings.fish
+    fzf_key_bindings
+end

@@ -118,19 +118,21 @@
 
 (autocmd!
   :init_fnl
+
   [; Autoreload config files on save
    {:event :BufWritePost
     :pattern (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
     :callback #(dofile vim.env.MYVIMRC)}
+
    ; Don't create undofiles for temporary files
    {:event :BufWritePre
     :pattern "/tmp/*"
     :callback #(setl! noundofile)}
+
    ; Highlight on yank
    {:event :TextYankPost
     :pattern "*"
     :callback #(vim.highlight.on_yank {:higroup :IncSearch :timeout 150})}])
-
 
 ;; Package management
 
@@ -175,8 +177,8 @@
        "Catppuccin" (add! "catppuccin/nvim"
                           #(do
                              (vim.cmd.colorscheme "catppuccin-mocha")
-                             (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg None})
-                             (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg None})))
+                             (vim.api.nvim_set_hl 0 :Normal {:fg colors.base05 :bg :None})
+                             (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg :None})))
        ; Fallback; derives colorscheme from base16 colors
        _ (do
             (let! base16_colors_lua :base16-colors)
@@ -472,8 +474,8 @@
                         "<leader>gJ" #(do
                                         (Neorg [:journal :today])
                                         (cd))
-                        "<leader>gn" #(do
-                                        (Neorg [:workspace :notes])
+                        "<leader>gd" #(do
+                                        (Neorg [:workspace :docs])
                                         (cd))}
               running? #(->> :Neorg
                              (. (vim.api.nvim_get_commands {}))
@@ -505,10 +507,10 @@
                  :core.export.markdown {}
                  :core.journal {:strategy :nested
                                 :workspace :journal}
-                 :core.dirman {:workspaces {:notes "~/neorg/notes"
+                 :core.dirman {:workspaces {:docs "~/neorg/docs"
                                             :journal "~/neorg/journal"
                                             :projects "~/neorg/projects"}
-                               :default :notes
+                               :default :docs
                                ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
                                :open_last_workspace false}
                  :core.completion {:engine :nvim-cmp}
@@ -548,49 +550,45 @@
                         (vim.api.nvim_replace_termcodes true true true)
                         (vim.fn.feedkeys))
               config {:mapping
-                      {:<C-n>  (cmp.mapping
-                                 (fn [fallback]
-                                   (if
-                                     (cmp.visible) (cmp.select_next_item {:behavior cmp.SelectBehavior.Insert})
-                                     (cmp.complete)))
-                                 [:i :s])
-                       :<C-p> (cmp.mapping
-                                (fn [fallback]
-                                  (if
-                                    (cmp.visible) (cmp.select_prev_item {:behavior cmp.SelectBehavior.Insert})
-                                    (fallback)))
-                                [:i :s])
-                       "<CR>" (cmp.mapping
-                                (fn [fallback]
-                                  (if
-                                    (cmp.visible) (cmp.confirm {:select true})
-                                    (fallback)))
-                                [:i :s])
-                       "<C-]>" (cmp.mapping
-                                (fn [fallback]
-                                  (if
-                                    (cmp.visible) (cmp.confirm {:select true})
-                                    (fallback)))
-                                [:i :s])
-                       "<C-l>" (cmp.mapping
-                                (fn [fallback]
-                                  (if
-                                    (cmp.visible) (cmp.confirm {:select true})
-                                    (fallback)))
-                                [:i :s])
-                       :<Tab> (cmp.mapping
-                                (fn [fallback]
-                                  (if
-                                    (locally_jumpable 1) (jump 1)
-                                    (fallback)))
-                                [:i :s])
-                       :<S-Tab> (cmp.mapping
-                                  (fn [fallback]
-                                    (if
-                                      (locally_jumpable -1) (jump -1)
-                                      (fallback)))
-                                  [:i :s])
-                       :<C-e> (cmp.mapping.abort)}
+                      (let [next-or-complete (cmp.mapping
+                                               (fn [fallback]
+                                                 (if
+                                                   (cmp.visible) (cmp.select_next_item {:behavior cmp.SelectBehavior.Insert})
+                                                   (cmp.complete)))
+                                               [:i :s])
+                            prev (cmp.mapping
+                                   (fn [fallback]
+                                     (if
+                                       (cmp.visible) (cmp.select_prev_item {:behavior cmp.SelectBehavior.Insert})
+                                       (fallback)))
+                                   [:i :s])
+                            confirm (cmp.mapping
+                                      (fn [fallback]
+                                        (if
+                                          (cmp.visible) (cmp.confirm {:select true})
+                                          (fallback)))
+                                      [:i :s])
+                            snippet-next (cmp.mapping
+                                           (fn [fallback]
+                                             (if
+                                               (locally_jumpable 1) (jump 1)
+                                               (fallback)))
+                                           [:i :s])
+                            snippet-prev (cmp.mapping
+                                           (fn [fallback]
+                                             (if
+                                               (locally_jumpable -1) (jump -1)
+                                               (fallback)))
+                                           [:i :s])]
+                        {:<C-n>  next-or-complete
+                         :<Down> next-or-complete
+                         :<C-p> prev
+                         :<Up> prev
+                         "<C-l>" confirm
+                         "<Right>" confirm
+                         :<Tab> snippet-next
+                         :<S-Tab> snippet-prev
+                         :<C-e> (cmp.mapping.abort)})
 
                       :completion
                       {:completeopt "menu,menuone"}
@@ -635,18 +633,25 @@
                                    item))}}]
           (cmp.setup config))
 
-        (let [{: lazy_load} (require :luasnip.loaders.from_vscode)]
-          (lazy_load {:exclude [:norg]}))))
+        ; Setup custom snippets in separate module to not duplicate them when
+        ; reloading the config
+        (setup :snippets)
+        ; Find snippets defined by plugins
+        (let [{:lazy_load load_from_vscode} (require :luasnip.loaders.from_vscode)
+              {:lazy_load load_from_lua} (require :luasnip.loaders.from_lua)]
+          (load_from_vscode {:exclude [:norg]})
+          ; (load_from_lua)
+          )))
 
 
 ;; Coding related stuff
 
 ; Run current file, if applicable
 (let [ft-to-runner {:fennel #(vim.cmd.Fnlfile "%")
-                    :python #(vim.cmd ":w !python3<CR>")
-                    :sh #(vim.cmd ":w !bash<CR>")
-                    :fish #(vim.cmd ":w !fish<cr>")
-                    :lua #(vim.cmd ":lua dofile(vim.fn.expand('%'))<cr>")}]
+                    :python #(vim.api.nvim_command "w !python3")
+                    :sh #(vim.api.nvim_command "w !bash")
+                    :fish #(vim.api.nvim_command "w !fish")
+                    :lua #(vim.api.nvim_command "lua dofile(vim.fn.expand('%'))")}]
   (nmap! "<leader>rr" #(-?>> vim.o.filetype
                              (. ft-to-runner)
                              ())))
@@ -776,16 +781,17 @@
                                             (zk.new {: title
                                                      :edit false
                                                      :insertLinkAtLocation loc})))
-                create-note #(let [title (vim.fn.input "Title: ")]
-                               (if (not= (# title) 0)
-                                 (zk.new {: title})))
+                ; create-note #(let [title (vim.fn.input "Title: ")]
+                ;                (if (not= (# title) 0)
+                ;                  (zk.new {: title})))
+                create-note #(zk.new)
                 extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
                                [:i "<C-l>"] "<Esc>2la"
                                [:i "<C-y>"] "<Esc>2hvT|uf]2la"
                                [:n "<localleader>nz"] create-note
                                [:n "<localleader>no"] #(zk.edit)
                                [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
-                               [:i "<C-o>"] "<Esc>:ZkInsertLink<CR>"
+                               [:i "<C-i>"] "<C-o>:ZkInsertLink<CR>"
                                [:i "<C-j>"] create-and-insert-link
                                [:i "<C-p>"] #(spawn-capture-output
                                                :zk-screenshot nil
@@ -851,7 +857,16 @@
           ; Setup python debugging via dedicated extension
           (setup :dap-python "python"))))
 
-(add! "bR3iN/emanote.nvim")
+(add! "bR3iN/emanote.nvim"
+      #(let [{: start : stop} (require :emanote-live)
+             emanote_url "http://localhost:8080"]
+         (vim.api.nvim_create_user_command
+           :EmanoteConnect
+           (fn []
+             (start {:port 8000 : emanote_url})
+             (spawn :qutebrowser {:args [:--target :window emanote_url]}))
+           {})
+         (vim.api.nvim_create_user_command :EmanoteDisconnect (partial stop 500) {})))
 
 ; Forked as plugin doesn't have an API for custom keybindings
 (add! "bR3iN/jupynium.nvim" #(setup :jupynium))
@@ -1029,7 +1044,7 @@
                :NavicIconsFunction { :fg colors.blue :italic true}
                :NavicIconsInterface { :fg colors.cyan }
                :NavicIconsKey { :fg colors.cyan }
-               :NavicIconsMethod { :fg colo :italic true }
+               :NavicIconsMethod { :fg colors.blue :italic true }
                :NavicIconsModule { :fg colors.fg0 :italic true }
                :NavicIconsNamespace { :fg colors.fg0 :italic true }
                :NavicIconsNull { :fg colors.cyan }
