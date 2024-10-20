@@ -18,4 +18,7 @@
     (let [name (.. tp :?)]
       (tset M name (mk-is-type tp)))))
 
+(fn M.empty? [str]
+  (= (length str) 0))
+
 M

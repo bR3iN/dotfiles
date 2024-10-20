@@ -3,7 +3,7 @@
 (local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap! : smap! : omap!
         : command! : augroup! : autocmd! : put!}
   (require :utils.nvim))
-(local {: nil?} (require :utils))
+(local {: nil? : empty?} (require :utils))
 (local {: spawn : spawn-capture-output} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
 
@@ -20,7 +20,6 @@
 (add! "rktjmp/hotpot.nvim")
 (add! "bR3iN/pkg.nvim")
 
-
 ;; General Options and Keymaps
 
 ; set leader keys
@@ -36,6 +35,8 @@
 ; Ignore case for lowercase searches
 (set! ignorecase)
 (set! smartcase) ;requires `ignorecase`
+
+(set! inccommand :split)
 
 ; Enable mouse support
 (set! mouse :a)
@@ -883,47 +884,61 @@
       #(let [{: colors} (require :base16-colors)
              diag-colors [colors.red colors.orange colors.green colors.blue]
              diag-icons [ "" "" "" "" ]
-             ; Extends first argument (table) with the tail of the arg list; incline
-             ; mixes arrays with maps, which is otherwise a bit ugly in fennel.
-             comp (fn [hl & comps]
-                    (vim.tbl_extend :error comps hl))
-             sep (comp {:guifg colors.bg0} " | " )]
+             sep {:guifg colors.bg0
+                  1 " | "}]
          (setup
            :incline
-           {:hide {:cursorline true}
+           {:hide {:cursorline :focused_win
+                   }
+            :window {:padding 0}
+            :highlight {:groups {:InclineNormal :NONE
+                                 :InclineNormalNC :NONE}}
             :render
-            (fn [{: buf}]
-              (let [get-opt #(. vim.bo buf $1)
+            (fn [{: buf : focused}]
+              (let [bg (if focused
+                         colors.bg3
+                         colors.bg3)
+                    fg (if focused
+                         colors.fg1
+                         colors.fg1)
+                    get-opt #(. vim.bo buf $1)
                     filename (let [name (-> buf
                                             (vim.api.nvim_buf_get_name)
                                             (vim.fn.fnamemodify ":t"))
                                    has-name (not= "" name)]
-                               (comp
-                                 {:guifg colors.fg0 :gui :bold}
-                                 (if has-name
-                                   name
-                                   "[No Name]")))
+                               {:guifg fg
+                                :gui :bold
+                                1 (if has-name
+                                    name
+                                    "[No Name]")})
                     diag-indicator (icollect
                                      [severity level (ipairs [ :Error :Warn :Info :Hint ])]
                                      (let [n (length
                                                (vim.diagnostic.get buf {: severity}))]
                                        (if (> n 0)
-                                         [(comp
-                                            {:guifg (. diag-colors severity)}
-                                            (. diag-icons severity) " " n)
+                                         [{:guifg (. diag-colors severity) :gui :bold
+                                           1 (. diag-icons severity)
+                                           2 " "
+                                           3 n}
                                           sep])))]
-                (comp
-                  {:guibg colors.bg2}
-                  " " diag-indicator filename " "
-                  (let [is-ro (or
+                [{:guifg bg
+                  1 ""}
+                 {:guibg bg
+                  1 diag-indicator
+                  2 filename
+                  3 (let [is-ro (or
                                 (get-opt :readonly)
                                 (not (get-opt :modifiable)))]
                     (if is-ro
-                      (comp {:guifg colors.green} " ")
+                      {:guifg colors.green
+                       1 " "}
                       ""))
-                  (if (get-opt :modified)
-                    (comp {:guifg colors.yellow} " ")
-                    ""))))})))
+                  4 (if (get-opt :modified)
+                    {:guifg colors.yellow
+                     1 " "}
+                    "")}
+                 {:guifg bg
+                  1 ""}]))})))
 
 (add! "lewis6991/gitsigns.nvim"
       #(setup
@@ -935,13 +950,15 @@
       #(let [{: colors} (require :base16-colors)
              {: lsp_attached : is_git_repo} (require :heirline.conditions)
              ;; Statusline components
-             sep-right {:provider "" :hl {:fg colors.bg0 :bold true}}
-             sep-left {:provider "" :hl {:fg colors.bg0 :bold true}}
+             sep-right {:provider "" :hl {:fg colors.bg0 :bold true}}
+             sep-left {:provider "" :hl {:fg colors.bg0 :bold true}}
+             navic-sep "  "
+             navic-sep-hl {:fg colors.bg0}
              ; Current mode
              vi_mode (let [get-color #(let [{: mode_colors : mode} $1]
                                         (. mode_colors mode))]
-                       {:provider #(.. " " (. $1 :mode) " ")
-                        1 {:provider ""
+                       {:provider #(.. " " (. $1 :mode))
+                        1 {:provider ""
                            :hl #{:fg (get-color $1) :reverse false}}
                         2 {:provider " "
                            :hl {:reverse false}}
@@ -991,81 +1008,90 @@
                                     (each [_ mode (ipairs modes)]
                                       (tset res :mode_names mode name)))
                                   res)})
-             lsps {:hl {:fg colors.yellow}
-                   1 {:provider " ["}
-                                    2 {:provider #(table.concat
-                                                    (icollect [_ {: name}
-                                                               (pairs (vim.lsp.get_clients {:bufnr 0}))]
-                                                              name)
-                                                    " ")}
-                                    3 {:provider "]"}}
-             ; Breadcrumbs
-             navic-available (. (require :nvim-navic) :is_available)
-             navic (let [{: get_location} (require :nvim-navic)]
-                     {:hl {:bg colors.base02}
-                      :update :CursorMoved
-                      1 {:flexible 1
-                         1 {:provider get_location}
-                         2 {:provider #(get_location {:depth_limit 1})}}})
-             no-cmd #(= vim.o.cmdheight 0)
-             ; Number of search results
-             has-search-count #(not= vim.v.hlsearch 0)
-             search-count {:init #(let [(ok search) (pcall vim.fn.searchcount)]
-                                    (if (and ok search.total) (tset $1 :search search)))
-                           :provider #(let [{:search {: current : total : maxcount}} $1]
-                                        (string.format "[%d/%d]" current (math.min total maxcount)))}
-             ; Macro currently recording
-             is-macrorec #(not= (vim.fn.reg_recording) "")
-             macrorec {:provider #(.. "[" (vim.fn.reg_recording) "]")
-                       :hl {:fg colors.orange :bold true}
-                       :update [:RecordingEnter :RecordingLeave]}
-             cursor-pos [{:provider " %l"
-                          :hl {:fg colors.blue}}
-                         {:provider ":"}
-                         {:provider "%c"
-                          :hl {:fg colors.blue}}]]
-         (set! cmdheight 1)
-         (set! laststatus 3)
-         (set! showcmdloc :statusline)
-         ; Setup navic highlight groups
-         (each
-           [hl-name hl-opt
-            (pairs
-              {:NavicIconsArray { :fg colors.yellow }
-               :NavicIconsBoolean { :fg colors.cyan :bold true}
-               :NavicIconsClass { :fg colors.cyan }
-               :NavicIconsConstant { :fg colors.yellow }
-               :NavicIconsConstructor { :fg colors.cyan }
-               :NavicIconsEnum { :fg colors.cyan }
-               :NavicIconsEnumMember { :fg colors.fg0 }
-               :NavicIconsEvent { :fg colors.fg0 }
-               :NavicIconsField { :fg colors.fg0 :italic true}
-               :NavicIconsFile { :fg colors.green }
-               :NavicIconsFunction { :fg colors.blue :italic true}
-               :NavicIconsInterface { :fg colors.cyan }
-               :NavicIconsKey { :fg colors.cyan }
-               :NavicIconsMethod { :fg colors.blue :italic true }
-               :NavicIconsModule { :fg colors.fg0 :italic true }
-               :NavicIconsNamespace { :fg colors.fg0 :italic true }
-               :NavicIconsNull { :fg colors.cyan }
-               :NavicIconsNumber { :fg colors.magenta }
-               :NavicIconsObject { :fg colors.cyan }
-               :NavicIconsOperator { :fg colors.cyan }
-               :NavicIconsPackage { :fg colors.fg0 :italic true }
-               :NavicIconsProperty { :fg colors.fg0 :italic true }
-               :NavicIconsString { :fg colors.green :italic true }
-               :NavicIconsStruct { :fg colors.cyan }
-               :NavicIconsTypeParameter { :fg colors.blue }
-               :NavicIconsVariable { :fg colors.fg0 :bold true }
-               :NavicText { :fg colors.fg1 }
-               :NavicSeparator { :fg colors.bg0 }})]
-           (tset hl-opt :bg colors.base02)
-           (vim.api.nvim_set_hl 0 hl-name hl-opt))
+             lsps {:hl {:fg colors.dark_yellow}
+                   1 {:provider ""}
+                   2 {:flexible 2
+                      1 [{:provider " ["} ;]
+                       {:provider #(table.concat
+                                     (icollect [_ {: name}
+                                                (pairs (vim.lsp.get_clients {:bufnr 0}))]
+                                               name)
+                                     " ")}
+                       {:provider "]"}]
+                      2 [{:provider " "}
+                         {:provider #(# (vim.lsp.get_clients))}]}}
+         ; Breadcrumbs
+         navic-available (. (require :nvim-navic) :is_available)
+         navic (let [{: get_location} (require :nvim-navic)
+                     navic-get #(let [loc (get_location $...)]
+                                  (if (not (empty? loc))
+                                    (.. navic-sep loc)
+                                    loc))]
+                 {:hl navic-sep-hl
+                  :update :CursorMoved
+                  1 {:flexible 5
+                     1 {:provider #(navic-get)}
+                     2 {:provider #(navic-get {:depth_limit 1})}}})
+         no-cmd #(= vim.o.cmdheight 0)
+         ; Number of search results
+         has-search-count #(not= vim.v.hlsearch 0)
+         search-count {:init #(let [(ok search) (pcall vim.fn.searchcount)]
+                                (if (and ok search.total) (tset $1 :search search)))
+                       :hl {:fg colors.dark_yellow :bold true}
+                       :provider #(let [{:search {: current : total : maxcount}} $1]
+                                    (string.format "[%d/%d]" current (math.min total maxcount)))}
+         ; Macro currently recording
+         is-macrorec #(not= (vim.fn.reg_recording) "")
+         macrorec {:provider #(.. "(" (vim.fn.reg_recording) ")")
+                   :hl {:fg colors.red :bold true}
+                   :update [:RecordingEnter :RecordingLeave]}
+         cursor-pos [{:provider " %l"
+                      :hl {:fg colors.dark_blue}}
+                     {:provider ":"}
+                     {:provider "%c"
+                      :hl {:fg colors.dark_blue}}]]
+(set! cmdheight 0)
+(set! laststatus 3)
+(set! showcmdloc :statusline)
+; Setup navic highlight groups
+(each
+  [hl-name hl-opt
+   (pairs
+     {:NavicIconsArray { :fg colors.yellow }
+      :NavicIconsBoolean { :fg colors.cyan :bold true}
+      :NavicIconsClass { :fg colors.cyan }
+      :NavicIconsConstant { :fg colors.yellow }
+      :NavicIconsConstructor { :fg colors.cyan }
+      :NavicIconsEnum { :fg colors.cyan }
+      :NavicIconsEnumMember { :fg colors.fg0 }
+      :NavicIconsEvent { :fg colors.fg0 }
+      :NavicIconsField { :fg colors.fg0 :italic true}
+      :NavicIconsFile { :fg colors.green }
+      :NavicIconsFunction { :fg colors.blue :italic true}
+      :NavicIconsInterface { :fg colors.cyan }
+      :NavicIconsKey { :fg colors.cyan }
+      :NavicIconsMethod { :fg colors.blue :italic true }
+      :NavicIconsModule { :fg colors.fg0 :italic true }
+      :NavicIconsNamespace { :fg colors.fg0 :italic true }
+      :NavicIconsNull { :fg colors.cyan }
+      :NavicIconsNumber { :fg colors.magenta }
+      :NavicIconsObject { :fg colors.cyan }
+      :NavicIconsOperator { :fg colors.cyan }
+      :NavicIconsPackage { :fg colors.fg0 :italic true }
+      :NavicIconsProperty { :fg colors.fg0 :italic true }
+      :NavicIconsString { :fg colors.green :italic true }
+      :NavicIconsStruct { :fg colors.cyan }
+      :NavicIconsTypeParameter { :fg colors.blue }
+      :NavicIconsVariable { :fg colors.fg0 :bold true }
+      :NavicText { :fg colors.fg1 }
+      :NavicSeparator navic-sep-hl})]
+  (tset hl-opt :bg colors.base02)
+  (vim.api.nvim_set_hl 0 hl-name hl-opt))
 ; Setup plugins we depend on
 (setup
   :nvim-navic
   {:highlight true
-   :separator "  "
+   :separator navic-sep
    :lsp {:auto_attach true}})
 ; Setup the statusline itself
 (setup
@@ -1074,15 +1100,23 @@
    {:hl {:fg colors.fg0 :bg colors.bg2}
     ; left side
     1 [vi_mode
+       {:provider " "}
        {:condition lsp_attached
-        1 {:provider " "}
-        2 lsps}
-       {:provider " %3.5(%S%) "
-        :hl {:bold true}}]
+        1 lsps
+        2 {:provider " "}}
+       {:condition #(and (has-search-count) (no-cmd))
+        1 search-count
+        2 {:provider " "}}
+       {:condition #(and (is-macrorec) (no-cmd))
+        1 macrorec
+        2 {:provider " "}}
+       {:provider "%3.5(%S%)"
+        :hl {:fg colors.dark_orange :bold true}}
+       {:provider " "}]
     2 {:provider "%="}
     ; middle
     3 [{:hl {:fg colors.fg0 :bold true}
-        :flexible 2
+        :flexible 3
         1 {:provider "%f"}
         2 {:provider #(let [name (-> vim.g.actual_curbuf
                                      (tonumber)
@@ -1090,35 +1124,33 @@
                                      (vim.fn.fnamemodify ":t"))]
                         (if (not= "" name) name "[No Name]"))}}
        {:condition #(navic-available)
-        1 [{:provider " "}
-           sep-left
-           {:provider " "}
+        1 [
            navic
            {:provider " "}]}]
     4 {:provider "%="}
     ; right side
-    5 [{:condition #(and (is-macrorec) (no-cmd))
-        1 macrorec
-        2 {:provider " "}}
-       {:condition #(and (has-search-count) (no-cmd))
-        1 search-count
-        2 {:provider " "}}
+    5 [{:provider " "}
        {:condition is_git_repo
         :init #(tset $1  :status_dict vim.b.gitsigns_status_dict)
-        1 [sep-right
-           {:provider (fn [self]
-                        (.. "  " self.status_dict.head))
-            :hl {:fg colors.orange :bold true}}
-           {:provider " "}
-           {:provider (fn [self]
-                        (.. "+" (or self.status_dict.added 0)))
-            :hl {:fg colors.green}}
-           {:provider (fn [self]
-                        (.. "-" (or self.status_dict.removed 0)))
-            :hl {:fg colors.red}}
-           {:provider (fn [self]
-                        (.. "~" (or self.status_dict.changed 0)))
-            :hl {:fg colors.yellow}}
+        1 [
+           {:hl {:fg colors.dark_orange :bold true}
+            1 {:provider ""}
+            2 {:flexible 4
+               1 {:provider (fn [self]
+                              (.. " " self.status_dict.head))}
+               2 {:provider ""}}}
+           {:flexible 1
+            1 [{:provider " "}
+               {:provider (fn [self]
+                            (.. "+" (or self.status_dict.added 0)))
+                :hl {:fg colors.dark_green}}
+               {:provider (fn [self]
+                            (.. "-" (or self.status_dict.removed 0)))
+                :hl {:fg colors.dark_red}}
+               {:provider (fn [self]
+                            (.. "~" (or self.status_dict.changed 0)))
+                :hl {:fg colors.dark_yellow}}]
+            2 {:provider ""}}
            {:provider " "}]}
        sep-right
        ; Line count
@@ -1128,8 +1160,8 @@
        cursor-pos
        ; Percentage in file
        {:hl {:fg colors.dark_green :bold true :reverse true}
-        1 {:provider " " :hl {:reverse false}}
-        2 {:provider " %p%% "}}]}})))
+        1 {:provider " " :hl {:reverse false}}
+        2 {:provider "%p%% "}}]}})))
 
 ; Keep ftplugin logic inline here to not spread the config too much
 (let [ftplugins
