@@ -1,5 +1,6 @@
 (import-macros {: set! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb} :utils.macros)
 (local {: add!} (require :pkg))
+; TODO: remove augroup!
 (local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap! : smap! : omap!
         : command! : augroup! : autocmd! : put!}
   (require :utils.nvim))
@@ -21,6 +22,8 @@
 (add! "bR3iN/pkg.nvim")
 
 ;; General Options and Keymaps
+
+(set! exrc)
 
 ; set leader keys
 (let! mapleader " ")
@@ -81,7 +84,7 @@
 (imap! "<C-q>" "<Esc>a")
 
 ; Clear highlight search
-(nmap! "<C-L>" ":<C-u>nohlsearch<CR><C-L>")
+(nmap! "<C-l>" ":<C-u>nohlsearch<CR><C-l>")
 
 ; Capitalize word in front of cursor
 (imap! "<C-u>" "<Esc>viwUea")
@@ -221,16 +224,18 @@
          :headlines
          {:markdown {:fat_headlines false}}))
 
-(add!
-  "nvim-orgmode/orgmode"
-  #(setup
-     :orgmode
-     {:org_agenda_files ["~/neorg/**/*.org"]
-      :win_split_mode :edit
-      :org_default_notes_files "~/neorg/notes.org"
-      :mappings {:prefix "<leader>a"
-                 :org {:org_open_at_point "<C-]>"}
-                 :org_return_uses_meta_return true}}))
+; (add!
+;   "nvim-orgmode/orgmode"
+;   (fn []
+;     (setup
+;      :orgmode
+;      {:org_agenda_files ["~/neorg/**/*.org"]
+;       :win_split_mode :edit
+;       :org_default_notes_files "~/neorg/notes.org"
+;       :mappings {:prefix "<leader>a"
+;                  :org {:org_open_at_point "<C-]>"}
+;                  :org_return "<C-CR>"}})
+;     ))
 
 ;; Navigation
 
@@ -365,6 +370,8 @@
                            [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
               (vim.keymap.set mode lhs rhs))))))
 
+(add! "mrcjkb/rustaceanvim")
+
 ; Leap with s
 (add! "ggandor/leap.nvim"
       (fn []
@@ -458,80 +465,12 @@
         (let! vimtex_view_method :zathura)
         (let! tex_flavor :latex)))
 
-(add! ["nvim-neorg/neorg"
-       "nvim-treesitter/nvim-treesitter"
-       "nvim-lua/plenary.nvim"]
-      (fn []
-        ; Define global keybinds for opening Neorg workspaces
-        (let [Neorg #(vim.cmd.Neorg {:args $1})
-              cd #(vim.cmd.cd "%:h")
-              bindings {"<leader>gp" #(do
-                                        (Neorg [:workspace :projects])
-                                        (cd))
-                        "<leader>gj" #(do
-                                        (Neorg [:journal :toc :update])
-                                        (Neorg [:workspace :journal])
-                                        (cd))
-                        "<leader>gJ" #(do
-                                        (Neorg [:journal :today])
-                                        (cd))
-                        "<leader>gd" #(do
-                                        (Neorg [:workspace :docs])
-                                        (cd))}
-              running? #(->> :Neorg
-                             (. (vim.api.nvim_get_commands {}))
-                             (nil?)
-                             (not))]
-          ; Wrap bindings to lazily start Neorg before executing them
-          (each [lhs func (pairs bindings)]
-            (let [rhs (fn []
-                        (when (not (running?))
-                          (vim.cmd.NeorgStart))
-                        (func))]
-              (nmap! lhs rhs)))
-
-          ; Callback to (re)configure Neorg-local keybindings
-          (fn keybinds-hook [keybinds]
-            (let [remap_key keybinds.remap_key
-                  unmap     keybinds.unmap]
-              (remap_key :norg         :n "<CR>" "<C-]>")
-              (remap_key :toc-split    :n "<CR>" "<C-]>")
-              (remap_key :gtd-displays :n "<CR>" "<C-]>")))
-
-          ; Main config and setup
-          (let [configs
-                {:core.defaults {}
-                 :core.concealer {}
-                 :core.qol.toc {:close_after_use true}
-                 :core.qol.todo_items {}
-                 :core.export {}
-                 :core.export.markdown {}
-                 :core.journal {:strategy :nested
-                                :workspace :journal}
-                 :core.dirman {:workspaces {:docs "~/neorg/docs"
-                                            :journal "~/neorg/journal"
-                                            :projects "~/neorg/projects"}
-                               :default :docs
-                               ; Open last workspace on `nvim`; can be set to "default" for default workspace instead
-                               :open_last_workspace false}
-                 :core.completion {:engine :nvim-cmp}
-                 :core.keybinds {:default_keybinds true
-                                 :hook keybinds-hook}}]
-            (setup
-              :neorg
-              {:load (vim.tbl_map #{:config $1} configs)})))))
+(nmap! "<leader>on" #(let [notes-dir (.. vim.env.HOME "/Notes")]
+                      (vim.cmd.cd notes-dir)
+                      (vim.cmd.edit "index.md")))
 
 
 ;; Autocompletion and snippets
-
-; (add! ["hrsh7th/vim-vsnip"
-;        ; Community maintained snippet collection
-;        ; FIXME: contains faulty norg snippets
-;        ; Snippet integration with neovims builtin LSP client
-;        "hrsh7th/vim-vsnip-integ"]
-;       (fn []
-;         ; set snippet directory
-;         (let! vsnip_snippet_dir (.. (vim.fn.stdpath :config) :/vsnip))))
 
 (add! ["hrsh7th/nvim-cmp"
        "hrsh7th/cmp-nvim-lsp"
@@ -546,7 +485,7 @@
       (fn []
         (let [cmp (require :cmp)
               selected? #(not= (cmp.get_selected_entry) nil)
-              {: locally_jumpable : jump : lsp_expand} (require :luasnip)
+              {: locally_jumpable : jump : lsp_expand : expandable : expand} (require :luasnip)
               feed #(-> $1
                         (vim.api.nvim_replace_termcodes true true true)
                         (vim.fn.feedkeys))
@@ -580,7 +519,31 @@
                                              (if
                                                (locally_jumpable -1) (jump -1)
                                                (fallback)))
-                                           [:i :s])]
+                                           [:i :s])
+                            snippet-expand (cmp.mapping
+                                             (fn [fallback]
+                                               (if
+                                                 (expandable) (expand)
+                                                 (fallback)))
+                                             [:i :s])
+                            abort (cmp.mapping
+                                    (fn [fallback]
+                                      (if
+                                        (cmp.visible) (cmp.abort)
+                                        (fallback)))
+                                    [:i :s])
+                            docs-down (cmp.mapping
+                                        (fn [fallback]
+                                          (if
+                                            (cmp.visible) (cmp.scroll_docs 5)
+                                            (fallback)))
+                                        [:i :s])
+                            docs-up (cmp.mapping
+                                      (fn [fallback]
+                                        (if
+                                          (cmp.visible) (cmp.scroll_docs -5)
+                                          (fallback)))
+                                      [:i :s])]
                         {:<C-n>  next-or-complete
                          :<Down> next-or-complete
                          :<C-p> prev
@@ -589,7 +552,10 @@
                          "<Right>" confirm
                          :<Tab> snippet-next
                          :<S-Tab> snippet-prev
-                         :<C-e> (cmp.mapping.abort)})
+                         :<C-k> snippet-expand
+                         :<C-e> abort
+                         :<C-d> docs-down
+                         :<C-u> docs-up})
 
                       :completion
                       {:completeopt "menu,menuone"}
@@ -746,7 +712,7 @@
              [:n "gqq"]        vim.lsp.buf.format
              [:v "gq"]         vim.lsp.buf.format
              [:n "<leader>od"] vim.diagnostic.open_float
-             [:n "[d"]         vim.diagnostic.goto_prev ; fixes auto-indentation ]
+             [:n "[d"]         vim.diagnostic.goto_prev ; ]
              [:n "]d"]         vim.diagnostic.goto_next})
 
           (ls-setup!
@@ -762,8 +728,9 @@
           ; (ls-setup! :fennel_ls)
           (ls-setup! :pyright)
           (ls-setup! :cmake)
-          (ls-setup! :rust_analyzer)
+          ; (ls-setup! :rust_analyzer)
           (ls-setup! :hls)
+          ; (ls-setup! :marksman)
           (ls-setup! :racket_langserver)
 
           (let [border "rounded"
@@ -823,6 +790,9 @@
          (setup {:enabled enable-at-start})))
 
 (add! ["mfussenegger/nvim-dap"
+       "nvim-neotest/nvim-nio"
+       "rcarriga/nvim-dap-ui"
+       "theHamsta/nvim-dap-virtual-text"
        "mfussenegger/nvim-dap-python"]
       (fn []
         ; Setup common keymaps
@@ -830,7 +800,8 @@
               adapter-configs {:gdb
                                {:type "executable"
                                 :command "gdb"
-                                :args ["-i" "dap"]}}
+                                :args ["--interpreter=dap"
+                                       "--eval-command" "set print pretty on"]}}
               filetype-configs {:cpp [{:name "Launch C++"
                                        :type "gdb"
                                        :request "launch"
@@ -855,6 +826,8 @@
           (each [lhs rhs (pairs mappings)]
             (nmap! lhs rhs))
 
+          (setup :nvim-dap-virtual-text)
+          ; (setup :dapui)
           ; Setup python debugging via dedicated extension
           (setup :dap-python "python"))))
 
@@ -1189,7 +1162,10 @@
                      abbreviate <buffer> \\bb \\mathbb
                      abbreviate <buffer> \\frak \\mathfrak
                      abbreviate <buffer> iff if and only if"))
-       :org #(vim.cmd "abbreviate -- - [ ]")
+       :org (fn []
+              (let [{: action} (require :orgmode)]
+                (imap! [:buffer] "<C-CR>" #(action :org_mappings.meta_return)))
+              (vim.cmd "abbreviate -- - [ ]"))
        :qf #(nmap! [:buffer] "<Esc>" "<Cmd>cclose<CR>")
        :rust (fn []
                (nmap! [:buffer] "<leader>cr" ":<C-u>Crun<CR>")
