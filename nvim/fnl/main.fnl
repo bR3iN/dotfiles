@@ -2,8 +2,8 @@
 (local {: add!} (require :pkg))
 ; TODO: remove augroup!
 (local {: nmap! : vmap! : tmap! : cmap! : imap! : xmap! : smap! : omap!
-        : command! : augroup! : autocmd! : put!}
-  (require :utils.nvim))
+       : command! : augroup! : autocmd! : put!}
+       (require :utils.nvim))
 (local {: nil? : empty?} (require :utils))
 (local {: spawn : spawn-capture-output} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
@@ -59,6 +59,7 @@
 (set! wildignorecase)
 ; First complete longest substring and open wildmenu, then cycle through matches
 (set! wildmode [:longest:full :full])
+
 
 ; Undo behaviour
 (set! undofile)
@@ -125,18 +126,18 @@
 
   [; Autoreload config files on save
    {:event :BufWritePost
-    :pattern (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
-    :callback #(dofile vim.env.MYVIMRC)}
+   :pattern (.. vim.env.HOME "/.{dotfiles,config}/nvim/*.{vim,lua,fnl}")
+   :callback #(dofile vim.env.MYVIMRC)}
 
    ; Don't create undofiles for temporary files
    {:event :BufWritePre
-    :pattern "/tmp/*"
-    :callback #(setl! noundofile)}
+   :pattern "/tmp/*"
+   :callback #(setl! noundofile)}
 
    ; Highlight on yank
    {:event :TextYankPost
-    :pattern "*"
-    :callback #(vim.highlight.on_yank {:higroup :IncSearch :timeout 150})}])
+   :pattern "*"
+   :callback #(vim.highlight.on_yank {:higroup :IncSearch :timeout 150})}])
 
 ;; Package management
 
@@ -158,8 +159,8 @@
                         (vim.api.nvim_get_hl 0)
                         (vim.tbl_extend :keep hl)
                         (vim.api.nvim_set_hl 0 name)))
-         {: colors : name} (require :base16-colors)
-         {: darken} (require :base16.utils)]
+                 {: colors : name} (require :base16-colors)
+                 {: darken} (require :base16.utils)]
      ; Decide if we use an external colorscheme or our own base16-based one
      (match name
        "Tokyonight Moon" (add! "folke/tokyonight.nvim"
@@ -185,8 +186,8 @@
                              (vim.api.nvim_set_hl 0 :NormalNC {:fg colors.base05 :bg :None})))
        ; Fallback; derives colorscheme from base16 colors
        _ (do
-            (let! base16_colors_lua :base16-colors)
-            (vim.cmd.colorscheme :base16)))
+           (let! base16_colors_lua :base16-colors)
+           (vim.cmd.colorscheme :base16)))
      ; Highlights overrides and groups for local plugins
      (hl-ext! :FloatBorder {:fg colors.base03})
      (hl-ext! :WinSeparator {:fg colors.base02})
@@ -209,7 +210,7 @@
 
 (set! conceallevel 2)
 ; (set! cmdheight 2)
-(set! scrolloff 5)
+(set! scrolloff 1)
 (set! linebreak)
 
 (require :plugin.highlight-trailing-whitespace)
@@ -278,8 +279,8 @@
 
 ; Floating preview in quickfix window
 (add! "kevinhwang91/nvim-bqf"
-       #(setup :bqf {:func_map {:fzffilter ""
-                                :open "<C-]>"}}))
+      #(setup :bqf {:func_map {:fzffilter ""
+              :open "<C-]>"}}))
 
 ; Better folds
 (add! ["kevinhwang91/nvim-ufo" "kevinhwang91/promise-async"]
@@ -288,10 +289,10 @@
 ; Open urls externally with xdg-open
 (mk-op! :OpenExternally
         (let [cmd :xdg-open
-              open #(let [on-exit (fn [exit]
-                                    (if (not= exit 0)
-                                      (error (.. cmd " '" $1 "' failed with exit code " exit))))]
-                      (spawn cmd {:args [$1]} on-exit))]
+                  open #(let [on-exit (fn [exit]
+                                        (if (not= exit 0)
+                                            (error (.. cmd " '" $1 "' failed with exit code " exit))))]
+                          (spawn cmd {:args [$1]} on-exit))]
           (fn [lines]
             (vim.tbl_map open lines))))
 (nmap! "go" "<Plug>OpenExternally")
@@ -299,7 +300,9 @@
 
 ; Write and quit
 (nmap! "<leader>w"  ":<C-u>w<cr>")
-(nmap! "<leader>qv" ":<C-u>quit<cr>")
+(nmap! "<leader>qV" ":<C-u>qall<CR>")
+(nmap! "<leader>qb" ":bd<CR>")
+(nmap! "<leader>qw" ":q<CR>")
 ; "sudo write"-trick via polkit agent
 (nmap! "<leader>W" ":<C-u>w !pkexec tee % >/dev/null<CR>")
 
@@ -311,63 +314,63 @@
        "nvim-lua/plenary.nvim"]
       (fn []
         (let [builtins (require :telescope.builtin)
-              actions (require :telescope.actions)
-              {: buffer_dir} (require :telescope.utils)
-              smart_qf_and_open (fn [bufnr]
-                                  (actions.smart_send_to_qflist bufnr)
-                                  ; (actions.open_qflist bufnr)
-                                  (vim.cmd.cfirst))]
+                       actions (require :telescope.actions)
+                       {: buffer_dir} (require :telescope.utils)
+                       smart_qf_and_open (fn [bufnr]
+                                           (actions.smart_send_to_qflist bufnr)
+                                           ; (actions.open_qflist bufnr)
+                                           (vim.cmd.cfirst))]
           ;Setup plugin
           (setup :telescope
                  {:defaults {:sorting_strategy :ascending
-                             :scroll_strategy :limit
-                             :layout_config {:prompt_position :top}
-                             :layout_strategy :flex
-                             :mappings {:i {"<C-j>" actions.preview_scrolling_down
-                                            "<C-k>" actions.preview_scrolling_up
-                                            "<C-l>" actions.preview_scrolling_right
-                                            "<C-h>" actions.preview_scrolling_left
-                                            "<C-q>" smart_qf_and_open
-                                            "<C-]>" actions.select_default
-                                            "<C-x>" actions.drop_all
-                                            "<C-a>" actions.select_all
-                                            "<C-d>" actions.results_scrolling_down
-                                            "<C-u>" actions.results_scrolling_up
-                                            "<C-s>" actions.select_horizontal}
-                                        :n {"<C-j>" actions.preview_scrolling_down
-                                            "<C-k>" actions.preview_scrolling_up
-                                            "<C-l>" actions.preview_scrolling_right
-                                            "<C-h>" actions.preview_scrolling_left
-                                            "<C-q>" smart_qf_and_open
-                                            "<C-]>" actions.select_default
-                                            "<C-x>" actions.drop_all
-                                            "<C-a>" actions.select_all
-                                            "<C-d>" actions.results_scrolling_down
-                                            "<C-u>" actions.results_scrolling_up
-                                            "<C-s>" actions.select_horizontal}}}
-                  :pickers {:buffers {:mappings
-                                      {:n {"<C-x>" :delete_buffer}
-                                       :i {"<C-x>" :delete_buffer}}}}})
+                 :scroll_strategy :limit
+                 :layout_config {:prompt_position :top}
+                 :layout_strategy :flex
+                 :mappings {:i {"<C-j>" actions.preview_scrolling_down
+                 "<C-k>" actions.preview_scrolling_up
+                 "<C-l>" actions.preview_scrolling_right
+                 "<C-h>" actions.preview_scrolling_left
+                 "<C-q>" smart_qf_and_open
+                 "<C-]>" actions.select_default
+                 "<C-x>" actions.drop_all
+                 "<C-a>" actions.select_all
+                 "<C-d>" actions.results_scrolling_down
+                 "<C-u>" actions.results_scrolling_up
+                 "<C-s>" actions.select_horizontal}
+                 :n {"<C-j>" actions.preview_scrolling_down
+                 "<C-k>" actions.preview_scrolling_up
+                 "<C-l>" actions.preview_scrolling_right
+                 "<C-h>" actions.preview_scrolling_left
+                 "<C-q>" smart_qf_and_open
+                 "<C-]>" actions.select_default
+                 "<C-x>" actions.drop_all
+                 "<C-a>" actions.select_all
+                 "<C-d>" actions.results_scrolling_down
+                 "<C-u>" actions.results_scrolling_up
+                 "<C-s>" actions.select_horizontal}}}
+                 :pickers {:buffers {:mappings
+                 {:n {"<C-x>" :delete_buffer}
+                 :i {"<C-x>" :delete_buffer}}}}})
           ; Setup keymaps; if in an oil buffer, use the buffer's directory as `cwd`
           (let [try-get-cwd #(if (= vim.o.filetype :oil)
-                               (let [{: get_current_dir} (require :oil)]
-                                 (get_current_dir))
-                               nil)
-                pick (fn [action ?opts]
-                       (let [picker (. builtins action)
-                             opts (vim.tbl_extend
-                                    :force {:cwd (try-get-cwd)} (or ?opts {}))]
-                         (picker opts)))]
+                                 (let [{: get_current_dir} (require :oil)]
+                                   (get_current_dir))
+                                 nil)
+                            pick (fn [action ?opts]
+                                   (let [picker (. builtins action)
+                                                opts (vim.tbl_extend
+                                                       :force {:cwd (try-get-cwd)} (or ?opts {}))]
+                                     (picker opts)))]
             (each [[mode lhs] rhs
-                   (pairs {[:n "<leader>ff"] #(pick :find_files {:follow true})
-                           [:n "<leader>f."] #(pick :resume)  ; Resumes previous picker
-                           [:n "<leader>b"]  #(pick :buffers {:sort_lastused true :sort_mru true})
-                           [:n "<leader>fd"] #(pick :diagnostics)
-                           [:n "<leader>fg"] #(pick :live_grep)
-                           [:n "<leader>fw"] #(pick :grep_string)
-                           [:v "<leader>fg"]  #(pick :grep_string)
-                           [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
-                           [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
+                              (pairs {[:n "<leader>ff"] #(pick :find_files {:follow true})
+                                     [:n "<leader>f."] #(pick :resume)  ; Resumes previous picker
+                                     [:n "<leader>b"]  #(pick :buffers {:sort_lastused true :sort_mru true})
+                                     [:n "<leader>fd"] #(pick :diagnostics)
+                                     [:n "<leader>fg"] #(pick :live_grep)
+                                     [:n "<leader>fw"] #(pick :grep_string)
+                                     [:v "<leader>fg"]  #(pick :grep_string)
+                                     [:n "<leader>fl"] #(pick :live_grep {:grep_open_files true})
+                                     [:n "<leader>fL"] #(pick :lsp_workspace_symbols)})]
               (vim.keymap.set mode lhs rhs))))))
 
 (add! "mrcjkb/rustaceanvim")
@@ -383,8 +386,8 @@
 (add! "karb94/neoscroll.nvim"
       (fn []
         (let [{: setup : scroll : zt : zz : zb} (require :neoscroll)
-              get-height #(vim.api.nvim_win_get_height 0)
-              ]
+                 get-height #(vim.api.nvim_win_get_height 0)
+                 ]
           ; Disable default mappings
           (setup {:mappings {}})
           ; Add custom mappings
@@ -401,19 +404,19 @@
       #(let [{: setup : open} (require :oil)]
          (setup
            {:columns [] ; disables icons
-            :use_default_keymaps false
-            :keymaps {"g?"    :actions.show_help
-                      "<C-]>" :actions.select
-                      "<C-s>v" :actions.select_vsplit
-                      "<C-s>s" :actions.select_split
-                      "gp"    :actions.preview
-                      "<C-p>" :actions.close
-                      "gf"    :actions.refresh
-                      "-"     :actions.parent
-                      "_"     :actions.open_cwd
-                      "`"     :actions.cd
-                      "~"     :actions.tcd
-                      "g."    :actions.toggle_hidden}})
+           :use_default_keymaps false
+           :keymaps {"g?"    :actions.show_help
+           "<C-]>" :actions.select
+           "<C-s>v" :actions.select_vsplit
+           "<C-s>s" :actions.select_split
+           "gp"    :actions.preview
+           "<C-p>" :actions.close
+           "gf"    :actions.refresh
+           "-"     :actions.parent
+           "_"     :actions.open_cwd
+           "`"     :actions.cd
+           "~"     :actions.tcd
+           "g."    :actions.toggle_hidden}})
          (nmap! "-" open)))
 
 ; TODO: Use fork until https://github.com/numToStr/Navigator.nvim/pull/35 is merged
@@ -423,12 +426,12 @@
         (let [mk-lhs #(.. :<M- $1 :>)]
           (each [direction keys (pairs
                                   {:Left  [:h :left]
-                                   :Right [:l :right]
-                                   :Up    [:k :up]
-                                   :Down  [:j :down]})]
+                                  :Right [:l :right]
+                                  :Up    [:k :up]
+                                  :Down  [:j :down]})]
             (each [_ key (ipairs keys)]
               (let [lhs (mk-lhs key)
-                    rhs (. vim.cmd (.. :Navigator direction))]
+                        rhs (. vim.cmd (.. :Navigator direction))]
                 (each [_ mk-map (ipairs [nmap! tmap!])]
                   (mk-map lhs rhs))))))))
 
@@ -456,7 +459,7 @@
 (add! "elkowar/yuck.vim")
 
 ; Treesitter indentation for fennel is messed up, so use this plugin for this
-(add! "bakpakin/fennel.vim")
+; (add! "jaawerth/fennel.vim")
 
 (add! "lervag/vimtex"
       (fn []
@@ -466,8 +469,8 @@
         (let! tex_flavor :latex)))
 
 (nmap! "<leader>on" #(let [notes-dir (.. vim.env.HOME "/Notes")]
-                      (vim.cmd.cd notes-dir)
-                      (vim.cmd.edit "index.md")))
+                       (vim.cmd.cd notes-dir)
+                       (vim.cmd.edit "index.md")))
 
 
 ;; Autocompletion and snippets
@@ -484,120 +487,120 @@
        "rafamadriz/friendly-snippets"]
       (fn []
         (let [cmp (require :cmp)
-              selected? #(not= (cmp.get_selected_entry) nil)
-              {: locally_jumpable : jump : lsp_expand : expandable : expand} (require :luasnip)
-              feed #(-> $1
-                        (vim.api.nvim_replace_termcodes true true true)
-                        (vim.fn.feedkeys))
-              config {:mapping
-                      (let [next-or-complete (cmp.mapping
-                                               (fn [fallback]
-                                                 (if
-                                                   (cmp.visible) (cmp.select_next_item {:behavior cmp.SelectBehavior.Insert})
-                                                   (cmp.complete)))
-                                               [:i :s])
-                            prev (cmp.mapping
-                                   (fn [fallback]
-                                     (if
-                                       (cmp.visible) (cmp.select_prev_item {:behavior cmp.SelectBehavior.Insert})
-                                       (fallback)))
-                                   [:i :s])
-                            confirm (cmp.mapping
-                                      (fn [fallback]
-                                        (if
-                                          (cmp.visible) (cmp.confirm {:select true})
-                                          (fallback)))
-                                      [:i :s])
-                            snippet-next (cmp.mapping
+                  selected? #(not= (cmp.get_selected_entry) nil)
+                  {: locally_jumpable : jump : lsp_expand : expandable : expand} (require :luasnip)
+                  feed #(-> $1
+                            (vim.api.nvim_replace_termcodes true true true)
+                            (vim.fn.feedkeys))
+                  config {:mapping
+                  (let [next-or-complete (cmp.mapping
                                            (fn [fallback]
                                              (if
-                                               (locally_jumpable 1) (jump 1)
-                                               (fallback)))
+                                               (cmp.visible) (cmp.select_next_item {:behavior cmp.SelectBehavior.Insert})
+                                               (cmp.complete)))
                                            [:i :s])
-                            snippet-prev (cmp.mapping
-                                           (fn [fallback]
-                                             (if
-                                               (locally_jumpable -1) (jump -1)
-                                               (fallback)))
-                                           [:i :s])
-                            snippet-expand (cmp.mapping
-                                             (fn [fallback]
-                                               (if
-                                                 (expandable) (expand)
-                                                 (fallback)))
-                                             [:i :s])
-                            abort (cmp.mapping
-                                    (fn [fallback]
-                                      (if
-                                        (cmp.visible) (cmp.abort)
-                                        (fallback)))
-                                    [:i :s])
-                            docs-down (cmp.mapping
-                                        (fn [fallback]
-                                          (if
-                                            (cmp.visible) (cmp.scroll_docs 5)
-                                            (fallback)))
-                                        [:i :s])
-                            docs-up (cmp.mapping
-                                      (fn [fallback]
-                                        (if
-                                          (cmp.visible) (cmp.scroll_docs -5)
-                                          (fallback)))
-                                      [:i :s])]
-                        {:<C-n>  next-or-complete
-                         :<Down> next-or-complete
-                         :<C-p> prev
-                         :<Up> prev
-                         "<C-l>" confirm
-                         "<Right>" confirm
-                         :<Tab> snippet-next
-                         :<S-Tab> snippet-prev
-                         :<C-k> snippet-expand
-                         :<C-e> abort
-                         :<C-d> docs-down
-                         :<C-u> docs-up})
+                                         prev (cmp.mapping
+                                                (fn [fallback]
+                                                  (if
+                                                    (cmp.visible) (cmp.select_prev_item {:behavior cmp.SelectBehavior.Insert})
+                                                    (fallback)))
+                                                [:i :s])
+                                         confirm (cmp.mapping
+                                                   (fn [fallback]
+                                                     (if
+                                                       (cmp.visible) (cmp.confirm {:select true})
+                                                       (fallback)))
+                                                   [:i :s])
+                                         snippet-next (cmp.mapping
+                                                        (fn [fallback]
+                                                          (if
+                                                            (locally_jumpable 1) (jump 1)
+                                                            (fallback)))
+                                                        [:i :s])
+                                         snippet-prev (cmp.mapping
+                                                        (fn [fallback]
+                                                          (if
+                                                            (locally_jumpable -1) (jump -1)
+                                                            (fallback)))
+                                                        [:i :s])
+                                         snippet-expand (cmp.mapping
+                                                          (fn [fallback]
+                                                            (if
+                                                              (expandable) (expand)
+                                                              (fallback)))
+                                                          [:i :s])
+                                         abort (cmp.mapping
+                                                 (fn [fallback]
+                                                   (if
+                                                     (cmp.visible) (cmp.abort)
+                                                     (fallback)))
+                                                 [:i :s])
+                                         docs-down (cmp.mapping
+                                                     (fn [fallback]
+                                                       (if
+                                                         (cmp.visible) (cmp.scroll_docs 5)
+                                                         (fallback)))
+                                                     [:i :s])
+                                         docs-up (cmp.mapping
+                                                   (fn [fallback]
+                                                     (if
+                                                       (cmp.visible) (cmp.scroll_docs -5)
+                                                       (fallback)))
+                                                   [:i :s])]
+                    {:<C-n>  next-or-complete
+                    :<Down> next-or-complete
+                    :<C-p> prev
+                    :<Up> prev
+                    "<C-l>" confirm
+                    "<Right>" confirm
+                    :<Tab> snippet-next
+                    :<S-Tab> snippet-prev
+                    :<C-k> snippet-expand
+                    :<C-e> abort
+                    :<C-d> docs-down
+                    :<C-u> docs-up})
 
-                      :completion
-                      {:completeopt "menu,menuone"}
+                  :completion
+                  {:completeopt "menu,menuone"}
 
-                      :snippet
-                      {:expand (fn [{: body}]
-                                 (lsp_expand body))}
+                  :snippet
+                  {:expand (fn [{: body}]
+                             (lsp_expand body))}
 
-                      ; The LSP specifies that certain items should be preselected, ignoring their position in the suggestion list. This disables this.
-                      :preselect cmp.PreselectMode.None
+                  ; The LSP specifies that certain items should be preselected, ignoring their position in the suggestion list. This disables this.
+                  :preselect cmp.PreselectMode.None
 
-                      :sources
-                      [{:name :nvim_lsp}
-                       {:name :luasnip}
-                       {:name :orgmode}
-                       {:name :nvim_lua}
-                       {:name :neorg}
-                       {:name :path}
-                       {:name :latex_symbols}
-                       {:name :omni}
-                       {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
+                  :sources
+                  [{:name :nvim_lsp}
+                          {:name :luasnip}
+                          {:name :orgmode}
+                          {:name :nvim_lua}
+                          {:name :neorg}
+                          {:name :path}
+                          {:name :latex_symbols}
+                          {:name :omni}
+                          {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
 
-                      :window
-                      {:completion (cmp.config.window.bordered)
-                       :documentation (cmp.config.window.bordered)}
+                  :window
+                  {:completion (cmp.config.window.bordered)
+                  :documentation (cmp.config.window.bordered)}
 
-                      :formatting
-                      {:format (let [display-names
-                                     {:nvim_lsp      "[LSP]"
-                                      :luasnip       "[Snp]"
-                                      :nvim_lua      "[Lua]"
-                                      :latex_symbols "[LTX]"
-                                      :path          "[Pth]"
-                                      :omni          "[Omn]"
-                                      :calc          "[Clc]"
-                                      :buffer        "[Buf]"}]
-                                 (fn [{:source {: name}} item]
-                                   (->> name
-                                        (. display-names)
-                                        (#(or $1 "[???]"))
-                                        (tset item :menu))
-                                   item))}}]
+                  :formatting
+                  {:format (let [display-names
+                                  {:nvim_lsp      "[LSP]"
+                                  :luasnip       "[Snp]"
+                                  :nvim_lua      "[Lua]"
+                                  :latex_symbols "[LTX]"
+                                  :path          "[Pth]"
+                                  :omni          "[Omn]"
+                                  :calc          "[Clc]"
+                                  :buffer        "[Buf]"}]
+                             (fn [{:source {: name}} item]
+                               (->> name
+                                    (. display-names)
+                                    (#(or $1 "[???]"))
+                                    (tset item :menu))
+                               item))}}]
           (cmp.setup config))
 
         ; Setup custom snippets in separate module to not duplicate them when
@@ -605,7 +608,7 @@
         (setup :snippets)
         ; Find snippets defined by plugins
         (let [{:lazy_load load_from_vscode} (require :luasnip.loaders.from_vscode)
-              {:lazy_load load_from_lua} (require :luasnip.loaders.from_lua)]
+                          {:lazy_load load_from_lua} (require :luasnip.loaders.from_lua)]
           (load_from_vscode {:exclude [:norg]})
           ; (load_from_lua)
           )))
@@ -615,10 +618,10 @@
 
 ; Run current file, if applicable
 (let [ft-to-runner {:fennel #(vim.cmd.Fnlfile "%")
-                    :python #(vim.api.nvim_command "w !python3")
-                    :sh #(vim.api.nvim_command "w !bash")
-                    :fish #(vim.api.nvim_command "w !fish")
-                    :lua #(vim.api.nvim_command "lua dofile(vim.fn.expand('%'))")}]
+                   :python #(vim.api.nvim_command "w !python3")
+                   :sh #(vim.api.nvim_command "w !bash")
+                   :fish #(vim.api.nvim_command "w !fish")
+                   :lua #(vim.api.nvim_command "lua dofile(vim.fn.expand('%'))")}]
   (nmap! "<leader>rr" #(-?>> vim.o.filetype
                              (. ft-to-runner)
                              ())))
@@ -636,34 +639,34 @@
 
         ; Appearance
         (let! neomake_error_sign
-          {:text "➤"
-           ; :texthl "NeomakeErrorSign"
-           })
+              {:text "➤"
+              ; :texthl "NeomakeErrorSign"
+              })
         (let! neomake_warning_sign
-          {:text "➤"
-           ; :texthl "NeomakeWarningSign"
-           })
+              {:text "➤"
+              ; :texthl "NeomakeWarningSign"
+              })
         (let! neomake_message_sign
-          {:text "➤"
-           ; :texthl "NeomakemessageSign"
-           })
+              {:text "➤"
+              ; :texthl "NeomakemessageSign"
+              })
         (let! neomake_info_sign
-          {:text "➤"
-           ; :texthl "NeomakeInfoSign"
-           })
+              {:text "➤"
+              ; :texthl "NeomakeInfoSign"
+              })
 
         ; Link Neomake highlight groups and relink them on colorscheme change
         (let [links {:NeomakeErrorSign          :DiagnosticSignError
-                     :NeomakeWarningSign        :DiagnosticSignWarn
-                     :NeomakeMessageSign        :DiagnosticSignHint
-                     :NeomakeInfoSign           :DiagnosticSignInfo
-                     :NeomakeVirtualtextError   :DiagnosticError
-                     :NeomakeVirtualtextWarning :DiagnosticWarn
-                     :NeomakeVirtualtextMessage :DiagnosticHint
-                     :NeomakeVirtualtextInfo    :DiagnosticInfo}
-              set-hl #(each [name link (pairs links)]
-                        (vim.api.nvim_set_hl 0 name {: link}))
-              autocmd! (augroup! :neomake_highlighting)]
+                    :NeomakeWarningSign        :DiagnosticSignWarn
+                    :NeomakeMessageSign        :DiagnosticSignHint
+                    :NeomakeInfoSign           :DiagnosticSignInfo
+                    :NeomakeVirtualtextError   :DiagnosticError
+                    :NeomakeVirtualtextWarning :DiagnosticWarn
+                    :NeomakeVirtualtextMessage :DiagnosticHint
+                    :NeomakeVirtualtextInfo    :DiagnosticInfo}
+                    set-hl #(each [name link (pairs links)]
+                              (vim.api.nvim_set_hl 0 name {: link}))
+                    autocmd! (augroup! :neomake_highlighting)]
           (set-hl)
           (autocmd! :ColorScheme "*" set-hl))))
 
@@ -677,51 +680,51 @@
         (setup
           :nvim-treesitter.configs
           {:highlight {:enable true}
-           :indent {:enable false}
-           ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
-           :textobjects {:select {:enable true
-                                  :keymaps {"if" "@function.inner"
-                                            "af" "@function.outer"
-                                            "ic" "@call.inner"
-                                            "ac" "@call.outer"
-                                            "il" "@loop.inner"
-                                            "al" "@loop.outer"
-                                            "ik" "@conditional.inner"
-                                            "ak" "@conditional.outer"}}
-                         :swap {:enable true
-                                :swap_next {"<leader>." "@parameter.inner"}
-                                :swap_previous {"<leader>," "@parameter.inner"}}}})))
+          :indent {:enable true}
+          ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
+          :textobjects {:select {:enable true
+          :keymaps {"if" "@function.inner"
+          "af" "@function.outer"
+          "ic" "@call.inner"
+          "ac" "@call.outer"
+          "il" "@loop.inner"
+          "al" "@loop.outer"
+          "ik" "@conditional.inner"
+          "ak" "@conditional.outer"}}
+          :swap {:enable true
+          :swap_next {"<leader>." "@parameter.inner"}
+          :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
 (add! ["neovim/nvim-lspconfig"
        "mickael-menu/zk-nvim"]
       (fn []
         (let [{: set-default-keymaps!
-               : ls-setup!
-               : mk-on_attach
-               : mk-capabilities} (require :lsp)]
+                 : ls-setup!
+                 : mk-on_attach
+                 : mk-capabilities} (require :lsp)]
           (set-default-keymaps!
             {[:n "gD"]         vim.lsp.buf.declaration
-             [:n "gd"]         vim.lsp.buf.definition
-             [:n "K"]          vim.lsp.buf.hover
-             [:n "gi"]         vim.lsp.buf.implementation
-             [:n "<C-k>"]      vim.lsp.buf.signature_help
-             [:n "<leader>D"]  vim.lsp.buf.type_definition
-             [:n "<leader>rn"] vim.lsp.buf.rename
-             [:n "<leader>ca"] vim.lsp.buf.code_action
-             [:n "gr"]         vim.lsp.buf.references
-             [:n "gqq"]        vim.lsp.buf.format
-             [:v "gq"]         vim.lsp.buf.format
-             [:n "<leader>od"] vim.diagnostic.open_float
-             [:n "[d"]         vim.diagnostic.goto_prev ; ]
-             [:n "]d"]         vim.diagnostic.goto_next})
+            [:n "gd"]         vim.lsp.buf.definition
+            [:n "K"]          vim.lsp.buf.hover
+            [:n "gi"]         vim.lsp.buf.implementation
+            [:n "<C-k>"]      vim.lsp.buf.signature_help
+            [:n "<leader>D"]  vim.lsp.buf.type_definition
+            [:n "<leader>rn"] vim.lsp.buf.rename
+            [:n "<leader>ca"] vim.lsp.buf.code_action
+            [:n "gr"]         vim.lsp.buf.references
+            [:n "gqq"]        vim.lsp.buf.format
+            [:v "gq"]         vim.lsp.buf.format
+            [:n "<leader>od"] vim.diagnostic.open_float
+            [:n "[d"]         vim.diagnostic.goto_prev ; ]
+            [:n "]d"]         vim.diagnostic.goto_next})
 
           (ls-setup!
             :clangd {}
             {[:n "<C-c>"] #(vim.cmd.ClangdSwitchSourceHeader)})
 
           ; {:name :lua_ls
-             ;  :config (require :lsp.configs.sumneko_lua)
-             ;  :keymaps {}}
+          ;  :config (require :lsp.configs.sumneko_lua)
+          ;  :keymaps {}}
 
           (ls-setup! :bashls)
           ; (ls-setup! :vimls)
@@ -734,46 +737,46 @@
           (ls-setup! :racket_langserver)
 
           (let [border "rounded"
-                        cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
-                                                                :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
-                (vim.diagnostic.config {:float {: border}})
-                (tset (require :lspconfig.ui.windows) :default_options {: border})
-                (each [cap handler (pairs cap-to-handler)]
-                        (tset vim.lsp.handlers cap (vim.lsp.with handler {: border}))))
+                       cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
+                       :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
+            (vim.diagnostic.config {:float {: border}})
+            (tset (require :lspconfig.ui.windows) :default_options {: border})
+            (each [cap handler (pairs cap-to-handler)]
+              (tset vim.lsp.handlers cap (vim.lsp.with handler {: border}))))
 
           (let [zk (require :zk)
-                util (require :zk.util)
-                create-and-insert-link #(let [loc (util.get_lsp_location_from_caret)
-                                              title (vim.fn.input "Title: ")]
-                                          (if (not= (# title) 0)
-                                            (zk.new {: title
-                                                     :edit false
-                                                     :insertLinkAtLocation loc})))
-                ; create-note #(let [title (vim.fn.input "Title: ")]
-                ;                (if (not= (# title) 0)
-                ;                  (zk.new {: title})))
-                create-note #(zk.new)
-                extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
-                               [:i "<C-l>"] "<Esc>2la"
-                               [:i "<C-y>"] "<Esc>2hvT|uf]2la"
-                               [:n "<localleader>nz"] create-note
-                               [:n "<localleader>no"] #(zk.edit)
-                               [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
-                               [:i "<C-i>"] "<C-o>:ZkInsertLink<CR>"
-                               [:i "<C-j>"] create-and-insert-link
-                               [:i "<C-p>"] #(spawn-capture-output
-                                               :zk-screenshot nil
-                                               (fn [code _ stdout stderr]
-                                                 (if (= 0 code)
-                                                   (put! (.. "![[" stdout "]]")))))}]
+                   util (require :zk.util)
+                   create-and-insert-link #(let [loc (util.get_lsp_location_from_caret)
+                                                     title (vim.fn.input "Title: ")]
+                                             (if (not= (# title) 0)
+                                                 (zk.new {: title
+                                                         :edit false
+                                                         :insertLinkAtLocation loc})))
+                   ; create-note #(let [title (vim.fn.input "Title: ")]
+                   ;                (if (not= (# title) 0)
+                   ;                  (zk.new {: title})))
+                   create-note #(zk.new)
+                   extra-keymaps {[:i "<C-h>"] "<Esc>hcT|"
+                   [:i "<C-l>"] "<Esc>2la"
+                   [:i "<C-y>"] "<Esc>2hvT|uf]2la"
+                   [:n "<localleader>nz"] create-note
+                   [:n "<localleader>no"] #(zk.edit)
+                   [:n "<localleader>nb"] #(vim.cmd.ZkBacklinks)
+                   [:i "<C-i>"] "<C-o>:ZkInsertLink<CR>"
+                   [:i "<C-j>"] create-and-insert-link
+                   [:i "<C-p>"] #(spawn-capture-output
+                                   :zk-screenshot nil
+                                   (fn [code _ stdout stderr]
+                                     (if (= 0 code)
+                                         (put! (.. "![[" stdout "]]")))))}]
             (zk.setup {:picker :telescope
-                       :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
-                                      :capabilities (mk-capabilities)}}})))))
+                      :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
+                      :capabilities (mk-capabilities)}}})))))
 
 (add! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
       #(let [{: setup : toggle} (require :lsp_lines)
-             toggle-diags #(let [lines-on (toggle)]
-                             (vim.diagnostic.config {:virtual_text (not lines-on)}))]
+                toggle-diags #(let [lines-on (toggle)]
+                                (vim.diagnostic.config {:virtual_text (not lines-on)}))]
          (setup)
          (vim.diagnostic.config {:virtual_lines false})
          ; (toggle-diags) ; Start with lines off
@@ -781,8 +784,8 @@
 
 (add! "lukas-reineke/indent-blankline.nvim"
       #(let [{: colors} (require :base16-colors)
-             {: setup} (require :ibl)
-             enable-at-start false]
+                {: setup} (require :ibl)
+                enable-at-start false]
          ; Have to setup highlight groups before setup
          (vim.api.nvim_set_hl 0 :IblScope {:fg colors.dark_green :bold true})
          (vim.api.nvim_set_hl 0 :IblIndent {:fg colors.bg2 :bold true})
@@ -797,28 +800,28 @@
       (fn []
         ; Setup common keymaps
         (let [dap (require :dap)
-              adapter-configs {:gdb
-                               {:type "executable"
-                                :command "gdb"
-                                :args ["--interpreter=dap"
-                                       "--eval-command" "set print pretty on"]}}
-              filetype-configs {:cpp [{:name "Launch C++"
-                                       :type "gdb"
-                                       :request "launch"
-                                       :program "build/main"}]}
-              mappings {"<leader>db" (. dap :toggle_breakpoint)
-                        "<leader>dl" (. dap :list_breakpoints)
-                        "<leader>ds" (. dap :step_into)
-                        "<leader>dn" (. dap :step_over)
-                        "<leader>dr" (. dap :continue)
-                        "<leader>dt" (. dap :terminate)
-                        "<leader>dc" (. dap :clear_breakpoints)
-                        "<leader>do" (. dap :repl :open)}
-              autocmd! (augroup! :nvim-dap)
-              prompt-path (fn [prompt cb]
-                            (vim.ui.input
-                              {: prompt :default (vim.loop.cwd)}
-                              #(if $1 (cb $1))))]
+                  adapter-configs {:gdb
+                  {:type "executable"
+                  :command "gdb"
+                  :args ["--interpreter=dap"
+                         "--eval-command" "set print pretty on"]}}
+                  filetype-configs {:cpp [{:name "Launch C++"
+                                                 :type "gdb"
+                                                 :request "launch"
+                                                 :program "build/main"}]}
+                  mappings {"<leader>db" (. dap :toggle_breakpoint)
+                  "<leader>dl" (. dap :list_breakpoints)
+                  "<leader>ds" (. dap :step_into)
+                  "<leader>dn" (. dap :step_over)
+                  "<leader>dr" (. dap :continue)
+                  "<leader>dt" (. dap :terminate)
+                  "<leader>dc" (. dap :clear_breakpoints)
+                  "<leader>do" (. dap :repl :open)}
+                  autocmd! (augroup! :nvim-dap)
+                  prompt-path (fn [prompt cb]
+                                (vim.ui.input
+                                  {: prompt :default (vim.loop.cwd)}
+                                  #(if $1 (cb $1))))]
           (each [name config (pairs adapter-configs)]
             (tset dap :adapters name config))
           (each [name config (pairs filetype-configs)]
@@ -833,7 +836,7 @@
 
 (add! "bR3iN/emanote.nvim"
       #(let [{: start : stop} (require :emanote-live)
-             emanote_url "http://localhost:8080"]
+                emanote_url "http://localhost:8080"]
          (vim.api.nvim_create_user_command
            :EmanoteConnect
            (fn []
@@ -855,63 +858,63 @@
 
 (add! "b0o/incline.nvim"
       #(let [{: colors} (require :base16-colors)
-             diag-colors [colors.red colors.orange colors.green colors.blue]
-             diag-icons [ "" "" "" "" ]
-             sep {:guifg colors.bg0
-                  1 " | "}]
+                diag-colors [colors.red colors.orange colors.green colors.blue]
+                diag-icons [ "" "" "" "" ]
+                sep {:guifg colors.bg0
+                1 " | "}]
          (setup
            :incline
            {:hide {:cursorline :focused_win
-                   }
-            :window {:padding 0}
-            :highlight {:groups {:InclineNormal :NONE
-                                 :InclineNormalNC :NONE}}
-            :render
-            (fn [{: buf : focused}]
-              (let [bg (if focused
-                         colors.bg3
-                         colors.bg3)
-                    fg (if focused
-                         colors.fg1
-                         colors.fg1)
-                    get-opt #(. vim.bo buf $1)
-                    filename (let [name (-> buf
-                                            (vim.api.nvim_buf_get_name)
-                                            (vim.fn.fnamemodify ":t"))
-                                   has-name (not= "" name)]
-                               {:guifg fg
-                                :gui :bold
-                                1 (if has-name
-                                    name
-                                    "[No Name]")})
-                    diag-indicator (icollect
-                                     [severity level (ipairs [ :Error :Warn :Info :Hint ])]
-                                     (let [n (length
-                                               (vim.diagnostic.get buf {: severity}))]
-                                       (if (> n 0)
-                                         [{:guifg (. diag-colors severity) :gui :bold
-                                           1 (. diag-icons severity)
-                                           2 " "
-                                           3 n}
-                                          sep])))]
-                [{:guifg bg
-                  1 ""}
-                 {:guibg bg
-                  1 diag-indicator
-                  2 filename
-                  3 (let [is-ro (or
-                                (get-opt :readonly)
-                                (not (get-opt :modifiable)))]
-                    (if is-ro
-                      {:guifg colors.green
-                       1 " "}
-                      ""))
-                  4 (if (get-opt :modified)
-                    {:guifg colors.yellow
-                     1 " "}
-                    "")}
-                 {:guifg bg
-                  1 ""}]))})))
+           }
+           :window {:padding 0}
+           :highlight {:groups {:InclineNormal :NONE
+           :InclineNormalNC :NONE}}
+           :render
+           (fn [{: buf : focused}]
+             (let [bg (if focused
+                          colors.bg3
+                          colors.bg3)
+                      fg (if focused
+                             colors.fg1
+                             colors.fg1)
+                      get-opt #(. vim.bo buf $1)
+                      filename (let [name (-> buf
+                                              (vim.api.nvim_buf_get_name)
+                                              (vim.fn.fnamemodify ":t"))
+                                          has-name (not= "" name)]
+                                 {:guifg fg
+                                 :gui :bold
+                                 1 (if has-name
+                                       name
+                                       "[No Name]")})
+                      diag-indicator (icollect
+                                       [severity level (ipairs [ :Error :Warn :Info :Hint ])]
+                                       (let [n (length
+                                                 (vim.diagnostic.get buf {: severity}))]
+                                         (if (> n 0)
+                                             [{:guifg (. diag-colors severity) :gui :bold
+                                                      1 (. diag-icons severity)
+                                                      2 " "
+                                                      3 n}
+                                                      sep])))]
+               [{:guifg bg
+                        1 ""}
+                        {:guibg bg
+                        1 diag-indicator
+                        2 filename
+                        3 (let [is-ro (or
+                                        (get-opt :readonly)
+                                        (not (get-opt :modifiable)))]
+                            (if is-ro
+                                {:guifg colors.green
+                                1 " "}
+                                ""))
+                        4 (if (get-opt :modified)
+                              {:guifg colors.yellow
+                              1 " "}
+                              "")}
+                        {:guifg bg
+                        1 ""}]))})))
 
 (add! "lewis6991/gitsigns.nvim"
       #(setup
@@ -921,232 +924,232 @@
 (add! ["rebelot/heirline.nvim"
        "SmiteshP/nvim-navic"]
       #(let [{: colors} (require :base16-colors)
-             {: lsp_attached : is_git_repo} (require :heirline.conditions)
-             ;; Statusline components
-             sep-right {:provider "" :hl {:fg colors.bg0 :bold true}}
-             sep-left {:provider "" :hl {:fg colors.bg0 :bold true}}
-             navic-sep "  "
-             navic-sep-hl {:fg colors.bg0}
-             ; Current mode
-             vi_mode (let [get-color #(let [{: mode_colors : mode} $1]
-                                        (. mode_colors mode))]
-                       {:provider #(.. " " (. $1 :mode))
-                        1 {:provider ""
-                           :hl #{:fg (get-color $1) :reverse false}}
-                        2 {:provider " "
-                           :hl {:reverse false}}
-                        :init #(let [{: mode_names} $1]
-                                 (->> (vim.fn.mode 1)
-                                      (. mode_names)
-                                      (tset $1 :mode)))
-                        :hl #{:reverse true :bold true
-                              :fg (get-color $1)}
-                        :update {1 :ModeChanged :pattern "*:*"
-                                 :callback #(vim.schedule_wrap #(vim.cmd :redrawstatus))}
-                        :static (let [mode_map {"NORMAL" {:color colors.dark_green
-                                                          :modes ["n" "niI" "niR" "niV"]}
-                                                "OP" {:color colors.dark_green
-                                                      :modes ["no" "nov" "noV" "no\22"]}
-                                                "VISUAL" {:color colors.base0D
-                                                          :modes ["v" "vs"]}
-                                                "LINES" {:color colors.base0D
-                                                         :modes ["V" "Vs"]}
-                                                "BLOCK" {:color colors.base0D
-                                                         :modes ["\22" "\22s" "\19"]}
-                                                "SELECT" {:color colors.base09
-                                                          :modes ["s" "S"]}
-                                                "INSERT" {:color colors.base08
-                                                          :modes ["i" "ic" "ix"]}
-                                                "REPLACE" {:color colors.base0E
-                                                           :modes ["R" "Rc" "Rx"]}
-                                                "V-REPLACE" {:color colors.base0E
-                                                             :modes ["Rv" "Rvc" "Rvx"]}
-                                                "COMMAND" {:color colors.dark_green
-                                                           :modes ["c" "cv" "ce"]}
-                                                "ENTER" {:color colors.base0C
-                                                         :modes ["r"]}
-                                                "MORE" {:color colors.base0C
-                                                        :modes ["rm"]}
-                                                "CONFIRM" {:color colors.base09
-                                                           :modes ["r?"]}
-                                                "SHELL" {:color colors.dark_green
-                                                         :modes [" !"]}
-                                                "TERM" {:color colors.dark_green
-                                                        :modes ["nt" "t"]}
-                                                "NONE" {:color colors.base0A
-                                                        :modes ["null"]}}]
-                                  (var res {:mode_names {} :mode_colors {}})
-                                  (each [name {: color : modes} (pairs mode_map)]
-                                    (tset res :mode_colors name color)
-                                    (each [_ mode (ipairs modes)]
-                                      (tset res :mode_names mode name)))
-                                  res)})
-             lsps {:hl {:fg colors.dark_yellow}
-                   1 {:provider ""}
-                   2 {:flexible 2
-                      1 [{:provider " ["} ;]
-                       {:provider #(table.concat
-                                     (icollect [_ {: name}
-                                                (pairs (vim.lsp.get_clients {:bufnr 0}))]
-                                               name)
-                                     " ")}
-                       {:provider "]"}]
-                      2 [{:provider " "}
-                         {:provider #(# (vim.lsp.get_clients))}]}}
-         ; Breadcrumbs
-         navic-available (. (require :nvim-navic) :is_available)
-         navic (let [{: get_location} (require :nvim-navic)
-                     navic-get #(let [loc (get_location $...)]
-                                  (if (not (empty? loc))
-                                    (.. navic-sep loc)
-                                    loc))]
-                 {:hl navic-sep-hl
-                  :update :CursorMoved
-                  1 {:flexible 5
-                     1 {:provider #(navic-get)}
-                     2 {:provider #(navic-get {:depth_limit 1})}}})
-         no-cmd #(= vim.o.cmdheight 0)
-         ; Number of search results
-         has-search-count #(not= vim.v.hlsearch 0)
-         search-count {:init #(let [(ok search) (pcall vim.fn.searchcount)]
-                                (if (and ok search.total) (tset $1 :search search)))
-                       :hl {:fg colors.dark_yellow :bold true}
-                       :provider #(let [{:search {: current : total : maxcount}} $1]
-                                    (string.format "[%d/%d]" current (math.min total maxcount)))}
-         ; Macro currently recording
-         is-macrorec #(not= (vim.fn.reg_recording) "")
-         macrorec {:provider #(.. "(" (vim.fn.reg_recording) ")")
-                   :hl {:fg colors.red :bold true}
-                   :update [:RecordingEnter :RecordingLeave]}
-         cursor-pos [{:provider " %l"
-                      :hl {:fg colors.dark_blue}}
-                     {:provider ":"}
-                     {:provider "%c"
-                      :hl {:fg colors.dark_blue}}]]
-(set! cmdheight 0)
-(set! laststatus 3)
-(set! showcmdloc :statusline)
-; Setup navic highlight groups
-(each
-  [hl-name hl-opt
-   (pairs
-     {:NavicIconsArray { :fg colors.yellow }
-      :NavicIconsBoolean { :fg colors.cyan :bold true}
-      :NavicIconsClass { :fg colors.cyan }
-      :NavicIconsConstant { :fg colors.yellow }
-      :NavicIconsConstructor { :fg colors.cyan }
-      :NavicIconsEnum { :fg colors.cyan }
-      :NavicIconsEnumMember { :fg colors.fg0 }
-      :NavicIconsEvent { :fg colors.fg0 }
-      :NavicIconsField { :fg colors.fg0 :italic true}
-      :NavicIconsFile { :fg colors.green }
-      :NavicIconsFunction { :fg colors.blue :italic true}
-      :NavicIconsInterface { :fg colors.cyan }
-      :NavicIconsKey { :fg colors.cyan }
-      :NavicIconsMethod { :fg colors.blue :italic true }
-      :NavicIconsModule { :fg colors.fg0 :italic true }
-      :NavicIconsNamespace { :fg colors.fg0 :italic true }
-      :NavicIconsNull { :fg colors.cyan }
-      :NavicIconsNumber { :fg colors.magenta }
-      :NavicIconsObject { :fg colors.cyan }
-      :NavicIconsOperator { :fg colors.cyan }
-      :NavicIconsPackage { :fg colors.fg0 :italic true }
-      :NavicIconsProperty { :fg colors.fg0 :italic true }
-      :NavicIconsString { :fg colors.green :italic true }
-      :NavicIconsStruct { :fg colors.cyan }
-      :NavicIconsTypeParameter { :fg colors.blue }
-      :NavicIconsVariable { :fg colors.fg0 :bold true }
-      :NavicText { :fg colors.fg1 }
-      :NavicSeparator navic-sep-hl})]
-  (tset hl-opt :bg colors.base02)
-  (vim.api.nvim_set_hl 0 hl-name hl-opt))
-; Setup plugins we depend on
-(setup
-  :nvim-navic
-  {:highlight true
-   :separator navic-sep
-   :lsp {:auto_attach true}})
-; Setup the statusline itself
-(setup
-  :heirline
-  {:statusline
-   {:hl {:fg colors.fg0 :bg colors.bg2}
-    ; left side
-    1 [vi_mode
-       {:provider " "}
-       {:condition lsp_attached
-        1 lsps
-        2 {:provider " "}}
-       {:condition #(and (has-search-count) (no-cmd))
-        1 search-count
-        2 {:provider " "}}
-       {:condition #(and (is-macrorec) (no-cmd))
-        1 macrorec
-        2 {:provider " "}}
-       {:provider "%3.5(%S%)"
-        :hl {:fg colors.dark_orange :bold true}}
-       {:provider " "}]
-    2 {:provider "%="}
-    ; middle
-    3 [{:hl {:fg colors.fg0 :bold true}
-        :flexible 3
-        1 {:provider "%f"}
-        2 {:provider #(let [name (-> vim.g.actual_curbuf
-                                     (tonumber)
-                                     (vim.api.nvim_buf_get_name)
-                                     (vim.fn.fnamemodify ":t"))]
-                        (if (not= "" name) name "[No Name]"))}}
-       {:condition #(navic-available)
-        1 [
-           navic
-           {:provider " "}]}]
-    4 {:provider "%="}
-    ; right side
-    5 [{:provider " "}
-       {:condition is_git_repo
-        :init #(tset $1  :status_dict vim.b.gitsigns_status_dict)
-        1 [
-           {:hl {:fg colors.dark_orange :bold true}
-            1 {:provider ""}
-            2 {:flexible 4
-               1 {:provider (fn [self]
-                              (.. " " self.status_dict.head))}
-               2 {:provider ""}}}
-           {:flexible 1
-            1 [{:provider " "}
-               {:provider (fn [self]
-                            (.. "+" (or self.status_dict.added 0)))
-                :hl {:fg colors.dark_green}}
-               {:provider (fn [self]
-                            (.. "-" (or self.status_dict.removed 0)))
-                :hl {:fg colors.dark_red}}
-               {:provider (fn [self]
-                            (.. "~" (or self.status_dict.changed 0)))
-                :hl {:fg colors.dark_yellow}}]
-            2 {:provider ""}}
-           {:provider " "}]}
-       sep-right
-       ; Line count
-       {:provider " %L "}
-       sep-right
-       ; Cursor position
-       cursor-pos
-       ; Percentage in file
-       {:hl {:fg colors.dark_green :bold true :reverse true}
-        1 {:provider " " :hl {:reverse false}}
-        2 {:provider "%p%% "}}]}})))
+                {: lsp_attached : is_git_repo} (require :heirline.conditions)
+                ;; Statusline components
+                sep-right {:provider "" :hl {:fg colors.bg0 :bold true}}
+                sep-left {:provider "" :hl {:fg colors.bg0 :bold true}}
+                navic-sep "  "
+                navic-sep-hl {:fg colors.bg0}
+                ; Current mode
+                vi_mode (let [get-color #(let [{: mode_colors : mode} $1]
+                                           (. mode_colors mode))]
+                          {:provider #(.. " " (. $1 :mode))
+                          1 {:provider ""
+                          :hl #{:fg (get-color $1) :reverse false}}
+                          2 {:provider " "
+                          :hl {:reverse false}}
+                          :init #(let [{: mode_names} $1]
+                                   (->> (vim.fn.mode 1)
+                                        (. mode_names)
+                                        (tset $1 :mode)))
+                          :hl #{:reverse true :bold true
+                          :fg (get-color $1)}
+                          :update {1 :ModeChanged :pattern "*:*"
+                          :callback #(vim.schedule_wrap #(vim.cmd :redrawstatus))}
+                          :static (let [mode_map {"NORMAL" {:color colors.dark_green
+                                                 :modes ["n" "niI" "niR" "niV"]}
+                                                 "OP" {:color colors.dark_green
+                                                 :modes ["no" "nov" "noV" "no\22"]}
+                                                 "VISUAL" {:color colors.base0D
+                                                 :modes ["v" "vs"]}
+                                                 "LINES" {:color colors.base0D
+                                                 :modes ["V" "Vs"]}
+                                                 "BLOCK" {:color colors.base0D
+                                                 :modes ["\22" "\22s" "\19"]}
+                                                 "SELECT" {:color colors.base09
+                                                 :modes ["s" "S"]}
+                                                 "INSERT" {:color colors.base08
+                                                 :modes ["i" "ic" "ix"]}
+                                                 "REPLACE" {:color colors.base0E
+                                                 :modes ["R" "Rc" "Rx"]}
+                                                 "V-REPLACE" {:color colors.base0E
+                                                 :modes ["Rv" "Rvc" "Rvx"]}
+                                                 "COMMAND" {:color colors.dark_green
+                                                 :modes ["c" "cv" "ce"]}
+                                                 "ENTER" {:color colors.base0C
+                                                 :modes ["r"]}
+                                                 "MORE" {:color colors.base0C
+                                                 :modes ["rm"]}
+                                                 "CONFIRM" {:color colors.base09
+                                                 :modes ["r?"]}
+                                                 "SHELL" {:color colors.dark_green
+                                                 :modes [" !"]}
+                                                 "TERM" {:color colors.dark_green
+                                                 :modes ["nt" "t"]}
+                                                 "NONE" {:color colors.base0A
+                                                 :modes ["null"]}}]
+                                    (var res {:mode_names {} :mode_colors {}})
+                                    (each [name {: color : modes} (pairs mode_map)]
+                                      (tset res :mode_colors name color)
+                                      (each [_ mode (ipairs modes)]
+                                        (tset res :mode_names mode name)))
+                                    res)})
+                lsps {:hl {:fg colors.dark_yellow}
+                1 {:provider ""}
+                2 {:flexible 2
+                1 [{:provider " ["}
+                              {:provider #(table.concat
+                                            (icollect [_ {: name}
+                                                         (pairs (vim.lsp.get_clients {:bufnr 0}))]
+                                              name)
+                                            " ")}
+                              {:provider "]"}]
+                2 [{:provider " "}
+                              {:provider #(# (vim.lsp.get_clients))}]}}
+                ; Breadcrumbs
+                navic-available (. (require :nvim-navic) :is_available)
+                navic (let [{: get_location} (require :nvim-navic)
+                               navic-get #(let [loc (get_location $...)]
+                                            (if (not (empty? loc))
+                                                (.. navic-sep loc)
+                                                loc))]
+                        {:hl navic-sep-hl
+                        :update :CursorMoved
+                        1 {:flexible 5
+                        1 {:provider #(navic-get)}
+                        2 {:provider #(navic-get {:depth_limit 1})}}})
+                no-cmd #(= vim.o.cmdheight 0)
+                ; Number of search results
+                has-search-count #(not= vim.v.hlsearch 0)
+                search-count {:init #(let [(ok search) (pcall vim.fn.searchcount)]
+                                       (if (and ok search.total) (tset $1 :search search)))
+                :hl {:fg colors.dark_yellow :bold true}
+                :provider #(let [{:search {: current : total : maxcount}} $1]
+                             (string.format "[%d/%d]" current (math.min total maxcount)))}
+                ; Macro currently recording
+                is-macrorec #(not= (vim.fn.reg_recording) "")
+                macrorec {:provider #(.. "(" (vim.fn.reg_recording) ")")
+                :hl {:fg colors.red :bold true}
+                :update [:RecordingEnter :RecordingLeave]}
+                cursor-pos [{:provider " %l"
+                                       :hl {:fg colors.dark_blue}}
+                                       {:provider ":"}
+                                       {:provider "%c"
+                                       :hl {:fg colors.dark_blue}}]]
+         (set! cmdheight 0)
+         (set! laststatus 3)
+         (set! showcmdloc :statusline)
+         ; Setup navic highlight groups
+         (each
+           [hl-name hl-opt
+                    (pairs
+                      {:NavicIconsArray { :fg colors.yellow }
+                      :NavicIconsBoolean { :fg colors.cyan :bold true}
+                      :NavicIconsClass { :fg colors.cyan }
+                      :NavicIconsConstant { :fg colors.yellow }
+                      :NavicIconsConstructor { :fg colors.cyan }
+                      :NavicIconsEnum { :fg colors.cyan }
+                      :NavicIconsEnumMember { :fg colors.fg0 }
+                      :NavicIconsEvent { :fg colors.fg0 }
+                      :NavicIconsField { :fg colors.fg0 :italic true}
+                      :NavicIconsFile { :fg colors.green }
+                      :NavicIconsFunction { :fg colors.blue :italic true}
+                      :NavicIconsInterface { :fg colors.cyan }
+                      :NavicIconsKey { :fg colors.cyan }
+                      :NavicIconsMethod { :fg colors.blue :italic true }
+                      :NavicIconsModule { :fg colors.fg0 :italic true }
+                      :NavicIconsNamespace { :fg colors.fg0 :italic true }
+                      :NavicIconsNull { :fg colors.cyan }
+                      :NavicIconsNumber { :fg colors.magenta }
+                      :NavicIconsObject { :fg colors.cyan }
+                      :NavicIconsOperator { :fg colors.cyan }
+                      :NavicIconsPackage { :fg colors.fg0 :italic true }
+                      :NavicIconsProperty { :fg colors.fg0 :italic true }
+                      :NavicIconsString { :fg colors.green :italic true }
+                      :NavicIconsStruct { :fg colors.cyan }
+                      :NavicIconsTypeParameter { :fg colors.blue }
+                      :NavicIconsVariable { :fg colors.fg0 :bold true }
+                      :NavicText { :fg colors.fg1 }
+                      :NavicSeparator navic-sep-hl})]
+           (tset hl-opt :bg colors.base02)
+           (vim.api.nvim_set_hl 0 hl-name hl-opt))
+         ; Setup plugins we depend on
+         (setup
+           :nvim-navic
+           {:highlight true
+           :separator navic-sep
+           :lsp {:auto_attach true}})
+         ; Setup the statusline itself
+         (setup
+           :heirline
+           {:statusline
+           {:hl {:fg colors.fg0 :bg colors.bg2}
+           ; left side
+           1 [vi_mode
+               {:provider " "}
+               {:condition lsp_attached
+               1 lsps
+               2 {:provider " "}}
+               {:condition #(and (has-search-count) (no-cmd))
+               1 search-count
+               2 {:provider " "}}
+               {:condition #(and (is-macrorec) (no-cmd))
+               1 macrorec
+               2 {:provider " "}}
+               {:provider "%3.5(%S%)"
+               :hl {:fg colors.dark_orange :bold true}}
+               {:provider " "}]
+           2 {:provider "%="}
+           ; middle
+           3 [{:hl {:fg colors.fg0 :bold true}
+                   :flexible 3
+                   1 {:provider "%f"}
+                   2 {:provider #(let [name (-> vim.g.actual_curbuf
+                                                (tonumber)
+                                                (vim.api.nvim_buf_get_name)
+                                                (vim.fn.fnamemodify ":t"))]
+                                   (if (not= "" name) name "[No Name]"))}}
+                   {:condition #(navic-available)
+                   1 [
+                      navic
+                      {:provider " "}]}]
+           4 {:provider "%="}
+           ; right side
+           5 [{:provider " "}
+                         {:condition is_git_repo
+                         :init #(tset $1  :status_dict vim.b.gitsigns_status_dict)
+                         1 [
+                            {:hl {:fg colors.dark_orange :bold true}
+                            1 {:provider "󰘬"}
+                            2 {:flexible 4
+                            1 {:provider (fn [self]
+                                           (.. " " self.status_dict.head))}
+                            2 {:provider ""}}}
+                            {:flexible 1
+                            1 [{:provider " "}
+                                          {:provider (fn [self]
+                                                       (.. "+" (or self.status_dict.added 0)))
+                                          :hl {:fg colors.dark_green}}
+                                          {:provider (fn [self]
+                                                       (.. "-" (or self.status_dict.removed 0)))
+                                          :hl {:fg colors.dark_red}}
+                                          {:provider (fn [self]
+                                                       (.. "~" (or self.status_dict.changed 0)))
+                                          :hl {:fg colors.dark_yellow}}]
+                            2 {:provider ""}}
+                            {:provider " "}]}
+                         sep-right
+                         ; Line count
+                         {:provider " %L "}
+                         sep-right
+                         ; Cursor position
+                         cursor-pos
+                         ; Percentage in file
+                         {:hl {:fg colors.dark_green :bold true :reverse true}
+                         1 {:provider " " :hl {:reverse false}}
+                         2 {:provider "%p%% "}}]}})))
 
 ; Keep ftplugin logic inline here to not spread the config too much
 (let [ftplugins
-      {:fennel #(let [{: find_files} (require :telescope.builtin)
-                      {: cache-prefix} (require :hotpot.api.cache)]
-                  (setl- iskeyword ".")
-                  ; Search in cache
-                  (vim.keymap.set :n "<leader>fc"
-                                  #(find_files
-                                     {:cwd (cache-prefix)
+       {:fennel #(let [{: find_files} (require :telescope.builtin)
+                          {: cache-prefix} (require :hotpot.api.cache)]
+                   (setl- iskeyword ".")
+                   ; Search in cache
+                   (vim.keymap.set :n "<leader>fc"
+                                   #(find_files
+                                      {:cwd (cache-prefix)
                                       :hidden true})
-                                  {:buffer true
+                                   {:buffer true
                                    :silent true}))
        :c #(setl! shiftwidth 2)
        :cpp #(setl! shiftwidth 2)
@@ -1162,26 +1165,26 @@
                      abbreviate <buffer> \\bb \\mathbb
                      abbreviate <buffer> \\frak \\mathfrak
                      abbreviate <buffer> iff if and only if"))
-       :org (fn []
-              (let [{: action} (require :orgmode)]
-                (imap! [:buffer] "<C-CR>" #(action :org_mappings.meta_return)))
-              (vim.cmd "abbreviate -- - [ ]"))
-       :qf #(nmap! [:buffer] "<Esc>" "<Cmd>cclose<CR>")
-       :rust (fn []
-               (nmap! [:buffer] "<leader>cr" ":<C-u>Crun<CR>")
-               (nmap! [:buffer] "<leader>cb" ":<C-u>make build<CR>")
-               (nmap! [:buffer] "<leader>ct" ":<C-u>make test<CR>")
-               (nmap! [:buffer] "<leader>cl" ":<C-u>make clippy<CR>")
-               (nmap! [:buffer] "<leader>rf" ":<C-u>RustFmt<CR>")
-               (vmap! [:buffer] "<leader>rf" ":RustfmtRange<CR>"))
-       :sh #(setl! shiftwidth 4)
-       :zsh #(setl! shiftwidth 4)}]
-  (autocmd!
-    :ftplugins
-    (icollect
-      [filetype callback (pairs ftplugins)]
-      {:event :FileType
-       :pattern filetype
-       : callback})))
+                     :org (fn []
+                            (let [{: action} (require :orgmode)]
+                              (imap! [:buffer] "<C-CR>" #(action :org_mappings.meta_return)))
+                            (vim.cmd "abbreviate -- - [ ]"))
+                     :qf #(nmap! [:buffer] "<Esc>" "<Cmd>cclose<CR>")
+                     :rust (fn []
+                             (nmap! [:buffer] "<leader>cr" ":<C-u>Crun<CR>")
+                             (nmap! [:buffer] "<leader>cb" ":<C-u>make build<CR>")
+                             (nmap! [:buffer] "<leader>ct" ":<C-u>make test<CR>")
+                             (nmap! [:buffer] "<leader>cl" ":<C-u>make clippy<CR>")
+                             (nmap! [:buffer] "<leader>rf" ":<C-u>RustFmt<CR>")
+                             (vmap! [:buffer] "<leader>rf" ":RustfmtRange<CR>"))
+                     :sh #(setl! shiftwidth 4)
+                     :zsh #(setl! shiftwidth 4)}]
+                   (autocmd!
+                     :ftplugins
+                     (icollect
+                       [filetype callback (pairs ftplugins)]
+                       {:event :FileType
+                       :pattern filetype
+                       : callback})))
 
 (vim.keymap.set ["" :! :t :l] "<C-;>" "<C-]>" {:remap true})
