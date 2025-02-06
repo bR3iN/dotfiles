@@ -1,9 +1,53 @@
 ;; -*- lexical-binding: t; -*-
 
+
 ;; Bootstrap straight.el and activate use-package integration and autoinstallation
 (require 'bootstrap/straight)
 (straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+(setq straight-use-package-by-default t
+      ;; Workaround for https://github.com/radian-software/straight.el/issues/1022#issuecomment-2614489883
+      straight-cache-autoloads nil)
+
+
+;; Require very early; otherwise and older version is required and dape breaks
+(use-package jsonrpc
+  :straight t)
+
+;; Builtin LSP server
+(use-package eglot
+  :straight t
+  ;; :hook (prog-mode . eglot-ensure)
+  :config
+  (setq 
+   eglot-events-buffer-size 0
+   eglot-report-progress nil
+   eldoc-echo-area-prefer-doc-buffer t
+   )
+  (fset #'jsonrpc--log-event #'ignore)
+  ;; (setf (plist-get eglot-events-buffer-config :size) 0)
+  ;; (add-hook 'rust-mode-hook 'eglot-ensure)
+  ;; (add-hook 'prog-mode-hook 'eglot-ensure)
+  )
+
+(use-package dape
+  :straight t
+   ;; :hook
+  ;; (kill-emacs . dape-breakpoint-save)
+  ;; (after-init . dape-breakpoint-load)
+  :config
+  
+  )
+
+;; (use-package eglot-booster
+;;   :straight (:host github :repo "jdtsmith/eglot-booster")
+;;   :after eglot
+;;   :config (eglot-booster-mode 1))
+
+(use-package eglot-hierarchy
+  :straight (:host github :repo "dolmens/eglot-hierarchy"))
+
+
+
 
 (use-package org
   :config
@@ -15,6 +59,8 @@
   (when (featurep feature)
     (unload-feature feature t))
   (apply #'require feature rest))
+
+
 
 (require 'cl-lib)
 (rerequire 'utils)
@@ -37,7 +83,11 @@
 (rerequire 'up-and-down)
 (rerequire 'dymap)
 ;;(rerequire 'auto-mark-mode)
+(rerequire 'coding)
 
+
+;; Require early so that other minor modes have the chance to overwrite its keybinds
+(use-package meow)
 
 (defun -unmaximize-window-advice (&rest _)
   (winmax-restore))
@@ -81,23 +131,12 @@
  wrap-prefix nil
  )
 
-(use-package eat
-  :straight (:type git
-             :host codeberg
-             :repo "akib/emacs-eat"
-             :files ("*.el" ("term" "term/*.el") "*.texi"
-                     "*.ti" ("terminfo/e" "terminfo/e/*")
-                     ("terminfo/65" "terminfo/65/*")
-                     ("integration" "integration/*")
-                     (:exclude ".dir-locals.el" "*-tests.el"))))
-(require 'eat)
-(add-hook 'eat-exec-hook (lambda (&rest_) (eat-char-mode)))
-
 ;; ;; TODO try out this (mode) together with visual line navigation (thing)
 ;; (use-package adaptive-wrap
 ;;   :config
 ;;   (add-hook 'visual-line-mode-hook #'adaptive-wrap-prefix-mode)
 ;;   (global-visual-line-mode))
+
 
 
 ;; Have help links replace the help buffer in its window
@@ -120,8 +159,6 @@
            :what "Starting `dot-repeat`."
            :before (lambda (&rest _)
                      (start-dot-repeat))))
-
-
 
 
 
@@ -227,14 +264,6 @@
   )
 
 
-;; See https://github.com/rust-lang/rust-mode/issues/541
-(use-package rust-mode
-  :straight (:build (:not autoloads))
-  :init
-  (setq rust-mode-treesitter-derive t)
-  (autoload 'rust-mode "rust-mode" nil t)
-  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
-
 
 (setq treesit-font-lock-level 4)
 
@@ -244,8 +273,12 @@
   (treesit-auto-install 'prompt)
   :config
   ;; Wants to register builtin rust-ts-mode, conflicting with rust-mode above which already uses ts
-  ;; (treesit-auto-add-to-auto-mode-alist t)
-                                        ;; (global-treesit-auto-mode)
+  (treesit-auto-add-to-auto-mode-alist t)
+  (setq auto-mode-alist (cl-delete-if
+                         (lambda (el)
+                           (eq (cdr el) 'rust-ts-mode))
+                         auto-mode-alist))
+  (global-treesit-auto-mode)
   )
 
 (keymap-global-set "M-/" 'xref-find-references)
@@ -305,8 +338,17 @@
 (use-package dirvish
   :hook (dired-mode . (lambda () (dired-omit-mode)))
   :config
-  (setq dirvish-hide-details nil
+  (setq dirvish-hide-details t
+        dirvish-mode-line-height (pixel-line-height)
+        dirvish-header-line-height (pixel-line-height)
         dirvish-reuse-session nil)
+
+  ;; TODO: After following file in dirvish-side, window is not dedicated anymore
+  (defun -dv-setup-hook ())
+  (add-hook 'dired-setup-hook #'-dv-setup-hook)
+    
+  ;; (add-hook 'dirvish-side)
+  (dirvish-side-follow-mode +1)
   (dirvish-override-dired-mode))
 
 (defun my-reset ()
@@ -358,7 +400,7 @@
   (setq had-changes t)
   (when change-range
     (let* ((insert-len (- end start))
-           (offset-delta (- insert-len del-len))
+          (offset-delta (- insert-len del-len))
            (current-start (car change-range))
            (current-offset (cdr change-range)))
       (when (< start current-start)
@@ -393,7 +435,7 @@
 (defun insert-at-pt (&optional n)
   ;; TODO: really needed? For region, oi would do this
   "Insert at point; with negative prefix argument, insert at the mark or start of the current trace, if available."
-  (interactive "p")
+  (interactive "*p")
   (when-let ((guard (< (or n 1) 0))
              (range (try-get-st)))
     (goto-char (car range)))
@@ -455,28 +497,29 @@
     (isearch-forward-regexp)))
 
 
-(use-package meow
-  :after (avy org-journal)
-  :config
-
+(defun -setup-keymaps ()
   ;; General configuration
 
   (alist-map
    (lambda (mode state)
      (setf (alist-get mode meow-mode-state-list) state))
-   `((help-mode . motion)
-     (eshell-mode . insert)
-     (debugger-mode . insert)
-     (dired-mode . transparent)
-     (eat-mode . motion)))
+   `(
+     (help-mode . motion)
+     (eshell-mode . motion)
+     (debugger-mode . motion)
+     (messages-buffer-mode . normal)
+     (eat-mode . normal)
+     (dape-repl-mode . insert)
+     ;; (dired-mode . transparent)
+     ))
 
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
 
   (setq meow-keypad-self-insert-undefined nil)
-                                        ;; Prefix is bound in leader mode
+  ;; Prefix is bound in leader mode
   (setq meow-motion-remap-prefix "H-a")
 
-  ;; TODO: decide how far to couple to meow as a framework
+  ;; TODO: decide how far to couple to meow as a framework; is `map' below and the meow-<state>-mode functions enough?
   (defmacro def-state (name-lit indicator desc &optional transparent)
     (let* ((name (symbol-name name-lit))
 	       (keymap (intern (concat "meow-" name "-state-keymap"))))
@@ -489,6 +532,7 @@
            :lighter ,(concat " [" indicator "]")
            :keymap ,keymap))))
 
+  ;; TODO: insert state should be enough, as long as we can simulate escape
   (def-state transparent "T" "Transparent")
 
   ;; Visual Mode; automatically entered and left when activating and deactivating region.
@@ -556,6 +600,13 @@
     (unless (forward-to-nearest-thing-at-point thing n)
       (error "No thing found"))
     (meow-insert-mode))
+  
+  (defun map (keymap bindings)
+    (if (symbolp keymap)
+        (apply #'meow-define-keys keymap bindings)
+      (pcase-dolist (`(,key . ,cmd) bindings)
+        (keymap-set keymap key cmd))))
+  
 
   ;; Keybindings
   (let* ((digit-bindings 
@@ -611,7 +662,7 @@
             ("s" . my-split-window-below)
             ("v" . my-split-window-right)
             ;; Focus specific window
-            ("w" . other-window)
+            ("o" . other-window)
             ("m" . switch-to-minibuffer)
             ("e" . switch-to-error-buffer)
             ;; Kill window
@@ -681,6 +732,7 @@
             ("M-m" . ,(with-new-thing #'mark-thing 'sexp))
             ("C-j" . down-marked)
             ("C-k" . up-marked)))
+         
 
          (basic-navigation
           `(;; Using arrow keys avoids conflicts with rebinded "C-n/p"
@@ -717,236 +769,238 @@
             
             )))
 
-    (cl-flet ((map (keymap bindings)
-                (if (symbolp keymap)
-                    (apply #'meow-define-keys keymap bindings)
-                  (pcase-dolist (`(,key . ,cmd) bindings)
-                    (keymap-set keymap key cmd)))))
-      
-      (map 'normal
-           `(,@digit-bindings
-             ,@-windmove-bindings
-             ,@basic-navigation
-             ,@thing-nav-tracing
-             ,@thing-nav-marking
-             ("i" . insert-at-pt)
-             ("<escape>" . my-reset)
+    (map 'normal
+         `(,@digit-bindings
+           ,@-windmove-bindings
+           ,@basic-navigation
+           ,@thing-nav-tracing
+           ,@thing-nav-marking
+           ("i" . meow-insert-mode)
+           ("g i" . ,(dynmap `((,(mode-p 'eat-mode) . ,(lambda ()
+                                                         (interactive)
+                                                         (print "yes")))
+                               (t . ,(lambda ()
+                                       (interactive)
+                                       (print "no"))))))
+           ("g i" . ,(lambda () (interactive) (print current-prefix-arg)))
+           ("C-g" . universal-argument)
+           ("<escape>" . my-reset)
 
-             ;; FIXME: eval/replace
-             ("'" . toggle-thing-hints)
-             ("C-'" . ,(with-tmp-thing #'hint-thing))
-             ("Q" . delete-window)
-             ("g Q" . kill-current-buffer)
+           ;; FIXME: eval/replace
+           ("'" . toggle-thing-hints)
+           ("C-'" . ,(with-tmp-thing #'hint-thing))
+           ("Q" . delete-window)
+           ("g Q" . kill-current-buffer)
 
-             ("g R" . reload-config)          
-             ("I" . ,(with-tmp-thing #'insert-at-beginning-of-thing))
-             ("A" . ,(with-tmp-thing #'insert-at-end-of-thing))
+           ("g R" . reload-config)          
+           ("I" . ,(with-tmp-thing #'insert-at-beginning-of-thing))
+           ("A" . ,(with-tmp-thing #'insert-at-end-of-thing))
 
-             ("." . dot-repeat)
-             ("C-." . prev-dot-repeat)
-             ("C-," . next-dot-repeat)
+           ("," . repeat)
+           ("." . dot-repeat)
+           ("C-." . prev-dot-repeat)
+           ("C-," . next-dot-repeat)
 
-             ("x" . delete-forward-char)
-             ("X" . delete-backward-char)
+           ("x" . delete-forward-char)
+           ("X" . delete-backward-char)
 
-             ("d" . delete-forward-char)
-             
-             ("c" . ,(entering-insert-state #'sp-delete-char))
-             ;; TODO: jump if eotp
-             ("C" . ,(lambda (n)
-                       (interactive "p")
-                       (let ((bounds (bounds-of-next-thing-at-point current-thing n)))
-                         (sp-kill-region (car bounds) (cdr bounds))
-                         (meow-insert-mode))))
-             ("g ;" . goto-last-change)
-             ("g v" . st-to-secondary)
+           ("d" . delete-forward-char)
+           
+           ("c" . ,(entering-insert-state #'sp-delete-char))
+           ;; TODO: jump if eotp
+           ("C" . ,(lambda (n)
+                     (interactive "p")
+                     (let ((bounds (bounds-of-next-thing-at-point current-thing n)))
+                       (sp-kill-region (car bounds) (cdr bounds))
+                       (meow-insert-mode))))
+           ("g ;" . goto-last-change)
+           ("g v" . st-to-secondary)
 
-             ("C-v" . smart-yank)
-             ("V" . smart-replace)
+           ("C-v" . smart-yank)
+           ("V" . smart-replace)
 
-             ("u" . undo-tree-undo)
-             ("C-r" . undo-tree-redo)
-             ("g u" . undo-tree-visualize)
+           ("u" . undo-tree-undo)
+           ("C-r" . undo-tree-redo)
+           ("g u" . undo-tree-visualize)
 
-             ("S" . rewrap)
-             ("s" . wrap)
-             
-             ("Z" . start-scroll-mode)
-             ("z" . ,scroll-keys)
+           ("S" . rewrap)
+           ("s" . wrap)
+           
+           ("Z" . start-scroll-mode)
+           ("z" . ,scroll-keys)
 
-             ;; Unclear TODO
-             ("g g" . consult-goto-line)
-             ("G" . meow-grab)
-             ("J" . ,(with-tmp-thing #'join-things))
-             ("g J" . ,(with-tmp-thing #'join-things-at))
+           ;; Unclear TODO
+           ("g g" . consult-goto-line)
+           ("G" . meow-grab)
+           ("J" . ,(with-tmp-thing #'join-things))
+           ("g J" . ,(with-tmp-thing #'join-things-at))
 
-             ("<return>" . open-line-below)
-             ("S-<return>" . open-line-above)
+           ("<return>" . open-line-below)
+           ("S-<return>" . open-line-above)
 
-             ("TAB" . ,(with-tmp-thing (act-on-tap-region #'indent-region) nil t))
+           ("TAB" . ,(with-tmp-thing (act-on-tap-region #'indent-region) nil t))
 
-             ("C-/" . ,(with-tmp-thing
-                        (act-on-tap-region #'comment-or-uncomment-region) nil t))
+           ("C-/" . ,(with-tmp-thing
+                      (act-on-tap-region #'comment-or-uncomment-region) nil t))
 
-             ;; Activating region
-             ("g s" . restore-region)
-             ("v" . smart-yank)
-             ("C-m" . set-mark-command)
-             ("g C-m" . rectangle-mark-mode)
-             
-             ("o" . reverse-st)))
-      
-      (map 'visual
-           `(,@digit-bindings
-             ,@-windmove-bindings
-             ,@basic-navigation
-             ,@thing-nav-basic
-             ,@thing-nav-marking
+           ;; Activating region
+           ("g s" . restore-region)
+           ("v" . smart-yank)
+           ("C-m" . set-mark-command)
+           ("g C-m" . rectangle-mark-mode)
+           
+           ("o" . reverse-st)))
+    
+    (map 'visual
+         `(,@digit-bindings
+           ,@-windmove-bindings
+           ,@basic-navigation
+           ,@thing-nav-basic
+           ,@thing-nav-marking
 
-             ("<escape>" . (lambda ()
-                             (interactive)
-                             (deactivate-mark)))
-             ("z" . pop-region)
-             ("q" . abort-visual)
+           ("<escape>" . (lambda ()
+                           (interactive)
+                           (deactivate-mark)))
+           ("z" . pop-region)
+           ("q" . abort-visual)
 
-             ;; Misc navigation
-             ("SPC" . meow-keypad)
-             ("o" . reverse-st)
+           ;; Misc navigation
+           ("SPC" . meow-keypad)
+           ("o" . reverse-st)
 
-             ;; Act on region
-             ("/" . search-cmd)
-             ("s" . wrap)
-             ("u" . smart-undo)
-             ("d" . kill-region)
-             ("D" . kill-unwrap-region)
-             ("C" . kill-ring-save)
-             ("y" . kill-ring-save)
-             ("=" . indent-region)
-             ("C-/" . comment-dwim)
-             ("c" . ,(entering-insert-state #'kill-region))
-             ("v" . smart-replace)))
-      
-      (map 'insert
-           `(,@-windmove-bindings
-             ("C-v" . smart-yank)))
-      
-      (map 'motion
-           `(,@digit-bindings
-             ,@-windmove-bindings
-             ,@basic-navigation
-             ,@thing-nav-tracing
-             ,@thing-nav-marking
-             ;;Meow has "last-buffer" here by default
-             ("<escape>" . nil)))
-      
+           ;; Act on region
+           ("/" . search-cmd)
+           ("s" . wrap)
+           ("u" . smart-undo)
+           ("d" . kill-region)
+           ("D" . kill-unwrap-region)
+           ("C" . kill-ring-save)
+           ("y" . kill-ring-save)
+           ("=" . indent-region)
+           ("C-/" . comment-dwim)
+           ("c" . ,(entering-insert-state #'kill-region))
+           ("v" . smart-replace)))
+    
+    (map 'insert
+         `(,@-windmove-bindings
+           ;; ("<escape>" . ,(dynmap
+           ;;                 `((eat--char-mode . eat-emacs-mode)
+           ;;                   (t . meow-insert-exit))))
+           ("C-v" . smart-yank)))
+    
+    (map 'motion
+         `(,@-windmove-bindings
+           ("h" . "<left>")
+           ("j" . "<down>")
+           ("k" . "<up>")
+           ("l" . "<right>")
+           ("+" . winmax2-max)
+           ("<escape>" . nil)))
 
-      (map eat-mode-map
-           `(("i" . eat-char-mode)))
-      
-      (map eat-char-mode-map
-           `(,@-windmove-bindings
-             ("M-x" . execute-extended-command)
-             ("C-h" . ,help-map)
-             ("<escape>" . eat-emacs-mode)
-             ("M-<escape>" . ,(with-let ((last-command-event 27))
-                                        eat-self-input))))
-      
-      ;; (setq eat-semi-char-mode-map eat-char-mode-map)
+    
+    ;; (setq eat-semi-char-mode-map eat-char-mode-map)
 
-      (map mode-specific-map
-           `(("C-a" . ,meow-motion-remap-prefix)
-             ("a" . mode-line-other-buffer)
-             ("w" . save-buffer)
-             ("b" . consult-buffer)
-             ("B" . consult-project-buffer)
-             ("s" . set-variable)
+    (map mode-specific-map
+         `(("C-d" . ,meow-motion-remap-prefix)
+           ("a" . mode-line-other-buffer)
+           ("w" . save-buffer)
+           ("b" . consult-buffer)
+           ("B" . consult-project-buffer)
+           ("s" . set-variable)
 
-             ("t c" . toggle-comments)
-             ("t h" . eglot-inlay-hints-mode)
-             ("t p" . prog-buffers-mode)
+           ("t c" . toggle-comments)
+           ("t h" . eglot-inlay-hints-mode)
+           ("t p" . prog-buffers-mode)
+           ("t d" . dirvish-side)
+           ("t s" . window-toggle-side-windows)
 
-             ("r l" . eglot-code-actions)
-             ("r n" . eglot-rename)
-             ("r f" . eglot-format)
-             ("r q" . eglot-code-action-quickfix)
-             ("r x" . eglot-code-action-extract)
-             ("r i" . eglot-code-action-inline)
-             ("r I" . eglot-code-action-organize-imports)
-             ("r w" . eglot-code-action-rewrite)
+           ("r l" . eglot-code-actions)
+           ("r n" . eglot-rename)
+           ("r f" . eglot-format)
+           ("r q" . eglot-code-action-quickfix)
+           ("r x" . eglot-code-action-extract)
+           ("r i" . eglot-code-action-inline)
+           ("r I" . eglot-code-action-organize-imports)
+           ("r w" . eglot-code-action-rewrite)
 
-             ("o j" . ,(entering-insert-state #'org-journal-new-entry))
-             ("o i" . ,(lambda ()
-                         (interactive)
-                         (find-file user-init-file)))
-             ("o t" . eat)
-             ("o d" . dired-jump)
-             ("l s" . eglot)
-             ("l x" . eglot-shutdown)
+           ("o j" . ,(entering-insert-state #'org-journal-new-entry))
+           ("o i" . ,(lambda ()
+                       (interactive)
+                       (find-file user-init-file)))
+           ("o t" . eat)
+           ("o f" . dired-jump)
+           ("o d" . eldoc-doc-buffer)
+           ("o c" . eglot-hierarchy-both)
+           
+           ("l s" . eglot)
+           ("l x" . eglot-shutdown)
 
-             ("l d" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-declaration))
-             ("l t" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-typeDefinition))
-             ("l i" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-implementation))
+           ("l d" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-declaration))
+           ("l t" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-typeDefinition))
+           ("l i" . ,(with-let ((xref-show-xrefs-function #'consult-xref)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-implementation))
 
-             ("l D" . ,(with-let ((xref-auto-jump-to-first-definition t)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-declaration))
-             ("l T" . ,(with-let ((xref-auto-jump-to-first-definition t)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-typeDefinition))
-             ("l I" . ,(with-let ((xref-auto-jump-to-first-definition t)
-                                  (xref-prompt-for-identifier nil))
-                                 eglot-find-implementation))
+           ("l D" . ,(with-let ((xref-auto-jump-to-first-definition t)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-declaration))
+           ("l T" . ,(with-let ((xref-auto-jump-to-first-definition t)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-typeDefinition))
+           ("l I" . ,(with-let ((xref-auto-jump-to-first-definition t)
+                                (xref-prompt-for-identifier nil))
+                               eglot-find-implementation))
 
-             ("f f" . consult-fd)
-             ("f b" . consult-recent-files)
-             ("f g" . consult-ripgrep)
-             ("f G" . consult-git-grep)
-             ("f l" . consult-line)
-             ("f L" . (lambda ()
-                        (interactive)
-                        (consult-line-multi t)))
+           ("f f" . consult-fd)
+           ("f b" . consult-recent-files)
+           ("f g" . consult-ripgrep)
+           ("f G" . consult-git-grep)
+           ("f l" . consult-line)
+           ("f L" . (lambda ()
+                      (interactive)
+                      (consult-line-multi t)))
 
-             ("o n" . (lambda ()
-                        (interactive)
-                        (let ((consult-async-min-input 1))
-                          (consult-fd "~/Notes"))))
+           ("o n" . (lambda ()
+                      (interactive)
+                      (let ((consult-async-min-input 1))
+                        (consult-fd "~/Notes"))))
 
-             ("p f" . project-find-file)
-             ("p F" . project-or-external-find-file)
-             ("p g" . project-find-regexp)
-             ("p G" . project-or-external-find-regexp)
-             ("p c" . project-compile)
-             ("p ." . project-dired)
-             ("p d" . project-find-dir)
-             ("p r" . project-query-replace-regexp)
-             ("p s" . project-eshell)
+           ("p f" . project-find-file)
+           ("p F" . project-or-external-find-file)
+           ("p g" . project-find-regexp)
+           ("p G" . project-or-external-find-regexp)
+           ("p c" . project-compile)
+           ("p ." . project-dired)
+           ("p d" . project-find-dir)
+           ("p r" . project-query-replace-regexp)
+           ("p s" . project-eshell)
+           ("p t" . eat-project)
 
-             ("p s" . profiler-start)
-             ("p e" . profiler-stop)
-             ("p r" . profiler-report)))
+           ("p s" . profiler-start)
+           ("p e" . profiler-stop)
+           ("p r" . profiler-report)))
 
-      (map 'transparent
-           `(,@-windmove-bindings
-             ("<escape>" . ,(dynmap `((t . meow-motion-mode))))
-             ("C-<space>" . meow-keypad)))))
+    (map 'transparent
+         `(,@-windmove-bindings
+           ("<escape>" . ,(dynmap `((t . meow-motion-mode))))
+           ("C-<space>" . meow-keypad))))
 
   (meow-global-mode 1))
 
 
+
 (use-package avy)
 
-
-(global-display-line-numbers-mode 1)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+;; (global-display-line-numbers-mode 1)
 (setq
  display-line-numbers-widen t
  display-line-numbers-type 'relative
- display-line-numbers-current-absolute t
+ display-line-numbers-current-asolute t
  display-line-numbers-width-start t)
 
 (use-package treesit
@@ -976,25 +1030,6 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-;; Builtin LSP server
-(use-package eglot
-  :straight nil
-  ;; :hook (prog-mode . eglot-ensure)
-  :config
-  (setq 
-   eglot-events-buffer-size 0
-   eglot-report-progress nil
-   )
-  (fset #'jsonrpc--log-event #'ignore)
-  ;; (setf (plist-get eglot-events-buffer-config :size) 0)
-  ;; (add-hook 'rust-mode-hook 'eglot-ensure)
-  ;; (add-hook 'prog-mode-hook 'eglot-ensure)
-  )
-
-(use-package eglot-booster
-  :straight (:host github :repo "jdtsmith/eglot-booster")
-  :after eglot
-  :config (eglot-booster-mode 1))
 
 (setq org-directory "~/Notes")
 
@@ -1013,7 +1048,7 @@
   (rerequire 'emanote-live)
   (let ((zk-dir "~/Zettelkasten"))
     (zk-register zk-dir)
-    (emanote-live-register zk-dir))
+    (emanote-live-configure zk-dir))
   )
 
 (use-package org-journal
@@ -1022,7 +1057,7 @@
 
 (use-package dimmer
   :config
-  (setq dimmer-fraction 0.3)
+  (setq dimmer-fraction 0.2)
   (dimmer-mode +1))
 
 (use-package rainbow-mode
@@ -1030,22 +1065,78 @@
   (rainbow-mode))
 
 
-(dolist (el
-         ;; Right side
-         `(("\\*Help\\*" display-buffer-in-side-window
-               (side . right) (slot . -2) (dedicated . t))
-              ("\\*eldoc" display-buffer-in-side-window
-               (side . right) (slot . -1) (dedicated . t))
+(use-package eat
+  :straight (:type git
+             :host codeberg
+             :repo "akib/emacs-eat"
+             :files ("*.el" ("term" "term/*.el") "*.texi"
+                     "*.ti" ("terminfo/e" "terminfo/e/*")
+                     ("terminfo/65" "terminfo/65/*")
+                     ("integration" "integration/*")
+                     (:exclude ".dir-locals.el" "*-tests.el"))))
+(require 'eat)
+(add-hook 'eat-exec-hook (lambda (&rest_) (eat-char-mode) (meow-insert-mode)))
 
-              ;; Bottom
-              ("\\*eat" display-buffer-in-side-window
-               (side . bottom) (slot . 0) (dedicated . t))
-              ("\\*compilation\\*" display-buffer-in-side-window
-               (side . bottom) (slot . 1) (dedicated . t))
-              ))
-  (add-to-list 'display-buffer-alist el))
+;; Close eat buffer on regular exits
+(defun -eat-exit-hook (process)
+  (when (= (process-exit-status process) 0)
+    (kill-buffer)))
+(add-hook 'eat-exit-hook #'-eat-exit-hook)
 
-(defvar test-frame nil)
+;; (add-hook 'eat--char-mode-hook (lambda (&rest _)
+;;                                  (meow-insert-mode)))
+;; (add-hook 'eat--emacs-mode-hook (lambda (&rest _)
+;;                                   (if (equal meow--current-state 'insert)
+;;                                       (meow-insert-exit)
+;;                                     (meow-normal-mode))))
+
+
+
+
+;; TODO: `display-buffer-fallback-action' configures the default behavior
+(let ((left-width 35))
+  ;; Do NOT add (dedicated . t) here as display-buffer-in-side-window will set it to 'side by itself which yields the wanted behavior; having 't instead will cause new buffers displayed in the same side window to not be dedicated.
+  (dolist (el
+           ;; Right side
+           `(("\\*info\\*" display-buffer-in-side-window
+              (side . right) (slot . -3))
+             ("\\*Help\\*" display-buffer-in-side-window
+              (side . right) (slot . -2))
+             ("\\*eldoc" display-buffer-in-side-window
+              (side . right) (slot . -1))
+
+             ;; Bottom
+             ("\\*\\(.*-\\)?eat" display-buffer-in-side-window
+              (side . bottom) (slot . 0))
+             ("\\*compilation\\*" display-buffer-in-side-window
+              (side . bottom) (slot . 1))
+
+             ("\\*EGLOT LSP Hierarchy\\*" display-buffer-in-side-window
+              (side . left) (slot . 0)  (window-width . ,left-width))))
+    (add-to-list 'display-buffer-alist el))
+  (setq dirvish-side-width left-width))
+
+
+;; Do this last when all commands referenced exist.
+(-setup-keymaps)
+(map eat-mode-map
+     `(("<remap> <meow-insert-mode>" . (lambda ()
+                                         (interactive)
+                                         (eat-char-mode)
+                                         (meow-insert-mode)))))
+
+
+(map eat-char-mode-map
+     `(,@-windmove-bindings
+       ("M-x" . execute-extended-command)
+       ("C-h" . ,help-map)
+       ("<remap> <meow-insert-exit>" . (lambda ()
+                                         (interactive)
+                                         (eat-emacs-mode)
+                                         (meow-insert-exit)))
+       ("M-<escape>" . ,(with-let ((last-command-event 27))
+                                  eat-self-input))))
+
 
 
 ;; Local Variables:

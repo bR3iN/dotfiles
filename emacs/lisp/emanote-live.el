@@ -3,112 +3,160 @@
 (require 'cl-lib)
 
 (use-package websocket
-             :ensure t)
-(require 'websocket)
-
-; (defvar -server nil)
-; (defvar -emanote-base-url "http://localhost:8080")
-; (defvar -ws-url "ws://localhost:8088")
-
-(cl-defstruct -config
-              base-dir
-              emanote-url
-              websocket-port
-              websocket
-              current-page
-              connections)
-
-(defalias '-make-config 'make-emanote-live--config)
+  :ensure t)
 
 
-
-(defvar -configs '())
-
-(defvar -default-config 'default)
-
-(defvar -websocket-server nil)
-(defvar -client-alist '())
-
-(defun emanote-live-register (base-dir &optional name emanote-url websocket-port)
-  (let ((name (or name -default-config)))
-    (when-let ((existing-config (alist-get name -configs)))
-              (-shutdown-config (cdr existing-config)))
-    (setf (alist-get name -configs)
-          (-make-config
-            :base-dir (file-truename base-dir)
-            :emanote-url (or emanote-url "http://localhost:8080")
-            :current-page nil
-            :websocket-port (or websocket-port 8081)
-            :websocket nil :connections '()))))
-
-(defun -shutdown-config (config)
-  (when-let ((server (-config-websocket config)))
-            (websocket-server-close server)
-            (setf (-config-websocket config) nil
-                  (-config-connections config) '()
-                  (-config-current-page config) nil)))
+(cl-defstruct el--config
+  base-dir
+  emanote-url
+  websocket-port)
 
 
-(defun -start-config (config)
-  (setf (-config-current-page config) "/index.html"
-        (-config-websocket config) (websocket-server (-config-websocket-port config)
-                                                     :host 'local
-                                                     :on-open (lambda (con)
-                                                                (push con (-config-connections config))
-                                                                (-send-url con (concat (-config-emanote-url config)
-                                                                                       (-config-current-page config))))
-                                                     :on-close (lambda (con)
-                                                                 (setf (-config-connections config) (remove con (-config-connections config))))
-                                                     ; :on-message (lambda (_ws frame) (print "msg") (print frame))
-                                                     )))
+(defun el--config-resolve-url-path (config path)
+  "Check if PATH is part of the zettelkasten defined by CONFIG and return the corresponding url path if yes" 
+  (let ((path (file-truename path)))
+    (when (string-prefix-p (el--config-base-dir config) path)
+      (let* ((rel-path (string-remove-prefix (el--config-base-dir config) path))
+             (url-path (concat (file-name-sans-extension rel-path) ".html")))
+        ;; Handle the case where the configured base-dir has a trailing slash
+        (if (string-prefix-p "/" url-path)
+            url-path
+          (concat "/" url-path))))))
 
 
-(defun -get-config (name)
-  (if-let* ((config (alist-get name -configs))) config
-           (error (format "No config with name %s found" name))))
+(cl-defstruct el--session
+  "An active websocket connection assocated with a config"
+  config
+  websocket
+  current-page
+  connections)
 
 
-(defun emanote-live-start-preview (&optional name)
+(defun el--session-update-url (session url-path)
+  "Update the current URL-PATH of the session and notify all active connections."
+  (let ((url (concat (el--config-emanote-url (el--session-config session)) url-path)))
+    (when (not (equal url (el--session-current-page session)))
+      (dolist (con (el--session-connections session))
+        (websocket-send-text con (el--encode-url url)))
+      (setf (el--session-current-page session) url))))
+
+
+(defun el--encode-url (url)
+  (json-encode-list `(:url ,url)))
+
+
+(defun el--init-session (config)
+  (let ((session (make-el--session
+                  :websocket nil
+                  :current-page nil
+                  :connections '()
+                  :config config)))
+    (setf (el--session-websocket session)
+          (websocket-server
+           (el--config-websocket-port config)
+           :host 'local
+           :on-open (lambda (con)
+                      (push con (el--session-connections session))
+                      (when-let (url (el--session-current-page session))
+                        (websocket-send-text con (el--encode-url url)))
+                      (message "emanote-live connected"))
+           :on-close (lambda (con)
+                       (setf (el--session-connections session) (remove con (el--session-connections session))))
+                                        ; :on-message (lambda (_ws frame) (print "msg") (print frame))
+           ))
+    session))
+
+
+(defun el--close-session (session)
+  (websocket-server-close (el--session-websocket session)))
+
+
+(defun el--session-process-path (session path &optional interactive)
+  "Check if SESSION is applicable for PATH and update the preview url accordingly if this is the case. If not, error iff INTERACTIVE."
+  ;; Check path is a markdown file
+  (if (not (equal (file-name-extension path) "md"))
+      (when interactive
+        (error "Buffer is not a markdown file"))
+    ;; Check it's inside the configured Zettelkasten
+    (if-let ((url-path (el--config-resolve-url-path (el--session-config session) path)))
+        ;; Broadcast update
+        (el--session-update-url el--session url-path)
+      (when interactive
+        (error "Buffer is not associated with Zettelkasten")))))
+
+
+;; Entrypoints
+
+(defvar el--config nil)
+(defvar el--session nil)
+
+;; TODO: package ~/init.html and start at init
+(defvar emanote-live-open-in-browser (lambda (path)
+                                       (call-process "firefox" nil 0 nil "--new-tab" path)))
+
+(defun emanote-live-configure (base-dir &optional emanote-url websocket-port)
+  "Sets the global emanote-live configuration."
+  (setq el--config (make-el--config
+                    :base-dir (file-truename base-dir)
+                    :emanote-url (or emanote-url "http://localhost:8080")
+                    :websocket-port (or websocket-port 8081))))
+
+
+
+(defun emanote-live-start-preview ()
   (interactive)
-  (let ((config (-get-config (or name -default-config))))
-    (-start-config config)))
+  (unless el--config
+    (error "emanote-live is not configured"))
+  ;; Shutdown possible existing session
+  (emanote-live-stop-preview)
+  ;; Create new preview session
+  (setq el--session (el--init-session el--config))
+  ;; Open browser entrypoint, connecting to websocket
+  (funcall emanote-live-open-in-browser "~/init.html")
+  ;; Initial sync; Not a race condition as we save the last page shown and use it to initialize new connections.
+  (emanote-live-sync-buffer)
+  )
 
-(defun emanote-live-shutdown-preview (&optional name)
-  (interactive)
-  (let ((config (-get-config (or name -default-config))))
-    (-shutdown-config config)))
 
-(defun -send-url (con url)
-  ;; (print "sent")
-  (websocket-send-text con (json-encode-list `(:url ,url))))
+(defun emanote-live-sync-buffer (&optional interactive)
+  (interactive '(t))
+  (unless el--session
+    (error "No active emanote-live session"))
+  (if-let ((path (buffer-file-name)))
+      (el--session-process-path el--session (buffer-file-name) interactive)
+    (when interactive
+      (error "Buffer has no filename")))
+  )
 
-(defun -update-iframe (config url-path)
-  (when (not (equal url-path (-config-current-page config)))
-    (let ((url (concat (-config-emanote-url config) url-path)))
-      (dolist (con (-config-connections config))
-        (-send-url con url)))
-    (setf (-config-current-page config) url-path)))
 
-(defun -detect-zk-note-selected (&rest _)
-  (when-let* ((curr-path (buffer-file-name))
-              (curr-path (file-truename curr-path))
-              (ext (file-name-extension curr-path))
-              (_is-mark-down-file (equal "md" ext)))
-             (dolist (named-config -configs)
-               (let ((config (cdr named-config)))
-                 (when (and
-                         (-config-websocket config)
-                         (string-prefix-p (-config-base-dir config) curr-path))
-                   (let* ((rel-path (string-remove-prefix (-config-base-dir config) curr-path))
-                          (url-path (concat (file-name-sans-extension rel-path) ".html")))
-                     (-update-iframe config (if (string-prefix-p "/" url-path) url-path
-                                              (concat "/" url-path)))))))))
+(defun emanote-live-stop-preview (&optional interactive)
+  (interactive '(t))
+  (if (not el--session)
+      (when interactive
+        (error "No active emanote-live session"))
+    (el--close-session el--session)
+    (setq el--session nil)))
 
-(add-hook 'window-selection-change-functions #'-detect-zk-note-selected)
-(add-hook 'window-buffer-change-functions #'-detect-zk-note-selected)
+
+(define-minor-mode emanote-live-mode
+  "Live emanote preview"
+  :global t
+  :lighter " [live]"
+  (let ((hooks '(window-selection-change-functions
+                 window-buffer-change-functions
+                 ;; Newly created notes are synced this way as soon as they are safed the first time.
+                 after-save-hook)))
+    (if emanote-live-mode
+        (progn
+          (emanote-live-start-preview)
+          (dolist (hook hooks)
+            (add-hook hook #'el--sync-buffer-hook)))
+      (emanote-live-stop-preview)
+      (dolist (hook hooks)
+        (remove-hook hook #'el--sync-buffer-hook)))))
+
+(defun el--sync-buffer-hook (&rest _)
+  (emanote-live-sync-buffer))
+
 
 (provide 'emanote-live)
-
-;; Local Variables:
-;; read-symbol-shorthands: (("-" . "emanote-live--"))
-;; End:

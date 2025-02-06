@@ -5,10 +5,18 @@
 (defun -test-cond (c)
   (cond
    ((booleanp c) c)
-   ((functionp c) (funcall c))
-   ((symbolp c) (equal major-mode c))))
+   ((and (symbolp c) (memq c minor-mode-list)) (symbol-value c))
+   ((symbolp c) (equal major-mode c))
+   ((functionp c) (funcall c))))
 
+(defun mode-p (mode)
+  (lambda ()
+    (equal major-mode mode)))
 
+(defun true-p (v)
+  (lambda () v))
+
+;; TODO: named inconsistently
 (defun dynmap (map-alist)
   (lambda ()
     (interactive)

@@ -14,6 +14,8 @@
 ;   (keymap-unset corfu-map "RET")
 ;   (keymap-set corfu-map "C-l" 'corfu-insert))
 
+(require 'cl-lib)
+
 (use-package company
   :config
   (global-company-mode 1)
@@ -31,6 +33,8 @@
   (keymap-set company-active-map "C-l" 'company-complete-selection)
   (keymap-set company-active-map "<tab>" 'company-complete-common)
   (keymap-set company-active-map "C-i" 'company-show-location)
+
+  
   )
 
 ; (use-package cape
@@ -50,7 +54,44 @@
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles basic partial-completion))
-				   (command (styles initials basic)))))
+				                   (command (styles initials basic))))
+
+  :config
+
+  ;; Dynamic overrides for separator by mode or predicate
+  (defvar orderless-separator-overrides
+    '((lisp-data-mode . "[ -]")))
+  
+  (when t
+    ;; Better integration with company
+    (defun -split-with-custom-separator (string)
+      (if-let ((sep (cl-some (lambda (el)
+                               (let ((pred (car el))
+                                     (sep (cdr el)))
+                                 (when (cond
+                                        ((symbolp pred) (derived-mode-p pred))
+                                        ((functionp pred) (funcall pred))
+                                        (t (error (format "Bad predicate: %s" pred))))
+                                   sep)))
+                             orderless-separator-overrides)
+                    ))
+          (cond
+           ((stringp sep) (split-string string sep))
+           ((functionp sep) (funcall sep string))
+           (t (error (format "Bad separator: %s" sep))))
+        (orderless-escapable-split-on-space string)))
+
+    (setq orderless-component-separator #'-split-with-custom-separator)
+
+
+    ;; Fix match highlighting
+    (advice-add
+     'company-capf--candidates
+     :around (defun -capf-candidates (fn &rest args)
+               (let ((orderless-match-faces [completions-common-part]))
+                 (apply fn args))))
+    ))
+
 
 
 (use-package marginalia

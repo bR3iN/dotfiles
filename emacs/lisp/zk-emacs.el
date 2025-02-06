@@ -78,7 +78,7 @@
            "Maximum width of the path displayed in the minibuffer completion for zk notes."
            :group 'zk-emacs :type 'integer)
 
-(defcustom zk-emacs-completion-max-title-width 50
+(defcustom zk-emacs-completion-max-title-width 30
            "Maximum width of the title displayed in the minibuffer completion for zk notes."
            :group 'zk-emacs :type 'integer)
 
@@ -181,6 +181,16 @@
                      (if no-match-required 'confirm t))))
 
 
+(defun -mk-mark ()
+  (if (eobp)
+      'end
+    (1+ (point-marker))))
+
+(defun -restore-mark (mark)
+  (if (equal mark 'end) (end-of-buffer)
+    (goto-char mark)))
+
+
 (defun zk-insert-link ()
   (interactive)
   (let* ((path (-ensure-buffer-path))
@@ -189,19 +199,23 @@
          (link-name (read-string "Link name: "))
          (link-name (if (string-empty-p link-name) nil link-name))
          (loc (-lsp-location-at-point))
-         (pt (point)))
+         (after-link-pos (let ((marker (point-marker)))
+                           (set-marker-insertion-type marker t)
+                           marker)))
     (if-let ((existing (assoc choice com-tbl)))
-            (let ((path (plist-get (cddr existing) :path))
-                  (absPath (plist-get (cddr existing) :absPath)))
-              (-lsp-cmd
-                "zk.link"
-                (print `[,absPath (:location ,loc :path ,path :title ,link-name)]))
-              )
-            (-lsp-cmd
-              "zk.new"
-              `[,path (:title ,choice :insertLinkAtLocation ,loc)]))
-    (forward-sexp)
-    ))
+        (let ((path (plist-get (cddr existing) :path))
+              (absPath (plist-get (cddr existing) :absPath)))
+          (-lsp-cmd
+           "zk.link"
+           (print `[,absPath (:location ,loc :path ,path :title ,link-name)]))
+          )
+      (-lsp-cmd
+       "zk.new"
+       `[,path (:title ,choice :insertLinkAtLocation ,loc)]))
+    ;; FIXME: find better way than a race condition
+    ;; Give language server time to insert link
+    (sleep-for 0 50)
+    (goto-char after-link-pos)))
 
 (define-minor-mode zk-mode nil
                      :lighter " zk"
