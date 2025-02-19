@@ -1,0 +1,20 @@
+[target.sway]
+install = [
+    "bin/start-polkit-agent",
+    "bin/lock-wrapper",
+    "bin/crypt",
+]
+
+system_install = [
+    "Sway/session",
+]
+
+[target.sway.links]
+".config/sway" = "Sway/sway"
+".config/waybar" = "Sway/waybar" 
+".config/kanshi" = "Sway/kanshi" 
+".config/mako" = "Sway/mako" 
+
+# [[machine]]
+# name = "thinkpad"
+# targets = ["sway"]
