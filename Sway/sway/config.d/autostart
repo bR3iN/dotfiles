@@ -14,3 +14,4 @@ exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY XDG_SESSIO
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY
 exec /usr/libexec/xdg-desktop-portal
 exec nextcloud --background
+exec uncrypt

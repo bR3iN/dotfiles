@@ -14,3 +14,48 @@ set $base0C #86E1FC
 set $base0D #82AAFF
 set $base0E #C099FF
 set $base0F #4FD6BE
+
+set $base00_dark #1B1C2B
+set $base01_dark #1E2030
+set $base02_dark #2A2D45
+set $base03_dark #3D4267
+set $base04_dark #757DA5
+set $base05_dark #B4BDDC
+set $base06_dark #7BC6E5
+set $base07_dark #A2E0DF
+set $base08_dark #E56972
+set $base09_dark #E58761
+set $base0A_dark #E5B36B
+set $base0B_dark #AFD07E
+set $base0C_dark #78CAE2
+set $base0D_dark #7599E5
+set $base0E_dark #AC89E5
+set $base0F_dark #47C0AB
+
+set $base00_light #212334
+set $base01_light #25273B
+set $base02_light #333854
+set $base03_light #4A517E
+set $base04_light #8F98CA
+set $base05_light #DCE8FF
+set $base06_light #96F3FF
+set $base07_light #C6FFFF
+set $base08_light #FF808B
+set $base09_light #FFA576
+set $base0A_light #FFDA82
+set $base0B_light #D6FF9B
+set $base0C_light #93F7FF
+set $base0D_light #8FBBFF
+set $base0E_light #D3A8FF
+set $base0F_light #56EBD1
+
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border              BG            Text    Indicator    Child Border
+client.focused           $base03             $base03       $base05 $base03      $base03
+client.focused_inactive  $base02_light       $base02_light $base04 $base03_dark $base03_dark
+client.focused_tab_title $base03_dark        $base03_dark  $base04
+client.unfocused         $base01_light       $base01       $base04 $base00_dark $base00_dark
+client.urgent            $base08_dark        $base08       $base00 $base08_dark $base08_dark

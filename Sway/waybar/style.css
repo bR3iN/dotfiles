@@ -1,113 +1,155 @@
 @import "base16.css";
 
-@define-color red alpha(shade(@base08, 0.75), 0.8);
-@define-color orange alpha(shade(@base09, 0.8), 0.8);
-@define-color yellow alpha(shade(@base0A, 0.7), 0.8);
-@define-color green alpha(shade(@base0B, 0.8), 0.8);
-@define-color magenta alpha(shade(@base0E, 0.8), 0.8);
-@define-color blue alpha(shade(@base0D, 0.8), 0.8);
-@define-color cyan alpha(shade(@base0C, 0.8), 0.8);
+@define-color red alpha(@base08_dark, 0.7);
+@define-color orange alpha(@base09_dark, 0.7);
+@define-color yellow alpha(@base0A_dark, 0.7);
+@define-color green alpha(@base0B_dark, 0.7);
+@define-color cyan alpha(@base0C_dark, 0.7);
+@define-color blue alpha(@base0D_dark, 0.7);
+@define-color magenta alpha(@base0E_dark, 0.7);
 
-@define-color foreground shade(@base04, 1.15);
+@define-color foreground alpha(@base04, 0.9);
 @define-color widget-background shade(@base01, 1.2);
-@define-color border-color shade(@widget-background, 1.1);
+@define-color border-color alpha(shade(@widget-background, 1.1), 0.7);
+@define-color separator-color alpha(@base02, 0.7);
 
 * {
-    /* all: unset; */
+    all: unset;
     border-style: solid;
-    font-family: Noto Sans Nerd Font;
+    font-family: "FiraCode Nerd Font";
 }
 
-.modules-left   { margin: 2px; }
-.modules-right  { margin: 2px; }
-.modules-center { margin: 2px; }
+.modules-left   { padding: 0px 0px 0px 1px; }
+.modules-right  {
+    margin: 0px 1px 0px 0px;
+    /* font-family: "Fira Code Retina", "Symbols Nerd Font Mono"; */
+}
+/* .modules-center { padding: 0px 0px; } */
+
+#waybar {
+  background: transparent;
+}
 
 window#waybar {
-    background-color: shade(@base00, 0.7);
-    border-bottom-width: 1px;
-    border-color: @base01;
+    border-width: 1px;
+    /* border-color: @base02; */
+    /* border-color: shade(alpha(@base00, 0.99), 0.90); */
+    border-style: none;
+    /* border-radius: 5px; */
+    /* border-radius: 0px; */
+    /* Alpha is needed for rounded corners on vanilla sway */
+    /* background-color: alpha(shade(@base00, 0.765), 0.90); */
+    background-color: alpha(shade(@base00, 0.9), 1.0);
+    /* FIXME: Needed for tooltip; figure out how to configure it specifically */
     color: @base08;
-    opacity: 0.98;
+    /* Patched font needed for symbols to be scaled with regular characters so all symbols have same width. */
 }
 
-#clock,
-#battery,
-#cpu,
-#memory,
-#disk,
-#temperature,
-#backlight,
-#network,
-#pulseaudio,
-#tray,
-#idle_inhibitor,
-#mode,
-#custom-vpn,
-#mpd {
+.module {
     color: @foreground;
-    background-color: @widget-background;
-    padding: 0px 14px;
-    border-width: 2px;
-    border-color: @border-color;
-    border-radius: 20px;
-    margin: 0px 2px;
+    /* Margin should include space for the bar's outer border */
+    margin: 1px 0px;
+}
+
+.module {
+    padding: 0px 15px;
+}
+
+tooltip {
+    background: alpha(@base02, 0.99);
+    border-color: shade(alpha(@base02, 0.99), 1.05);
+        color: @base05;
+    /* border-radius: 5px; */
+}
+
+#clock {
+    border-width: 0px 1px 0px 1px;
+    /* padding: 0px 10px; */
+    border-color: @separator-color;
+}
+
+.modules-right > :not(:first-child) > .module {
+    border-width: 0px 0px 0px 1px;
+    border-color: @separator-color;
+}
+
+
+#workspaces.module {
+    padding: 0px 1px;
+}
+
+#workspaces box {
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: @base01;
 }
 
 #workspaces button {
-    border-width: 2px;
-    border-color: @border-color;
-    border-radius: 20px;
-    color: shade(@foreground, 0.9);
-    background-color: @widget-background;
-    padding: 0 9px;
-    margin: 0px 2px;
-    min-width: 25px;
-    min-height: 25px;
-    font-weight: bold;
+    border-width: 0px 1px 0px 0px;
+    border-color: @base01;
 }
 
+#workspaces button {
+    color: @foreground;
+    padding: 0 10px;
+}
 
 #workspaces button:hover {
-    background-color: shade(@widget-background, 1.4);
-    border-color: shade(@border-color, 1.4);
+    color: shade(@foreground, 1.2);
+    font-weight: bold;
+    background-color: shade(@base01, 0.90);
 }
 
 #workspaces button.focused {
-    border-color: @green;
+    font-weight: bold;
+    color: @green;
+    background-color: @base01;
 }
 
 #workspaces button.urgent {
-    border-color: shade(@base08, 0.8);
+    color: @red;
+    font-weight: bold;
 }
 
 #mode {
-    background-color: shade(@green, 1.0);
-    border-color: shade(@green, 0.7);
-    font-style: italic;
-    color: @base00;
+    font-weight: bold;
+    color: @base0B_dark;
+
+    margin-top: 0px;
+    margin-bottom: 0px;
+    background-color: @base02;
+    padding: 0px 10px;
+
+    /* border-width: 0px 0px 0px 2px; */
+    /* border-color: @separator-color; */
 }
 
 
-#backlight { border-color: @magenta; }
+#tray {
+    /* Dims Icons */
+    opacity: 0.6;
+}
 
-#battery { border-color: @green; }
+
+
+#battery {
+    color: @green;
+}
 
 #battery.charging {
-    border-color: shade(@green, 1.1);
-    background-color: shade(@green, 0.9);
-    color: @widget-background;
+    color: @base0B;
 }
 
 @keyframes blink {
     to {
         background-color: transparent;
-        border-color: transparent;
+        color: transparent;
     }
 }
 
 #battery.warning:not(.charging) {
     background-color: shade(@orange, 0.9);
-    border-color: shade(@orange, 1.1);
+    color: shade(@orange, 1.1);
     animation-name: blink;
     animation-duration: 1.5s;
     animation-timing-function: linear;
@@ -117,7 +159,7 @@ window#waybar {
 
 #battery.critical:not(.charging) {
     background-color: shade(@red, 0.9);
-    border-color: shade(@red, 1.1);
+    color: shade(@red, 1.1);
     animation-name: blink;
     animation-duration: 0.2s;
     animation-timing-function: linear;
@@ -125,28 +167,31 @@ window#waybar {
     animation-direction: alternate;
 }
 
+#cpu       { color: @magenta }
+#memory    { color: @red }
+#disk      { color: @orange }
+#backlight { color: @yellow; }
 
-#custom-vpn { font-size: 120%; }
-
-#custom-vpn.disconnected {
-    border-color: @blue;
+#custom-vpn {
+    /* font-size: 100%; */
+    color: @blue;
 }
 
 #custom-vpn.connected {
-    background-color: shade(@blue, 0.9);
-    border-color: shade(@blue, 1.1);
+    color: @base0D;
 }
 
 #pulseaudio {
-    color: @widget-background;
-    background-color: shade(@cyan, 0.9);
-    border-color: shade(@cyan, 1.1);
+    color: @base0C;
 }
 
 #pulseaudio.muted {
-    color: @foreground;
-    background-color: @widget-background;
-    border-color: @cyan;
+    color: @cyan;
+    background-color: transparent;
 }
 
-#clock { font-size: 110%; font-weight: bold; border-color: @magenta; }
+#clock { font-size: 110%; font-weight: bold; color: @foreground; }
+
+#network.vpn {
+    color: @blue;
+}

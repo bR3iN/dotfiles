@@ -1,23 +1,33 @@
 {
+    "margin-left": 10,
+    "margin-right": 10,
+    "margin-top": 10,
+    "margin-bottom": 0,
+    "height": 30,
     "modules-left": [
         "sway/workspaces",
+        // "sway/language",
+        "custom/sway/scratchpad",
         "sway/mode",
     ],
-    "modules-center": [],
+    "modules-center": [
+        "clock"
+    ],
     "modules-right": [
+        "tray",
         "cpu",
         "memory",
         "disk",
-        "tray",
+        "backlight",
         "pulseaudio",
-        "custom/vpn",
+        // "custom/vpn",
+        "network#vpn",
         "battery",
-        "clock",
     ],
 
     "sway/workspaces": {
         "disable-scroll": true,
-        "all-outputs": true,
+        "all-outputs": false,
         "format": "{name}",
         "format-icons": {
             "1": "",
@@ -28,7 +38,11 @@
             "urgent": "",
             "focused": "",
             "default": ""
-        }
+        },
+    },
+
+    "sway/language": {
+        "format": " {short} {variant}"
     },
 
     "sway/mode": {
@@ -44,9 +58,9 @@
     },
 
     "backlight": {
-        "device": "intel_baklight",
+        "device": "intel_backlight",
         "format": "{percent}% {icon}",
-        "format-icons": ["", "", ""],
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
         "on-scroll-up": "backlight increase",
         "on-scroll-down": "backlight decrease"
     },
@@ -72,7 +86,7 @@
     },
 
     "disk": {
-        "format": "{free} 󰻂",
+        "format": "{free} 󰈔",
         "tooltip": false
     },
 
@@ -82,23 +96,41 @@
             "critical": 5
         },
         "format": "{capacity}% {icon}",
-        "format-charging": "{capacity}% ",
+        "format-charging": "{capacity}% 󰂄",
         "format-plugged": "{capacity}% ",
-        "format-icons": ["", "", "", "", "", "", "", "", "", "", ""],
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
 
     },
 
+    "custom/vpn": {
+        "return-type": "json",
+        "format": "󰖂",
+        "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
+        "interval": 5,
+        "on-click": "rofi-vpn",
+    },
+
+    "network#vpn": {
+        "interval": 1,
+        "interface": "tun0",
+        "format": "{bandwidthDownBytes:<3} {bandwidthUpBytes:<3} ",
+        "format-disconnected": "",
+    },
+
     "network": {
-        "format-wifi": "",
-        "tooltip-wifi-format": "{essid} ({signalStrength}%)",
-        "format-ethernet": "",
-        "format-disconnected": ""
+        "format": "{ifname}",
+        "format-wifi": "󰖩",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)",
+        "format-ethernet": "󰈁",
+        "format-linked": "linked",
+        "format-disconnected": "󰈂"
     },
 
     "pulseaudio": {
         "scroll-step": 5, // %, can be a float
-        "format": "{volume:2d}% {icon}",
-        "format-muted": "{volume:2d}% 婢",
+        "format": "{volume}% {icon}",
+        // "format-muted": "--- 󰝟 ",
+        "format-muted": "{volume}% 󰖁",
         "format-bluetooth": "{volume}% {icon}",
         "format-bluetooth-muted": "{volume}% {icon}",
         "format-icons": {
@@ -108,18 +140,22 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": ["奄", "奔", "墳"]
+            "default": ["󰕿", "󰖀", "󰕾"]
         },
         "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
     },
 
-    "custom/vpn": {
-        "return-type": "json",
-        "format": "嬨",
-        "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
-        "interval": 5,
-        "on-click": "rofi-vpn",
-    }
+    "custom/sway/scratchpad": {
+        "format": "󰎚 0",
+        "interval": "once",
+        "tooltip": false
+    },
+
+    "custom/separator": {
+        "format": "|",
+        "interval": "once",
+        "tooltip": false
+    },
 }
 
 // vim: ft=jsonc

@@ -2,8 +2,13 @@
 set $mod Mod4
 
 # Set lock-screen
-exec swayidle -w before-sleep "swaylock -f"
+# exec swayidle -w before-sleep "swaylock -f"
+exec swayidle -w before-sleep "gtklock -d"
 set $lock_cmd gtklock
+
+
+focus_follows_mouse no
+show_marks yes
 
 
 ## Launcher
@@ -23,6 +28,9 @@ bindsym $mod+Control+e exec wofi-emoji
 # Open script selector
 bindsym $mod+x exec rofi-scripts
 
+# Open bookmark selector
+bindsym $mod+Control+o exec rofi-bookmarks
+
 # Connect vpn
 bindsym $mod+Control+v exec rofi-vpn
 
@@ -34,14 +42,16 @@ bindsym $mod+Control+p exec grim -g "$(slurp)" - | swappy -f -
 
 font Noto Sans Regular 9
 
-hide_edge_borders smart_no_gaps
+hide_edge_borders none
+# Ambiguity on multiple monitors
+smart_borders off
 # hide_edge_borders --i3 smart_no_gaps  # hides titlebar on containers with one child
-default_floating_border normal
+default_floating_border normal # needed to drag on touchscreen?
 default_border pixel 1
 titlebar_padding 4 1
 
-smart_gaps on
-gaps inner 5
+smart_gaps off
+gaps inner 10
 gaps outer 0
 
 bar swaybar_command waybar
@@ -55,12 +65,16 @@ bindsym $mod+o exec killall -SIGUSR1 waybar  # Toggle waybar
 # Load colors
 include ~/.config/sway/base16
 
-# Property Name         Border  BG      Text    Indicator Child Border
-client.focused          $base0B $base04 $base02 $base0B $base0B
-client.focused_inactive $base03 $base03 $base04 $base03 $base03
-client.unfocused        $base01 $base00 $base04 $base00 $base01
-client.urgent           $base08 $base08 $base00 $base08 $base08
-client.placeholder      $base00 $base00 $base04 $base00 $base00
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border        BG            Text    Indicator    Child Border
+# client.focused           $base03_light $base03       $base05 $base03      $base03
+# client.focused_inactive  $base02_light $base02       $base04 $base02      $base02
+# client.focused_tab_title $base03       $base03_dark  $base04
+# client.unfocused         $base01_dark  $base01       $base04 $base09      $base00
+# client.urgent            $base08_dark  $base08       $base00 $base08_dark $base08_dark
 
 
 ## Input configuration
@@ -84,8 +98,8 @@ floating_modifier $mod
 bindsym $mod+Escape exec lock-wrapper $lock_cmd
 
 # Toggle gaps
-bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
-                       gaps outer current toggle $gaps_outer
+# bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
+#                        gaps outer current toggle $gaps_outer
 
 # Toggle sticky
 bindsym $mod+Control+s sticky toggle
