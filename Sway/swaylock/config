@@ -1,29 +1,29 @@
 ignore-empty-password
-color=222436
+color=2A2A2A
 font=NotoSans
 
-key-hl-color=C3E88D
+key-hl-color=73C48F
 
 separator-color=00000000
 
-inside-color=1E2030
-inside-clear-color=1E2030
-inside-ver-color=82AAFF
-inside-wrong-color=FF757F
+inside-color=202020
+inside-clear-color=202020
+inside-ver-color=48B9C7
+inside-wrong-color=E23434
 
-ring-color=2F334D
-ring-clear-color=222436
-ring-ver-color=82AAFF
-ring-wrong-color=FF757F
+ring-color=333333
+ring-clear-color=2A2A2A
+ring-ver-color=48B9C7
+ring-wrong-color=E23434
 
 line-color=00000000
 line-clear-color=00000000
 line-ver-color=00000000
 line-wrong-color=00000000
 
-text-clear-color=FF966C
-text-caps-lock-color=FF966C
-text-ver-color=1E2030
-text-wrong-color=1E2030
+text-clear-color=F19822
+text-caps-lock-color=F19822
+text-ver-color=202020
+text-wrong-color=202020
 
-bs-hl-color=FF757F
+bs-hl-color=E23434
