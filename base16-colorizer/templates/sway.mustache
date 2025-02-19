@@ -14,3 +14,48 @@ set $base0C #{{base0C-hex}}
 set $base0D #{{base0D-hex}}
 set $base0E #{{base0E-hex}}
 set $base0F #{{base0F-hex}}
+
+set $base00_dark #{{base00-hex;-10%}}
+set $base01_dark #{{base01-hex;-10%}}
+set $base02_dark #{{base02-hex;-10%}}
+set $base03_dark #{{base03-hex;-10%}}
+set $base04_dark #{{base04-hex;-10%}}
+set $base05_dark #{{base05-hex;-10%}}
+set $base06_dark #{{base06-hex;-10%}}
+set $base07_dark #{{base07-hex;-10%}}
+set $base08_dark #{{base08-hex;-10%}}
+set $base09_dark #{{base09-hex;-10%}}
+set $base0A_dark #{{base0A-hex;-10%}}
+set $base0B_dark #{{base0B-hex;-10%}}
+set $base0C_dark #{{base0C-hex;-10%}}
+set $base0D_dark #{{base0D-hex;-10%}}
+set $base0E_dark #{{base0E-hex;-10%}}
+set $base0F_dark #{{base0F-hex;-10%}}
+
+set $base00_light #{{base00-hex;+10%}}
+set $base01_light #{{base01-hex;+10%}}
+set $base02_light #{{base02-hex;+10%}}
+set $base03_light #{{base03-hex;+10%}}
+set $base04_light #{{base04-hex;+10%}}
+set $base05_light #{{base05-hex;+10%}}
+set $base06_light #{{base06-hex;+10%}}
+set $base07_light #{{base07-hex;+10%}}
+set $base08_light #{{base08-hex;+10%}}
+set $base09_light #{{base09-hex;+10%}}
+set $base0A_light #{{base0A-hex;+10%}}
+set $base0B_light #{{base0B-hex;+10%}}
+set $base0C_light #{{base0C-hex;+10%}}
+set $base0D_light #{{base0D-hex;+10%}}
+set $base0E_light #{{base0E-hex;+10%}}
+set $base0F_light #{{base0F-hex;+10%}}
+
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border              BG            Text    Indicator    Child Border
+client.focused           $base03             $base03       $base05 $base03      $base03
+client.focused_inactive  $base02_light       $base02_light $base04 $base03_dark $base03_dark
+client.focused_tab_title $base03_dark        $base03_dark  $base04
+client.unfocused         $base01_light       $base01       $base04 $base00_dark $base00_dark
+client.urgent            $base08_dark        $base08       $base00 $base08_dark $base08_dark

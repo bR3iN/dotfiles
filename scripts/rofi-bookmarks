@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+set -eu
+
+# Verify env vars are set
+echo "$NEXTCLOUD_DOMAIN" "$NEXTCLOUD_USER" > /dev/null
+
+PROMPT="Choose Bookmark"
+ROFI_OPTIONS=(-no-fixed-num-lines)
+
+get_pass() {
+    secret-tool lookup service nextcloud custom true type plaintext
+}
+
+list_options() {
+    echo "user = \"$NEXTCLOUD_USER:$(get_pass)\"" \
+        | curl --config - "$NEXTCLOUD_DOMAIN/index.php/apps/bookmarks/public/rest/v2/bookmark?page=-1" \
+        | jq --raw-output '.data.[] | "\(.url) | \(.title)"'
+}
+
+callback() {
+    url=$(echo "$1" | awk -F ' | ' '{print $1}')
+
+    if [[ "$url" =~ ^https://[^.]+\.youtube\.com(/.*)?$ ]]; then
+        mpv "$url"
+    else
+        xdg-open "$url"
+    fi
+}
+
+source ~/.local/libexec/prompt.sh

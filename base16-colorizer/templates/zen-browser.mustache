@@ -1,0 +1,45 @@
+/* Check buttom of zen-theme.css in Browser Toolbox for reference */
+
+/****************/
+/* Color scheme */
+/****************/
+
+:root {
+    /* selected background in url-completion is derived; */
+    --zen-primary-color: #{{base0E-hex}} !important;
+
+    /* Checkbox backgrounds */
+    --zen-colors-primary: #{{base0C-hex;-20%}} !important;
+    /* current Tab, others are derived from primary-color; lock in the left of the url bar is derived? */
+    --zen-colors-secondary: #{{base0E-hex;-50%}} !important;
+    /* default background; url bar when not selected */
+    --zen-colors-tertiary: #{{base01-hex}} !important;
+
+    --zen-colors-hover-bg: #{{base08-hex;-20%}} !important;
+    /* Foreground in printer dialog */
+    --zen-colors-primary-foreground: #{{base05-hex}} !important;
+
+    --zen-colors-input-bg: #{{base08-hex}} !important;
+    --zen-colors-border: color-mix(in srgb, #{{base01-hex}} 85%, var(--zen-primary-color) 15%) !important;
+
+    --zen-dialog-background: #{{base01-hex}} !important;
+    --zen-urlbar-background: #{{base01-hex}} !important;
+
+    --zen-browser-gradient-base: #{{base08-hex}} !important;
+}
+
+/***********************/
+/* Other Configuration */
+/***********************/
+
+/* Remove weird box shadow on urlbar on startup or when unfocused while having the urlbar selected */
+#urlbar[focused] > #urlbar-background {
+    outline: none !important;
+}
+
+/* Reduce toolbar heights for side panel */
+#zen-sidebar-web-header {
+  min-height: var(--zen-toolbar-height) !important;
+}
+
+/* vim: set ft=css: */

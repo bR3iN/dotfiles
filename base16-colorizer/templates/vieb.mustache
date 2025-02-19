@@ -1,0 +1,139 @@
+:root {
+    /* general */
+    --bg: #{{base00-hex}};
+    --fg: #{{base05-hex}};
+    --tab-background: #{{base02-hex}};
+    --tab-suspended: #{{base00-hex;-20%}};
+    --visible-tab: #{{base03-hex}};
+    --tab-split: #{{base09-hex}};
+    --tab-audio: #{{base0C-hex}};
+    --tab-muted: #{{base06-hex}};
+    --tab-muted-playing: #{{base0A-hex}};
+    --tab-crashed: #{{base08-hex}};
+    --tab-unresponsive: #{{base09-hex}};
+    --tab-scrollbar: #{{base0C-hex}};
+    --container-background: none;
+    --mode-normal-fg: #{{base05-hex}};
+    --mode-normal-bg: none;
+    --mode-command-fg: #{{base08-hex}};
+    --mode-command-bg: none;
+    --mode-insert-fg: #{{base0A-hex}};
+    --mode-insert-bg: none;
+    --mode-follow-fg: #{{base0E-hex}};
+    --mode-follow-bg: none;
+    --mode-explore-fg: #{{base0C-hex}};
+    --mode-explore-bg: none;
+    --mode-search-fg: #{{base0B-hex}};
+    --mode-search-bg: none;
+    --mode-pointer-fg: #{{base00-hex}};
+    --mode-pointer-bg: #{{base0C-hex}};
+    --mode-visual-fg: #{{base00-hex}};
+    --mode-visual-bg: #{{base0D-hex}};
+    --url-default: #{{base03-hex}};
+    --url-search: #{{base09-hex}};
+    --url-searchwords: #{{base0E-hex;+40%}};
+    --url-url: #{{base0C-hex}};
+    --url-suggest: #{{base0B-hex}};
+    --url-file: #${{base0A-hex}};
+    --url-invalid: #{{base08-hex}};
+    --follow-text: #{{base00-hex}};
+    --follow-url-bg: #{{base0C-hex;+40%}};
+    --follow-url-border: #{{base0C-hex}};
+    --follow-url-hover: #{{base02-hex}};
+    --follow-click-bg: #{{base09-hex;+50%}};
+    --follow-click-border: #{{base09-hex;+20%}};
+    --follow-click-hover: #{{base02-hex}};
+    --follow-insert-bg: #{{base08-hex;+10%}};
+    --follow-insert-border: #{{base08-hex}};
+    --follow-insert-hover: #{{base02-hex}};
+    --follow-onclick-bg: #{{base0A-hex;+10%}};
+    --follow-onclick-border: #{{base0A-hex}};
+    --follow-onclick-hover: #{{base01-hex}};
+    --follow-media-bg: #{{base0D-hex;+10%}};
+    --follow-media-border: #{{base0D-hex}};
+    --follow-media-hover: #{{base01-hex}};
+    --follow-image-bg: #{{base0E-hex;+10%}};
+    --follow-image-border: #{{base0E-hex}};
+    --follow-image-hover: #{{base01-hex}};
+    --follow-other-bg: #{{base04-hex}};
+    --follow-other-border: #{{base04-hex;+15%}};
+    --follow-other-hover: #{{base01-hex}};
+    --suggestions-border: #{{base01-hex;+15%}};
+    --suggestions-bg: #{{base01-hex}};
+    --suggestions-selected: #{{base03-hex}};
+    --suggestions-searchwords: #{{base0A-hex;+20%}};
+    --suggestions-url: #{{base0C-hex;+10%}};
+    --suggestions-file: #{{base0A-hex;+10%}};
+    --notification-border: #{{base04-hex}};
+    --notification-date: #{{base04-hex}};
+    --notification-permission: #{{base04-hex}};
+    --notification-dialog: var(--notification-permission);
+    --notification-error: #{{base08-hex}};
+    --notification-warning: #{{base0A-hex}};
+    --notification-info: #{{base0C-hex}};
+    --notification-success: #{{base0B-hex}};
+    --url-hover-fg: #{{base00-hex}};
+    --url-hover-bg: #{{base01-hex}};
+    --screenshot-highlight: #{{base09-hex}};
+    --screenshot-highlight-background: #{{base01-hex}};
+    /* special pages */
+    --link-color: #{{base0C-hex}};
+    --link-underline: #{{base0D-hex}};
+    --scrollbar-bg: #{{base03-hex}};
+    --scrollbar-thumb: #{{base02-hex}};
+    --button-disabled: #{{base04-hex}};
+    --code-fg: #{{base05-hex}};
+    --code-bg: #{{base00-hex}};
+    --code-command: #{{base08-hex;-20%}};
+    --placeholder-text: #{{base03-hex;+15%}};
+    --special-page-element-bg: #{{base02-hex}};
+    --special-page-element-border: #{{base03-hex}};
+    --input-unfocused: #{{base04-hex}};
+    --input-focused: #{{base04-hex;+15%}};
+    --download-progress-fg: #{{base05-hex}};
+    --download-progress-bg: #{{base02-hex}};
+    --helppage-h1: #{{base08-hex}};
+    --helppage-h2: #{{base09-hex}};
+    --helppage-h3: #{{base09-hex;+30%}};
+    --helppage-countable: #{{base0A-hex}};
+    --helppage-range-compat: #{{base0A-hex}};
+    --helppage-nativetheme-fg-light: #{{base04-hex}};
+    --helppage-nativetheme-bg-light: #{{base07-hex}};
+    --helppage-nativetheme-fg-dark: #{{base04-hex}};
+    --helppage-nativetheme-bg-dark: #{{base01-hex}};
+    --history-current-page-highlight: var(--helppage-h1);
+    /* sourceviewer */
+    --syntax-fg: var(--fg);
+    --syntax-bg: var(--bg);
+    --syntax-keyword: #{{base0E-hex}};
+    --syntax-entity: #{{base0A-hex}};
+    --syntax-constant: #{{base09-hex}};
+    --syntax-string: #{{base0B-hex}};
+    --syntax-variable: #{{base08-hex}};
+    --syntax-comment: #{{base03-hex}};
+    --syntax-entity-tag: #{{base08-hex}};
+    --syntax-markup-heading: #{{base0D-hex}};
+    --syntax-markup-list: #{{base08-hex}};
+    --syntax-markup-emphasis: #{{base06-hex}};
+    --syntax-markup-addition-fg: #{{base0B-hex;+50%}};
+    --syntax-markup-addition-bg: #{{base0B-hex;-50%}};
+    --syntax-markup-deletion-fg: #{{base08-hex;+50%}};
+    --syntax-markup-deletion-bg: #{{base08-hex;-50%}};;
+    /* failedload */
+    --failedload-main-bg: var(--tab-background);
+    /* filebrowser */
+    --filebrowser-main-bg: var(--failedload-main-bg);
+    --filebrowser-dir: var(--suggestions-file);
+    --filebrowser-file: var(--suggestions-url);
+    --filebrowser-breadcrumb: var(--suggestions-url);
+    --filebrowser-error: var(--notification-error);
+}
+
+#navbar {
+        order: 1;
+}
+
+#suggest-dropdown {
+        top: unset;
+        bottom: 0em;
+}

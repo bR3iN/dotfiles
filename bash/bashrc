@@ -55,3 +55,6 @@ complete -o nospace -F _kitty_completions kitty
 if [ $TERM = xterm-kitty ]; then
     alias ssh='kitty +kitten ssh'
 fi
+
+stty werase undef
+bind '"\C-w": unix-filename-rubout'

@@ -2,6 +2,7 @@
 
 set -e
 set -u
+set -o pipefail
 
 for cmd in list_options callback; do
     if [ "$(type -t "$cmd")" != function ]; then

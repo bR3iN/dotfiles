@@ -51,7 +51,7 @@ rewrite = "~/.config/swaylock/config"
 [waybar]
 template = "css"
 rewrite = "~/.config/waybar/base16.css"
-# hook = "killall -USR2 waybar"
+hook = "killall -SIGUSR2 waybar"
 
 [zathura]
 rewrite = "~/.config/zathura/base16"
@@ -62,3 +62,15 @@ rewrite = "~/.config/helix/themes/base16.toml"
 [eww]
 template = "scss"
 rewrite = "~/.config/eww/base16.scss"
+
+[vieb]
+rewrite = "~/.config/Vieb/colors/base16.css"
+
+[zellij]
+rewrite = "~/.config/zellij/themes/base16.kdl"
+
+[zen-browser]
+rewrite = "~/.config/zen-themes/base16.css"
+
+[emacs]
+rewrite = "~/.config/emacs/lisp/base16-colors.el"

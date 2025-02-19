@@ -5,3 +5,4 @@ no_actions=true
 insensitive=true
 matching=multi-contains
 colors=base16
+term=kitty

@@ -82,7 +82,7 @@
 (set! wrap)
 
 ; Default tab behaviour
-(setg! shiftwidth 4)
+(set! shiftwidth 4)
 (set! tabstop 4)
 (set! expandtab)
 
@@ -141,6 +141,7 @@
             :callback #(dofile vim.env.MYVIMRC)}
            ; Don't create undofiles for temporary files
            {:event :BufWritePre :pattern :/tmp/* :callback #(setl! noundofile)}
+           {:event :BufWritePre :pattern "~/.crypt/*" :callback #(setl! noundofile)}
            ; Highlight on yank
            {:event :TextYankPost
             :pattern "*"
@@ -214,7 +215,7 @@
          (nmap! :<C-h> ":ToggleComments<CR>")
          (imap! :<C-h> "<C-o>:ToggleComments<CR>")))
 
-(set! fillchars {:vert "|"})
+(set! fillchars {:vert "│"})
 
 (set! conceallevel 2)
 ; (set! cmdheight 2)
@@ -558,7 +559,7 @@
                                 {:name :orgmode}
                                 {:name :nvim_lua}
                                 {:name :neorg}
-                                {:name :path}
+                                ; {:name :path}
                                 {:name :latex_symbols}
                                 {:name :omni}
                                 {:name :buffer
@@ -589,14 +590,15 @@
 ;; Coding related stuff
 
 ; Run current file, if applicable
-(let [ft-to-runner {:fennel #(vim.cmd.Fnlfile "%")
+(let [call #($1)
+      ft-to-runner {:fennel #(vim.cmd.Fnlfile "%")
                     :python #(vim.api.nvim_command "w !python3")
                     :sh #(vim.api.nvim_command "w !bash")
                     :fish #(vim.api.nvim_command "w !fish")
                     :lua #(vim.api.nvim_command "lua dofile(vim.fn.expand('%'))")}]
   (nmap! :<leader>rr #(-?>> vim.o.filetype
                             (. ft-to-runner)
-                            (#($1)))))
+                            (call))))
 
 (nmap! :<leader>mk ":make!<CR>")
 (nmap! :<leader>mf ":make! flash<CR>")
@@ -685,7 +687,7 @@
           (ls-setup! :pyright)
           (ls-setup! :cmake) ; (ls-setup! :rust_analyzer)
           (ls-setup! :hls)
-          (ls-setup! :marksman)
+          ; (ls-setup! :marksman)
           (ls-setup! :racket_langserver)
           (let [border :rounded
                 cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
@@ -705,6 +707,7 @@
                 ; create-note #(let [title (vim.fn.input "Title: ")]
                 ;                (if (not= (# title) 0)
                 ;                  (zk.new {: title})))
+                ; TODO reactivate the above or document snippet
                 create-note #(zk.new)
                 extra-keymaps {[:i :<C-h>] :<Esc>hcT|
                                [:i :<C-l>] :<Esc>2la
@@ -813,7 +816,7 @@
              sep {:guifg colors.bg0 1 " | "}]
          (setup :incline
                 {:hide {:cursorline :focused_win}
-                 :window {:padding 0}
+                 ; :window {:padding 1 :margin {:horizontal 0}}
                  :highlight {:groups {:InclineNormal :NONE
                                       :InclineNormalNC :NONE}}
                  :render (fn [{: buf : focused}]
@@ -1107,7 +1110,7 @@
 
 ; Keep ftplugin logic inline here to not spread the config too much
 (let [ftplugins {:fennel (fn []
-                           (nmap! :gqq
+                           (nmap! [:buffer] :gqq
                                   (.. ":<C-u>w<CR>:" "! fnlfmt --fix %<CR><CR>"))
                            (let [{: find_files} (require :telescope.builtin)
                                  {: cache-prefix} (require :hotpot.api.cache)]

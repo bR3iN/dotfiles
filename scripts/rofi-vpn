@@ -22,11 +22,11 @@ list_options()
 callback()
 {
     if vpn_is_running; then
-        pkexec killall --exact openvpn
+        sudo killall --exact openvpn
     fi
 
     if [ "$1" != Stop ]; then
-        pkexec openvpn "$CONFIG_DIR/$1" > /tmp/openvpn.log
+        sudo openvpn "$CONFIG_DIR/$1" > /tmp/openvpn.log
     fi
 }
 

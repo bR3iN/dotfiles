@@ -42,6 +42,8 @@ bind \eo __fish_list_current_token
 bind \em __fish_man_page
 bind \e, history-token-search-forward
 
+# Enable colors in git prompt
+set __fish_git_prompt_showcolorhints 1
 
 if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty +kitten ssh'
