@@ -10,11 +10,6 @@ from typing import Dict, List, NoReturn, Optional, Union
 from os.path import abspath, basename, dirname, exists, isabs, isdir, join
 from os import getenv, remove, symlink
 
-symlink = lambda src, dst: print(f'{src} -> {dst}')
-
-BASEDIR = dirname(abspath(__file__))
-CONFIG = join(BASEDIR, 'dotfiles.toml')
-
 @dataclass
 class Target:
     install: List[str] = field(default_factory=list)
@@ -86,8 +81,8 @@ class Runner:
         target = self._config.targets[name]
 
         for src, dst in target.links.items():
-            self._create_link(src=_ensure_absolute(src, self._env.targetdir),
-                              dst=join(self._env.workdir, dst))
+            self._create_link(src=join(self._env.workdir, dst),
+                              dst=_ensure_absolute(src, self._env.targetdir))
 
         for path in target.system_install:
             self._system_install(join(self._env.workdir, path))
@@ -100,8 +95,8 @@ class Runner:
         if isdir(path):
             self._exec(['make'], cwd=path)
         else:
-            src = join(self._env.user_bin, basename(path))
-            self._create_link(src, path)
+            dst = join(self._env.user_bin, basename(path))
+            self._create_link(path, dst)
 
 
     def _system_install(self, path: str):
@@ -113,7 +108,7 @@ class Runner:
 
 
     def _create_link(self, src: str, dst: str):
-        if self._ensure_non_existent(src):
+        if self._ensure_non_existent(dst):
             symlink(src, dst)
 
 
@@ -134,8 +129,7 @@ class Runner:
             cmd = [self._env.shell, '-c', cmd]
         if cwd is None:
             cwd = self._env.workdir
-        print(cmd)
-        # subprocess.run(cmd)
+        subprocess.run(cmd)
 
 
     def _have_user_confirm(self, prompt: str) -> bool:
