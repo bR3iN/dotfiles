@@ -1,20 +1,87 @@
-[target.sway]
+[sway]
 install = [
     "bin/start-polkit-agent",
     "bin/lock-wrapper",
-    "bin/crypt",
+    "bin/uncrypt",
+    "bin/kbbacklight_toggle",
+    "bin/backlight",
 ]
 
 system_install = [
     "Sway/session",
 ]
 
-[target.sway.links]
-".config/sway" = "Sway/sway"
-".config/waybar" = "Sway/waybar" 
-".config/kanshi" = "Sway/kanshi" 
-".config/mako" = "Sway/mako" 
+cmds = [
+    "cp -n ~/.config/sway/config-template ~/.config/sway/config.d/config.local",
+    "cp -n ~/.config/kanshi/config-template ~/.config/kanshi/config",
+]
 
-# [[machine]]
-# name = "thinkpad"
-# targets = ["sway"]
+[sway.links]
+".config/sway" = "Sway/sway"
+".config/waybar" = "Sway/waybar"
+".config/kanshi" = "Sway/kanshi"
+".config/mako" = "Sway/mako"
+
+[tmux.links]
+".config/tmux" = "tmux"
+
+
+[neovim]
+links = {".config/nvim" = "nvim"}
+
+
+[fonts]
+cmds = ["hooks/setup/fonts.sh"]
+
+[wallpaper]
+cmds = [
+    "hooks/setup/wallpaper.sh",
+]
+
+
+[kitty]
+links = {".config/kitty" = "kitty"}
+
+[wofi]
+links = {".config/wofi" = "wofi"}
+cmds = ["hooks/setup/wofi-emoji.sh"]
+
+[rofi-scripts]
+links = {".local/libexec/prompt.sh" = "bin/prompt.sh"}
+install = [
+    "bin/rofi-open",
+    "bin/rofi-vpn",
+    "bin/rofi-ff",
+    "bin/rofi-scripts",
+    "bin/rofi-inputs",
+    "bin/rofi-askpass",
+    "bin/rofi-bookmarks",
+]
+
+[bash.links]
+".bashrc" = "bash/bashrc"
+".bash_profile" = "bash/bash_profile"
+
+[fish]
+links = {".config/fish" = "fish"}
+cmds = [
+    "sudo mkdir -p /root/.config",
+    "sudo cp -r fish /root/.config",
+]
+
+[bat.links]
+".config/bat/config" = "bat.conf"
+
+[profile]
+links = {".profile" = "profile"}
+cmds = ["mkdir -p ~/.profile.d"]
+
+[qutebrowser.links]
+"~/.config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
+"~/.config/qutebrowser/base16.py" = "qutebrowser/base16.py"
+
+[greetd]
+system_install = ["greetd"]
+
+[git.links]
+".config/git/config" = "gitconfig"

@@ -1,4 +1,4 @@
 #!/usr/bin/bash
 
 secret-tool lookup service cryfs crypt nextcloud \
-    | CRYFS_FRONTEND=noninteractive cryfs /shared/Nextcloud/Crypt ~/.crypt
+    | CRYFS_FRONTEND=noninteractive cryfs ~/Nextcloud/Crypt ~/.crypt

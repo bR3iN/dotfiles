@@ -1,47 +1,76 @@
 #!/usr/bin/python3
 
-import subprocess
-from shutil import rmtree
 from dataclasses import dataclass, field
+import logging
+from os import getenv, makedirs, remove, symlink
+from os.path import abspath, basename, dirname, exists, isabs, isdir, join
 from posixpath import islink
+from shutil import rmtree
+import subprocess
 from sys import argv
 import tomllib
-from typing import Dict, List, NoReturn, Optional, Union
-from os.path import abspath, basename, dirname, exists, isabs, isdir, join
-from os import getenv, remove, symlink
+from typing import Dict, List, Optional, Union
+
+
+class Colorizer(str):
+    def __call__(self, text: str) -> str:
+        return self + text + "\x1b[0m"
+
+    @property
+    def bold(self) -> 'Colorizer':
+        return Colorizer(self + "\x1b[1m")
+
+    @property
+    def dim(self) -> 'Colorizer':
+        return Colorizer(self + "\x1b[2m")
+
+
+class Color:
+    Normal = Colorizer("\x1b[0m")
+    Red = Colorizer("\x1b[0;31m")
+    Yellow = Colorizer("\x1b[0;33m")
+    Green = Colorizer("\x1b[0;32m")
+    Cyan = Colorizer("\x1b[0;36m")
+    Blue = Colorizer("\x1b[0;34m")
+    Purple = Colorizer("\x1b[0;35m")
+
+
+class ColorFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord):
+        level_color = {
+            logging.DEBUG: Color.Cyan,
+            logging.INFO: Color.Green,
+            logging.WARNING: Color.Yellow,
+            logging.ERROR: Color.Red,
+            logging.CRITICAL: Color.Red.bold,
+        }[record.levelno]
+
+        fmt = "{} %(message)s".format(level_color("%(levelname)s"))
+        return logging.Formatter(fmt).format(record)
+
 
 @dataclass
 class Target:
     install: List[str] = field(default_factory=list)
     system_install: List[str] = field(default_factory=list)
+    cmds: List[Union[str, List[str]]] = field(default_factory=list)
     links: Dict[str, str] = field(default_factory=dict)
 
-@dataclass
-class Machine:
-    targets: List[str] = field(default_factory=list)
-
-@dataclass
-class Options:
-    pass
 
 @dataclass
 class Config:
-    options: Options
-    machines: Dict[str, Machine] = field(default_factory=dict)
     targets: Dict[str, Target] = field(default_factory=dict)
 
     @staticmethod
     def from_file(path: str) -> 'Config':
+        logging.info(f"Reading config from {path}")
         with open(path, 'rb') as fh:
             toml = tomllib.load(fh)
 
         targets = {name: Target(**opts)
-            for name, opts in toml.pop('target', {}).items()}
-        machines = {name: Machine(**opts)
-            for name, opts in toml.pop('machine', {}).items()}
-        options = Options(**toml)
+            for name, opts in toml.items()}
 
-        return Config(options=options, targets=targets, machines=machines)
+        return Config(targets=targets)
 
 
 @dataclass
@@ -80,9 +109,9 @@ class Runner:
     def run(self, name: str):
         target = self._config.targets[name]
 
-        for src, dst in target.links.items():
-            self._create_link(src=join(self._env.workdir, dst),
-                              dst=_ensure_absolute(src, self._env.targetdir))
+        for dst, src in target.links.items():
+            self._create_link(src=join(self._env.workdir, src),
+                              dst=_ensure_absolute(dst, self._env.targetdir))
 
         for path in target.system_install:
             self._system_install(join(self._env.workdir, path))
@@ -90,10 +119,13 @@ class Runner:
         for path in target.install:
             self._user_install(join(self._env.workdir, path))
 
+        for cmd in target.cmds:
+            self._exec(cmd)
+
 
     def _user_install(self, path: str):
         if isdir(path):
-            self._exec(['make'], cwd=path)
+            self._exec(['make', 'install'], cwd=path)
         else:
             dst = join(self._env.user_bin, basename(path))
             self._create_link(path, dst)
@@ -101,27 +133,38 @@ class Runner:
 
     def _system_install(self, path: str):
         if isdir(path):
-            self._exec(['sudo', 'make'], cwd=path)
+            self._exec(['sudo', 'make', 'install'], cwd=path)
         else:
             dst = join(self._env.system_bin, basename(path))
             self._exec(['sudo', 'cp', path, dst])
 
 
     def _create_link(self, src: str, dst: str):
-        if self._ensure_non_existent(dst):
+        if self._ensure_good_target(dst):
+            logging.info(f'Linking {Color.Yellow(src)} to {Color.Yellow(dst)}')
             symlink(src, dst)
 
 
-    def _ensure_non_existent(self, path: str) -> bool:
-        if exists(path):
-            if islink(path):
-                remove(path)
+    def _ensure_good_target(self, path: str) -> bool:
+        if islink(path):
+            logging.debug(f'Removing existing link {path}')
+            remove(path)
+        elif exists(path):
+            if self._have_user_confirm(f'{path} already exists. Delete it?'):
+                logging.info(f'Deleting {path}')
+                rmtree(path)
             else:
-                if self._have_user_confirm(f'{path} already exists. Delete it?'):
-                    rmtree(path)
-                else:
-                    return False
+                return False
+        elif not exists(dir := dirname(path)):
+            logging.debug(f'Creating {dir}')
+            makedirs(dir)
         return True
+
+
+    @staticmethod
+    def _fmt_cmd(cmd: List[str]) -> str:
+        sep_color = Color.Normal.dim
+        return sep_color('[') + sep_color(", ").join(map(Color.Purple.bold, cmd)) + sep_color(']')
 
 
     def _exec(self, cmd: Union[str, List[str]], cwd: Optional[str] = None):
@@ -129,7 +172,12 @@ class Runner:
             cmd = [self._env.shell, '-c', cmd]
         if cwd is None:
             cwd = self._env.workdir
-        subprocess.run(cmd)
+
+        logging.info(f'Running command {self._fmt_cmd(cmd)} inside {Color.Blue.bold(cwd)}')
+        ec = subprocess.run(cmd, cwd=cwd).returncode
+
+        if ec != 0:
+            logging.error(f'Command {self._fmt_cmd(cmd)} failed with exit code {Color.Red.bold(str(ec))}')
 
 
     def _have_user_confirm(self, prompt: str) -> bool:
@@ -145,13 +193,13 @@ class Runner:
                     print("Please answer one of 'y', 'n', or 'a'")
 
 
-    def setup_machine(self, name: str):
-        machine = self._config.machines[name]
-
-
 if __name__ == "__main__":
-    runner = Runner(config=Config.from_file(CONFIG),
-                    env=Env.default())
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger().handlers[0].setFormatter(ColorFormatter())
+
+    env = Env.default()
+    config = join(env.workdir, 'dotfiles.toml')
+    runner = Runner(config=Config.from_file(config), env=env)
 
     for target in argv[1:]:
         runner.run(target)

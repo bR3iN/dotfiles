@@ -31,7 +31,7 @@
 }
 
 window#waybar {
-    border-width: 1px;
+    border-width: 0px;
     /* border-color: @base02; */
     /* border-color: shade(alpha(@base00, 0.99), 0.90); */
     border-style: none;
@@ -75,12 +75,12 @@ tooltip {
 
 
 #workspaces.module {
-    padding: 0px 1px;
+    padding: 0px 0px;
 }
 
 #workspaces box {
-    border-radius: 5px;
-    border-width: 1px;
+    border-radius: 0px;
+    border-width: 0px;
     border-color: @base01;
 }
 
