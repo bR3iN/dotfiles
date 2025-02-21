@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass, field
 import logging
+import json
+import argparse
 from os import getenv, makedirs, remove, symlink
 from os.path import abspath, basename, dirname, exists, isabs, isdir, join
 from posixpath import islink
@@ -123,6 +125,19 @@ class Runner:
             self._exec(cmd)
 
 
+    def list_targets(self, verbose: bool):
+        if not verbose:
+            print(Color.Green.bold("Targets:"))
+            print("========")
+            for target in self._config.targets.keys():
+                    print(Color.Yellow(target))
+        else:
+            print(json.dumps(
+                {target: opts.__dict__ for target, opts in self._config.targets.items()},
+                indent=4))
+
+
+
     def _user_install(self, path: str):
         if isdir(path):
             self._exec(['make', 'install'], cwd=path)
@@ -193,13 +208,47 @@ class Runner:
                     print("Please answer one of 'y', 'n', or 'a'")
 
 
+@dataclass
+class CLI:
+    targets: List[str]
+    verbose: bool
+    list: bool
+    file: Optional[str] = None
+
+    @staticmethod
+    def from_args() -> 'CLI':
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-v", "--verbose", action="store_true",
+                            help="Enable verbose output")
+        parser.add_argument("-l", "--list", action="store_true",
+                            help="List targets and exit")
+        parser.add_argument("-f", "--file", type=str,
+                            help="Config file (toml) to use")
+        parser.add_argument("targets", nargs="*",
+                            help="Config targets to install")
+        return CLI(**vars(parser.parse_args()))
+
+
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    cli = CLI.from_args()
+
+    logging.basicConfig(level=logging.DEBUG if cli.verbose else logging.INFO)
     logging.getLogger().handlers[0].setFormatter(ColorFormatter())
 
     env = Env.default()
-    config = join(env.workdir, 'dotfiles.toml')
+    if (config := cli.file) is not None:
+        env.workdir = dirname(abspath(config))
+    else:
+        config = join(env.workdir, 'dotfiles.toml')
+
     runner = Runner(config=Config.from_file(config), env=env)
 
-    for target in argv[1:]:
-        runner.run(target)
+    if cli.list:
+        runner.list_targets(cli.verbose)
+    elif len(cli.targets) == 0:
+        logging.error('No target specified')
+        exit(1)
+    else:
+        for target in cli.targets:
+            runner.run(target)
