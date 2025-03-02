@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import argparse
+from urllib.parse import urlparse
+from urllib.request import urlopen
 from dataclasses import dataclass, field
 import json
 import logging
@@ -94,6 +96,11 @@ def _ensure_absolute(path: str, basedir: str):
     return path if isabs(path) else abspath(join(basedir, path))
 
 
+def is_url(url: str) -> bool:
+    parsed = urlparse(url)
+    return bool(parsed.scheme) and bool(parsed.netloc)
+
+
 class UserAbort(BaseException):
     pass
 
@@ -112,10 +119,10 @@ class Runner:
                               dst=_ensure_absolute(dst, self._env.targetdir))
 
         for path in target.system_install:
-            self._system_install(join(self._env.workdir, path))
+            self._system_install(path)
 
-        for path in target.install:
-            self._user_install(join(self._env.workdir, path))
+        for path_or_url in target.install:
+            self._user_install(path_or_url)
 
         for cmd in target.cmds:
             self._exec(cmd)
@@ -135,15 +142,22 @@ class Runner:
 
 
     def _user_install(self, path: str):
-        if isdir(path):
-            self._exec(['make', 'install'], cwd=path)
-        else:
+        if is_url(path):
             dst = join(self._env.user_bin, basename(path))
-            self._exec(['chmod', '+x', path])
-            self._create_link(path, dst)
+            self._download_to(path, dst)
+            self._exec(['chmod', '+x', dst])
+        else:
+            path = join(self._env.workdir, path)
+            if isdir(path):
+                self._exec(['make', 'install'], cwd=path)
+            else:
+                dst = join(self._env.user_bin, basename(path))
+                self._create_link(path, dst)
+                self._exec(['chmod', '+x', dst])
 
 
     def _system_install(self, path: str):
+        path = join(self._env.workdir, path)
         if isdir(path):
             self._exec(['sudo', 'make', 'install'], cwd=path)
         else:
@@ -152,7 +166,17 @@ class Runner:
             self._exec(['sudo', 'cp', path, dst])
 
 
+    def _download_to(self, url: str, out_path: str, expected_status=200):
+        self._ensure_good_target(out_path)
+        logging.info(f'Downloading {url} to {out_path}')
+        with urlopen(url) as resp:
+            assert resp.status == expected_status, f'Bad HTTP status {resp.status}'
+            with open(out_path, 'wb') as fh:
+                fh.write(resp.read())
+
+
     def _create_link(self, src: str, dst: str):
+        assert exists(src), f'{src} does not exist'
         if self._ensure_good_target(dst):
             # Also removes superflous path components like "/../"
             src = abspath(src)
