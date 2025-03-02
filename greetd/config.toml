@@ -8,8 +8,8 @@ vt = 1
 
 # `agreety` is the bundled agetty/login-lookalike. You can replace `$SHELL`
 # with whatever you want started, such as `sway`.
-# command = "agreety --cmd mysway"
-command = "sway --config /etc/greetd/gtkgreet-sway.conf"
+command = "agreety --cmd /usr/local/bin/mysway"
+# command = "sway --config /etc/greetd/gtkgreet-sway.conf"
 
 # The user to run the command as. The privileges this user must have depends
 # on the greeter. A graphical greeter may for example require the user to be
@@ -17,6 +17,7 @@ command = "sway --config /etc/greetd/gtkgreet-sway.conf"
 user = "greeter"
 
 # Uncomment for autologin
+# FIXME: doesn't unlock keyring though
 #[initial_session]
 #command = "mysway"
 #user = "<user>"

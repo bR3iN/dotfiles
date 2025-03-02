@@ -1,4 +1,4 @@
-[sway]
+[target.sway]
 install = [
     "bin/start-polkit-agent",
     "bin/lock-wrapper",
@@ -16,37 +16,37 @@ cmds = [
     "cp -n ~/.config/kanshi/config-template ~/.config/kanshi/config",
 ]
 
-[sway.links]
+[target.sway.links]
 ".config/sway" = "Sway/sway"
 ".config/waybar" = "Sway/waybar"
 ".config/kanshi" = "Sway/kanshi"
 ".config/mako" = "Sway/mako"
 
-[tmux.links]
+[target.tmux.links]
 ".config/tmux" = "tmux"
 
 
-[neovim]
+[target.neovim]
 links = {".config/nvim" = "nvim"}
 
 
-[fonts]
+[target.fonts]
 cmds = ["hooks/setup/fonts.sh"]
 
-[wallpaper]
+[target.wallpaper]
 cmds = [
     "hooks/setup/wallpaper.sh",
 ]
 
 
-[kitty]
+[target.kitty]
 links = {".config/kitty" = "kitty"}
 
-[wofi]
+[target.wofi]
 links = {".config/wofi" = "wofi"}
 cmds = ["hooks/setup/wofi-emoji.sh"]
 
-[rofi-scripts]
+[target.rofi-scripts]
 links = {".local/libexec/prompt.sh" = "bin/prompt.sh"}
 install = [
     "bin/rofi-open",
@@ -58,30 +58,30 @@ install = [
     "bin/rofi-bookmarks",
 ]
 
-[bash.links]
+[target.bash.links]
 ".bashrc" = "bash/bashrc"
 ".bash_profile" = "bash/bash_profile"
 
-[fish]
+[target.fish]
 links = {".config/fish" = "fish"}
 cmds = [
     "sudo mkdir -p /root/.config",
     "sudo cp -r fish /root/.config",
 ]
 
-[bat.links]
+[target.bat.links]
 ".config/bat/config" = "bat.conf"
 
-[profile]
+[target.profile]
 links = {".profile" = "profile"}
 cmds = ["mkdir -p ~/.profile.d"]
 
-[qutebrowser.links]
+[target.qutebrowser.links]
 "~/.config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
 "~/.config/qutebrowser/base16.py" = "qutebrowser/base16.py"
 
-[greetd]
+[target.greetd]
 system_install = ["greetd"]
 
-[git.links]
+[target.git.links]
 ".config/git/config" = "gitconfig"

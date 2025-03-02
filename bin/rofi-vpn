@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-CONFIG_DIR="/etc/openvpn/ivpn/"
+CONFIG_DIR="/etc/openvpn/ivpn-config/"
 
 PROMPT="Choose Server"
 
