@@ -16,17 +16,19 @@ cmds = [
     "cp -n ~/.config/kanshi/config-template ~/.config/kanshi/config",
 ]
 
-[target.sway.links]
-".config/sway" = "Sway/sway"
-".config/waybar" = "Sway/waybar"
-".config/kanshi" = "Sway/kanshi"
-".config/mako" = "Sway/mako"
+links = {
+    ".config/sway" = "Sway/sway",
+    ".config/waybar" = "Sway/waybar",
+    ".config/kanshi" = "Sway/kanshi",
+    ".config/mako" = "Sway/mako",
+    # ".config/swaylock" = "Sway/swaylock",
+}
 
 [target.tmux.links]
 ".config/tmux" = "tmux"
 
 
-[target.neovim]
+[target.nvim]
 links = {".config/nvim" = "nvim"}
 
 
@@ -41,6 +43,8 @@ cmds = [
 
 [target.kitty]
 links = {".config/kitty" = "kitty"}
+cmds = ["touch ~/.config/kitty/local.conf"]
+
 
 [target.wofi]
 links = {".config/wofi" = "wofi"}
@@ -88,3 +92,23 @@ system_install = ["greetd"]
 
 [target.emacs.links]
 ".config/emacs" = "emacs"
+
+[target.zathura]
+links = {".config/zathura" = "zathura"}
+cmds = [
+    "xdg-mime default org.pwmt.zathura.desktop application/pdf",
+    "xdg-mime default org.pwmt.zathura.desktop application/epub+zip",
+    "xdg-mime default org.pwmt.zathura.desktop image/vnd.djvu",
+]
+
+[target.bat.links]
+".config/bat/config" = "bat.conf"
+
+[target.qutebrowser.links]
+"~/.config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
+"~/.config/qutebrowser/base16.py" = "qutebrowser/base16.py"
+
+[target.rust]
+cmds = ["hooks/setup/rustup.sh"]
+
+
