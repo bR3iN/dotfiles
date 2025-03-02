@@ -1,15 +1,14 @@
 #!/usr/bin/python3
 
-from dataclasses import dataclass, field
-import logging
-import json
 import argparse
+from dataclasses import dataclass, field
+import json
+import logging
 from os import getenv, makedirs, remove, symlink
 from os.path import abspath, basename, dirname, exists, isabs, isdir, join
 from posixpath import islink
 from shutil import rmtree
 import subprocess
-from sys import argv
 import tomllib
 from typing import Dict, List, Optional, Union
 
@@ -34,7 +33,7 @@ class Color:
     Green = Colorizer("\x1b[0;32m")
     Cyan = Colorizer("\x1b[0;36m")
     Blue = Colorizer("\x1b[0;34m")
-    Purple = Colorizer("\x1b[0;35m")
+    Magenta = Colorizer("\x1b[0;35m")
 
 
 class ColorFormatter(logging.Formatter):
@@ -47,7 +46,7 @@ class ColorFormatter(logging.Formatter):
             logging.CRITICAL: Color.Red.bold,
         }[record.levelno]
 
-        fmt = "{} %(message)s".format(level_color("%(levelname)s"))
+        fmt = f"{level_color('%(levelname)s')} {record.name} %(message)s"
         return logging.Formatter(fmt).format(record)
 
 
@@ -60,38 +59,35 @@ class Target:
 
 
 @dataclass
+class Options:
+    workdir: str = "."
+
+
+@dataclass
 class Config:
+    options: Options
     targets: Dict[str, Target] = field(default_factory=dict)
 
     @staticmethod
     def from_file(path: str) -> 'Config':
-        logging.info(f"Reading config from {path}")
         with open(path, 'rb') as fh:
             toml = tomllib.load(fh)
 
         targets = {name: Target(**opts)
-            for name, opts in toml.items()}
+            for name, opts in toml.pop('target').items()}
 
-        return Config(targets=targets)
+        options = Options(**toml)
+
+        return Config(options=options, targets=targets)
 
 
 @dataclass
 class Env:
     workdir: str
-    targetdir: str
-    user_bin: str
-    system_bin: str
-    shell: str
-
-    @staticmethod
-    def default() -> 'Env':
-        home = getenv('HOME')
-        assert home is not None, 'HOME is not set'
-        return Env(workdir=dirname(abspath(__file__)),
-                   targetdir=home,
-                   user_bin=join(home, '.local', 'bin'),
-                   system_bin='/usr/local/bin',
-                   shell='bash')
+    targetdir: str = getenv('HOME')  # type: ignore
+    user_bin: str = join(getenv('HOME'), '.local', 'bin')  # type: ignore
+    system_bin: str = "/usr/local/bin"
+    shell: str = "/usr/bin/bash"
 
 
 def _ensure_absolute(path: str, basedir: str):
@@ -143,6 +139,7 @@ class Runner:
             self._exec(['make', 'install'], cwd=path)
         else:
             dst = join(self._env.user_bin, basename(path))
+            self._exec(['chmod', '+x', path])
             self._create_link(path, dst)
 
 
@@ -151,11 +148,14 @@ class Runner:
             self._exec(['sudo', 'make', 'install'], cwd=path)
         else:
             dst = join(self._env.system_bin, basename(path))
+            self._exec(['chmod', '+x', path])
             self._exec(['sudo', 'cp', path, dst])
 
 
     def _create_link(self, src: str, dst: str):
         if self._ensure_good_target(dst):
+            # Also removes superflous path components like "/../"
+            src = abspath(src)
             logging.info(f'Linking {Color.Yellow(src)} to {Color.Yellow(dst)}')
             symlink(src, dst)
 
@@ -167,7 +167,10 @@ class Runner:
         elif exists(path):
             if self._have_user_confirm(f'{path} already exists. Delete it?'):
                 logging.info(f'Deleting {path}')
-                rmtree(path)
+                if isdir(path):
+                    rmtree(path)
+                else:
+                    remove(path)
             else:
                 return False
         elif not exists(dir := dirname(path)):
@@ -179,16 +182,19 @@ class Runner:
     @staticmethod
     def _fmt_cmd(cmd: List[str]) -> str:
         sep_color = Color.Normal.dim
-        return sep_color('[') + sep_color(", ").join(map(Color.Purple.bold, cmd)) + sep_color(']')
+        return sep_color('[') + sep_color(", ").join(map(Color.Blue.bold, cmd)) + sep_color(']')
 
 
     def _exec(self, cmd: Union[str, List[str]], cwd: Optional[str] = None):
         if isinstance(cmd, str):
             cmd = [self._env.shell, '-c', cmd]
+
+        logging.info('Running command {}{}'
+                     .format(self._fmt_cmd(cmd), f' inside {Color.Blue.bold(cwd)}' if cwd is not None else ""))
+
         if cwd is None:
             cwd = self._env.workdir
 
-        logging.info(f'Running command {self._fmt_cmd(cmd)} inside {Color.Blue.bold(cwd)}')
         ec = subprocess.run(cmd, cwd=cwd).returncode
 
         if ec != 0:
@@ -229,20 +235,22 @@ class CLI:
         return CLI(**vars(parser.parse_args()))
 
 
-
 if __name__ == "__main__":
     cli = CLI.from_args()
 
     logging.basicConfig(level=logging.DEBUG if cli.verbose else logging.INFO)
+    logging.getLogger().name = Color.Normal.dim("None")
     logging.getLogger().handlers[0].setFormatter(ColorFormatter())
 
-    env = Env.default()
-    if (config := cli.file) is not None:
-        env.workdir = dirname(abspath(config))
-    else:
-        config = join(env.workdir, 'dotfiles.toml')
+    config_path = abspath(cli.file or join(dirname(abspath(__file__)), 'dotfiles.toml'))
+    logging.info(f"Using config at {Color.Yellow(config_path)}")
+    config = Config.from_file(config_path)
 
-    runner = Runner(config=Config.from_file(config), env=env)
+    workdir = _ensure_absolute(config.options.workdir, dirname(config_path))
+    logging.info(f'Using workdir {Color.Yellow(workdir)}')
+    env = Env(workdir=workdir)
+
+    runner = Runner(config=config, env=env)
 
     if cli.list:
         runner.list_targets(cli.verbose)
@@ -251,4 +259,5 @@ if __name__ == "__main__":
         exit(1)
     else:
         for target in cli.targets:
+            logging.getLogger().name = Color.Magenta.bold(target)
             runner.run(target)

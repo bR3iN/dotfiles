@@ -17,6 +17,7 @@ command = "agreety --cmd /usr/local/bin/mysway"
 user = "greeter"
 
 # Uncomment for autologin
+# FIXME: doesn't unlock keyring though
 #[initial_session]
 #command = "mysway"
 #user = "<user>"
