@@ -16,13 +16,7 @@ cmds = [
     "cp -n ~/.config/kanshi/config-template ~/.config/kanshi/config",
 ]
 
-links = {
-    ".config/sway" = "Sway/sway",
-    ".config/waybar" = "Sway/waybar",
-    ".config/kanshi" = "Sway/kanshi",
-    ".config/mako" = "Sway/mako",
-    # ".config/swaylock" = "Sway/swaylock",
-}
+links = { ".config/sway" = "Sway/sway", ".config/waybar" = "Sway/waybar", ".config/kanshi" = "Sway/kanshi", ".config/mako" = "Sway/mako" }
 
 [target.tmux.links]
 ".config/tmux" = "tmux"
@@ -73,9 +67,6 @@ cmds = [
     "sudo cp -r fish /root/.config",
 ]
 
-[target.bat.links]
-".config/bat/config" = "bat.conf"
-
 [target.profile]
 links = {".profile" = "profile"}
 cmds = ["mkdir -p ~/.profile.d"]
@@ -104,11 +95,8 @@ cmds = [
 [target.bat.links]
 ".config/bat/config" = "bat.conf"
 
-[target.qutebrowser.links]
-"~/.config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
-"~/.config/qutebrowser/base16.py" = "qutebrowser/base16.py"
-
 [target.rust]
 cmds = ["hooks/setup/rustup.sh"]
 
-
+[target.zen]
+install = ["zen-themes"]
