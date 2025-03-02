@@ -437,19 +437,19 @@ include the current thing at point."
 
 (defun mark-thing (thing &optional n)
   (interactive (list current-thing (prefix-numeric-value current-prefix-arg)))
-  (unless (= n 0)
-    (let* ((n (or n 1))
-           (forward (> n 0))
-           (direction (if forward 1 -1))
-           (nr-ext (1- (abs n)))
-           (bounds (bounds-of-thing-at-point current-thing)))
-      (if (not bounds) (error (concat "No " (symbol-name current-thing) " at point"))
-        (let ((mk (if forward (car bounds) (cdr bounds)))
-              (pt (if forward (cdr bounds) (car bounds))))
-          (push-mark mk t t)
-          (goto-char pt))
-        (when (> nr-ext 0)
-          (forward-thing current-thing (* direction nr-ext)))))))
+  (let ((n (or n 1)))
+    (unless (= n 0)
+     (let* ((forward (> n 0))
+            (direction (if forward 1 -1))
+            (nr-ext (1- (abs n)))
+            (bounds (bounds-of-thing-at-point current-thing)))
+       (if (not bounds) (error (concat "No " (symbol-name current-thing) " at point"))
+         (let ((mk (if forward (car bounds) (cdr bounds)))
+               (pt (if forward (cdr bounds) (car bounds))))
+           (push-mark mk t t)
+           (goto-char pt))
+         (when (> nr-ext 0)
+           (forward-thing current-thing (* direction nr-ext))))))))
 
 
 (defun down-thing-cmd (thing &optional n)
@@ -598,6 +598,14 @@ include the current thing at point."
 ;                        (set-current-thing (or thing (read-thing)))))))
 
 ;; Inner and outer TODO: put into separate module and simplifiy this one
+
+(define-minor-mode show-current-thing-mode
+  "Display current thing in modeline"
+  :global nil
+  :lighter (:eval (propertize (format " %s" current-thing)
+                              'face 'current-thing-face)))
+
+(define-global-minor-mode global-show-current-thing-mode show-current-thing-mode #'show-current-thing-mode)
 
 (provide 'thing-nav)
 

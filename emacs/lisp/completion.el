@@ -31,6 +31,7 @@
   ;; (keymap-unset company-active-map "C-m")
   (keymap-unset company-active-map "C-w")
   (keymap-set company-active-map "C-l" 'company-complete-selection)
+  (keymap-set company-active-map "C-e" 'company-abort)
   (keymap-set company-active-map "<tab>" 'company-complete-common)
   (keymap-set company-active-map "C-i" 'company-show-location)
 

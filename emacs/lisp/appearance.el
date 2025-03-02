@@ -4,6 +4,15 @@
 
 (fringe-mode 0)
 
+;; FIXME: A `my/'-prefix yields a syntax error when compiling a treesit-query later
+(defface font-lock-namespace-face
+  '((t :inherit font-lock-type-face))
+  "Face for namespaces")
+
+(defface current-thing-face
+  '()
+  "Face for current thing in mode line")
+
 (use-package base16-theme
   :config
   (setq base16-theme-256-color-source 'colors)
@@ -13,11 +22,47 @@
   (enable-theme 'base16)
 
   (require 'color-utils)
-  (set-face-attribute 'cursor nil :background (base16-get :green))
-  (set-face-attribute 'region nil :background (colored-region :blue 0.15))
-  (set-face-attribute 'secondary-selection nil :background (colored-region :magenta 0.15))
-  (set-face-attribute 'match nil :weight 'bold)
-  (set-face-attribute 'mode-line-inactive nil :background (color-darken-name (base16-get :bg2) 10))
+  (let ((faces `((cursor :background ,(base16-get :green))
+                 ;;(mode-line-inactive :background ,(color-darken-name (base16-get :bg2) 10))
+                 (flymake-error :background unspecified :underline ,(base16-get :dark_red))
+                 (flymake-warning :background unspecified)
+
+                 ;; Misc. selections
+                 (region :background ,(colored-region :blue 0.15))
+                 (secondary-selection :background ,(colored-region :magenta 0.15))
+                 (match :weight bold)
+                 (shadow :foreground ,(base16-get :base04))
+                 (current-thing-face :foreground ,(base16-get :cyan))
+                 
+                 (font-lock-builtin-face              :foreground ,(base16-get :base0D))
+                 (font-lock-comment-delimiter-face    :foreground ,(base16-get :base03))
+                 (font-lock-comment-face              :foreground ,(base16-get :base03))
+                 (font-lock-constant-face             :foreground ,(base16-get :magenta))
+                 (font-lock-number-face               :foreground ,(base16-get :magenta))
+                 (font-lock-doc-face                  :foreground ,(base16-get :base04))
+                 ;;(font-lock-doc-string-face           :foreground ,(base16-get :base03))
+                 (font-lock-function-name-face        :foreground ,(base16-get :dark_cyan) :weight normal)
+                 (font-lock-function-call-face        :foreground ,(base16-get :cyan) :weight medium)
+                 (font-lock-keyword-face              :foreground ,(base16-get :yellow) :weight normal)
+                 (font-lock-negation-char-face        :foreground ,(base16-get :base09))
+                 (font-lock-preprocessor-face         :foreground ,(base16-get :base0D))
+                 (font-lock-regexp-grouping-backslash :foreground ,(base16-get :brown))
+                 (font-lock-regexp-grouping-construct :foreground ,(base16-get :base0E))
+                 (font-lock-string-face               :foreground ,(base16-get :magenta))
+                 (font-lock-type-face                 :foreground ,(base16-get :base0B) :weight medium)
+                 (font-lock-variable-name-face        :foreground ,(base16-get :dark_red) :weight normal)
+                 (font-lock-variable-use-face         :foreground ,(base16-get :red) :weight medium)
+                 (font-lock-property-name-face        :foreground ,(base16-get :dark_orange) :weight normal)
+                 (font-lock-property-use-face         :foreground ,(base16-get :orange) :weight medium)
+                 (font-lock-warning-face              :foreground ,(base16-get :base08))
+                 (font-lock-delimiter-face            :foreground ,(base16-get :brown))
+                 (font-lock-operator-face             :foreground ,(base16-get :fg1) :weight medium)
+                 (font-lock-bracket-face              :foreground ,(base16-get :brown))
+                 ;; Custom face
+                 (font-lock-namespace-face            :foreground ,(base16-get :dark_green) :weight normal)
+                 )))
+    (dolist (face-config faces)
+      (apply #'set-face-attribute (car face-config) nil (cdr face-config))))
   )
 
 (with-eval-after-load 'eat

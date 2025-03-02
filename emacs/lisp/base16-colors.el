@@ -35,6 +35,14 @@
     :brown "#AD9B7F"
 
     ; Extension colors derived from the above
+    :dark_bg0 "#191919"
+    :dark_bg1 "#212121"
+    :dark_bg2 "#282828"
+    :dark_bg3 "#303030"
+    :dark_fg0 "#868686"
+    :dark_fg1 "#A4A4A4"
+    :dark_fg2 "#B5B5B5"
+    :dark_fg3 "#C2C2C2"
     :dark_red "#B42929"
     :dark_orange "#C0791B"
     :dark_yellow "#CCA440"
