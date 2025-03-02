@@ -6,8 +6,8 @@
     "height": 30,
     "modules-left": [
         "sway/workspaces",
-        // "sway/language",
         "custom/sway/scratchpad",
+        // "sway/language",
         "sway/mode",
     ],
     "modules-center": [
@@ -27,7 +27,7 @@
 
     "sway/workspaces": {
         "disable-scroll": true,
-        "all-outputs": false,
+        "all-outputs": true,
         "format": "{name}",
         "format-icons": {
             "1": "",
@@ -146,9 +146,10 @@
     },
 
     "custom/sway/scratchpad": {
-        "format": "󰎚 0",
-        "interval": "once",
-        "tooltip": false
+        "return-type": "json",
+        "exec": "sway-scratchpad-waybar-0.1.00x86_64-linux-gnu",
+        "hide-empty-text": true,
+        "format": "{}",
     },
 
     "custom/separator": {
