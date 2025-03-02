@@ -4,7 +4,7 @@ install = [
     "bin/lock-wrapper",
     "bin/kbbacklight_toggle",
     "bin/backlight",
-    "https://github.com/bR3iN/sway-scratchpad-waybar/releases/tag/v0.1.0/sway-scratchpad-waybar-0.1.0-x86_64-linux-gnu",
+    "https://github.com/bR3iN/sway-scratchpad-waybar/releases/download/v0.1.0/sway-scratchpad-waybar-0.1.0-x86_64-linux-gnu",
 ]
 
 system_install = [
