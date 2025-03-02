@@ -53,13 +53,10 @@
   :config
   (setq org-startup-truncated nil))
 
-(defvar rerequire-config t)
-
 (defun rerequire (feature &rest rest)
   (when (featurep feature)
     (unload-feature feature t))
   (apply #'require feature rest))
-
 
 
 (require 'cl-lib)
@@ -78,7 +75,7 @@
 (rerequire 'completion)
 (rerequire 'dot-repeat)
 (rerequire 'zk-emacs)
-(rerequire 'prog-buffers)
+;;(rerequire 'prog-buffers)
 (rerequire 'winmax)
 (rerequire 'up-and-down)
 (rerequire 'dymap)
@@ -115,6 +112,8 @@
 
 (keymap-multiset global-map -windmove-bindings)
 
+;; Colorize compilation output
+;; (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
 ;; TODO: desktop-save asks for custom path
 (use-package desktop
@@ -267,6 +266,20 @@
 
 (setq treesit-font-lock-level 4)
 
+(defun -treesit-hook ()
+  (let ((settings (treesit-font-lock-rules
+                   :language 'cpp
+                   :override t
+                   :feature 'namespace
+                   '((namespace_identifier) @font-lock-namespace-face))))
+    (setq treesit-font-lock-settings (append treesit-font-lock-settings settings)))
+  ;; (push 'namespace (nth 3 treesit-font-lock-feature-list))
+  ;; (treesit-font-lock-recompute-features '(namespace))
+  )
+
+(add-hook 'c++-ts-mode-hook #'-treesit-hook)
+(add-hook 'rust-ts-mode-hook #'-treesit-hook)
+
 ;; Automatically install missing ts-grammars and use -ts-modes
 (use-package treesit-auto
   :custom
@@ -295,6 +308,8 @@
 
 (ido-mode -1) ;; TODO: needed?
 (keymap-set global-map "C-w" 'backward-kill-word)
+;; Doesn't work
+(keymap-set isearch-mode-map "C-w" 'backward-kill-word)
 
 ;; TODO: check if needed, possibly generalize scroll-mode for other-window?
 (setq help-window-select t)
@@ -497,118 +512,118 @@
     (isearch-forward-regexp)))
 
 
-(defun -setup-keymaps ()
-  ;; General configuration
+;; General configuration
 
-  (alist-map
-   (lambda (mode state)
-     (setf (alist-get mode meow-mode-state-list) state))
-   `(
-     (help-mode . motion)
-     (eshell-mode . motion)
-     (debugger-mode . motion)
-     (messages-buffer-mode . normal)
-     (eat-mode . normal)
-     (dape-repl-mode . insert)
-     ;; (dired-mode . transparent)
-     ))
+(alist-map
+ (lambda (mode state)
+   (setf (alist-get mode meow-mode-state-list) state))
+ `(
+   (help-mode . motion)
+   (eshell-mode . motion)
+   (debugger-mode . motion)
+   (messages-buffer-mode . normal)
+   (eat-mode . normal)
+   (dape-repl-mode . insert)
+   ;; (dired-mode . transparent)
+   ))
 
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+(setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
 
-  (setq meow-keypad-self-insert-undefined nil)
-  ;; Prefix is bound in leader mode
-  (setq meow-motion-remap-prefix "H-a")
+(setq meow-keypad-self-insert-undefined nil)
+;; Prefix is bound in leader mode
+(setq meow-motion-remap-prefix "H-a")
 
-  ;; TODO: decide how far to couple to meow as a framework; is `map' below and the meow-<state>-mode functions enough?
-  (defmacro def-state (name-lit indicator desc &optional transparent)
-    (let* ((name (symbol-name name-lit))
-	       (keymap (intern (concat "meow-" name "-state-keymap"))))
-      `(progn
-         (setq ,keymap (make-keymap))
-         (when (not ,transparent)
-           (suppress-keymap ,keymap t))
-         (meow-define-state ,name-lit
-           ,desc
-           :lighter ,(concat " [" indicator "]")
-           :keymap ,keymap))))
+;; TODO: decide how far to couple to meow as a framework; is `map' below and the meow-<state>-mode functions enough?
+(defmacro def-state (name-lit indicator desc &optional transparent)
+  (let* ((name (symbol-name name-lit))
+	     (keymap (intern (concat "meow-" name "-state-keymap"))))
+    `(progn
+       (setq ,keymap (make-keymap))
+       (when (not ,transparent)
+         (suppress-keymap ,keymap t))
+       (meow-define-state ,name-lit
+         ,desc
+         :lighter ,(concat " [" indicator "]")
+         :keymap ,keymap))))
 
-  ;; TODO: insert state should be enough, as long as we can simulate escape
-  (def-state transparent "T" "Transparent")
+;; TODO: insert state should be enough, as long as we can simulate escape
+(def-state transparent "T" "Transparent")
 
-  ;; Visual Mode; automatically entered and left when activating and deactivating region.
-  (def-state visual "V" "State during active selection")
+;; Visual Mode; automatically entered and left when activating and deactivating region.
+(def-state visual "V" "State during active selection")
 
-  ;; Keep track of last pre-visual mode and re-enter it when deactivating mark
-  (defvar-local -pre-visual-state nil)
+;; Keep track of last pre-visual mode and re-enter it when deactivating mark
+(defvar-local -pre-visual-state nil)
 
-  (defun -enter-visual-state-hook ()
-    (let ((state (meow--current-state)))
-      (when (member state '(normal motion))
-        (save-local-win-pos)
+(defun -enter-visual-state-hook ()
+  (let ((state (meow--current-state)))
+    (when (member state '(normal motion))
+      (save-local-win-pos)
                                         ; (setq -pre-visual-point (point))
-        (setq -pre-visual-state state)
-        (clear-current-trace)
-        (meow--switch-state 'visual))))
+      (setq -pre-visual-state state)
+      (clear-current-trace)
+      (meow--switch-state 'visual))))
 
-  (defun -leave-visual-state-hook ()
-    (when (equal (meow--current-state) 'visual)
+(defun -leave-visual-state-hook ()
+  (when (equal (meow--current-state) 'visual)
                                         ; (setq -pre-visual-point nil)
-      (meow--switch-state -pre-visual-state)
-      (setq -pre-visual-state nil)))
+    (meow--switch-state -pre-visual-state)
+    (setq -pre-visual-state nil)))
 
-  (add-hook 'activate-mark-hook #'-enter-visual-state-hook)
-  (add-hook 'deactivate-mark-hook #'-leave-visual-state-hook)
+(add-hook 'activate-mark-hook #'-enter-visual-state-hook)
+(add-hook 'deactivate-mark-hook #'-leave-visual-state-hook)
 
-  (defun abort-visual ()
-    (interactive)
-    (deactivate-mark)
-    (restore-local-win-pos))
-
-
-  (defun entering-insert-state (cmd)
-    (adviced cmd
-             :what "Enters insert state."
-             :after (lambda (&rest _) (meow-insert-mode))))
+(defun abort-visual ()
+  (interactive)
+  (deactivate-mark)
+  (restore-local-win-pos))
 
 
-  (defun open-line-below ()
-    (interactive)
-    (deactivate-mark)
+(defun entering-insert-state (cmd)
+  (adviced cmd
+           :what "Enters insert state."
+           :after (lambda (&rest _) (meow-insert-mode))))
+
+
+(defun open-line-below ()
+  (interactive)
+  (deactivate-mark)
+  (end-of-line)
+  (newline-and-indent)
+  (meow-insert-mode))
+
+(defun open-line-above ()
+  (interactive)
+  (deactivate-mark)
+  (beginning-of-line)
+  (if (bobp) (open-line 1)
+    (forward-line -1)
     (end-of-line)
-    (newline-and-indent)
-    (meow-insert-mode))
-
-  (defun open-line-above ()
-    (interactive)
-    (deactivate-mark)
-    (beginning-of-line)
-    (if (bobp) (open-line 1)
-      (forward-line -1)
-      (end-of-line)
-      (newline-and-indent))
-    (meow-insert-mode))
+    (newline-and-indent))
+  (meow-insert-mode))
 
 
-  (defun insert-at-beginning-of-thing (thing &optional n)
-    (interactive (list current-thing (prefix-numeric-value current-prefix-arg)))
-    (unless (forward-to-nearest-thing-at-point thing (- n))
-      (error "No thing found"))
-    (meow-insert-mode))
+(defun insert-at-beginning-of-thing (thing &optional n)
+  (interactive (list current-thing (prefix-numeric-value current-prefix-arg)))
+  (unless (forward-to-nearest-thing-at-point thing (- n))
+    (error "No thing found"))
+  (meow-insert-mode))
 
-  (defun insert-at-end-of-thing (thing &optional n)
-    (interactive (list current-thing (prefix-numeric-value current-prefix-arg)))
-    (unless (forward-to-nearest-thing-at-point thing n)
-      (error "No thing found"))
-    (meow-insert-mode))
-  
-  (defun map (keymap bindings)
-    (if (symbolp keymap)
-        (apply #'meow-define-keys keymap bindings)
-      (pcase-dolist (`(,key . ,cmd) bindings)
-        (keymap-set keymap key cmd))))
-  
+(defun insert-at-end-of-thing (thing &optional n)
+  (interactive (list current-thing (prefix-numeric-value current-prefix-arg)))
+  (unless (forward-to-nearest-thing-at-point thing n)
+    (error "No thing found"))
+  (meow-insert-mode))
 
-  ;; Keybindings
+(defun map (keymap bindings)
+  (if (symbolp keymap)
+      (apply #'meow-define-keys keymap bindings)
+    (pcase-dolist (`(,key . ,cmd) bindings)
+      (keymap-set keymap key cmd))))
+
+
+;; Keybindings; set them up last when all commands referenced exist.
+(with-eval-after-load 'init
   (let* ((digit-bindings 
           `(("-" . negative-argument)
             ("1" . digit-argument)
@@ -650,7 +665,7 @@
             ("<up>" . windmove-up)
             ("<down>" . windmove-right)
             ;; Move windows
-            ("H" . windmove-swap-states-left)
+            ("H" . windmove-swap--left)
             ("J" . windmove-swap-states-down)
             ("K" . windmove-swap-states-up)
             ("L" . windmove-swap-states-right)
@@ -742,22 +757,24 @@
             ("l" . "<right>")
 
             ("t" . find-char)
-            ("/" . search-cmd)
-            ("g /" . ,(adviced #'search-cmd
-                               :after (lambda (&rest _)
-                                        (isearch-ring-retreat))))
-            ("?" . regexp-search-cmd)
+            ;; ("/" . search-cmd)
+            ;; ("g /" . ,(adviced #'search-cmd
+            ;;                    :after (lambda (&rest _)
+            ;;                             (isearch-ring-retreat))))
+            ;; ("?" . regexp-search-cmd)
             ("a" . trace-to-region)
 
-            ("C-d" . sscroll-hp-down)
-            ("C-u" . sscroll-hp-up)
             ("g +" . winmax-dwim)
             ("+" . winmax2-max)
+            ;; TODO reverse-st here instead?
             ("C-o" . pop-to-mark-command)
             ("M-o" . pop-global-mark)
             ("G" . ,(traced-motion-if-local #'avy-goto-char-2))
             ("[" . previous-error)
             ("]" . next-error)
+            ("'" . recenter-current-error)
+            ("{" . flymake-goto-prev-error)
+            ("}" . flymake-goto-next-error)
 
             ;; Window nav keys under C-w prefix
             ,@(alist-map (lambda (key cmd)
@@ -771,7 +788,7 @@
 
     (map 'normal
          `(,@digit-bindings
-           ,@-windmove-bindings
+           ;;,@-windmove-bindings
            ,@basic-navigation
            ,@thing-nav-tracing
            ,@thing-nav-marking
@@ -786,11 +803,20 @@
            ("C-g" . universal-argument)
            ("<escape>" . my-reset)
 
+           ("C-n" . company-complete)
+
+           ;; TODO: change multiple?
+           ("M-c" . ,(entering-insert-state
+                      (lambda ()
+                        (interactive)
+                        (mark-thing 'sexp)
+                        (kill-region (region-beginning) (region-end)))))
+
            ;; FIXME: eval/replace
            ("'" . toggle-thing-hints)
            ("C-'" . ,(with-tmp-thing #'hint-thing))
-           ("Q" . delete-window)
-           ("g Q" . kill-current-buffer)
+           ("q" . delete-window)
+           ("g q" . kill-current-buffer)
 
            ("g R" . reload-config)          
            ("I" . ,(with-tmp-thing #'insert-at-beginning-of-thing))
@@ -805,6 +831,7 @@
            ("X" . delete-backward-char)
 
            ("d" . delete-forward-char)
+           ("D" . delete-backward-char)
            
            ("c" . ,(entering-insert-state #'sp-delete-char))
            ;; TODO: jump if eotp
@@ -829,14 +856,16 @@
            ("Z" . start-scroll-mode)
            ("z" . ,scroll-keys)
 
+           ("<backspace>" . dired-jump)
+
            ;; Unclear TODO
            ("g g" . consult-goto-line)
            ("G" . meow-grab)
            ("J" . ,(with-tmp-thing #'join-things))
            ("g J" . ,(with-tmp-thing #'join-things-at))
 
-           ("<return>" . open-line-below)
-           ("S-<return>" . open-line-above)
+           ("o" . open-line-below)
+           ("O" . open-line-above)
 
            ("TAB" . ,(with-tmp-thing (act-on-tap-region #'indent-region) nil t))
 
@@ -849,14 +878,16 @@
            ("C-m" . set-mark-command)
            ("g C-m" . rectangle-mark-mode)
            
-           ("o" . reverse-st)))
+           ("K" . eldoc-print-current-symbol-info)
+           ;; ("o" . reverse-st)
+           ))
     
     (map 'visual
          `(,@digit-bindings
-           ,@-windmove-bindings
+           ;;,@-windmove-bindings
            ,@basic-navigation
            ,@thing-nav-basic
-           ,@thing-nav-marking
+          ,@thing-nav-marking
 
            ("<escape>" . (lambda ()
                            (interactive)
@@ -882,56 +913,84 @@
            ("v" . smart-replace)))
     
     (map 'insert
-         `(,@-windmove-bindings
+         `(;;,@-windmove-bindings
            ;; ("<escape>" . ,(dynmap
            ;;                 `((eat--char-mode . eat-emacs-mode)
            ;;                   (t . meow-insert-exit))))
+           ("C-k" . eldoc-print-current-symbol-info)
            ("C-v" . smart-yank)))
     
     (map 'motion
-         `(,@-windmove-bindings
+         `(;;,@-windmove-bindings
+           ,@(alist-map (lambda (key cmd)
+                          (cons (concat "C-w " key) cmd))
+                        window-nav-keys)
            ("h" . "<left>")
            ("j" . "<down>")
            ("k" . "<up>")
            ("l" . "<right>")
-           ("+" . winmax2-max)
+           ("SPC" . meow-keypad)
+           ;; Bound by meow to alt-buffer, unbind it
            ("<escape>" . nil)))
 
+    (map global-map
+         `(,@-windmove-bindings
+           ("C-d" . sscroll-hp-down)
+           ("C-u" . sscroll-hp-up)
+           ("C-<space>" . meow-keypad)
+           ;; TODO: Have this toggle max instead
+           ("C-=" . winmax2-max)
+           ))
     
+
     ;; (setq eat-semi-char-mode-map eat-char-mode-map)
 
     (map mode-specific-map
          `(("C-d" . ,meow-motion-remap-prefix)
-           ("a" . mode-line-other-buffer)
-           ("w" . save-buffer)
+           ;; ("a" . mode-line-other-buffer)
+           ("w" . save-buffer) ;; in normal?
            ("b" . consult-buffer)
            ("B" . consult-project-buffer)
            ("s" . set-variable)
+
+           ("d b" . dape-breakpoint-toggle)
+           ("d d" . dape)
+
+           ("r r" . recompile)
+           ("r c" . compile)
 
            ("t c" . toggle-comments)
            ("t h" . eglot-inlay-hints-mode)
            ("t p" . prog-buffers-mode)
            ("t d" . dirvish-side)
            ("t s" . window-toggle-side-windows)
+           ("t w" . toggle-truncate-lines)
 
-           ("r l" . eglot-code-actions)
-           ("r n" . eglot-rename)
-           ("r f" . eglot-format)
-           ("r q" . eglot-code-action-quickfix)
-           ("r x" . eglot-code-action-extract)
-           ("r i" . eglot-code-action-inline)
-           ("r I" . eglot-code-action-organize-imports)
-           ("r w" . eglot-code-action-rewrite)
+           ("a l" . eglot-code-actions)
+           ("a n" . eglot-rename)
+           ("a f" . eglot-format)
+           ("a q" . eglot-code-action-quickfix)
+           ("a x" . eglot-code-action-extract)
+           ("a i" . eglot-code-action-inline)
+           ("a I" . eglot-code-action-organize-imports)
+           ("a w" . eglot-code-action-rewrite)
 
+           ("o a" . mode-line-other-buffer)
            ("o j" . ,(entering-insert-state #'org-journal-new-entry))
            ("o i" . ,(lambda ()
                        (interactive)
                        (find-file user-init-file)))
            ("o t" . eat)
-           ("o f" . dired-jump)
            ("o d" . eldoc-doc-buffer)
+           ("o D" . flymake-show-project-diagnostics)
            ("o c" . eglot-hierarchy-both)
+           ("o u" . dired-jump)
            
+           ("o n" . (lambda ()
+                      (interactive)
+                      (let ((consult-async-min-input 1))
+                        (consult-fd "~/Notes"))))
+
            ("l s" . eglot)
            ("l x" . eglot-shutdown)
 
@@ -955,19 +1014,24 @@
                                 (xref-prompt-for-identifier nil))
                                eglot-find-implementation))
 
-           ("f f" . consult-fd)
+           ("f f" . ,(lambda ()
+                       (interactive)
+                       (consult-fd (if (derived-mode-p 'dired-mode)
+                                       dired-directory nil))))
+           
            ("f b" . consult-recent-files)
-           ("f g" . consult-ripgrep)
-           ("f G" . consult-git-grep)
+           ("f g" . ,(lambda ()
+                       (interactive)
+                       (consult-ripgrep (if (derived-mode-p 'dired-mode)
+                                            dired-directory nil))))
+           ("f G" . ,(lambda ()
+                       (interactive)
+                       (consult-git-grep (if (derived-mode-p 'dired-mode)
+                                             dired-directory nil))))
            ("f l" . consult-line)
            ("f L" . (lambda ()
                       (interactive)
                       (consult-line-multi t)))
-
-           ("o n" . (lambda ()
-                      (interactive)
-                      (let ((consult-async-min-input 1))
-                        (consult-fd "~/Notes"))))
 
            ("p f" . project-find-file)
            ("p F" . project-or-external-find-file)
@@ -976,6 +1040,7 @@
            ("p c" . project-compile)
            ("p ." . project-dired)
            ("p d" . project-find-dir)
+           ("p D" . flymake-show-project-diagnostics)
            ("p r" . project-query-replace-regexp)
            ("p s" . project-eshell)
            ("p t" . eat-project)
@@ -984,12 +1049,17 @@
            ("p e" . profiler-stop)
            ("p r" . profiler-report)))
 
-    (map 'transparent
-         `(,@-windmove-bindings
-           ("<escape>" . ,(dynmap `((t . meow-motion-mode))))
-           ("C-<space>" . meow-keypad))))
+    (map dired-mode-map
+         `(("<backspace>" . dired-jump)))
 
-  (meow-global-mode 1))
+    ;; (map 'transparent
+    ;;      `(,@-windmove-bindings
+    ;;        ("<escape>" . ,(dynmap `((t . meow-motion-mode))))
+    ;;        ("C-<space>" . meow-keypad)))
+
+    ))
+
+(meow-global-mode 1)
 
 
 
@@ -1011,6 +1081,7 @@
 (use-package undo-tree
   :config
   ;; undo-tree uses this as a heuristic to detect incompatible major modes which of course makes no sense if we remap C-/ manually
+  ;; TODO: overwrites C-/ in visual mode?
   (advice-add 'undo-tree-overridden-undo-bindings-p :override #'ignore)
   (global-undo-tree-mode 1)
 
@@ -1021,7 +1092,6 @@
       (make-directory undo-hist-dir t))
     (setq undo-tree-auto-save-history t
           undo-tree-history-directory-alist `(("." . ,undo-hist-dir)))))
-
 (setq inhibit-startup-screen t)
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -1073,7 +1143,7 @@
                      "*.ti" ("terminfo/e" "terminfo/e/*")
                      ("terminfo/65" "terminfo/65/*")
                      ("integration" "integration/*")
-                     (:exclude ".dir-locals.el" "*-tests.el"))))
+                     (:exclude ".dir-locals.el" "*-s.el"))))
 (require 'eat)
 (add-hook 'eat-exec-hook (lambda (&rest_) (eat-char-mode) (meow-insert-mode)))
 
@@ -1090,35 +1160,48 @@
 ;;                                       (meow-insert-exit)
 ;;                                     (meow-normal-mode))))
 
+;; Always follow compilation output. Even in the case of errors, as causes warnings (whihc are not differentiated) to hide further output
+(setq compilation-scroll-output t)
+
 
 
 
 ;; TODO: `display-buffer-fallback-action' configures the default behavior
-(let ((left-width 35))
+(let ((left-width 35)
+      (open '(display-buffer-reuse-window display-buffer-in-side-window)))
   ;; Do NOT add (dedicated . t) here as display-buffer-in-side-window will set it to 'side by itself which yields the wanted behavior; having 't instead will cause new buffers displayed in the same side window to not be dedicated.
   (dolist (el
            ;; Right side
-           `(("\\*info\\*" display-buffer-in-side-window
+           `(("\\*info\\*" ,open
               (side . right) (slot . -3))
-             ("\\*Help\\*" display-buffer-in-side-window
+             ("\\*Help\\*" ,open
               (side . right) (slot . -2))
-             ("\\*eldoc" display-buffer-in-side-window
+             ("\\*Embark Actions\\*" ,open
+              (side . right) (slot . -2))
+             ("\\*eldoc" ,open
               (side . right) (slot . -1))
 
              ;; Bottom
-             ("\\*\\(.*-\\)?eat" display-buffer-in-side-window
+             ("\\*\\(.*-\\)?eat" ,open
               (side . bottom) (slot . 0))
-             ("\\*compilation\\*" display-buffer-in-side-window
+             ("\\*Inferior Haskell\\*" ,open
+              (side . bottom) (slot . 0))
+             ("\\*compilation\\*" ,open
+              (side . bottom) (slot . 1))
+             ("\\*Flymake.*\\*" ,open
+              (side . bottom) (slot . 1))
+             ("\\*xref\\*" ,open
               (side . bottom) (slot . 1))
 
-             ("\\*EGLOT LSP Hierarchy\\*" display-buffer-in-side-window
+             ("\\*EGLOT LSP Hierarchy\\*" ,open
               (side . left) (slot . 0)  (window-width . ,left-width))))
     (add-to-list 'display-buffer-alist el))
   (setq dirvish-side-width left-width))
 
 
-;; Do this last when all commands referenced exist.
-(-setup-keymaps)
+
+
+
 (map eat-mode-map
      `(("<remap> <meow-insert-mode>" . (lambda ()
                                          (interactive)
@@ -1128,6 +1211,7 @@
 
 (map eat-char-mode-map
      `(,@-windmove-bindings
+       ("C-v" . eat-yank)
        ("M-x" . execute-extended-command)
        ("C-h" . ,help-map)
        ("<remap> <meow-insert-exit>" . (lambda ()
@@ -1138,6 +1222,7 @@
                                   eat-self-input))))
 
 
+(provide 'init)
 
 ;; Local Variables:
 ;; read-symbol-shorthands: (("-" . "init--"))

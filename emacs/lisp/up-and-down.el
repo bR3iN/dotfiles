@@ -5,6 +5,7 @@
 
   (require 'smartparens-config)
   (smartparens-global-strict-mode)
+  (setq sp-navigate-reindent-after-up nil)
   (add-hook 'eval-expression-minibuffer-setup-hook 'turn-on-smartparens-strict-mode)
 
   (defmacro wrap-with (pair)

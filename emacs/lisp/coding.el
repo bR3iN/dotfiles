@@ -16,6 +16,11 @@
 (with-eval-after-load 'eglot
   (defvar eglot-server-programs)
   (add-to-list 'eglot-server-programs
-  	           '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp"))))
+  	           '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (setq eldoc-display-functions (remove #'eldoc-display-in-echo-area eldoc-display-functions))
+  (remove-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+    )
+
+
 
 (provide 'coding)
