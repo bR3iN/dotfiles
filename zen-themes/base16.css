@@ -1,0 +1,45 @@
+/* Check buttom of zen-theme.css in Browser Toolbox for reference */
+
+/****************/
+/* Color scheme */
+/****************/
+
+:root {
+    /* selected background in url-completion is derived; */
+    --zen-primary-color: #AD7FA8 !important;
+
+    /* Checkbox backgrounds */
+    --zen-colors-primary: #29B4B4 !important;
+    /* current Tab, others are derived from primary-color; lock in the left of the url bar is derived? */
+    --zen-colors-secondary: #563F54 !important;
+    /* default background; url bar when not selected */
+    --zen-colors-tertiary: #2A2A2A !important;
+
+    --zen-colors-hover-bg: #B42929 !important;
+    /* Foreground in printer dialog */
+    --zen-colors-primary-foreground: #CECECE !important;
+
+    --zen-colors-input-bg: #E23434 !important;
+    --zen-colors-border: color-mix(in srgb, #2A2A2A 85%, var(--zen-primary-color) 15%) !important;
+
+    --zen-dialog-background: #2A2A2A !important;
+    --zen-urlbar-background: #2A2A2A !important;
+
+    --zen-browser-gradient-base: #E23434 !important;
+}
+
+/***********************/
+/* Other Configuration */
+/***********************/
+
+/* Remove weird box shadow on urlbar on startup or when unfocused while having the urlbar selected */
+#urlbar[focused] > #urlbar-background {
+    outline: none !important;
+}
+
+/* Reduce toolbar heights for side panel */
+#zen-sidebar-web-header {
+  min-height: var(--zen-toolbar-height) !important;
+}
+
+/* vim: set ft=css: */
