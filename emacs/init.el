@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 
-
 ;; Bootstrap straight.el and activate use-package integration and autoinstallation
 (require 'bootstrap/straight)
 (straight-use-package 'use-package)

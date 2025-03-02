@@ -14,4 +14,4 @@
 (add-to-list 'default-frame-alist '(left-fringe . 0))
 (add-to-list 'default-frame-alist '(right-fringe . 0))
 (add-to-list 'default-frame-alist '(internal-border-width . 15))
-(add-to-list 'default-frame-alist '(alpha-background . 9))
+(add-to-list 'default-frame-alist '(alpha-background . 90))
