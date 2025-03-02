@@ -1,6 +1,7 @@
 (import-macros {: set! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb}
                :utils.macros)
 
+
 (local {: add!} (require :pkg))
 ; TODO: remove augroup!
 (local {: nmap!
@@ -141,7 +142,9 @@
             :callback #(dofile vim.env.MYVIMRC)}
            ; Don't create undofiles for temporary files
            {:event :BufWritePre :pattern :/tmp/* :callback #(setl! noundofile)}
-           {:event :BufWritePre :pattern "~/.crypt/*" :callback #(setl! noundofile)}
+           {:event :BufWritePre
+            :pattern "~/.crypt/*"
+            :callback #(setl! noundofile)}
            ; Highlight on yank
            {:event :TextYankPost
             :pattern "*"
@@ -166,6 +169,8 @@
                             (vim.api.nvim_get_hl 0)
                             (vim.tbl_extend :keep hl)
                             (vim.api.nvim_set_hl 0 name)))
+            hl! (fn [name hl]
+                  (vim.api.nvim_set_hl 0 name hl))
              {: colors : name} (require :base16-colors)
              {: darken} (require :base16.utils)] ; Decide if we use an external colorscheme or our own base16-based one
          (match name
@@ -210,6 +215,7 @@
          (vim.api.nvim_set_hl 0 :GitSignsCurrentLineBlame
                               {:link :CommentHighlighted})
          (hl-ext! :TrailingWhitespace {:fg colors.base03 :bg colors.base03}) ; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
+         (hl! :BqfPreviewTitle {:fg colors.green :bg colors.base02})
          ; Load after setting `CommentHighlighted` above
          (setup :plugin.toggle-comments)
          (nmap! :<C-h> ":ToggleComments<CR>")
@@ -283,13 +289,9 @@
 (nmap! :<leader>ol ":<C-u>lopen<CR>")
 (nmap! :<leader>ql ":<C-u>lclose<CR>")
 
-; Floating preview in quickfix window
-(add! :kevinhwang91/nvim-bqf
-      #(setup :bqf {:func_map {:fzffilter "" :open "<C-]>"}}))
-
 ; Better folds
-(add! [:kevinhwang91/nvim-ufo :kevinhwang91/promise-async]
-      #(setup :ufo {:provider_selector #[:treesitter :indent]}))
+; (add! [:kevinhwang91/nvim-ufo :kevinhwang91/promise-async]
+;       #(setup :ufo {:provider_selector #[:treesitter :indent]}))
 
 ; Open urls externally with xdg-open
 (mk-op! :OpenExternally (let [cmd :xdg-open
@@ -367,8 +369,8 @@
                          (picker opts)))]
             (each [[mode lhs] rhs (pairs {[:n :<leader>ff] #(pick :find_files
                                                                   {:follow true})
-                                          [:n :<leader>f.] #(pick :resume)
                                           ; Resumes previous picker
+                                          [:n :<leader>f.] #(pick :resume)
                                           [:n :<leader>b] #(pick :buffers
                                                                  {:sort_lastused true
                                                                   :sort_mru true})
@@ -380,8 +382,6 @@
                                                                   {:grep_open_files true})
                                           [:n :<leader>fL] #(pick :lsp_workspace_symbols)})]
               (vim.keymap.set mode lhs rhs))))))
-
-(add! :mrcjkb/rustaceanvim)
 
 ; Leap with s
 (add! :ggandor/leap.nvim
@@ -461,7 +461,7 @@
 (add! :elkowar/yuck.vim)
 
 ; Treesitter indentation for fennel is messed up, so use this plugin for this
-; (add! "m15a/vim-fennel-syntax")
+(add! :m15a/vim-fennel-syntax)
 
 (add! :lervag/vimtex (fn []
                        (let! vimtex_format_enabled 1)
@@ -644,7 +644,7 @@
         (set! foldexpr "nvim_treesitter#foldexpr()")
         (setup :nvim-treesitter.configs
                {:highlight {:enable true}
-                :indent {:enable true}
+                ; :indent {:enable true}
                 ; :additional_vim_regex_highlighting [:fennel] ; Use with indent=true
                 :textobjects {:select {:enable true
                                        :keymaps {:if "@function.inner"
@@ -660,77 +660,108 @@
                                      :swap_previous {"<leader>," "@parameter.inner"}}}})))
 
 (add! [:neovim/nvim-lspconfig :mickael-menu/zk-nvim]
-      (fn []
-        (let [{: set-default-keymaps!
-               : ls-setup!
-               : mk-on_attach
-               : mk-capabilities} (require :lsp)]
-          (set-default-keymaps! {[:n :gD] vim.lsp.buf.declaration
-                                 [:n :gd] vim.lsp.buf.definition
-                                 [:n :K] vim.lsp.buf.hover
-                                 [:n :gi] vim.lsp.buf.implementation
-                                 [:n :<C-k>] vim.lsp.buf.signature_help
-                                 [:n :<leader>D] vim.lsp.buf.type_definition
-                                 [:n :<leader>rn] vim.lsp.buf.rename
-                                 [:n :<leader>ca] vim.lsp.buf.code_action
-                                 [:n :gr] vim.lsp.buf.references
-                                 [:n :gqq] vim.lsp.buf.format
-                                 [:v :gq] vim.lsp.buf.format
-                                 [:n :<leader>od] vim.diagnostic.open_float
-                                 [:n "[d"] vim.diagnostic.goto_prev
-                                 ; ]
-                                 [:n "]d"] vim.diagnostic.goto_next})
-          (ls-setup! :clangd {}
-                     {[:n :<C-c>] #(vim.cmd.ClangdSwitchSourceHeader)})
-          ; {:name :lua_ls ;  :config (require :lsp.configs.sumneko_lua) ;  :keymaps {}}
-          (ls-setup! :bashls) ; (ls-setup! :vimls) ; (ls-setup! :fennel_ls) ; (ls-setup! ;   :fennel_language_server ;   {:settings { ;   :fennel {:diagnostics {:globals [:vim]} ;   :workspace {:library (vim.api.nvim_list_runtime_paths)}}}})
-          (ls-setup! :pyright)
-          (ls-setup! :cmake) ; (ls-setup! :rust_analyzer)
-          (ls-setup! :hls)
-          ; (ls-setup! :marksman)
-          (ls-setup! :racket_langserver)
-          (let [border :rounded
-                cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
-                                :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
-            (vim.diagnostic.config {:float {: border}})
-            (tset (require :lspconfig.ui.windows) :default_options {: border})
-            (each [cap handler (pairs cap-to-handler)]
-              (tset vim.lsp.handlers cap (vim.lsp.with handler {: border}))))
-          (let [zk (require :zk)
-                util (require :zk.util)
-                create-and-insert-link #(let [loc (util.get_lsp_location_from_caret)
-                                              title (vim.fn.input "Title: ")]
-                                          (if (not= (length title) 0)
-                                              (zk.new {: title
-                                                       :edit false
-                                                       :insertLinkAtLocation loc})))
-                ; create-note #(let [title (vim.fn.input "Title: ")]
-                ;                (if (not= (# title) 0)
-                ;                  (zk.new {: title})))
-                ; TODO reactivate the above or document snippet
-                create-note #(zk.new)
-                extra-keymaps {[:i :<C-h>] :<Esc>hcT|
-                               [:i :<C-l>] :<Esc>2la
-                               [:i :<C-y>] "<Esc>2hvT|uf]2la"
-                               [:n :<localleader>nz] create-note
-                               [:n :<localleader>no] #(zk.edit)
-                               [:n :<localleader>nb] #(vim.cmd.ZkBacklinks)
-                               [:i :<C-i>] "<C-o>:ZkInsertLink<CR>"
-                               [:i :<C-j>] create-and-insert-link
-                               [:i :<C-p>] #(spawn-capture-output :zk-screenshot
-                                                                  nil
-                                                                  (fn [code
-                                                                       _
-                                                                       stdout
-                                                                       stderr]
-                                                                    (if (= 0
-                                                                           code)
-                                                                        (put! (.. "![["
-                                                                                  stdout
-                                                                                  "]]")))))}]
-            (zk.setup {:picker :telescope
-                       :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
-                                      :capabilities (mk-capabilities)}}})))))
+      #(let [lspconfig (require :lspconfig)
+             extend (partial vim.tbl_extend :force)
+             default-keymaps {[:n :gD] vim.lsp.buf.declaration
+                              [:n :gt] vim.lsp.buf.type_definition
+                              [:n :gd] vim.lsp.buf.definition
+                              [:n :K] vim.lsp.buf.hover
+                              [:n :gi] vim.lsp.buf.implementation
+                              [:n :<C-k>] vim.lsp.buf.signature_help
+                              [:n :<leader>rn] vim.lsp.buf.rename
+                              [:n :<leader>ca] vim.lsp.buf.code_action
+                              [:n :gr] vim.lsp.buf.references
+                              [:n :gqq] vim.lsp.buf.format
+                              [:v :gq] vim.lsp.buf.format
+                              [:n :<leader>od] vim.diagnostic.open_float
+                              [:n "[d"] vim.diagnostic.goto_prev
+                              [:n "]d"] vim.diagnostic.goto_next}
+            mk-on_attach (fn [?extra-keymaps]
+                           (let [keymaps (extend default-keymaps (or ?extra-keymaps {}))]
+                             (fn [client bufnr]
+                                      ;; Always show signcolumn for that
+                                      ;; buffer, so the code doesn't move
+                                      ;; horizontally when the number of
+                                      ;; diagnostics changes to or from zero.
+                                      ;; TODO: We assume here that the code is
+                                      ;; always opened in the current window,
+                                      ;; not sure how true this.
+                                      (tset vim.wo 0 :signcolumn :yes)
+                                      ;; Create local keymaps
+                                      (let [opts {:noremap true
+                                                  :silent true
+                                                  :buffer bufnr}]
+                                        (each [[mode lhs] rhs (pairs keymaps)]
+                                          (vim.keymap.set mode lhs rhs opts))))))
+            mk-capabilities #(let [(ok mod) (pcall require
+                                                   :cmp_nvim_lsp)]
+                               (if ok (mod.default_capabilities)
+                                   (vim.lsp.protocol.make_client_capabilitites)))
+             lsp! (fn [name ?config ?extra-keymaps]
+                    (let [capabilities (mk-capabilities)
+                          on_attach (mk-on_attach ?extra-keymaps)
+                          config (extend {: capabilities : on_attach}
+                                         (or ?config {}))
+                          {: setup} (. lspconfig name)]
+                      (setup config)))]
+         (add! :mrcjkb/rustaceanvim
+               #(let [on_attach (mk-on_attach)]
+                  (let! rustaceanvim {:server {: on_attach}})))
+         (lsp! :clangd {} {[:n :<C-c>] #(vim.cmd.ClangdSwitchSourceHeader)})
+         ;; {:name :lua_ls :config (require :lsp.configs.sumneko_lua) :keymaps {}}
+         ;; (lsp! :bashls)
+         ;; (lsp! :vimls)
+         ;; (lsp! :fennel_ls)
+         ;; (lsp! :fennel_language_server
+         ;; {:settings { :fennel {:diagnostics {:globals [:vim]} :workspace {:library (vim.api.nvim_list_runtime_paths)}}}})
+         (lsp! :pyright)
+         (lsp! :cmake)
+         ;; (lsp! :rust_analyzer)  ; Configured by rustaceans instead
+         (lsp! :hls)
+         ;; (lsp! :marksman)
+         (lsp! :racket_langserver)
+         (let [border :rounded
+               cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
+                               :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
+           (vim.diagnostic.config {:float {: border}})
+           (tset (require :lspconfig.ui.windows) :default_options {: border})
+           (each [cap handler (pairs cap-to-handler)]
+             (tset vim.lsp.handlers cap (vim.lsp.with handler {: border}))))
+         (let [zk (require :zk)
+               util (require :zk.util)
+               create-and-insert-link #(let [loc (util.get_lsp_location_from_caret)
+                                             title (vim.fn.input "Title: ")]
+                                         (if (not= (length title) 0)
+                                             (zk.new {: title
+                                                      :edit false
+                                                      :insertLinkAtLocation loc})))
+               ; create-note #(let [title (vim.fn.input "Title: ")]
+               ;                (if (not= (# title) 0)
+               ;                  (zk.new {: title})))
+               ; TODO reactivate the above or document snippet
+               create-note #(zk.new)
+               extra-keymaps {[:i :<C-h>] :<Esc>hcT|
+                              [:i :<C-l>] :<Esc>2la
+                              [:i :<C-y>] "<Esc>2hvT|uf]2la"
+                              [:n :<localleader>nz] create-note
+                              [:n :<localleader>no] #(zk.edit)
+                              [:n :<localleader>nb] #(vim.cmd.ZkBacklinks)
+                              [:i :<C-i>] "<C-o>:ZkInsertLink<CR>"
+                              [:i :<C-j>] create-and-insert-link
+                              [:i :<C-p>] #(spawn-capture-output :zk-screenshot
+                                                                 nil
+                                                                 (fn [code
+                                                                      _
+                                                                      stdout
+                                                                      stderr]
+                                                                   (if (= 0
+                                                                          code)
+                                                                       (put! (.. "![["
+                                                                                 stdout
+                                                                                 "]]")))))}]
+           (zk.setup {:picker :telescope
+                      :lsp {:config {:on_attach (mk-on_attach extra-keymaps)
+                                     :capabilities (mk-capabilities)}}}))))
 
 (add! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
       #(let [{: setup : toggle} (require :lsp_lines)
@@ -740,14 +771,14 @@
          (vim.diagnostic.config {:virtual_lines false}) ; (toggle-diags) ; Start with lines off
          (nmap! :<leader>tl toggle-diags)))
 
-(add! :lukas-reineke/indent-blankline.nvim
-      #(let [{: colors} (require :base16-colors)
-             {: setup} (require :ibl)
-             enable-at-start false] ; Have to setup highlight groups before setup
-         (vim.api.nvim_set_hl 0 :IblScope {:fg colors.dark_green :bold true})
-         (vim.api.nvim_set_hl 0 :IblIndent {:fg colors.bg2 :bold true})
-         (nmap! :<leader>ti vim.cmd.IBLToggle)
-         (setup {:enabled enable-at-start})))
+; (add! :lukas-reineke/indent-blankline.nvim
+;       #(let [{: colors} (require :base16-colors)
+;              {: setup} (require :ibl)
+;              enable-at-start false] ; Have to setup highlight groups before setup
+;          (vim.api.nvim_set_hl 0 :IblScope {:fg colors.dark_green :bold true})
+;          (vim.api.nvim_set_hl 0 :IblIndent {:fg colors.bg2 :bold true})
+;          (nmap! :<leader>ti vim.cmd.IBLToggle)
+;          (setup {:enabled enable-at-start})))
 
 (add! [:mfussenegger/nvim-dap
        :nvim-neotest/nvim-nio
@@ -1136,7 +1167,7 @@
                           (imap! [:buffer] :<C-CR>
                                  #(action :org_mappings.meta_return)))
                         (vim.cmd "abbreviate -- - [ ]"))
-                 :qf #(nmap! [:buffer] :<Esc> :<Cmd>cclose<CR>)
+                 :qf #(nmap! [:buffer] :q :<Cmd>cclose<CR>)
                  :rust (fn []
                          (nmap! [:buffer] :<leader>cr ":<C-u>Crun<CR>")
                          (nmap! [:buffer] :<leader>cb ":<C-u>make build<CR>")
@@ -1149,5 +1180,12 @@
   (autocmd! :ftplugins
             (icollect [filetype callback (pairs ftplugins)]
               {:event :FileType :pattern filetype : callback})))
+
+; Floating preview in quickfix window
+(add! :kevinhwang91/nvim-bqf
+      #(setup :bqf {:func_map {:fzffilter "" :open "<C-]>"}
+              :preview {:winblend 0}
+              }))
+
 
 (vim.keymap.set ["" "!" :t :l] "<C-;>" "<C-]>" {:remap true})

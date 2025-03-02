@@ -8,19 +8,14 @@ ROFI_OPTIONS=(-no-fixed-num-lines)
 list_options()
 {
     ls "$FF_DIR/profiles"
-    echo "VPN"
 }
 
 callback()
 {
-    if [ "$1" = "VPN" ]; then
-        podman pod start ff-vpn
-    else
-        # Weird workaround for playing DRM content
-        # ln -sf "$FF_DIR/profiles/$1" "/tmp/ff-profile-$1"
-        # firefox --profile "/tmp/ff-profile-$1"
-        flatpak run org.mozilla.firefox --profile "$FF_DIR/profiles/$1"
-    fi
+    # Weird workaround for playing DRM content
+    # ln -sf "$FF_DIR/profiles/$1" "/tmp/ff-profile-$1"
+    # firefox --profile "/tmp/ff-profile-$1"
+    flatpak run org.mozilla.firefox --profile "$FF_DIR/profiles/$1"
 }
 
 source ~/.local/libexec/prompt.sh

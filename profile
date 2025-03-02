@@ -6,9 +6,9 @@ export MANPAGER='nvim +Man!'
 
 export GHCUP_USE_XDG_DIRS=
 
-if [ -x "/usr/bin/ssh-agent" ]; then
-    eval `ssh-agent` > /dev/null
-fi
+# if [ -x "/usr/bin/ssh-agent" ]; then
+#     eval `ssh-agent` > /dev/null
+# fi
 
 for file in ~/.profile.d/*; do
     source "$file" 2> /dev/null
