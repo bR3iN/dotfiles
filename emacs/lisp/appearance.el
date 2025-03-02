@@ -115,10 +115,10 @@
 
 (set-face-attribute
  'default nil
- :family "Fira Code"
+ :family "FiraCode Nerd Font"
  :height 120
  :weight 'retina)
 
-(set-fontset-font t 'unicode "Symbols Nerd Font" nil 'prepend)
+;; (set-fontset-font t 'unicode "Symbols Nerd Font" nil 'prepend)
 
 (provide 'appearance)

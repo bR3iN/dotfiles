@@ -85,3 +85,6 @@ system_install = ["greetd"]
 
 [target.git.links]
 ".config/git/config" = "gitconfig"
+
+[target.emacs.links]
+".config/emacs" = "emacs"
