@@ -1,4 +1,4 @@
-(local {: augroup!} (require :utils.nvim))
+(local {: autocmd!} (require :utils))
 
 (fn hl []
   (vim.cmd "match TrailingWhitespace /\\v\\s+$/"))
@@ -6,7 +6,7 @@
 (fn nohl []
   (vim.fn.clearmatches))
 
-(let [autocmd! (augroup! :highlight-traling-whitespace)]
-  (autocmd! :BufEnter "*" hl)
-  (autocmd! :InsertLeave "*" hl)
-  (autocmd! :InsertEnter "*" nohl))
+(autocmd! :highlight-traling-whitespace
+          [{:event :BufEnter :pattern "*" :callback hl}
+           {:event :InsertLeave :pattern "*" :callback hl}
+           {:event :InsertEnter :pattern "*" :callback nohl}])

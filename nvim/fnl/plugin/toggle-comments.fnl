@@ -1,5 +1,4 @@
-(local {: nil?} (require :utils))
-(local {: command!} (require :utils.nvim))
+(local {: command! : nil?} (require :utils))
 
 (fn get_hl [name]
   (vim.api.nvim_get_hl_by_name name true))

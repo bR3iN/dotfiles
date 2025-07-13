@@ -1,17 +1,11 @@
--- Bootstrap hotpot and pkg.nvim
-require('bootstrap')
+require('bootstrap.hotpot')
+local utils = require('utils')
 
--- Setup hotpot
-require('hotpot').setup{
-    compiler = {modules = {correlate = true}}
-}
-
--- Initialize plugin manager; resets internal plugin list
-require('pkg').init()
+-- Resets internal state when reloading config
+utils.init()
 
 -- (Re)load main config
-package.loaded['main'] = nil
-require('main')
+utils.reload('main')
 
--- Autoremove plugins
-require('pkg').clean()
+-- Sync declared plugins
+utils.sync()
