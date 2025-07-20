@@ -1,0 +1,161 @@
+# Scheme name: Pop-OS
+# Scheme author: bR3iN
+
+"attribute" = "light-brown"
+"comment" = "light-bg3"
+"comment.block.documentation" = "dark-brown"
+
+"function" = "light-cyan"
+"function.builtin" = "dark-cyan"
+"function.method" = "light-blue"
+"function.macro" = "dark-blue"
+"function.special" = "dark-blue"  # Preprocessor in C
+"operator" = "fg1"
+
+"tag" = "green"
+
+"debug" = "bg3"
+"hint" = "bg3"
+"info" = "blue"
+"warning" = "orange"
+"error" = "red"
+
+"diagnostic" = { modifiers = ["underlined"] }
+"diff.delta" = "orange"
+"diff.minus" = "red"
+"diff.plus" = "green"
+
+"keyword" = "brown"
+"label" = "magenta"
+"namespace" = "dark-fg0"
+"special" = "blue"
+"punctuation" = "fg0"
+
+"constructor" = "light-magenta"
+"type.enum.variant" = "light-magenta"
+"constant.numeric" = "magenta"
+"string"  = "dark-magenta"
+"constant.character.escape" = "brown"
+"constant.builtin" = "magenta"
+
+"type" = "light-green"
+"type.builtin" = "dark-green"
+"type.parameter" = "dark-green"
+
+"variable" = "light-orange"
+"variable.builtin" = "light-brown"
+"variable.parameter" = "dark-orange"
+"variable.other.member" = "red"
+"variable.other" = "brown"
+"constant" = "yellow"
+
+"markup.bold" = { fg = "yellow", modifiers = ["bold"] }
+"markup.heading.1" = { fg = "blue", modifiers = ["bold"] }
+"markup.heading.2" = { fg = "red", modifiers = ["bold"] }
+"markup.heading.3" = { fg = "orange", modifiers = ["bold"] }
+"markup.heading.4" = { fg = "yellow", modifiers = ["bold"] }
+"markup.heading.5" = { fg = "green", modifiers = ["bold"] }
+"markup.heading.6" = { fg = "cyan", modifiers = ["bold"] }
+"markup.italic" = { fg = "magenta", modifiers = ["italic"] }
+"markup.link.text" = "red"
+"markup.link.url" = { fg = "orange", modifiers = ["underlined"] }
+"markup.list" = "red"
+"markup.quote" = "cyan"
+"markup.raw" = "green"
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+
+"diagnostic.hint" = { underline = { style = "curl" } }
+"diagnostic.info" = { underline = { style = "curl" } }
+"diagnostic.warning" = { underline = { style = "curl" } }
+"diagnostic.error" = { underline = { style = "curl" } }
+
+"ui.background" = {}
+"ui.bufferline.active" = { fg = "bg0", bg = "bg3", modifiers = ["bold"] }
+"ui.bufferline" = { fg = "fg0", bg = "bg0" }
+"ui.cursor" = { fg = "fg2", modifiers = ["reversed"] }
+"ui.cursor.primary" = { fg = "fg1", modifiers = ["reversed"] }
+"ui.cursor.primary.normal" = { fg = "green", modifiers = ["reversed"] }
+"ui.cursor.insert" = { fg = "yellow" }
+"ui.cursor.primary.select" = { fg = "cyan", modifiers = ["reversed"] }
+"ui.cursorline.primary" = { fg = "fg1", bg = "bg1" }
+"ui.cursor.match" = { fg = "fg1", bg = "bg2", modifiers = ["bold"] }
+"ui.cursor.select" = { fg = "fg1", modifiers = ["reversed"] }
+"ui.gutter" = {}
+"ui.help" = { fg = "fg1" }
+"ui.linenr" = { fg = "bg3" }
+"ui.linenr.selected" = { fg = "fg0", modifiers = ["bold"] }
+"ui.menu" = { bg = "bg1", fg = "fg0" }
+"ui.menu.scroll" = { fg = "bg3" }
+"ui.menu.selected" = { fg = "bg1", bg = "fg0" }
+"ui.popup" = { bg="bg2", fg = "fg1" } # which-key popups background and title, but not contents
+"ui.selection" = { bg = "bg2" }
+"ui.selection.primary" = { bg = "bg2" }
+"ui.statusline" = { fg = "fg0", bg = "bg1" }
+"ui.statusline.inactive" = { fg = "bg3", bg = "bg0" }
+"ui.statusline.insert" = { fg = "bg0", bg = "dark-yellow" }
+"ui.statusline.normal" = { fg = "bg0", bg = "dark-green" }
+"ui.statusline.select" = { fg = "bg0", bg = "dark-cyan" }
+"ui.text" = "fg1"
+"ui.text.directory" = "blue"
+"ui.text.focus" = "fg1"
+"ui.virtual.indent-guide" = { fg = "bg3" }
+"ui.virtual.inlay-hint" = { fg = "bg3" }
+"ui.virtual.ruler" = { bg = "bg1" }
+"ui.virtual.jump-label" = { fg = "yellow", modifiers = ["bold"] }
+"ui.virtual.whitespace" = { fg = "bg3" }
+"ui.window" = { fg = "bg2" }
+
+[palette]
+bg0 = "#202020"
+bg1 = "#2A2A2A"
+bg2 = "#333333"
+bg3 = "#3D3D3D"
+fg0 = "#A8A8A8"
+fg1 = "#CECECE"
+fg2 = "#E3E3E3"
+fg3 = "#F3F3F3"
+
+light-bg0 = "#232323"
+light-bg1 = "#2E2E2E"
+light-bg2 = "#383838"
+light-bg3 = "#434343"
+light-fg0 = "#B8B8B8"
+light-fg1 = "#E2E2E2"
+light-fg2 = "#F9F9F9"
+light-fg3 = "#FFFFFF"
+
+dark-bg0 = "#1C1C1C"
+dark-bg1 = "#252525"
+dark-bg2 = "#2D2D2D"
+dark-bg3 = "#363636"
+dark-fg0 = "#979797"
+dark-fg1 = "#B9B9B9"
+dark-fg2 = "#CCCCCC"
+dark-fg3 = "#DADADA"
+
+red     = "#E23434"
+orange  = "#F19822"
+yellow  = "#FFCE51"
+green   = "#73C48F"
+cyan    = "#34E2E2"
+blue    = "#48B9C7"
+magenta = "#AD7FA8"
+brown   = "#AD9B7F"
+
+dark-red     = "#CB2E2E"
+dark-orange  = "#D8881E"
+dark-yellow  = "#E5B948"
+dark-green   = "#67B080"
+dark-cyan    = "#2ECBCB"
+dark-blue    = "#40A6B3"
+dark-magenta = "#9B7297"
+dark-brown   = "#9B8B72"
+
+light-red     = "#F83939"
+light-orange  = "#FFA725"
+light-yellow  = "#FFE259"
+light-green   = "#7ED79D"
+light-cyan    = "#39F8F8"
+light-blue    = "#4FCBDA"
+light-magenta = "#BE8BB8"
+light-brown   = "#BEAA8B"

@@ -1,0 +1,29 @@
+theme = "base16"
+
+[keys.insert]
+
+[editor]
+line-number = "relative"
+cursorline = false
+
+color-modes = true
+text-width = 100
+
+[editor.cursor-shape]
+insert = "bar"
+
+[editor.soft-wrap]
+enable = true
+wrap-indicator = ""
+
+[keys.normal]
+"'" = "select_register"
+
+[keys.normal." ".x]
+s = ":update"
+S = ":write-all"
+R = ":config-reload"
+f = ":format"
+
+[keys.normal." ".o]
+c = ":config-open"

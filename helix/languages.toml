@@ -1,0 +1,20 @@
+[language-server.zk]
+command = "zk"
+args = ["lsp"]
+required-root-patterns = [".zk"]
+
+[[language]]
+name = "markdown"
+language-servers = ["marksman", "zk"]
+
+
+[language-server.fennel-ls]
+command = "fennel-ls"
+
+[[language]]
+name = "fennel"
+scope = "source.fennel"
+file-types = ["fnl"]
+language-servers = ["fennel-ls"]
+formatter = { command = "fnlfmt", args = ["-"]}
+auto-format = true
