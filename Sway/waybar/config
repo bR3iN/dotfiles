@@ -1,10 +1,10 @@
 {
-    "margin-left": 10,
-    "margin-right": 10,
-    "margin-top": 10,
-    "margin-bottom": 0,
-    "height": 30,
-    "modules-left": [
+  // "margin-left": 10,
+  // "margin-right": 10,
+  // "margin-top": 10,
+  // "margin-bottom": 0,
+  "height": 28,
+  "modules-left": [
         "sway/workspaces",
         "custom/sway/scratchpad",
         // "sway/language",
@@ -20,8 +20,7 @@
         "disk",
         "backlight",
         "pulseaudio",
-        // "custom/vpn",
-        "network#vpn",
+        "custom/vpn",
         "battery",
     ],
 
@@ -103,18 +102,10 @@
     },
 
     "custom/vpn": {
-        "return-type": "json",
-        "format": "󰖂",
-        "exec": "test -d /proc/sys/net/ipv4/conf/tun0 && echo '{\"class\": \"connected\"}' || echo '{\"class\": \"disconnected\"}'",
-        "interval": 5,
+        "format": "[{}]",
+        "hide-empty-text": true,
+        "exec": "rm -f /tmp/wg-waybar && mkfifo /tmp/wg-waybar && tail -f /tmp/wg-waybar",
         "on-click": "rofi-vpn",
-    },
-
-    "network#vpn": {
-        "interval": 1,
-        "interface": "tun0",
-        "format": "{bandwidthDownBytes:<3} {bandwidthUpBytes:<3} ",
-        "format-disconnected": "",
     },
 
     "network": {

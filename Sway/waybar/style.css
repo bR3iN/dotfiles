@@ -31,15 +31,15 @@
 }
 
 window#waybar {
-    border-width: 0px;
+    border-width: 0px 0px 0px 0px;
     /* border-color: @base02; */
-    /* border-color: shade(alpha(@base00, 0.99), 0.90); */
-    border-style: none;
+    border-color: alpha(shade(@base01, 1.0), 0.99);
+    border-style: solid;
     /* border-radius: 5px; */
     /* border-radius: 0px; */
     /* Alpha is needed for rounded corners on vanilla sway */
     /* background-color: alpha(shade(@base00, 0.765), 0.90); */
-    background-color: alpha(shade(@base00, 0.9), 1.0);
+    background-color: alpha(shade(@base00, 0.9), 0.99);
     /* FIXME: Needed for tooltip; figure out how to configure it specifically */
     color: @base08;
     /* Patched font needed for symbols to be scaled with regular characters so all symbols have same width. */
@@ -63,7 +63,7 @@ window#waybar {
 tooltip {
     background: alpha(@base02, 0.99);
     border-color: shade(alpha(@base02, 0.99), 1.05);
-        color: @base05;
+    color: @base05;
     /* border-radius: 5px; */
 }
 
@@ -100,7 +100,7 @@ tooltip {
 }
 
 #workspaces button:hover {
-    color: shade(@foreground, 1.2);
+    /* color: shade(@foreground, 1.2); */
     font-weight: bold;
     background-color: shade(@base01, 0.90);
 }
@@ -178,12 +178,9 @@ tooltip {
 #backlight { color: @yellow; }
 
 #custom-vpn {
-    /* font-size: 100%; */
-    color: @blue;
-}
-
-#custom-vpn.connected {
-    color: @base0D;
+    color: @base00;
+    background-color: @yellow;
+    font-weight: bold;
 }
 
 #pulseaudio {

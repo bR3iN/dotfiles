@@ -1,4 +1,4 @@
-# Set mod key
+#Set mod key
 set $mod Mod4
 
 # Set lock-screen
@@ -7,7 +7,7 @@ exec swayidle -w before-sleep "gtklock -d"
 set $lock_cmd gtklock
 
 
-focus_follows_mouse no
+focus_follows_mouse yes
 show_marks yes
 
 
@@ -53,6 +53,8 @@ titlebar_padding 4 1
 smart_gaps off
 gaps inner 10
 gaps outer 0
+bindsym $mod+Shift+Minus gaps inner current plus 10
+bindsym $mod+Shift+Equal gaps inner current minus 10
 
 bar swaybar_command waybar
 bindsym $mod+o exec killall -SIGUSR1 waybar  # Toggle waybar
@@ -76,6 +78,17 @@ include ~/.config/sway/base16
 # client.unfocused         $base01_dark  $base01       $base04 $base09      $base00
 # client.urgent            $base08_dark  $base08       $base00 $base08_dark $base08_dark
 
+
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border        BG      Text    Indicator    Child Border
+client.focused           $base03_light $base03 $base05 $base0B_dark $base0B_dark
+client.focused_inactive  $base02_light $base02 $base04 $base01_dark $base01_dark
+client.focused_tab_title $base03_light $base03 $base05 $base01_dark $base01_dark
+client.unfocused         $base01_light $base01 $base04 $base01_dark $base01_dark
+client.urgent            $base0A_light $base00 $base08 $base0A_dark $base0A_dark
 
 ## Input configuration
 
