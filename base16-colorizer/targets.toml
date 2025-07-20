@@ -17,6 +17,12 @@ enable_if = "[ \"$XDG_SESSION_DESKTOP\" = i3 ]"
 [kitty]
 rewrite = "~/.config/kitty/base16.conf"
 
+[ghostty]
+rewrite = "~/.config/ghostty/themes/base16"
+
+[wezterm]
+rewrite = "~/.config/wezterm/base16_colors.lua"
+
 [mako]
 rewrite = "~/.config/mako/config"
 

@@ -1,0 +1,161 @@
+# Scheme name: {{scheme-name}}
+# Scheme author: {{scheme-author}}
+
+"attribute" = "light-brown"
+"comment" = "light-bg3"
+"comment.block.documentation" = "dark-brown"
+
+"function" = "light-cyan"
+"function.builtin" = "dark-cyan"
+"function.method" = "light-blue"
+"function.macro" = "dark-blue"
+"function.special" = "dark-blue"  # Preprocessor in C
+"operator" = "fg1"
+
+"tag" = "green"
+
+"debug" = "bg3"
+"hint" = "bg3"
+"info" = "blue"
+"warning" = "orange"
+"error" = "red"
+
+"diagnostic" = { modifiers = ["underlined"] }
+"diff.delta" = "orange"
+"diff.minus" = "red"
+"diff.plus" = "green"
+
+"keyword" = "brown"
+"label" = "magenta"
+"namespace" = "dark-fg0"
+"special" = "blue"
+"punctuation" = "fg0"
+
+"constructor" = "light-magenta"
+"type.enum.variant" = "light-magenta"
+"constant.numeric" = "magenta"
+"string"  = "dark-magenta"
+"constant.character.escape" = "brown"
+"constant.builtin" = "magenta"
+
+"type" = "light-green"
+"type.builtin" = "dark-green"
+"type.parameter" = "dark-green"
+
+"variable" = "light-orange"
+"variable.builtin" = "light-brown"
+"variable.parameter" = "dark-orange"
+"variable.other.member" = "red"
+"variable.other" = "brown"
+"constant" = "yellow"
+
+"markup.bold" = { fg = "yellow", modifiers = ["bold"] }
+"markup.heading.1" = { fg = "blue", modifiers = ["bold"] }
+"markup.heading.2" = { fg = "red", modifiers = ["bold"] }
+"markup.heading.3" = { fg = "orange", modifiers = ["bold"] }
+"markup.heading.4" = { fg = "yellow", modifiers = ["bold"] }
+"markup.heading.5" = { fg = "green", modifiers = ["bold"] }
+"markup.heading.6" = { fg = "cyan", modifiers = ["bold"] }
+"markup.italic" = { fg = "magenta", modifiers = ["italic"] }
+"markup.link.text" = "red"
+"markup.link.url" = { fg = "orange", modifiers = ["underlined"] }
+"markup.list" = "red"
+"markup.quote" = "cyan"
+"markup.raw" = "green"
+"markup.strikethrough" = { modifiers = ["crossed_out"] }
+
+"diagnostic.hint" = { underline = { style = "curl" } }
+"diagnostic.info" = { underline = { style = "curl" } }
+"diagnostic.warning" = { underline = { style = "curl" } }
+"diagnostic.error" = { underline = { style = "curl" } }
+
+"ui.background" = {}
+"ui.bufferline.active" = { fg = "bg0", bg = "bg3", modifiers = ["bold"] }
+"ui.bufferline" = { fg = "fg0", bg = "bg0" }
+"ui.cursor" = { fg = "fg2", modifiers = ["reversed"] }
+"ui.cursor.primary" = { fg = "fg1", modifiers = ["reversed"] }
+"ui.cursor.primary.normal" = { fg = "green", modifiers = ["reversed"] }
+"ui.cursor.insert" = { fg = "yellow" }
+"ui.cursor.primary.select" = { fg = "cyan", modifiers = ["reversed"] }
+"ui.cursorline.primary" = { fg = "fg1", bg = "bg1" }
+"ui.cursor.match" = { fg = "fg1", bg = "bg2", modifiers = ["bold"] }
+"ui.cursor.select" = { fg = "fg1", modifiers = ["reversed"] }
+"ui.gutter" = {}
+"ui.help" = { fg = "fg1" }
+"ui.linenr" = { fg = "bg3" }
+"ui.linenr.selected" = { fg = "fg0", modifiers = ["bold"] }
+"ui.menu" = { bg = "bg1", fg = "fg0" }
+"ui.menu.scroll" = { fg = "bg3" }
+"ui.menu.selected" = { fg = "bg1", bg = "fg0" }
+"ui.popup" = { bg="bg2", fg = "fg1" } # which-key popups background and title, but not contents
+"ui.selection" = { bg = "bg2" }
+"ui.selection.primary" = { bg = "bg2" }
+"ui.statusline" = { fg = "fg0", bg = "bg1" }
+"ui.statusline.inactive" = { fg = "bg3", bg = "bg0" }
+"ui.statusline.insert" = { fg = "bg0", bg = "dark-yellow" }
+"ui.statusline.normal" = { fg = "bg0", bg = "dark-green" }
+"ui.statusline.select" = { fg = "bg0", bg = "dark-cyan" }
+"ui.text" = "fg1"
+"ui.text.directory" = "blue"
+"ui.text.focus" = "fg1"
+"ui.virtual.indent-guide" = { fg = "bg3" }
+"ui.virtual.inlay-hint" = { fg = "bg3" }
+"ui.virtual.ruler" = { bg = "bg1" }
+"ui.virtual.jump-label" = { fg = "yellow", modifiers = ["bold"] }
+"ui.virtual.whitespace" = { fg = "bg3" }
+"ui.window" = { fg = "bg2" }
+
+[palette]
+bg0 = "#{{base00-hex}}"
+bg1 = "#{{base01-hex}}"
+bg2 = "#{{base02-hex}}"
+bg3 = "#{{base03-hex}}"
+fg0 = "#{{base04-hex}}"
+fg1 = "#{{base05-hex}}"
+fg2 = "#{{base06-hex}}"
+fg3 = "#{{base07-hex}}"
+
+light-bg0 = "#{{base00-hex;+10%}}"
+light-bg1 = "#{{base01-hex;+10%}}"
+light-bg2 = "#{{base02-hex;+10%}}"
+light-bg3 = "#{{base03-hex;+10%}}"
+light-fg0 = "#{{base04-hex;+10%}}"
+light-fg1 = "#{{base05-hex;+10%}}"
+light-fg2 = "#{{base06-hex;+10%}}"
+light-fg3 = "#{{base07-hex;+10%}}"
+
+dark-bg0 = "#{{base00-hex;-10%}}"
+dark-bg1 = "#{{base01-hex;-10%}}"
+dark-bg2 = "#{{base02-hex;-10%}}"
+dark-bg3 = "#{{base03-hex;-10%}}"
+dark-fg0 = "#{{base04-hex;-10%}}"
+dark-fg1 = "#{{base05-hex;-10%}}"
+dark-fg2 = "#{{base06-hex;-10%}}"
+dark-fg3 = "#{{base07-hex;-10%}}"
+
+red     = "#{{base08-hex}}"
+orange  = "#{{base09-hex}}"
+yellow  = "#{{base0A-hex}}"
+green   = "#{{base0B-hex}}"
+cyan    = "#{{base0C-hex}}"
+blue    = "#{{base0D-hex}}"
+magenta = "#{{base0E-hex}}"
+brown   = "#{{base0F-hex}}"
+
+dark-red     = "#{{base08-hex;-10%}}"
+dark-orange  = "#{{base09-hex;-10%}}"
+dark-yellow  = "#{{base0A-hex;-10%}}"
+dark-green   = "#{{base0B-hex;-10%}}"
+dark-cyan    = "#{{base0C-hex;-10%}}"
+dark-blue    = "#{{base0D-hex;-10%}}"
+dark-magenta = "#{{base0E-hex;-10%}}"
+dark-brown   = "#{{base0F-hex;-10%}}"
+
+light-red     = "#{{base08-hex;+10%}}"
+light-orange  = "#{{base09-hex;+10%}}"
+light-yellow  = "#{{base0A-hex;+10%}}"
+light-green   = "#{{base0B-hex;+10%}}"
+light-cyan    = "#{{base0C-hex;+10%}}"
+light-blue    = "#{{base0D-hex;+10%}}"
+light-magenta = "#{{base0E-hex;+10%}}"
+light-brown   = "#{{base0F-hex;+10%}}"
