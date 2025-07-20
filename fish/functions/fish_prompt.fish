@@ -82,6 +82,7 @@ function fish_prompt --description 'Write out the prompt'
     # end
 
     # Non-breaking space to prevent glyph enlargement
-    echo -n "$suffix "
+    # echo -n "$suffix "
+    echo -n "$suffix "
     set_color normal
 end

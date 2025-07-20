@@ -1,2 +1,5 @@
 local.*
 *.local
+
+# Byte compiled elisp
+*.elc

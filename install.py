@@ -186,11 +186,11 @@ class Runner:
 
     def _ensure_good_target(self, path: str) -> bool:
         if islink(path):
-            logging.debug(f'Removing existing link {path}')
+            logging.debug(f'Removing existing link {Color.Red.dim(path)}')
             remove(path)
         elif exists(path):
-            if self._have_user_confirm(f'{path} already exists. Delete it?'):
-                logging.info(f'Deleting {path}')
+            if self._have_user_confirm(f'{Color.Yellow(path)} already exists. Delete it?'):
+                logging.info(f'Deleting {Color.Red.bold(path)}')
                 if isdir(path):
                     rmtree(path)
                 else:
@@ -198,7 +198,7 @@ class Runner:
             else:
                 return False
         elif not exists(dir := dirname(path)):
-            logging.debug(f'Creating {dir}')
+            logging.debug(f'Creating {Color.Green.dim(dir)}')
             makedirs(dir)
         return True
 

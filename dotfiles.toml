@@ -60,6 +60,11 @@ install = [
 ".bashrc" = "bash/bashrc"
 ".bash_profile" = "bash/bash_profile"
 
+[target.zsh]
+cmds = ["hooks/setup/zsh.sh"]
+
+links = { ".zshenv" = "zsh/zshenv", ".config/zsh/.zshrc" = "zsh/zshrc", ".config/zsh/zshrc.d" = "zsh/zshrc.d" }
+
 [target.fish]
 links = {".config/fish" = "fish"}
 cmds = [
@@ -72,17 +77,21 @@ links = {".profile" = "profile"}
 cmds = ["mkdir -p ~/.profile.d"]
 
 [target.qutebrowser.links]
-"~/.config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
-"~/.config/qutebrowser/base16.py" = "qutebrowser/base16.py"
+".config/qutebrowser/config.py" = "qutebrowser/qutebrowser.py"
+".config/qutebrowser/base16.py" = "qutebrowser/base16.py"
+
+[target.base16-colorizer]
+links = {".config/base16-colorizer" = "base16-colorizer"}
+cmds = [
+    ["base16-colorizer/ignore-base16.sh", "on"],
+    "hooks/setup/base16-colorizer.sh"
+]
 
 [target.greetd]
 system_install = ["greetd"]
 
 [target.git.links]
 ".config/git/config" = "gitconfig"
-
-[target.emacs.links]
-".config/emacs" = "emacs"
 
 [target.zathura]
 links = {".config/zathura" = "zathura"}
@@ -100,3 +109,14 @@ cmds = ["hooks/setup/rustup.sh"]
 
 [target.zen]
 install = ["zen-themes"]
+
+[target.zen-flatpak]
+install = ["zen-themes"]
+cmds = ["ln -fs ~/.zen ~/.var/app/app.zen_browser.zen/.zen"]
+
+[target.tldr]
+links = {".config/tealdeer/config.toml" = "tealdeer.toml"}
+
+[target.npm]
+cmds = ["mkdir -p \"$HOME/.node_modules\"", "npm config set prefix \"$HOME/.node_modules\""]
+

@@ -41,13 +41,12 @@ function install_fonts {
 
 install_fonts \
     'Noto Fonts' \
-    'https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Noto.zip' \
-    'Noto Sans.*Nerd Font Complete.ttf' \
-    'Noto Sans * Nerd Font Complete.ttf' \
-    'Noto Serif * Nerd Font Complete.ttf'
+    'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/Noto.zip' \
+    'NotoSansNerdFont.*ttf' \
+    '*.ttf'
 
 install_fonts \
     'Fira Code Nerd Fonts' \
-    'https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip' \
-    'Fira Code.*Nerd Font Complete.ttf' \
-    'Fira Code * Nerd Font Complete*.ttf'
+    'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/FiraCode.zip' \
+    'FiraCodeNerdFont.*ttf' \
+    '*.ttf'

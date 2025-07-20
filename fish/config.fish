@@ -31,16 +31,14 @@ alias gdb 'gdb -tui'
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
 set -x GCC_COLORS 'error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-set -x EDITOR nvim
-set -x VISUAL nvim
 set -x CDPATH . ~
-set -x MANPAGER 'nvim +Man!'
 
 bind \el true
 bind \eh true
 bind \eo __fish_list_current_token
 bind \em __fish_man_page
 bind \e, history-token-search-forward
+bind \co open_config
 
 # Enable colors in git prompt
 set __fish_git_prompt_showcolorhints 1

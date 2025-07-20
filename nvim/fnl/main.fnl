@@ -15,10 +15,6 @@
   (let [{: setup} (require mod)]
     (setup (or ?opts {}))))
 
-; Manage bootstrapped packages
-; (add! :rktjmp/hotpot.nvim)
-; (add! :bR3iN/pkg.nvim)
-
 ;; General Options and Keymaps
 
 (set! exrc)
@@ -138,8 +134,6 @@
 ; (nmap! :<leader>pl :<Plug>PkgList)
 ; (nmap! :<leader>op ":edit ~/.local/share/nvim/site/pack/pkgs/start/<CR>")
 
-(keymaps! {:n {"<leader>" {"x" #(print "hello")}}})
-
 ;; Appearance
 
 (set! termguicolors)
@@ -156,44 +150,48 @@
        :ellisonleao/gruvbox.nvim
        :rebelot/kanagawa.nvim
        :catppuccin/nvim]
-      {:autocmds {:ColorScheme {:callback #(let [{: darken} (require :base16.utils)]
-                                             ;; Highlights overrides and groups for local plugins
-                                             (hl! :FloatBorder
-                                                  {:extend true
-                                                   :fg colors.base03})
-                                             (hl! :WinSeparator
-                                                  {:extend true
-                                                   :fg colors.base02})
-                                             ;; (hl-ext! :SignColumn {:bg colors.base00}) 
-                                             ;; (hl-ext! :LineNrAbove {:bg colors.base01}) 
-                                             ;; (hl-ext! :LineNrBelow {:bg colors.base01}) 
-                                             ;; (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
-                                             (hl! :CursorLine
-                                                  {:extend true
-                                                   :bg (darken colors.base02
-                                                               0.1)})
-                                             (hl! :Comment
-                                                  {:extend true
-                                                   :fg colors.base03})
-                                             (hl! :CommentHighlighted
-                                                  {:extend true
-                                                   :fg colors.base0F})
-                                             (hl! :GitSignsCurrentLineBlame
-                                                  {:link :CommentHighlighted})
-                                             (hl! :TrailingWhitespace
-                                                  {:extend true
-                                                   :fg colors.base03
-                                                   :bg colors.base03})
-                                             ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
-                                             (hl! :BqfPreviewTitle
-                                                  {:fg colors.green
-                                                   :bg colors.base02})
-                                             ;; Load after setting `CommentHighlighted` above
-                                             (setup :plugin.toggle-comments)
-                                             (keymaps! {:n {:<C-h> ":ToggleComments<CR>"}})
-                                             ;; Use <C-o><C-h> instead 
-                                             ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
-                                             )}}
+      {:autocmds #{:ColorScheme {:callback (let [{: darken} (require :base16.utils)
+                                                 cb #(do
+                                                       ;; Highlights overrides and groups for local plugins
+                                                       (hl! :FloatBorder
+                                                            {:extend true
+                                                             :fg colors.base03})
+                                                       (hl! :WinSeparator
+                                                            {:extend true
+                                                             :fg colors.base02})
+                                                       (hl! :SignColumn
+                                                            {:extend true
+                                                             :bg nil})
+                                                       ;; (hl-ext! :LineNrAbove {:bg colors.base01}) 
+                                                       ;; (hl-ext! :LineNrBelow {:bg colors.base01}) 
+                                                       ;; (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
+                                                       (hl! :CursorLine
+                                                            {:extend true
+                                                             :bg (darken colors.base02
+                                                                         0.1)})
+                                                       (hl! :Comment
+                                                            {:extend true
+                                                             :fg colors.base03})
+                                                       (hl! :CommentHighlighted
+                                                            {:extend true
+                                                             :fg colors.base0F})
+                                                       (hl! :GitSignsCurrentLineBlame
+                                                            {:link :CommentHighlighted})
+                                                       (hl! :TrailingWhitespace
+                                                            {:extend true
+                                                             :fg colors.base03
+                                                             :bg colors.base03})
+                                                       ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
+                                                       (hl! :BqfPreviewTitle
+                                                            {:fg colors.green
+                                                             :bg colors.base02})
+                                                       ;; Load after setting `CommentHighlighted` above
+                                                       ;; Use <C-o><C-h> instead 
+                                                       ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
+                                                       (setup :plugin.toggle-comments)
+                                                       (keymaps! {:n {:<C-h> ":ToggleComments<CR>"}}))]
+                                             (cb)
+                                             cb)}}
        :init #(do
                 (let! base16_colors_lua :base16-colors)
                 (let! nord_disable_background true))
@@ -553,3 +551,6 @@
             :IblIndent {:fg colors.bg2 :bold true}}
        :setup {:ibl {:enabled false}}
        :map #{:n {:<leader>ti vim.cmd.IBLToggle}}})
+
+(use! :folke/which-key.nvim
+      {:setup {:which-key {:delay 1000 :preset :helix}}})
