@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name
@@ -14,7 +16,6 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(require 'use-package)
 (require 'straight)
 
 (provide 'bootstrap/straight)

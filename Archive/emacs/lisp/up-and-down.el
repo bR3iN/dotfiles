@@ -1,17 +1,119 @@
 ;; -*- lexical-binding: t; -*-
 
-(use-package smartparens
-  :config
+(require 'common)
 
+(use-package smartparens
+    :hook
+  ((meow-insert-mode . turn-on-smartparens-strict-mode)
+   (insert-mode-exit . turn-off-smartparens-strict-mode))
+  :config
   (require 'smartparens-config)
-  (smartparens-global-strict-mode)
-  (setq sp-navigate-reindent-after-up nil)
+
+  ;; (keymap-unset sp-pair-overlay-keymap "C-g")
+  ;; (smartparens-global-strict-mode)
+  (setq sp-navigate-reindent-after-up nil
+        sp-navigate-interactive-always-progress-point t)
   (add-hook 'eval-expression-minibuffer-setup-hook 'turn-on-smartparens-strict-mode)
+
+  (cl-labels
+      ((create-region (pos)
+         (if (region-active-p)
+             (set-mark pos)
+           (push-mark pos t t)))
+       (go-up (n &optional callback)
+         (sp-up-sexp n t)
+         (when callback
+           (funcall callback
+                    (save-excursion
+                      (sp-down-sexp (- (sign n)))
+                      (sp-up-sexp (- (sign n)))
+                      (point)))))
+       (go-down (n &optional callback)
+         (sp-down-sexp n)
+         (when callback
+           (funcall callback
+                    (save-excursion
+                      (sp-up-sexp (sign n) t)
+                      (sp-down-sexp (- (sign n)))
+                      (point)))))
+       (go-end (n &optional callback)
+         (sp-up-sexp n t)
+         (go-down (- (sign n)) callback)))
+
+    (defun forward-down (&optional n)
+      (interactive "p")
+      (go-down (or n 1)))
+
+    (defun forward-up (&optional n)
+      (interactive "p")
+      (go-up (or n 1)))
+
+    (defun backward-down (&optional n)
+      (interactive "p")
+      (go-down (- (or n 1))))
+
+    (defun backward-up (&optional n)
+      (interactive "p")
+      (go-up (- (or n 1))))
+
+    (defun beginning-of-inner-traced (&optional n)
+      (interactive "p")
+      (go-end (- (or n 1)) #'request-cmd-trace))
+
+    (defun end-of-inner-traced (&optional n)
+      (interactive "p")
+      (go-end (or n 1) #'request-cmd-trace))
+
+    (defun beginning-of-inner-marked (&optional n)
+      (interactive "p")
+      (go-end (- (or n 1)) #'create-region))
+
+    (defun end-of-inner-marked (&optional n)
+      (interactive "p")
+      (go-end (or n 1) #'create-region))
+
+    (defun forward-down-traced (&optional n)
+      (interactive "p")
+      (go-down (or n 1) #'request-cmd-trace))
+
+    (defun forward-up-traced (&optional n)
+      (interactive "p")
+      (go-up (or n 1) #'request-cmd-trace))
+
+    (defun backward-down-traced (&optional n)
+      (interactive "p")
+      (go-down (- (or n 1)) #'request-cmd-trace))
+
+    (defun backward-up-traced (&optional n)
+      (interactive "p")
+      (go-up (- (or n 1)) #'request-cmd-trace))
+
+    (defun forward-down-marked (&optional n)
+      (interactive "p")
+      (go-down (or n 1) #'create-region))
+
+    (defun forward-up-marked (&optional n)
+      (interactive "p")
+      (go-up (or n 1) #'create-region))
+
+    (defun backward-down-marked (&optional n)
+      (interactive "p")
+      (go-down (- (or n 1)) #'create-region))
+
+    (defun backward-up-marked (&optional n)
+      (interactive "p")
+      (go-up (- (or n 1)) #'create-region))
+
+    (defun mark-inner (&optional n)
+      (interactive "p")
+      (let ((n (or n 1)))
+        (sp-up-sexp n t)
+        (go-down (- (sign n)) #'create-region))))
 
   (defmacro wrap-with (pair)
     `(lambda ()
-      (interactive)
-      (sp-wrap-with-pair ,pair)))
+       (interactive)
+       (sp-wrap-with-pair ,pair)))
 
   (defvar pair-alias-alist `(("p" . "(")
                              ("d" . nil)
@@ -20,18 +122,18 @@
 
   (defun ask-pair ()
     (if-let* ((pair (char-to-string (read-char "Pair: ")))
-        (pair (if (equal pair 127) nil pair))   
-           (pair (or (alist-get pair pair-alias-alist nil nil #'equal) pair)))
-      (sp-get-pair pair)))
+              (pair (if (equal pair 127) nil pair))   
+              (pair (or (alist-get pair pair-alias-alist nil nil #'equal) pair)))
+        (sp-get-pair pair)))
 
   (defun wrap (n)
     (interactive "p")
     (if-let ((pair (ask-pair)))
-      (if (> n 1) (progn
-                    (sp-up-sexp (- (dec-abs n)) t)
-                    (let ((current-prefix-arg nil))
-                      (sp-wrap-with-pair (plist-get pair :open))))
-        (sp-wrap-with-pair (plist-get pair :open)))))
+        (if (> n 1) (progn
+                      (sp-up-sexp (- (dec-abs n)) t)
+                      (let ((current-prefix-arg nil))
+                        (sp-wrap-with-pair (plist-get pair :open))))
+          (sp-wrap-with-pair (plist-get pair :open)))))
 
   (defun rewrap (n)
     (interactive "p")
@@ -57,9 +159,9 @@
                    (if backwards (progn
                                    
                                    )
-                       (sp-backward-up-sexp)
-                       (sp-get-sexp)
-                       )
+                     (sp-backward-up-sexp)
+                     (sp-get-sexp)
+                     )
                    ))
            (prev-open-bounds (-beg-bounds prev backwards)))
       (if (and prev
@@ -88,24 +190,24 @@
       ;; point inside the current balanced expression; if it starts at
       ;; point, we are directly at the beginning of a balanced expression.
       (cond
-       ((> next-beg pt) next)
-       ((< next-beg pt)
-        ;; Skip over the outer sexp and take the next one.
-        (save-excursion
-          (goto-char (-sexp-end next backwards))
-          (sp-get-sexp backwards)))
-       ((= next-beg pt)
-        ;; Take the next inner balanced expression if existent and fall back to
-        ;; the next outer one if not.
-        (save-excursion
-          (goto-char (-sexp-beg-in next backwards))
-          (let ((next-inner (sp-get-sexp backwards)))
-            (if (= (-sexp-beg next-inner backwards) next-beg)
-                ;; No inner balanced expression, sp-get-sexp returned outer one.
-                (progn
-                  (goto-char (-sexp-end next backwards))
-                  (sp-get-sexp backwards))
-              next-inner)))))))
+        ((> next-beg pt) next)
+        ((< next-beg pt)
+         ;; Skip over the outer sexp and take the next one.
+         (save-excursion
+           (goto-char (-sexp-end next backwards))
+           (sp-get-sexp backwards)))
+        ((= next-beg pt)
+         ;; Take the next inner balanced expression if existent and fall back to
+         ;; the next outer one if not.
+         (save-excursion
+           (goto-char (-sexp-beg-in next backwards))
+           (let ((next-inner (sp-get-sexp backwards)))
+             (if (= (-sexp-beg next-inner backwards) next-beg)
+                 ;; No inner balanced expression, sp-get-sexp returned outer one.
+                 (progn
+                   (goto-char (-sexp-end next backwards))
+                   (sp-get-sexp backwards))
+               next-inner)))))))
 
   (defun -sexp-end (sexp backwards)
     (if backwards (sp-get sexp :beg)

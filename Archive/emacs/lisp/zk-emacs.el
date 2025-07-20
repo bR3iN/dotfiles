@@ -111,68 +111,92 @@
       cols-with-alignment objs)))
 
 (defun -ensure-buffer-path ()
+  "Get buffers true path or error"
   (if-let ((path (buffer-file-name))) (file-truename path)
-          (error "current buffer has no file")))
+    (error "current buffer has no file")))
 
 (defun -ensure-eglot-server ()
+  "Get running eglot server or error"
   (if-let ((server (eglot-current-server))) server
-          (error "no running LSP server")))
+    (error "no running LSP server")))
 
 (defun -lsp-cmd (command arguments)
+  "Execute LSP command"
   (let ((server (-ensure-eglot-server)))
     (eglot-execute-command
-      server command arguments)))
+     server command arguments)))
+
+(defun -get-notebook-path (abs-path)  
+  (let ((found (-lsp-cmd
+                "zk.list"
+                `[,abs-path (:select ["path" "absPath"] :hrefs [,abs-path])])))
+    (or
+     (cl-some
+      (lambda (el)
+        (when (equal (plist-get el :absPath) abs-path)
+          (plist-get el :path)))
+      found)
+     (error "Failed to get notebook-internal path of note"))))
 
 (defun -zk-list-get-com-tbl (path options)
+  "Execute zk.list with given PATH and OPTIONS, injecting in interpreting the :select parameter, retuning a completion table."
   (setq options (plist-put options :select ["title" "path" "absPath" "lead"]))
   (-zk-list-to-options (-lsp-cmd "zk.list" `[,path ,options])))
 
 (defun -zk-list (path options prompt &optional pred)
+  "Execute zk.list with given PATH and OPTIONS and let the user make a choice; PRED limits completion candidates."
   (let* ((com-tbl (-zk-list-get-com-tbl path options))
          (choice (-zk-list-read prompt com-tbl pred)))
     (cddr (assoc choice com-tbl))))
 
 (defun -is-open (option)
+  "Check if completion option OPTION is opened in a buffer."
   (boolify (find-buffer-visiting (plist-get (cddr option) :path))))
 
 (defun -edit-zk-list (obj)
+  "Open OBJ for editing"
   (find-file (plist-get obj :absPath)))
 
 (defun zk-find-or-create ()
+  "Open an existing zk note or create a new one."
   (interactive)
   (let* ((path (-ensure-buffer-path))
          (com-tbl (-zk-list-get-com-tbl path '()))
          (choice (-zk-list-read "Title: " com-tbl nil t)))
     (if-let ((existing (assoc choice com-tbl))) (-edit-zk-list (cddr existing))
-            (zk-new choice path))))
+      (zk-new choice path))))
 
 (defun zk-find-open-note ()
+  "Switch to the buffer of an already opened note by its title."
   (interactive)
   (let ((path (-ensure-buffer-path)))
     (-edit-zk-list
-        (-zk-list
-          path '() "Switch to note: " #'-is-open))))
+     (-zk-list
+      path '() "Switch to note: " #'-is-open))))
 
 (defun zk-find-note ()
+  "Open an already existing note."
   (interactive)
   (let ((path (-ensure-buffer-path)))
     (-edit-zk-list
-          (-zk-list
-            path '() "Edit note: "))))
+     (-zk-list
+      path '() "Edit note: "))))
 
 (defun zk-find-link (&optional n)
+  "Open a note linked by the current note. Prefix arg extends this recursively."
   (interactive "p")
   (let ((path (-ensure-buffer-path)))
     (-edit-zk-list
-      (-zk-list
-        path `(:linkedBy [,path] :recursive t :maxDistance ,(or n 1)) "Edit linked note: "))))
+     (-zk-list
+      path `(:linkedBy [,path] :recursive t :maxDistance ,(or n 1)) "Edit linked note: "))))
 
 (defun zk-find-backlink (&optional n)
+  "Open a note linking to the current note. Prefix arg extends this recursively."
   (interactive "p")
   (let ((path (-ensure-buffer-path)))
     (-edit-zk-list
-      (-zk-list
-        path `(:linkTo [,path] :recursive t :maxDistance ,(or n 1)) "Edit backlink: "))))
+     (-zk-list
+      path `(:linkTo [,path] :recursive t :maxDistance ,(or n 1)) "Edit backlink: "))))
 
 (defun -zk-list-read (prompt com-tbl &optional pred no-match-required)
   (let* ((completion-extra-properties
@@ -191,7 +215,21 @@
     (goto-char mark)))
 
 
+(defun -insert-link-at-point (absPath path &optional link-name)
+  (let ((loc (-lsp-location-at-point)))
+    (-lsp-cmd
+     "zk.link"
+     `[,absPath (:location ,loc :path ,path :title ,link-name)])))
+
+(defun zk-index ()
+  (interactive)
+  (let ((path (-ensure-buffer-path)))
+    (-lsp-cmd
+     "zk.index"
+     `[,path ,(make-hash-table)])))
+
 (defun zk-insert-link ()
+  "Insert a link at point, querying for the note by title and optionally the link's name."
   (interactive)
   (let* ((path (-ensure-buffer-path))
          (com-tbl (-zk-list-get-com-tbl path '()))
@@ -199,44 +237,54 @@
          (link-name (read-string "Link name: "))
          (link-name (if (string-empty-p link-name) nil link-name))
          (loc (-lsp-location-at-point))
-         (after-link-pos (let ((marker (point-marker)))
-                           (set-marker-insertion-type marker t)
-                           marker)))
+         (after-link-pos (copy-marker (point-marker) t)))
     (if-let ((existing (assoc choice com-tbl)))
-        (let ((path (plist-get (cddr existing) :path))
-              (absPath (plist-get (cddr existing) :absPath)))
-          (-lsp-cmd
-           "zk.link"
-           (print `[,absPath (:location ,loc :path ,path :title ,link-name)]))
-          )
-      (-lsp-cmd
-       "zk.new"
-       `[,path (:title ,choice :insertLinkAtLocation ,loc)]))
-    ;; FIXME: find better way than a race condition
-    ;; Give language server time to insert link
-    (sleep-for 0 50)
-    (goto-char after-link-pos)))
+        (-insert-link-at-point
+         (plist-get (cddr existing) :absPath)
+         (plist-get (cddr existing) :path)
+         link-name)
+      ;; Create the link first; creation doesn't lets us specify the title
+      ;; and returns only an absolute path, while link insertion requires
+      ;; a relative for whatever reason, so there are some extra steps to
+      ;; resolve this.
+      (let* ((res (print (-lsp-cmd "zk.new" `[,path (:title ,choice)])))
+             (abs-path (plist-get res :path))
+             (path (-get-notebook-path abs-path)))
+        (-insert-link-at-point abs-path path link-name)))
 
-(define-minor-mode zk-mode nil
-                     :lighter " zk"
-                     :keymap (define-keymap 
-                               "C-c C-b" 'zk-find-backlink
-                               "C-c C-l" 'zk-find-link
-                               "C-c C-n" 'zk-find-or-create
-                               "C-c C-o" 'zk-find-open-note
-                               "C-c C-c" 'zk-new)
-             (add-to-list 'eglot-server-programs '(markdown-mode . ("zk" "lsp")))
-             (eglot-ensure))
+    ;; Without this, link text is inserted by LSP response after point, which
+    ;; is not what we want.
+    (insert " ")))
+
+(define-minor-mode zk-mode
+    "Provides keybindings for custom commands of the zk LSP server."
+  :lighter " zk"
+  :keymap (define-keymap
+              :name "Integration of zk language server."
+            "C-c C-b" 'zk-find-backlink
+            "C-c C-l" 'zk-find-link
+            "C-c C-n" 'zk-find-or-create
+            "C-c C-o" 'zk-find-open-note
+            "C-c C-c" 'zk-new)
+  ;; TODO
+  (add-to-list 'eglot-server-programs '(markdown-mode . ("zk" "lsp")))
+  (eglot-ensure))
+
 
 (defun -enable-if-registered ()
   (when-let* ((path (buffer-file-name))
               (path (file-truename path)))
-             (when (-is-zk-file path)
-               (zk-mode))))
+    (when (-is-zk-file path)
+      (zk-mode))))
 
 (with-eval-after-load
-  'markdown-mode
-  (add-hook 'markdown-mode-hook #'-enable-if-registered))
+    'markdown-mode
+  (define-minor-mode zk-auto-mode
+      "Automatically enable `zk-mode' for markdown files inside directories registered via `zk-register'.'"
+    :global t
+    (if zk-auto-mode
+        (add-hook 'markdown-mode-hook #'-enable-if-registered)
+      (remove-hook 'markdown-mode-hook #'-enable-if-registered))))
 
 (defvar -zk-file-regexps '())
 
