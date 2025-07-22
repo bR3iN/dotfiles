@@ -1,0 +1,29 @@
+// Base16 Pop-OS
+// Scheme by bR3iN
+themes {
+    base16 {
+        // By number
+        bg "#202020"
+        fg "#A8A8A8"
+        black "#3D3D3D"
+        white "#F3F3F3"
+        red "#B42929"
+        orange "#C0791B"
+        yellow "#CCA440"
+        green "#5C9C72"
+        cyan "#29B4B4"
+        blue "#39949F"
+        magenta "#8A6586"
+
+        // // Extension colors, derived from the above
+        // dark_red "#B42929"
+        // dark_orange "#C0791B"
+        // dark_yellow "#CCA440"
+        // dark_green "#5C9C72"
+        // dark_cyan "#29B4B4"
+        // dark_blue "#39949F"
+        // dark_magenta "#8A6586"
+        // dark_brown "#8A7C65"
+    }
+}
+// vim: ft=kdl
