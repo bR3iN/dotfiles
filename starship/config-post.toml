@@ -1,0 +1,45 @@
+format = """$status$cmd_duration$time$line_break
+"""
+
+add_newline = true
+
+palette = 'custom'
+
+[palettes.custom]
+orange = '16'
+
+[fill]
+symbol = ' '
+
+[cmd_duration]
+format = 'after [ $duration]($style) '
+show_milliseconds = true
+style = 'bright-purple'
+min_time = 0
+# show_notifications = true
+# min_time_to_notify = 5_000
+# notification_timeout = 5_000
+
+[status]
+format = '[$symbol]($style)( with [$common_meaning$signal_name$maybe_int]($style)) '
+pipestatus_format = '[$symbol]($style) with \($pipestatus=> [$status]($style)\) '
+pipestatus_segment_format = '[$status]($style) (\([$common_meaning$signal_name]($style)\) )'
+disabled = false
+pipestatus = true
+pipestatus_separator = "| "
+symbol = ''
+not_executable_symbol = ''
+not_found_symbol = ''
+signal_symbol = ''
+sigint_symbol = ''
+success_symbol = ""
+map_symbol = true
+success_style = 'bold green'
+
+[time]
+format = '[$time]($style)'
+# time_format = "%H:%M:%S"
+# style = 'yellow'
+time_format = "on \u001b[93m%d %b\u001b[m at \u001b[93m%H\u001b[m:\u001b[93m%M\u001b[m:\u001b[93m%S\u001b[m"
+style = ''
+disabled = false

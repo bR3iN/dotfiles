@@ -1,0 +1,89 @@
+format = """
+$directory\
+( $username)\
+( $hostname)\
+( $python)\
+( $container)\
+( $git_state)\
+( $git_branch)\
+$fill\
+( $git_commit)\
+(\\(($git_status)($git_metrics)\\))\
+( $line_break)\
+$character"""
+
+add_newline = false
+
+palette = 'custom'
+
+[palettes.custom]
+orange = '16'
+
+[fill]
+symbol = ' '
+
+[cmd_duration]
+format = 'after [ $duration]($style)'
+show_milliseconds = true
+style = 'yellow'
+min_time = 0
+show_notifications = true
+min_time_to_notify = 5_000
+
+[package]
+
+[character]
+success_symbol = '❯'
+error_symbol = '❯'
+
+[username]
+# show_always = true
+style_user = 'bold bright-green'
+format = 'as [$user]($style)'
+
+[hostname]
+# ssh_only = false
+format = 'on [$ssh_symbol$hostname]($style)'
+style = 'bold bright-yellow'
+
+[directory]
+fish_style_pwd_dir_length = 1
+format = 'in [$path]($style)[$read_only]($read_only_style)'
+
+[git_branch]
+style = 'bold orange'
+format = 'on [$symbol$branch(:$remote_branch)]($style)'
+
+[git_commit]
+style = 'bold blue'
+format = 'at [󰜘 $hash](bold orange)( \([󰓹 $tag]($style)\))'
+tag_disabled = true
+# only_detached = false
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\)'
+
+[git_metrics]
+format = '([+$added]($added_style))([-$deleted]($deleted_style))'
+disabled = false
+
+[git_status]
+format = ''
+# format = '[$all_status$ahead_behind]($style)'
+style = 'bold yellow'
+up_to_date = '[󰗠](bold green)'
+behind = '[󰍶](bold yellow)'
+ahead = '[󰐗](bold yellow)'
+diverged = '[󰀨](bold orange)'
+untracked = ''
+deleted = ''
+renamed = ''
+
+
+[python]
+format = 'with [${symbol}${pyenv_prefix}]($style) \([$virtualenv]($style)\)'
+style = 'blue'
+symbol = ''
+
+[container]
+format = 'in [$symbol $name]($style)'
