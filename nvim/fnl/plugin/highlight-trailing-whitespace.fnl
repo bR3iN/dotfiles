@@ -6,7 +6,7 @@
 (fn nohl []
   (vim.fn.clearmatches))
 
-(autocmd! :highlight-traling-whitespace
-          [{:event :BufEnter :pattern "*" :callback hl}
-           {:event :InsertLeave :pattern "*" :callback hl}
-           {:event :InsertEnter :pattern "*" :callback nohl}])
+(autocmd! 
+  {:event :BufEnter :pattern "*" :callback hl}
+  {:event :InsertLeave :pattern "*" :callback hl}
+  {:event :InsertEnter :pattern "*" :callback nohl})

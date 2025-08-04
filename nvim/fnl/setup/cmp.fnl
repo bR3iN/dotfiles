@@ -72,11 +72,12 @@
                       {:name :nvim_lua}
                       {:name :neorg}
                       {:name :path}
+                      {:name :dap}
                       {:name :latex_symbols}
                       {:name :omni}
                       {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
-            :window {:completion (cmp.config.window.bordered)
-                     :documentation (cmp.config.window.bordered)}
+            ;; :window {:completion (cmp.config.window.bordered)
+            ;;          :documentation (cmp.config.window.bordered)}
             :formatting {:format (let [display-names {:nvim_lsp "[LSP]"
                                                       :luasnip "[Snp]"
                                                       :nvim_lua "[Lua]"

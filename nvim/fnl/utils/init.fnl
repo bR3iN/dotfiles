@@ -1,5 +1,8 @@
 (local M {})
 
+(fn _G.unload [mod]
+  (set (. _G.package.loaded mod) nil))
+
 (fn M.starts-with [str prefix]
   (= (string.sub str 1 (length prefix)) prefix))
 
@@ -31,34 +34,69 @@
   (set (. _G.package.loaded mod) nil)
   (require mod))
 
+(var augroup nil)
+
+(fn M.init []
+  (set augroup (vim.api.nvim_create_augroup :my_init {:clear true})))
+
+;; FIXME
+(fn init-aucmd [event opts]
+  (let [group (or augroup (error "not initialized"))
+        opts (vim.tbl_extend :error opts {: group})]
+    (vim.api.nvim_create_autocmd event opts)))
+
+(fn init-aucmd! [tbl]
+  (each [event opts (pairs tbl)]
+    (init-aucmd event opts)))
+
+(set M.UNBIND :unset-key)
+
 (fn parse-maps-tbl [tbl]
   (let [out []]
-    (fn step [prefix tbl]
+    (fn step [curr-prefix tbl]
+      ;; Recurse `tbl`, collecting found mappings in `out`.
       (each [key val (pairs tbl)]
         ;; `key` can be a list of keys
         (let [keys (if (M.table? key) key [key])]
           (each [_ key (ipairs keys)]
-            (let [new-prefix (.. prefix key)]
+            (let [new-prefix (.. curr-prefix key)]
+              ;; `val` can be either a "submap" table which we recurse on, a table-valued leaf (i.e. keymap), which we identify by the presence of a :callback key, a string-valued leaf, or an `M.UNBIND`-valued leaf that deletes an existing keybind.
               (if (M.table? val)
-                  ;; Recurse on nested table
-                  (step new-prefix val)
-                  (set (. out new-prefix) val)))))))
+                  (let [{: callback & rest} val]
+                    (if callback
+                        ;; Identify table-valued leaves by the presence of :callback
+                        (set (. out new-prefix) {:rhs callback :opts rest})
+                        ;; Otherwise, they are nested keymaps and we recurse
+                        (step new-prefix rest)))
+                  (set (. out new-prefix) {:rhs val :opts {}})))))))
 
     (step "" tbl)
     out))
 
-(fn keymaps-ext! [tbl ?opts]
-  (let [default-opts {:silent true}
-        opts (if ?opts (vim.tbl_extend :force default-opts ?opts) default-opts)]
+(fn keymaps-inner! [tbl ?base-opts]
+  (let [default-opts {:silent true}]
     (each [modes maps-tbl (pairs tbl)]
-      (each [lhs rhs (pairs (parse-maps-tbl maps-tbl))]
-        (vim.keymap.set modes lhs rhs opts)))))
+      (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
+        (let [opts (vim.tbl_extend :force default-opts (or ?base-opts {}) opts)]
+          (if (= rhs M.UNBIND)
+              (vim.keymap.del modes lhs)
+              (vim.keymap.set modes lhs rhs opts)))))))
+
+(fn M.ft-autocmd! [tbl]
+  (each [filetype callback (pairs tbl)]
+    (init-aucmd! {:FileType {:pattern filetype : callback}})))
+
+;; TODO: Unnecessary?
+(fn M.ft-keymaps! [tbl]
+  (M.ft-autocmd! (vim.tbl_map (fn [maps]
+                                #(keymaps-inner! maps {:buffer true}))
+                              tbl)))
 
 (fn M.keymaps! [tbl]
-  (keymaps-ext! tbl))
+  (keymaps-inner! tbl))
 
 (fn M.local-keymaps! [tbl]
-  (keymaps-ext! tbl {:buffer true}))
+  (keymaps-inner! tbl {:buffer true}))
 
 (fn parse-map-options [list]
   (local opt-tbl {:noremap true :silent true}) ; Default options
@@ -90,31 +128,9 @@
   (let [opt-tbl (or ?opt-tbl {})]
     (vim.api.nvim_create_user_command lhs rhs opt-tbl)))
 
-; (fn M.augroup! [name ?clear]
-;   (let [id (let [clear (or ?clear true)]
-;              (vim.api.nvim_create_augroup name {: clear}))]
-;     (fn [event pattern callback ?opt-tbl]
-;       (let [set-cb (fn [tbl]
-;                      (case (type callback)
-;                        :string (set tbl.command callback)
-;                        :function (set tbl.callback callback)))
-;             opt-tbl (doto (or ?opt-tbl {})
-;                       (tset :group id)
-;                       (tset :pattern pattern)
-;                       (set-cb))]
-;         (vim.api.nvim_create_autocmd event opt-tbl)))))
-
-(fn M.autocmd! [& args]
-  (let [inner (fn [name clear cmds]
-                (let [group (vim.api.nvim_create_augroup name {: clear})]
-                  (each [_ {: event & opt_tbl} (ipairs cmds)]
-                    (vim.api.nvim_create_autocmd event
-                                                 (vim.tbl_extend :error opt_tbl
-                                                                 {: group})))))]
-    (case args
-      [name cmds] (inner name true cmds)
-      [name clear cmds] (inner name clear cmds)
-      _ (error "bad arguments"))))
+(fn M.autocmd! [& cmds]
+  (each [_ {: event & opts} (ipairs cmds)]
+    (init-aucmd event opts)))
 
 (fn M.replace-termcodes [keys]
   (vim.api.nvim_replace_termcodes keys true false true))
@@ -136,17 +152,6 @@
   (let [spec (if (M.string? spec) {:src spec} spec)]
     (set spec.src (expand-src spec.src))
     spec))
-
-(var augroup nil)
-
-(fn M.init []
-  (set augroup (vim.api.nvim_create_augroup :init {:clear true})))
-
-(fn init-aucmds [tbl]
-  (each [event opts (pairs tbl)]
-    (let [group (or augroup (error "not initialized"))
-          opts (vim.tbl_extend :error opts {: group})]
-      (vim.api.nvim_create_autocmd event opts))))
 
 (var pkgs-pending [])
 
@@ -185,14 +190,14 @@
                 ;; Some plugins (e.g. indent-blankline) require highlight groups to be set before setup.
                 (when hl
                   (let [set-hls! #(each [name opts (pairs (eval hl))]
-                                   (M.hl! name opts))]
+                                    (M.hl! name opts))]
                     (set-hls!)
-                    (init-aucmds {:ColorScheme {:callback set-hls!}})))
+                    (init-aucmd! {:ColorScheme {:callback set-hls!}})))
                 (when setup
                   (each [module opts (pairs (eval setup))]
                     (use-setup module opts)))
                 (when autocmds
-                  (init-aucmds (eval autocmds)))
+                  (init-aucmd! (eval autocmds)))
                 (when reload
                   (each [_ mod (ipairs (eval reload))]
                     (M.reload mod)))

@@ -60,8 +60,9 @@ keybinds clear-defaults=true {
         bind "Ctrl 0" { SwitchToMode "locked"; GoToTab 0; }
 
         // Close tabs/panes
-        bind "x" { SwitchToMode "locked"; CloseFocus; }
-        bind "X" { SwitchToMode "locked"; CloseTab; }
+        // bind "x" { SwitchToMode "locked"; CloseFocus; }
+        // bind "X" { SwitchToMode "locked"; CloseTab; }
+        bind "X" { SwitchToMode "locked"; CloseFocus; }
 
         // Pane/Tab extended bindings
         bind "w" { SwitchToMode "pane"; }
@@ -77,6 +78,8 @@ keybinds clear-defaults=true {
         bind "Ctrl space" { SwitchToMode "locked"; ToggleFloatingPanes; }
 
         // Experimental
+        bind "]" { SwitchToMode "locked"; MovePane; }
+        bind "[" { SwitchToMode "locked"; MovePaneBackwards; }
         bind "b" { SwitchToMode "locked"; BreakPane; }
         bind "r" { SwitchToMode "resize"; }
         bind "m" { SwitchToMode "move"; }
@@ -141,8 +144,6 @@ keybinds clear-defaults=true {
         bind "l" { MovePane "right"; }
         bind "n" { MovePane; }
         bind "p" { MovePaneBackwards; }
-        bind "]" { MovePane; }
-        bind "[" { MovePaneBackwards; }
         bind "c" { SwitchToMode "locked"; BreakPaneLeft; }
         bind "H" { BreakPaneLeft; }
         bind "L" { BreakPaneRight; }
