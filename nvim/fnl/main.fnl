@@ -245,7 +245,7 @@
                :<C-v><Esc> {:desc "Send Escape to Terminal" :callback :<Esc>}}})
 
 ;; Open main.fnl
-(keymaps! {:n {:<leader>oc {:desc "Open Vim Config"
+(keymaps! {:n {:<leader>ov {:desc "Open Vim Config"
                             :callback ":<C-u>edit ~/.config/nvim/fnl/main.fnl<CR>"}}})
 
 ;; Goto alternative/[p]revious file
