@@ -4,7 +4,7 @@ include-file = ~/.config/polybar/base16
 [bar/mybar]
 enable-ipc = true
 width = 100%
-height = 25
+height = 30
 fixed-center = true
 dpi = ${xrdb:Xft.dpi:96}
 
@@ -16,9 +16,8 @@ line-size = 2
 border-bottom-size = 1
 border-color = ${colors.base01}
 
-font-0 = Fira Sans:size=11;2
-font-1 = Symbols Nerd Font:size=11;2
-font-2 = Fira Sans:style=SemiBold:size=13;3
+font-0 = Noto Sans Nerd Font:size=11;2
+font-1 = Noto Sans:style=SemiBold:size=12;3
 
 modules-left = i3
 modules-center = date
@@ -45,7 +44,7 @@ label-mode-background = ${colors.base0B}
 
 label-focused = %index%
 label-focused-background = ${colors.base03}
-label-focused-foreground = ${colors.base04}
+label-focused-foreground = ${colors.base05}
 label-focused-underline= ${colors.base0B}
 label-focused-padding = ${self.label-padding}
 
@@ -93,7 +92,7 @@ inherit = indicator
 type = internal/backlight
 format-underline = ${colors.base08}
 
-card = intel_backlight
+card = amdgpu_bl0
 
 format = <label> <ramp>
 ramp-0 = 
@@ -109,8 +108,8 @@ click-right = pavucontrol
 format-volume-underline = ${colors.base09}
 format-muted-underline = ${self.format-volume-underline}
 
-format-volume-foreground = ${colors.base00}
-format-volume-background = ${self.format-muted-underline}
+format-muted-foreground = ${colors.base00}
+format-muted-background = ${self.format-volume-underline}
 
 format-volume-padding = ${indicator.format-padding}
 format-muted-padding = ${indicator.format-padding}
@@ -128,7 +127,7 @@ ramp-volume-2 = 墳
 [module/network]
 inherit = indicator
 type = internal/network
-interface = wlp4s0
+interface = wlp3s0
 
 format-connected-underline = ${colors.base0C}
 format-disconnected-underline = ${self.format-connected-underline}
@@ -178,7 +177,7 @@ time = %H:%M
 time-alt = %H:%M
 
 label = %date%%time%
-label-font = 3
+label-font = 2
 
 
 [module/battery]

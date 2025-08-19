@@ -4,6 +4,8 @@
 (local builtins (require :telescope.builtin))
 (local actions (require :telescope.actions))
 
+(vim.system [:make] {:cwd (.. vim.env.HOME "/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/")})
+
 (local smart_qf_and_open (fn [bufnr]
                            (actions.smart_send_to_qflist bufnr) ; (actions.open_qflist bufnr)
                            (vim.cmd.cfirst)))

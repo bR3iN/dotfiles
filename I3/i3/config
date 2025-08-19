@@ -23,7 +23,7 @@ set $menu "rofi -show combi -combi-modi 'window\,drun'"
 
 ## Appearance {{{
 
-font pango:Fira Sans Regular 9
+font pango:Noto Sans Regular 9
 
 hide_edge_borders smart_no_gaps
 default_floating_border normal
@@ -33,7 +33,7 @@ smart_gaps on
 gaps inner $gaps_inner
 gaps outer $gaps_outer
 
-exec --no-startup-id polybar --reload mybar
+exec_always --no-startup-id killall polybar; polybar --reload mybar
 
 # Sets colors
 include ~/.config/i3/colors.conf
@@ -42,7 +42,8 @@ include ~/.config/i3/colors.conf
 
 ## Idle configuration {{{
 
-exec --no-startup-id xset 180
+exec --no-startup-id xset s off
+exec --no-startup-id xset -dpms
 exec --no-startup-id xss-lock -n dim-and-lock -- lock
 
 # }}}
@@ -73,9 +74,8 @@ bindsym $mod+q kill
 
 # Make screenshot
 bindsym $mod+Control+p exec gnome-screenshot --class=gnome-screenshot -ia
-
-# Connect VPN
-bindsym $mod+Control+v exec rofi-vpn
+bindsym $mod+Control+Home exec gnome-screenshot --class=gnome-screenshot -w
+bindsym $mod+Control+End exec gnome-screenshot --class=gnome-screenshot -wi
 
 # Choose keyboard layout
 bindsym $mod+Control+i exec rofi-inputs
@@ -92,7 +92,7 @@ bindsym $mod+d exec rofi-open
 
 # Browser
 bindsym $mod+b         exec $browser
-bindsym $mod+Control+b exec rofi-ff
+bindsym $mod+Control+b exec firefox
 
 # Open emoji selector
 bindsym $mod+Control+e exec rofi-emoji
@@ -294,7 +294,7 @@ mode "powermenu" {
 
 ## Output configuration {{{
 
-exec_always --no-startup-id feh --bg-fill ~/Wallpaper/current
+exec_always --no-startup-id feh --bg-fill ~/Wallpaper/Tokyonight.jpg
 
 # }}}
 
@@ -305,7 +305,12 @@ for_window [instance="gtk3-widget-factory"] floating enable
 for_window [class="gnome-screenshot"] floating enable
 for_window [class="Arandr"] floating enable
 for_window [class="Pavucontrol"] floating enable
+for_window [class="pavucontrol"] floating enable
+for_window [class="simplescreenrecorder"] floating enable
 for_window [class="Blueberry.py"] floating enable
+for_window [class="Blueman-manager"] floating enable
+for_window [class="Matplotlib"] floating enable
+for_window [class="matplotlib"] floating enable
 
 ## }}}
 
@@ -317,7 +322,6 @@ exec --no-startup-id picom
 
 exec --no-startup-id start-polkit-agent
 exec --no-startup-id Thunar --daemon
-exec --no-startup-id powerprofilesctl set power-saver
 exec --no-startup-id autorandr -c
 
 ## }}}

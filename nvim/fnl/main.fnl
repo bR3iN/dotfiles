@@ -167,12 +167,14 @@
                                                        (hl! :CommentHighlighted
                                                             {:extend true
                                                              :fg colors.base0F})
+                                                       (hl! :StatusLine {:extend true :bg named.bg2})
                                                        (hl! :GitSignsCurrentLineBlame
                                                             {:link :CommentHighlighted})
                                                        (hl! :TrailingWhitespace
                                                             {:extend true
                                                              :fg colors.base03
                                                              :bg colors.base03})
+                                                       (hl! :LspInlayHint {:extend true :bg :NONE})
                                                        ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
                                                        (hl! :BqfPreviewTitle
                                                             {:fg colors.green
@@ -192,7 +194,8 @@
                   ;; Decide if we use an external colorscheme or our own base16-based one
                   (case name
                     "Tokyonight Moon"
-                    (vim.cmd.colorscheme :tokyonight-moon)
+                    (do
+                      (vim.cmd.colorscheme :tokyonight-moon))
                     "Nord"
                     (vim.cmd.colorscheme :nord)
                     "Gruvbox"
@@ -221,7 +224,7 @@
 (set! scrolloff 1)
 (set! linebreak)
 
-(require :plugin.highlight-trailing-whitespace)
+; (require :plugin.highlight-trailing-whitespace)
 
 ;; Highlights hex color codes with their color
 (use! :NvChad/nvim-colorizer.lua
@@ -340,6 +343,7 @@
                                "CR" :actions.select
                                :<C-s>v :actions.select_vsplit
                                :<C-s>s :actions.select_split
+						  "gs"    :actions.change_sort
                                :gp :actions.preview
                                :<C-p> :actions.close
                                :gf :actions.refresh

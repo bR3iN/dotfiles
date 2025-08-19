@@ -24,9 +24,8 @@ install_dependencies ()
 {
     case "$(cat /etc/os-release | grep "^NAME")" in
         *Fedora*)
-            sudo dnf install -y autoconf meson ninja-build sassc \
-                glib2-devel cairo-devel rofi-devel \
-                google-noto-emoji-color-fonts
+            sudo dnf install -y @development-tools automake autoconf meson ninja-build sassc \
+                glib2-devel cairo-devel rofi-devel
             ;;
         *Tumbleweed*)
             sudo zypper install -y rofi-devel \

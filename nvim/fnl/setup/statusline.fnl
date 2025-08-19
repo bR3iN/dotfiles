@@ -1,4 +1,4 @@
-(local {: darken : get-named : mix} (require :utils.colors))
+(local {: darken : get-named : mix : lighten} (require :utils.colors))
 (local {: empty? : hl! : starts-with} (require :utils))
 
 (local {:setup setup-heirline} (require :heirline))
@@ -205,12 +205,12 @@
                       :provider " "
                       :hl {:fg named.orange}}])
 
-(local winbar {:hl {:fg named.fg0 :bg named.bg3}
+(local winbar {:hl {:fg (lighten named.fg0 0.2) :bg (darken named.bg3 0.2)}
                ;; left side
                1 [{1 [hl--space
                       hl--win-nr
                       hl--space
-                      {:hl #{:bg named.bg3 :bold (is_active)} 1 hl--file}
+                      {:hl #{:bold (is_active)} 1 hl--file}
                       hl--space
                       winbar-icons]}
                   ;; {:provider "%="}

@@ -2,11 +2,11 @@ scan_timeout = 10
 command_timeout = 100
 
 format = """
+($container )\
 $directory\
 ( $username)\
 ( $hostname)\
 ( $python)\
-( $container)\
 ( $git_state)\
 ( $git_branch)\
 $fill\
@@ -89,4 +89,5 @@ style = 'blue'
 symbol = ''
 
 [container]
-format = 'in [$symbol $name]($style)'
+format = '[$symbol]($style)'
+style = 'yellow'
