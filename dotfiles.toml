@@ -3,6 +3,7 @@ links = {".config/zellij" = "zellij"}
 
 [target.starship]
 links = {".config/starship.toml" = "starship/config.toml", ".config/starship-post.toml" = "starship/config-post.toml"}
+cmds = ["cargo install --locked starship"]
 
 [target.helix]
 links = {".config/helix" = "helix"}
