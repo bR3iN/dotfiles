@@ -1,5 +1,0 @@
-[[item]]
-template = "custom"
-subtemplate = "rofi"
-file = "~/.config/rofi/flavours.rasi"
-rewrite = true

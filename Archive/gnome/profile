@@ -1,4 +1,0 @@
-# gdm doesn't source .bash_profile
-source ~/.bash_profile
-
-# vim: filetype=sh

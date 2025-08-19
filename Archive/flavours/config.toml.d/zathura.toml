@@ -1,5 +1,0 @@
-[[item]]
-template = "zathura"
-subtemplate = "recolor"
-file = "~/.config/zathura/flavours"
-rewrite = true

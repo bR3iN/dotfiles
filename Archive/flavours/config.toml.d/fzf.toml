@@ -1,5 +1,0 @@
-[[item]]
-template = "fzf"
-subtemplate = "fish"
-file = "~/.config/fish/conf.d/flavours_fzf.fish"
-rewrite = true

@@ -1,5 +1,0 @@
-[[item]]
-template = "custom"
-subtemplate = "polybar"
-file = "~/.config/polybar/flavours"
-rewrite = true

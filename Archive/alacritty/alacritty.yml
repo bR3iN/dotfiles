@@ -1,4 +1,0 @@
-import:
-  - ~/.config/alacritty/shared.yml
-  - ~/.config/alacritty/flavours.yml
-  - ~/.config/alacritty/local.yml

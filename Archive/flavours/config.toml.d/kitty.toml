@@ -1,5 +1,0 @@
-[[item]]
-template = "kitty"
-subtemplate = "default-256"
-file = "~/.config/kitty/flavours.conf"
-rewrite = true
