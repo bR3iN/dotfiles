@@ -684,38 +684,39 @@
                           "t" {"h" #(vim.lsp.inlay_hint.enable (not (vim.lsp.inlay_hint.is_enabled)))}}}})
 
 ;; Helix-like bindings
-(keymaps! {:v {"<leader>" {"y" {:desc "Yank to Clipboard" :callback "\"+y"}}}
-           :n {"g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
+(keymaps! {:v {"<leader>" {"y" {:desc "Yank to Clipboard" :callback "\"+y"}
+                           "p" {:desc "Paste from Clipboard" :callback "\"+p"}
+                           "P" {:desc "Paste from Clipboard before cursor" :callback "\"+P"}
+                           }}
+           :n {
+               "<C-p>" {:desc "Goto Alternate File" :callback "<C-^>"}
+               "g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
                     "D" {:desc "Goto Declaration"
                          :callback vim.lsp.buf.declaration}
-                    "y" {:desc "Goto Type Definition"
+                    "t" {:desc "Goto Type Definition"
                          :callback vim.lsp.buf.type_definition}
                     "i" {:desc "Goto Implementation"
                          :callback vim.lsp.buf.implementation}
                     "r" {:desc "Goto References"
                          :callback vim.lsp.buf.references}
                     "a" {:desc "Goto Alternate File" :callback "<C-^>"}
-                    "." {:desc "Goto Last Change" :callback "g;"}
-                    "s" {:desc "Goto Start of Line" :callback "^"}
-                    "l" {:desc "Goto End of Line" :callback "$"}
-                    "h" {:desc "Goto Column 0" :callback "0"}
-                    "e" {:desc "Goto End of Buffer" :callback "G"}}
-               "<leader>" {"r" {:desc "Rename Symbol"
+                    }
+               "<leader>" {"rn" {:desc "Rename Symbol"
                                 :callback vim.lsp.buf.rename}
                            "w" {:desc "Window Commands" :callback "<C-w>"}
+                           "s" {:desc "Save File" :callback ":update<CR>"}
+                           "S" {:desc "Save All Files" :callback ":wall<CR>"}
                            "y" {:desc "Yank to Clipboard" :callback "\"+y"}
                            "p" {:desc "Paste from Clipboard" :callback "\"+p"}
                            "P" {:desc "Paste from Clipboard before Cursor" :callback "\"+P"}
                            "a" {:desc "Code Action"
                                 :callback vim.lsp.buf.code_action}
                            "o" {"d" vim.diagnostic.open_float}
-                           "x" {"s" {:desc "Save File" :callback ":update<CR>"}
-                                "S" {:desc "Save All File"
-                                     :callback ":wall<CR>"}
+                           "x" {
                                 "R" {:desc "Reload Config"
                                      :callback #(do
-                                                  (vim.print "Reloading config")
-                                                  (dofile vim.env.MYVIMRC))}}}}})
+                                                    (vim.print "Reloading config")
+                                                    (dofile vim.env.MYVIMRC))}}}}})
 
 ;; Window
 ;; FIXME: cleanup

@@ -63,36 +63,40 @@
 
 (load_extension :fzf)
 
-(keymaps! {:n {:<leader> {:f {:desc "Find Files"
-                              :callback #(pick :find_files {:follow true})}
-                          :F {:desc "Find Files (CWD)"
-                              :callback #(pick :find_files
-                                               {:cwd (oil-or-buffer-dir)
-                                                :follow true})}
-                          ;; Resumes previous picker
-                          "'" {:desc "Resume Picker" :callback #(pick :resume)}
+(keymaps! {:n {:<leader> {";" {:desc "Resume Picker" :callback #(pick :resume)}
+                          :i {:desc "Document Symbols"
+                              :callback #(pick :lsp_document_symbols)}
+                          :I {:desc "Workspace Symbols"
+                              :callback #(pick :lsp_workspace_symbols)}
                           :b {:desc "Find Buffers"
                               :callback #(pick :buffers
                                                {:sort_lastused true
                                                 :sort_mru true})}
-                          :j {:desc "Jump List" :callback #(pick :jumplist)}
-                          :G {:desc "Git Status" :callback #(pick :git_status)}
                           :d {:desc "Find Diagnostics"
                               :callback #(pick :diagnostics)}
                           :D {:desc "Workspace Diagnostics"
                               :callback #(pick :diagnostics {:workspace true})}
-                          :/ {:desc "Live Grep"
-                              :callback #(pick :live_grep {})}
-                          :? {:desc "Live Grep (CWD)"
-                              :callback #(pick :live_grep
-                                               {:cwd (oil-or-buffer-dir)})}
-                          ;; fw #(pick :grep_string)
-                          ;; fg #(pick :grep_string)
-                          ;; fl #(pick :live_grep {:grep_open_files true})
-                          :s {:desc "Document Symbols"
-                              :callback #(pick :lsp_document_symbols)}
-                          :S {:desc "Workspace Symbols"
-                              :callback #(pick :lsp_workspace_symbols)}
-                          :h {:desc "Help Tags" :callback #(pick :help_tags)}
-                          ;; :r {:desc "Git Branches" :callback #(pick :git_branches)}
-                          }}})
+                          :G {:desc "Git Status" :callback #(pick :git_status)}
+                          :f {:f {:desc "Find Files"
+                                  :callback #(pick :find_files {:follow true})}
+                              :F {:desc "Find Files (CWD)"
+                                  :callback #(pick :find_files
+                                                   {:cwd (oil-or-buffer-dir)
+                                                    :follow true})}
+                              :/ {:desc "Live Grep"
+                                  :callback #(pick :live_grep {})}
+                              :? {:desc "Live Grep (CWD)"
+                                  :callback #(pick :live_grep
+                                                   {:cwd (oil-or-buffer-dir)})}
+                              :l {:desc "Live Grep in Open Files"
+                                  :callback #(pick :live_grep {:grep_open_files true})}
+                              :h {:desc "Help Tags" :callback #(pick :help_tags)}}}}
+           :v {:<leader> {:/ {:desc "Live Grep for Selection"
+                              :callback #(pick :grep_string {})}
+                          :? {:desc "Live Grep for Selection (CWD)"
+                              :callback #(pick :grep_string {:cwd (oil-or-buffer-dir)})}
+                          :f {:l {:desc "Live Grep for Selection in Open Files"
+                                  :callback #(pick :grep_string {:grep_open_files true})}
+                              :L {:desc "Live Grep for Selection in Open Files (CWD)"
+                                  :callback #(pick :grep_string {:grep_open_fies true
+                                                                 :cwd (oil-or-buffer-dir)})}}}}})

@@ -1,3 +1,6 @@
+[target.zellij]
+links = {".config/zellij" = "zellij"}
+
 [target.starship]
 links = {".config/starship.toml" = "starship/config.toml", ".config/starship-post.toml" = "starship/config-post.toml"}
 
