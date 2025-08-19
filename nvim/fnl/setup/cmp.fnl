@@ -71,7 +71,8 @@
                       {:name :orgmode}
                       {:name :nvim_lua}
                       {:name :neorg}
-                      {:name :path}
+                      ;; Freezes sometimes when completing root dir
+                      ;; {:name :path}
                       {:name :dap}
                       {:name :latex_symbols}
                       {:name :omni}

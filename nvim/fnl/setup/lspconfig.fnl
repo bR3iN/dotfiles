@@ -1,22 +1,23 @@
-(local {: put! : keymaps!} (require :utils))
+(local {: put! : keymaps! : reload} (require :utils))
 (local {: spawn-capture-output} (require :utils.async))
 (local lspconfig (require :lspconfig))
 
-(local configs {:clangd {:keymaps {:n {:<C-c> {:desc "Switch source/header"
-                                               :callback #(vim.cmd.ClangdSwitchSourceHeader)}}}}
-                ;; :bashls {}
-                ;; :vimls {}
-                :fennel_ls {}
-                :purescriptls {:config {:settings {:purescript {:formatter :purs-tidy
-                                                                :codegenTargets [:corefn]
-                                                                :addSpagoSources true}}}}
-                :basedpyright {}
-                :cmake {}
-                ;; :rust_analyzer {}  ; Configured by rustaceans instead
-                :hls {}
-                ;; :marksman {}
-                ;; :racket_langserver {}
-                })
+(local default-configs {:clangd {:keymaps {:n {:<C-c> {:desc "Switch source/header"
+                                                       :callback #(vim.cmd.ClangdSwitchSourceHeader)}}}}
+                        ;; :bashls {}
+                        ;; :vimls {}
+                        :fennel_ls {}
+                        :cmake {}
+                        ;; :rust_analyzer {}  ; Configured by rustaceans instead
+                        ;; :marksman {}
+                        ;; :racket_langserver {}
+                        })
+
+(local local-configs (case (pcall reload :local.lspconfig)
+                       (true config) config
+                       (false _) {}))
+
+(local configs (vim.tbl_extend :force default-configs local-configs))
 
 (fn keymaps->on-attach [keymaps]
   (fn [_client bufnr]
