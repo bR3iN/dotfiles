@@ -12,9 +12,9 @@ sudo flatpak install -y com.github.GradienceTeam.Gradience
 
 flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience flatpak-overrides -e both
 
-if [ -n "$INSTALLER_DIR" ]; then
+if [ -n "$HOME/.dotfiles" ]; then
     # Allows following symlinks into the dotfile directory
-    sudo flatpak override --filesystem="$INSTALLER_DIR" com.github.GradienceTeam.Gradience
+    sudo flatpak override --filesystem="$HOME/.dotfiles" com.github.GradienceTeam.Gradience
 fi
 
 # Install adw-gtk3
