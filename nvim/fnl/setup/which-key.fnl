@@ -5,7 +5,7 @@
 (use! :folke/which-key.nvim
       {:hl {:WhichKeyDesc {:fg colors.base05}
             :WhichKeySeparator {:fg (darken colors.base04 0.2)}}
-       :setup {:which-key {:delay 200
+       :setup {:which-key {:delay 1000
                            :win {:width {:min 30 :max 60}
                                  :height {:min 4 :max 0.75}
                                  :padding [0 1]

@@ -7,15 +7,14 @@
         : autocmd!
         : use!
         : ft-autocmd!
-        : UNBIND
         : starts-with} (require :utils))
 
 (local {: spawn} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
 (local {: get-named} (require :utils.colors))
 
-(local {: colors : name} (require :base16-colors))
-(local named (get-named))
+(local {: name} (require :base16-colors))
+(local colors (get-named))
 
 (fn feed [keys]
   (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
@@ -144,10 +143,10 @@
 (set vim.o.signcolumn :yes)
 (set! termguicolors)
 
-;; Show statusline on all windows
+;; Remove redundant mode prompt in insert area
+(set! noshowmode)
 
 (set! cmdheight 1)
-(set! laststatus 3)
 
 ;; Custom color setup; load colorscheme description (name + base16 colors)
 (use! [;;:bR3iN/base16.nvim
@@ -167,14 +166,15 @@
                                                        (hl! :CommentHighlighted
                                                             {:extend true
                                                              :fg colors.base0F})
-                                                       (hl! :StatusLine {:extend true :bg named.bg2})
                                                        (hl! :GitSignsCurrentLineBlame
                                                             {:link :CommentHighlighted})
                                                        (hl! :TrailingWhitespace
                                                             {:extend true
                                                              :fg colors.base03
                                                              :bg colors.base03})
-                                                       (hl! :LspInlayHint {:extend true :bg :NONE})
+                                                       (hl! :LspInlayHint
+                                                            {:extend true
+                                                             :bg :NONE})
                                                        ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
                                                        (hl! :BqfPreviewTitle
                                                             {:fg colors.green
@@ -215,10 +215,10 @@
                     (vim.cmd.colorscheme :base16)))})
 
 ;; after schem
-(use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic]
+(use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
       {:reload [:setup/statusline]})
 
-(set! fillchars {:vert "│"})
+(set! fillchars {:vert "│" :wbr " "})
 (set! conceallevel 2)
 ;; (set! cmdheight 2)
 (set! scrolloff 1)
@@ -343,12 +343,12 @@
                                "CR" :actions.select
                                :<C-s>v :actions.select_vsplit
                                :<C-s>s :actions.select_split
-						  "gs"    :actions.change_sort
+                               "gs" :actions.change_sort
                                :gp :actions.preview
                                :<C-p> :actions.close
                                :gf :actions.refresh
                                :- :actions.parent
-                               :_ :actions.open_cwd
+                               :g- :actions.open_cwd
                                "`" :actions.cd
                                "~" :actions.tcd
                                :g. :actions.toggle_hidden}}}
@@ -356,15 +356,19 @@
                {:n {:- {:desc "Open File Explorer" :callback open}}})})
 
 ;; TODO: Use fork until https://github.com/numToStr/Navigator.nvim/pull/35 is merged
-(use! :Vinh-CHUC/Navigator.nvim
-      {:setup {:Navigator nil}
-       :map {[:n :t] (let [mk-lhs #(.. :<M- $1 :>)
-                           mk-rhs #(. vim.cmd (.. :Navigator $1))]
-                       (collect [dir keys (pairs {:Left [:h :left]
-                                                  :Right [:l :right]
-                                                  :Up [:k :up]
-                                                  :Down [:j :down]})]
-                         (values (vim.tbl_map mk-lhs keys) (mk-rhs dir))))}})
+;; (use! :Vinh-CHUC/Navigator.nvim
+;;       {:setup {:Navigator nil}
+;;        :map {[:n :t] (let [mk-lhs #(.. :<M- $1 :>)
+;;                            mk-rhs #(. vim.cmd (.. :Navigator $1))]
+;;                        (collect [dir keys (pairs {:Left [:h :left]
+;;                                                   :Right [:l :right]
+;;                                                   :Up [:k :up]
+;;                                                   :Down [:j :down]})]
+;;                          (values (vim.tbl_map mk-lhs keys) (mk-rhs dir))))}})
+
+;; Navigate windows with Alt + vim keys
+(keymaps! {[:n :t :i :v :s :x] (collect [_ key (ipairs [:h :j :k :l])]
+                                 (values (.. "<M-" key ">") (.. "<C-w>" key)))})
 
 ;; Filetype plugins
 (use! :elkowar/yuck.vim)
@@ -669,7 +673,7 @@
 
 ;; Floating preview in quickfix window
 (use! :kevinhwang91/nvim-bqf
-      {:hl {:BqfPreviewBorder {:bg :NONE :fg named.mid}}
+      {:hl {:BqfPreviewBorder {:bg :NONE :fg colors.mid}}
        :setup {:bqf {:func_map {:fzffilter "" :open "<C-]>"}
                      :preview {:winblend 0}}}})
 
@@ -690,11 +694,9 @@
 ;; Helix-like bindings
 (keymaps! {:v {"<leader>" {"y" {:desc "Yank to Clipboard" :callback "\"+y"}
                            "p" {:desc "Paste from Clipboard" :callback "\"+p"}
-                           "P" {:desc "Paste from Clipboard before cursor" :callback "\"+P"}
-                           }}
-           :n {
-               "<C-p>" {:desc "Goto Alternate File" :callback "<C-^>"}
-               "g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
+                           "P" {:desc "Paste from Clipboard before cursor"
+                                :callback "\"+P"}}}
+           :n {"g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
                     "D" {:desc "Goto Declaration"
                          :callback vim.lsp.buf.declaration}
                     "t" {:desc "Goto Type Definition"
@@ -703,41 +705,54 @@
                          :callback vim.lsp.buf.implementation}
                     "r" {:desc "Goto References"
                          :callback vim.lsp.buf.references}
-                    "a" {:desc "Goto Alternate File" :callback "<C-^>"}
-                    }
+                    "a" {:desc "Goto Alternate File" :callback "<C-^>"}}
                "<leader>" {"rn" {:desc "Rename Symbol"
-                                :callback vim.lsp.buf.rename}
+                                 :callback vim.lsp.buf.rename}
                            "w" {:desc "Window Commands" :callback "<C-w>"}
                            "s" {:desc "Save File" :callback ":update<CR>"}
                            "S" {:desc "Save All Files" :callback ":wall<CR>"}
                            "y" {:desc "Yank to Clipboard" :callback "\"+y"}
                            "p" {:desc "Paste from Clipboard" :callback "\"+p"}
-                           "P" {:desc "Paste from Clipboard before Cursor" :callback "\"+P"}
+                           "P" {:desc "Paste from Clipboard before Cursor"
+                                :callback "\"+P"}
                            "a" {:desc "Code Action"
                                 :callback vim.lsp.buf.code_action}
                            "o" {"d" vim.diagnostic.open_float}
-                           "x" {
-                                "R" {:desc "Reload Config"
+                           "x" {"R" {:desc "Reload Config"
                                      :callback #(do
-                                                    (vim.print "Reloading config")
-                                                    (dofile vim.env.MYVIMRC))}}}}})
+                                                  (vim.print "Reloading config")
+                                                  (dofile vim.env.MYVIMRC))}}}}})
 
 ;; Window
 ;; FIXME: cleanup
 (let [keys (let [res {}]
              (for [i 1 9]
                (set (. res (tostring i)) i))
-             res)
-      focus-maps (collect [as_str _ (pairs keys)]
-                   (values as_str
-                           {:desc (.. "Focus Window " as_str)
-                            :callback (.. as_str "<C-w>w")}))
-      delete-maps (collect [as_str n (pairs keys)]
-                    (values as_str
-                            {:desc (.. "Kill Window " as_str)
-                             :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
-                                                                false)}))]
-  (keymaps! {:n {"<leader>" focus-maps}})
-  (keymaps! {:n {"<leader>q" delete-maps}}))
+             res)]
+  (keymaps! {:n {"<leader>" {"" (collect [as_str _ (pairs keys)]
+                                  (values as_str
+                                          {:desc (.. "Focus Window " as_str)
+                                           :callback (.. as_str "<C-w>w")}))
+                             "t" (collect [as_str _ (pairs keys)]
+                                   (values as_str
+                                           {:desc (.. "Focus Tab " as_str)
+                                            :callback (.. as_str "gt")}))
+                             "q" (collect [as_str n (pairs keys)]
+                                   (values as_str
+                                           {:desc (.. "Kill Window " as_str)
+                                            :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
+                                                                               false)}))}
+                 "<M-n>" {:desc "Go to next tab" :callback vim.cmd.tabnext}
+                 "<M-p>" {:desc "Go to previous tab"
+                          :callback vim.cmd.tabprevious}
+                 "<M-c>" {:desc "Create New Tab" :callback vim.cmd.tabnew}
+                 "" (collect [as_str _ (pairs keys)]
+                      (values (.. "<M-" as_str ">")
+                              {:desc (.. "Focus Tab " as_str)
+                               :callback (.. as_str "gt")}))}}))
 
-(keymaps! {:n {"'" "`"}})
+;; Always move go to marked column
+(keymaps! {:n {"'" "`"
+               "<leader>oC" ":e ~/.config/<CR>"}})
+
+(reload :setup/terminal)

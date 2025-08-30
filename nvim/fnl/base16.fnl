@@ -19,7 +19,7 @@
 ; lCursor
 ; CursorIM
 (hl! :CursorColumn {:bg named.base01})
-(hl! :CursorLine {:bg (mix named.dark_green named.base00 0.1)})
+(hl! :CursorLine {:bg (lighten named.base00 0.1)})
 (hl! :Directory {:fg named.base0C})
 (hl! :DiffAdd {:bg (darken named.base0D 0.5)})
 (hl! :DiffChange {:bg (darken named.base0E 0.5)})

@@ -72,7 +72,8 @@
                               :callback #(pick :lsp_workspace_symbols)}
                           :b {:desc "Find Buffers"
                               :callback #(pick :buffers
-                                               {:sort_lastused true
+                                               {:select_current true
+                                                :sort_lastused true
                                                 :sort_mru true})}
                           :d {:desc "Find Diagnostics"
                               :callback #(pick :diagnostics)}

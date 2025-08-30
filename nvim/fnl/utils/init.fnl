@@ -43,6 +43,12 @@
 (fn init-aucmd [event opts]
   (let [group (or augroup (error "not initialized"))
         opts (vim.tbl_extend :error opts {: group})]
+    ;; Prevent autocmd from being removed when returning last expression...
+    (when opts.callback
+      (let [cb opts.callback]
+        (set opts.callback #(do
+                              (cb $...)
+                              nil))))
     (vim.api.nvim_create_autocmd event opts)))
 
 (fn init-aucmd! [tbl]

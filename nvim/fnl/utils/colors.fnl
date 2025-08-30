@@ -52,6 +52,7 @@
              ;; FIXME: mid -> border?
              :mid (mix colors.fg0 colors.bg0 0.5)
              :border (mix colors.fg0 colors.bg0 0.5)
+             :statusline colors.base02
              }]
     (vim.tbl_extend :error colors ext)))
 
