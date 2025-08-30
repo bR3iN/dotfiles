@@ -138,14 +138,14 @@ links = {".config/cmus/rc" = "cmus/rc"}
 
 [target.gradience]
 cmds = ["hooks/setup/gradience.sh", "flatpak run --command=gradience-cli com.github.GradienceTeam.Gradience apply --gtk both -n Base16"]
-links = {".local/libexec/propagate-theme.sh" = "scripts/propagate-theme.sh", ".var/app/com.github.GradienceTeam.Gradience/config/presets/user/Base16.json" = "gradience/Base16.json"}
+links = {".local/libexec/propagate-theme.sh" = "bin/propagate-theme.sh", ".var/app/com.github.GradienceTeam.Gradience/config/presets/user/Base16.json" = "gradience/Base16.json"}
 
 [target.i3]
-install = ["scripts/start-polkit-agent"]
+install = ["bin/start-polkit-agent"]
 links = {".config/i3" = "I3/i3", ".config/polybar" = "I3/polybar", ".xinitrc" = "I3/xinitrc", ".config/dunst" = "I3/dunst"}
 
 [target.laptop]
-install = ["scripts/kbbacklight_toggle", "scripts/backlight"]
+install = ["bin/kbbacklight_toggle", "bin/backlight"]
 
 [target.lightdm]
 system_install = ["I3/lightdm"]
@@ -158,5 +158,5 @@ links = {".config/rofi" = "rofi"}
 
 [target.zk]
 cmds = ["pip install --break-system-packages arxiv"]
-install = ["scripts/zk-screenshot", "scripts/arxiv-calibre", "scripts/doi-calibre"]
+install = ["bin/zk-screenshot", "bin/arxiv-calibre", "bin/doi-calibre"]
 
