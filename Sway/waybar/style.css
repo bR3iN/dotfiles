@@ -7,6 +7,7 @@
 @define-color cyan alpha(@base0C_dark, 0.7);
 @define-color blue alpha(@base0D_dark, 0.7);
 @define-color magenta alpha(@base0E_dark, 0.7);
+@define-color brown alpha(@base0F_dark, 0.7);
 
 @define-color foreground alpha(@base04, 0.9);
 @define-color widget-background shade(@base01, 1.2);
@@ -172,19 +173,22 @@ tooltip {
     animation-direction: alternate;
 }
 
-#cpu       { color: @magenta }
-#memory    { color: @red }
-#disk      { color: @orange }
-#backlight { color: @yellow; }
+#cpu       { color: @red }
+#memory    { color: @orange }
+#disk      { color: @yellow }
+#backlight { color: @cyan; }
+#network   { color: @brown; }
+#language  { color: @magenta; }
 
 #custom-vpn {
     color: @base00;
-    background-color: @yellow;
-    font-weight: bold;
+    background-color: @brown;
+    font-weight: normal;
 }
 
 #pulseaudio {
-    color: @base0C;
+    color: @base00;
+    background-color: @blue;
 }
 
 #pulseaudio.muted {
@@ -193,7 +197,3 @@ tooltip {
 }
 
 #clock { font-size: 110%; font-weight: bold; color: @foreground; }
-
-#network.vpn {
-    color: @blue;
-}

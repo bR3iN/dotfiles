@@ -7,7 +7,6 @@
   "modules-left": [
         "sway/workspaces",
         "custom/sway/scratchpad",
-        // "sway/language",
         "sway/mode",
     ],
     "modules-center": [
@@ -20,7 +19,9 @@
         "disk",
         "backlight",
         "pulseaudio",
+        "sway/language",
         "custom/vpn",
+        "network",
         "battery",
     ],
 
@@ -41,11 +42,11 @@
     },
 
     "sway/language": {
-        "format": " {short} {variant}"
+        "format": "{short} {variant}"
     },
 
     "sway/mode": {
-        "format": "{}"
+        "format": "{short}"
     },
 
     "idle_inhibitor": {
@@ -57,7 +58,7 @@
     },
 
     "backlight": {
-        "device": "intel_backlight",
+        // "device": "amdgpu_bl1",
         "format": "{percent}% {icon}",
         "format-icons": ["󰃞", "󰃟", "󰃠"],
         "on-scroll-up": "backlight increase",
@@ -102,14 +103,14 @@
     },
 
     "custom/vpn": {
-        "format": "[{}]",
+        "format": "{} 󰖂",
         "hide-empty-text": true,
         "exec": "rm -f /tmp/wg-waybar && mkfifo /tmp/wg-waybar && tail -f /tmp/wg-waybar",
         "on-click": "rofi-vpn",
     },
 
     "network": {
-        "format": "{ifname}",
+        // "format": "{ifname}",
         "format-wifi": "󰖩",
         "tooltip-format-wifi": "{essid} ({signalStrength}%)",
         "format-ethernet": "󰈁",

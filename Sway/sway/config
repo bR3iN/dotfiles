@@ -92,7 +92,7 @@ client.urgent            $base0A_light $base00 $base08 $base0A_dark $base0A_dark
 
 ## Input configuration
 
-bindsym $mod+Control+i exec rofi-inputs --sway
+# bindsym $mod+Control+i exec rofi-inputs --sway
 
 input * {
     accel_profile flat
