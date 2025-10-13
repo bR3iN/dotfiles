@@ -9,6 +9,11 @@
 (fn M.remove-prefix [str prefix]
   (string.sub str (+ 1 (length prefix))))
 
+(fn M.remove-opt-prefix [str prefix]
+  (if (M.starts-with str prefix)
+    (M.remove-prefix str prefix)
+    str))
+
 (fn M.contains [str substr]
   (not= (string.find str substr) nil))
 
@@ -88,18 +93,18 @@
               (vim.keymap.del modes lhs)
               (vim.keymap.set modes lhs rhs opts)))))))
 
-(fn M.ft-autocmd! [tbl]
+(fn M.ft! [tbl]
   (each [filetype callback (pairs tbl)]
     (init-aucmd! {:FileType {:pattern filetype : callback}})))
 
 ;; TODO: Unnecessary?
-(fn M.ft-keymaps! [tbl]
-  (M.ft-autocmd! (vim.tbl_map (fn [maps]
-                                #(keymaps-inner! maps {:buffer true}))
-                              tbl)))
+;; (fn M.ft-keymaps! [tbl]
+;;   (M.ft-autocmd! (vim.tbl_map (fn [maps]
+;;                                 #(keymaps-inner! maps {:buffer true}))
+;;                               tbl)))
 
-(fn M.keymaps! [tbl]
-  (keymaps-inner! tbl))
+(fn M.keymaps! [tbl ?opts]
+  (keymaps-inner! tbl ?opts))
 
 (fn M.local-keymaps! [tbl]
   (keymaps-inner! tbl {:buffer true}))
@@ -182,7 +187,7 @@
         {: setup
          : config
          : sync
-         : map
+         : keymaps
          : autocmds
          : init
          : reload
@@ -212,8 +217,8 @@
                 (when command
                   (each [name spec (pairs (eval command))]
                     (use-command name spec)))
-                (when map
-                  (M.keymaps! (eval map))))]
+                (when keymaps
+                  (M.keymaps! (eval keymaps))))]
     (if sync
         (do
           (before)
@@ -242,5 +247,113 @@
                       (vim.tbl_extend :keep opts))
                  opts)]
     (vim.api.nvim_set_hl 0 name opts)))
+
+(fn M.lsps! [tbl]
+  (each [name config (pairs tbl)]
+    (vim.lsp.config name config)
+    (when (not= name "*")
+      (vim.lsp.enable name))))
+
+(fn M.dispatchables! [mode actions]
+  (let [var-tbl (. vim mode)
+        val (or (. var-tbl :my-dispatchables) {})]
+    (each [id action (pairs actions)]
+      (set (. val id) action))
+    (set (. var-tbl :my-dispatchables) val)))
+
+(fn M.dispatch! [id ...]
+  ((or (?. vim.b :my-dispatchables id) (?. vim.g :my-dispatchables id)
+       (error (.. "no dispatchable configured with id " id))) ...))
+
+;; Loads module and calls its `setup` function
+(fn M.setup [mod ?opts]
+  (let [{: setup} (require mod)]
+    (setup (or ?opts {}))))
+
+(macro inc! [pos]
+  `(set ,pos (+ 1 ,pos)))
+
+;; (fn insert-nested [tbl arr]
+;;   (inc! (. tbl :/))
+;;   (-> arr
+;;       (vim.iter)
+;;       (: :fold tbl (fn [tbl comp]
+;;                      (let [inner (. tbl comp)]
+;;                        (if (not= inner nil)
+;;                          (do 
+;;                            ;; Using the "/" key (which can't appear as a path component) to store the count
+;;                            (inc! (. inner :/))
+;;                            inner)
+;;                          ;; Create new entry
+;;                          (let [inner {:/ 1}]
+;;                            (set (. tbl comp) inner)
+;;                            inner)))))))
+
+;; Get an iterator over the reverse path components of `path`
+(fn rev-comps [path]
+  (-> path
+      (vim.split "/")
+      (vim.iter)
+      (: :rev)
+      (: :filter #(< 0 (length $1)))))
+
+;; Nested-insert of the reverse path components of `path` into `tbl`.
+(fn index-insert [index path]
+  (inc! (. index :/))
+  (-> path
+      (vim.split "/")
+      (vim.iter)
+      (: :rev)
+      (: :filter #(< 0 (length $1)))
+      (: :fold index (fn [tbl comp]
+                       (let [inner (. tbl comp)]
+                         (if (not= inner nil)
+                             (do
+                               ;; Using the "/" key (which can't appear as a path component) to store the count
+                               (inc! (. inner :/))
+                               inner)
+                             ;; Create new entry
+                             (let [inner {:/ 1}]
+                               (set (. tbl comp) inner)
+                               inner)))))
+      ;; (: :totable)
+      ))
+
+;; Creates index of all buffer paths components in reverse order
+(fn create-bufname-index []
+  (-> (vim.api.nvim_list_bufs)
+      (vim.iter)
+      (: :filter #(. vim.bo $1 :buflisted))
+      (: :filter #(= (. vim.bo $1 :buftype) ""))
+      (: :filter vim.api.nvim_buf_is_loaded)
+      (: :map vim.api.nvim_buf_get_name)
+      (: :fold {:/ 0} (fn [acc path]
+                        (index-insert acc path)
+                        acc))))
+
+;; (fn unique-from-here? [sub-index]
+;;   (= (. sub-index :/) 1))
+
+(fn unique-path [path index]
+  (local comps [])
+  (var sub-index index)
+  ;; TODO: confirm do-while semantics of &until
+  ;; Always process at least one component
+  (each [comp (rev-comps path) ;; Abort if either not in index anymore or unique from here
+         &until (and
+                  (< 0 (length comps))
+                  (or (not sub-index) (= (. sub-index :/) 1)))]
+    (table.insert comps comp)
+    (set sub-index (?. sub-index comp)))
+  (-> comps
+      (vim.iter)
+      (: :rev)
+      (: :join "/")))
+
+;; (vim.print (create-bufname-index))
+;; (vim.print (unique-path (vim.api.nvim_buf_get_name 0) (create-bufname-index)))
+
+(fn M.unique-bufname [name]
+  (unique-path name (create-bufname-index)))
 
 M

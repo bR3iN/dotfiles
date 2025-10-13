@@ -32,6 +32,14 @@
 (fn M.let! [name val]
   `(tset vim.g ,(tostring name) ,val))
 
+;; Set option but only if it's global value is different. Allows reloading the config without overwriting local option values (as long as the global one was not changed).
+(fn M.opt! [name val]
+  `(let [name# ,(tostring name)
+         ;; Evaluate expression at most once
+         val# ,val]
+     (when (not= (. vim.go name#) val#)
+       (set (. vim.o name#) val#))))
+
 ; Execute code with a callback called at the end of the block, even if
 ; encountering an error.
 (fn M.with-cb [[cb] ...]

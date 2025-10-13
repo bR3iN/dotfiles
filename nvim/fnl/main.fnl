@@ -1,101 +1,112 @@
-(import-macros {: set! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb}
-               :utils.macros)
+(import-macros {: opt! : setl! : setl+ : setl- : let! : with-cb} :utils.macros)
 
 (local {: hl!
         : reload
+        : use!
+        : setup
         : keymaps!
         : autocmd!
-        : use!
-        : ft-autocmd!
+        : UNBIND
+        : dispatchables!
+        : dispatch!
+        : ft!
+        : lsps!
         : starts-with} (require :utils))
+
+;; Export for easier use, especially in .nvim.fnl
+(set _G.use! use!)
+(set _G.keymaps! keymaps!)
+(set _G.autocmd! autocmd!)
+(set _G.lsps! lsps!)
 
 (local {: spawn} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
-(local {: get-named} (require :utils.colors))
+(local {: mix : get-named} (require :utils.colors))
 
 (local {: name} (require :base16-colors))
 (local colors (get-named))
 
 (fn feed [keys]
   (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
-                         :m true))
+                         :m false))
 
-(fn setup [mod ?opts] ; Loads module and calls its `setup` function
-  (let [{: setup} (require mod)]
-    (setup (or ?opts {}))))
+(dispatchables! :g {:code_action vim.lsp.buf.code_action
+                    :fmt_range #(feed :gq)})
+
+(keymaps! {:n {:gqq #(dispatch! :fmt_file)} :x {:gq #(dispatch! :fmt_range)}})
 
 ;; General Options and Keymaps
 
-(set! exrc)
+;; Used for CursorHold autocmd
+(opt! updatetime 1000)
 
 ;; set leader keys
 (let! mapleader " ")
 (let! maplocalleader " c")
 
 ;; Enable dialogs
-(set! confirm)
+(opt! confirm true)
 
 ;; Needed for hl-CursorLineNr
-(set! cursorline)
+(opt! cursorline true)
 
 ;; Ignore case for lowercase searches
-(set! ignorecase)
-(set! smartcase)
+(opt! ignorecase true)
+(opt! smartcase true)
 
 ;requires `ignorecase`
 
-(set! inccommand :split)
+;; Live preview in split of :s/[...] invocations
+(opt! inccommand :split)
 
 ;; Enable mouse support
-(set! mouse :a)
+(opt! mouse :a)
 
 ;; Show line number of current line, relative line numbers for the rest
-(set! number)
-(set! relativenumber)
+(opt! number true)
+(opt! relativenumber true)
 
 ;; Show cursor coordinates in status bar
-(set! ruler)
+(opt! ruler true)
 
 ;; Set split behaviour
-(set! splitbelow)
-(set! splitright)
+(opt! splitbelow true)
+(opt! splitright true)
 
 ;; Ignore case for wildcards expansion
-(set! wildignorecase)
+(opt! wildignorecase true)
 ;; First complete longest substring and open wildmenu, then cycle through matches
-(set! wildmode ["longest:full" :full])
+(opt! wildmode "longest:full,full")
 
 ;; Undo behaviour
-(set! undofile)
-(set! undodir (.. (vim.fn.stdpath :data) :undo))
+(opt! undofile true)
+(opt! undodir (.. (vim.fn.stdpath :data) :undo))
 
 ;; Wrap behaviour
-(set! breakindent)
-(set! wrap)
+(opt! breakindent true)
+(opt! wrap true)
 
 ;; Default tab behaviour
-(set! shiftwidth 4)
-(set! tabstop 4)
-(set! expandtab)
+(opt! shiftwidth 4)
+(opt! tabstop 4)
+(opt! expandtab true)
 
 ;; Start with folds expanded
-(set! foldlevelstart 99)
+(opt! foldlevelstart 99)
 
-;; Correctly indent when pasting multiple lines in insert mode
-(keymaps! {:i {:<C-r> {:desc "Paste (auto-indent)" :callback :<C-r><C-o>}}})
+(keymaps! {:i {;; Correctly indent when pasting multiple lines in insert mode
+               :<C-r> {:desc "Paste (auto-indent)" :callback :<C-r><C-o>}
+               ;; Capitalize word in front of cursor
+               :<C-u> {:desc "Capitalize Word" :callback :<Esc>viwUea}}})
 
 ;; Clear highlight search
-(keymaps! {:n {:<C-l> {:desc "Clear Search Highlight"
+;; (keymaps! {:n {:<C-l> {:desc "Clear Search Highlight"
+;;                        :callback ":<C-u>nohlsearch<CR><C-l>"}}})
+(keymaps! {:n {:<ESC> {:desc "Clear Search Highlight"
                        :callback ":<C-u>nohlsearch<CR><C-l>"}}})
-
-;; Capitalize word in front of cursor
-(keymaps! {:i {:<C-u> {:desc "Capitalize Word" :callback :<Esc>viwUea}}})
 
 ;; Select until end of line (like `C`, `D` and `Y`)
 (keymaps! {:n {:<leader>v {:desc "Select to End of Line" :callback :vg_}}})
-
-;; (keymaps! {:v {:<C-y> "\"+y"}})
-(keymaps! {:i {:<C-p> {:desc "Paste from Clipboard" :callback :<C-r>+}}})
 
 (use! :tpope/vim-repeat)
 ;; (use! :tpope/vim-commentary)
@@ -140,89 +151,29 @@
 
 (set _G.border-type :single)
 
-(set vim.o.signcolumn :yes)
-(set! termguicolors)
+(opt! signcolumn :yes)
+(opt! termguicolors true)
 
 ;; Remove redundant mode prompt in insert area
-(set! noshowmode)
+(opt! showmode true)
 
-(set! cmdheight 1)
+(opt! cmdheight 1)
 
-;; Custom color setup; load colorscheme description (name + base16 colors)
-(use! [;;:bR3iN/base16.nvim
-       :folke/tokyonight.nvim
-       :shaunsingh/nord.nvim
-       :ellisonleao/gruvbox.nvim
-       :rebelot/kanagawa.nvim
-       :catppuccin/nvim]
-      {:autocmds #{:ColorScheme {:callback (let [cb #(do
-                                                       ;; Highlights overrides and groups for local plugins
-                                                       ;; (hl-ext! :LineNrAbove {:bg colors.base01}) 
-                                                       ;; (hl-ext! :LineNrBelow {:bg colors.base01}) 
-                                                       ;; (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
-                                                       (hl! :Comment
-                                                            {:extend true
-                                                             :fg colors.base03})
-                                                       (hl! :CommentHighlighted
-                                                            {:extend true
-                                                             :fg colors.base0F})
-                                                       (hl! :GitSignsCurrentLineBlame
-                                                            {:link :CommentHighlighted})
-                                                       (hl! :TrailingWhitespace
-                                                            {:extend true
-                                                             :fg colors.base03
-                                                             :bg colors.base03})
-                                                       (hl! :LspInlayHint
-                                                            {:extend true
-                                                             :bg :NONE})
-                                                       ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
-                                                       (hl! :BqfPreviewTitle
-                                                            {:fg colors.green
-                                                             :bg colors.base02})
-                                                       ;; Load after setting `CommentHighlighted` above
-                                                       ;; Use <C-o><C-h> instead 
-                                                       ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
-                                                       (setup :plugin.toggle-comments)
-                                                       (keymaps! {:n {:<C-h> ":ToggleComments<CR>"}}))]
-                                             (cb)
-                                             cb)}}
-       :init #(let! nord_disable_background true)
-       :setup {:tokyonight {:transparent true}
-               :gruvbox {:transparent_mode true}
-               :kanagawa {:transparent true}}
-       :config #(let []
-                  ;; Decide if we use an external colorscheme or our own base16-based one
-                  (case name
-                    "Tokyonight Moon"
-                    (do
-                      (vim.cmd.colorscheme :tokyonight-moon))
-                    "Nord"
-                    (vim.cmd.colorscheme :nord)
-                    "Gruvbox"
-                    (use! :ellisonleao/gruvbox.nvim
-                          {:config #(do
-                                      (setup :gruvbox {:transparent_mode true})
-                                      (vim.cmd.colorscheme :gruvbox))})
-                    "Kanagawa"
-                    (vim.cmd.colorscheme :kanagawa)
-                    "Catppuccin"
-                    #(do
-                       (vim.cmd.colorscheme :catppuccin-mocha)
-                       (hl! :Normal {:fg colors.base05 :bg :None})
-                       (hl! :NormalNC {:fg colors.base05 :bg :None}))
-                    ;; Fallback; derives colorscheme from base16 colors
-                    _
-                    (vim.cmd.colorscheme :base16)))})
+(reload :setup/theme)
 
-;; after schem
+;; Always display tab line
+(opt! showtabline 1)
+;; Show statusline on all windows
+(opt! laststatus 3)
+
+;; after loading theme
 (use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
       {:reload [:setup/statusline]})
 
-(set! fillchars {:vert "│" :wbr " "})
-(set! conceallevel 2)
-;; (set! cmdheight 2)
-(set! scrolloff 1)
-(set! linebreak)
+(opt! fillchars "vert:│,wbr: ")
+(opt! conceallevel 2)
+(opt! scrolloff 2)
+(opt! linebreak true)
 
 ; (require :plugin.highlight-trailing-whitespace)
 
@@ -245,7 +196,7 @@
 
 ;; Sane `<Esc>` behaviour in terminal mode
 (keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
-               :<C-v><Esc> {:desc "Send Escape to Terminal" :callback :<Esc>}}})
+               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal" :callback :<Esc>}}})
 
 ;; Open main.fnl
 (keymaps! {:n {:<leader>ov {:desc "Open Vim Config"
@@ -275,7 +226,10 @@
                :<leader>ol {:desc "Open Location List"
                             :callback ":<C-u>lopen<CR>"}
                :<leader>ql {:desc "Close Location List"
-                            :callback ":<C-u>lclose<CR>"}}})
+                            :callback ":<C-u>lclose<CR>"}
+               ;; TODO: use leader+]/[ instead of +o/t?
+               "<leader>" {"]w" #(set vim.wo.wrap true)
+                           "[w" #(set vim.wo.wrap false)}}})
 
 ;; Better folds
 ;; (add! [:kevinhwang91/nvim-ufo :kevinhwang91/promise-async]
@@ -317,22 +271,21 @@
 ;; Leap with s
 (use! :ggandor/leap.nvim
       {:setup {:leap {:safe_labels {}}}
-       :config #(let [{: set_default_keymaps} (require :leap)]
-                  (set_default_keymaps))})
+       :keymaps {[:n :v] {:s "<Plug>(leap-anywhere)"}}})
 
 ;; Smooth scrolling
 (use! :karb94/neoscroll.nvim
       {;; Disable default mappings
        :setup {:neoscroll {:mappings {}}}
-       :map #(let [{: scroll : zt : zz : zb} (require :neoscroll)
-                   get-height #(vim.api.nvim_win_get_height 0)]
-               {:n {:<C-u> #(scroll (- vim.wo.scroll) {:duration 100})
-                    :<C-d> #(scroll vim.wo.scroll {:duration 100})
-                    :<C-b> #(scroll (- (get-height)) {:duration 250})
-                    :<C-f> #(scroll (get-height) {:duration 250})
-                    :zt #(zt {:half_win_duration 100})
-                    :zz #(zz {:half_win_duration 100})
-                    :zb #(zb {:half_win_duration 100})}})})
+       :keymaps #(let [{: scroll : zt : zz : zb} (require :neoscroll)
+                       get-height #(vim.api.nvim_win_get_height 0)]
+                   {:n {:<C-u> #(scroll (- vim.wo.scroll) {:duration 100})
+                        :<C-d> #(scroll vim.wo.scroll {:duration 100})
+                        :<C-b> #(scroll (- (get-height)) {:duration 250})
+                        :<C-f> #(scroll (get-height) {:duration 250})
+                        :zt #(zt {:half_win_duration 100})
+                        :zz #(zz {:half_win_duration 100})
+                        :zb #(zb {:half_win_duration 100})}})})
 
 ;; Split file explorer
 (use! :stevearc/oil.nvim
@@ -352,13 +305,13 @@
                                "`" :actions.cd
                                "~" :actions.tcd
                                :g. :actions.toggle_hidden}}}
-       :map #(let [{: open} (require :oil)]
-               {:n {:- {:desc "Open File Explorer" :callback open}}})})
+       :keymaps #(let [{: open} (require :oil)]
+                   {:n {:- {:desc "Open File Explorer" :callback open}}})})
 
 ;; TODO: Use fork until https://github.com/numToStr/Navigator.nvim/pull/35 is merged
 ;; (use! :Vinh-CHUC/Navigator.nvim
 ;;       {:setup {:Navigator nil}
-;;        :map {[:n :t] (let [mk-lhs #(.. :<M- $1 :>)
+;;        :keymaps {[:n :t] (let [mk-lhs #(.. :<M- $1 :>)
 ;;                            mk-rhs #(. vim.cmd (.. :Navigator $1))]
 ;;                        (collect [dir keys (pairs {:Left [:h :left]
 ;;                                                   :Right [:l :right]
@@ -367,8 +320,16 @@
 ;;                          (values (vim.tbl_map mk-lhs keys) (mk-rhs dir))))}})
 
 ;; Navigate windows with Alt + vim keys
-(keymaps! {[:n :t :i :v :s :x] (collect [_ key (ipairs [:h :j :k :l])]
-                                 (values (.. "<M-" key ">") (.. "<C-w>" key)))})
+(let [nav-maps (collect [_ key (ipairs [:h :j :k :l])]
+                 (values (.. "<M-" key ">") (.. "<C-w>" key)))
+      nmaps (vim.tbl_extend :error nav-maps
+                            {"<M-x>" "<C-w>q"
+                             "<M-c>" ":tabnew<CR>"
+                             "<M-n>" ":tabnext<CR>"
+                             "<M-p>" ":tabprevious<CR>"})
+      imaps (collect [lhs rhs (pairs nmaps)]
+              (values lhs {:callback (.. "<C-\\><C-n>" rhs)}))]
+  (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
 
 ;; Filetype plugins
 (use! :elkowar/yuck.vim)
@@ -451,7 +412,7 @@
 ;;                      {:text "➤"
 ;;                       ; :texthl "NeomakeInfoSign"
 ;;                       }))
-;;        :map #{:n {:<leader>n {:m {:desc "Neomake Run"
+;;        :keymaps #{:n {:<leader>n {:m {:desc "Neomake Run"
 ;;                                   :callback #(vim.cmd.Neomake)}
 ;;                               :c {:desc "Neomake Clean"
 ;;                                   :callback #(vim.cmd.NeomakeClean)}}}}
@@ -484,10 +445,9 @@
                                                               :swap_next {:<leader>. "@parameter.inner"}
                                                               :swap_previous {"<leader>," "@parameter.inner"}}}}}
        :config (fn []
-                 ;; FIXME: replace needs with :bundle or something? Could be done outside of internal.fnl
-                 (set! foldmethod :expr)
+                 (opt! foldmethod :expr)
                  ;; Use treesitter-based folds
-                 (set! foldexpr "nvim_treesitter#foldexpr()"))})
+                 (opt! foldexpr "nvim_treesitter#foldexpr()"))})
 
 (vim.diagnostic.config {:signs {:text {vim.diagnostic.severity.ERROR ""
                                        ; ""
@@ -499,95 +459,34 @@
                                        ; "󰌵"
                                        }}})
 
-;; Avoids "Unrecognized option: 'write-mode'" error.
-(let! rustfmt_detect_version 1)
+(reload :setup/dap)
 
-(use! [:neovim/nvim-lspconfig :zk-org/zk-nvim :mrcjkb/rustaceanvim]
-      {:reload :setup/lspconfig})
-
+(use! [:neovim/nvim-lspconfig :zk-org/zk-nvim] {:reload :setup/lspconfig})
 (let [cap-to-handler {:textDocument/hover vim.lsp.handlers.hover
                       :textDocument/signatureHelp vim.lsp.handlers.signature_help}]
   (each [cap handler (pairs cap-to-handler)]
     (tset vim.lsp.handlers cap (vim.lsp.with handler {:border _G.border-type}))))
 
-(use! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
-      {:setup {:lsp_lines nil}
-       :map #(let [{: toggle} (require :lsp_lines)
-                   toggle-with-inline #(let [lines-on (toggle)]
-                                         (vim.diagnostic.config {:virtual_text (not lines-on)}))]
-               {:n {:<leader>tl {:desc "Toggle LSP Lines"
-                                 :callback toggle-with-inline}}})})
+;; Avoids "Unrecognized option: 'write-mode'" error.
+(let! rustfmt_detect_version 1)
 
-(use! [:mfussenegger/nvim-dap
-       :nvim-neotest/nvim-nio
-       ; needed by nvim-dap-ui
-       :rcarriga/nvim-dap-ui
-       :theHamsta/nvim-dap-virtual-text
-       ;; :mfussenegger/nvim-dap-python
-       ]
-      {:map #(let [dap (require :dap)
-                   dapui (require :dapui)]
-               {:n {:<leader> {"t" {"d" {:desc "Toggle Debug REPL"
-                                         :callback dap.repl.toggle}
-                                    "D" {:desc "Toggle Debug UI"
-                                         :callback dapui.toggle}}
-                               "<CR>" {:desc "Run to Cursor"
-                                       :callback dap.run_to_cursor}
-                               "g" {:b {:desc "Toggle Breakpoint"
-                                        :callback dap.toggle_breakpoint}
-                                    :l {:desc "List Breakpoints"
-                                        :callback dap.list_breakpoints}
-                                    :e {:desc "Eval Expression"
-                                        :callback #(dapui.eval nil
-                                                               {:enter true})}
-                                    :s {:desc "Step Into"
-                                        :callback dap.step_into}
-                                    :n {:desc "Step Over"
-                                        :callback dap.step_over}
-                                    :o {:desc "Step Out"
-                                        :callback dap.step_out}
-                                    :r {:desc "Restart" :callback dap.restart}
-                                    :R {:desc "Run Last"
-                                        :callback dap.run_last}
-                                    :c {:desc "Continue"
-                                        :callback dap.continue}
-                                    :t {:desc "Terminate"
-                                        :callback dap.terminate}
-                                    :D {:desc "Clear Breakpoints"
-                                        :callback dap.clear_breakpoints}}}}})
-       :setup {:nvim-dap-virtual-text {:virt_text_pos :inline}
-               :dapui {}
-               ;; :dap-python :python
-               }
-       :config (let [adapter-configs {:gdb {:type :executable
-                                            :command :gdb
-                                            :args [:--interpreter=dap
-                                                   :--eval-command
-                                                   "set print pretty on"]}
-                                      :lldb {:type :executable
-                                             :name :lldb
-                                             :command :/usr/bin/lldb-dap}}
-                     ask-exe #(vim.fn.input "Path to executable: "
-                                            (.. (vim.fn.getcwd) "/") :file)
-                     filetype-configs {:cpp [{:name "Launch lldb"
-                                              :type :lldb
-                                              :request :launch
-                                              :program ask-exe
-                                              :stopOnEntry false
-                                              :runInTerminal false
-                                              :cwd "${workspaceFolder}"}
-                                             {:name "Launch gdb"
-                                              :type :gdb
-                                              :request :launch
-                                              :program ask-exe
-                                              :stopOnEntry false
-                                              :runInTerminal false
-                                              :cwd "${workspaceFolder}"}]}]
-                 #(let [{: adapters : configurations} (require :dap)]
-                    (each [name config (pairs adapter-configs)]
-                      (set (. adapters name) config))
-                    (each [name config (pairs filetype-configs)]
-                      (set (. configurations name) config))))})
+(use! [:mrcjkb/rustaceanvim]
+      {:init #(let [lsp-config {:rust-analyzer {:cargo {:buildScripts {:enable true}}
+                                                :procMacro {:enable true}
+                                                :imports {;; Merge auto imports on the module level
+                                                          :granularity {:group :module}
+                                                          ;; Prefer relative auto import paths
+                                                          :prefix :self}}}]
+                (set vim.g.rustaceanvim
+                     {:server {:default_settings lsp-config}}))})
+
+;; (use! "https://git.sr.ht/~whynothugo/lsp_lines.nvim"
+;;       {:setup {:lsp_lines {}}
+;;        :keymaps #(let [{: toggle} (require :lsp_lines)
+;;                        toggle-with-inline #(let [lines-on (toggle)]
+;;                                              (vim.diagnostic.config {:virtual_text (not lines-on)}))]
+;;                    {:n {:<leader>tl {:desc "Toggle LSP Lines"
+;;                                      :callback toggle-with-inline}}})})
 
 (use! :bR3iN/emanote.nvim
       {:command #(let [{: start : stop} (require :emanote-live)
@@ -611,65 +510,119 @@
                :<leader>qt {:desc "Close Trouble Diagnostics"
                             :callback ":<C-u>Trouble diagnostics close<CR>"}}})
 
-(use! :lewis6991/gitsigns.nvim {:setup {:gitsigns {:signcolumn false}}})
+; (set (. vim.lsp.handlers :textDocument/publishDiagnostics) (vim.lsp.with vim.lsp.diagnostic.on_publish_diagnostics {:update_in_insert true}))
 
-(autocmd! {:event [:BufEnter]
-           :pattern "*"
-           :callback (vim.schedule_wrap #(when (starts-with vim.bo.filetype
-                                                            "dap")
-                                           (case vim.bo.buftype
-                                             :prompt (vim.schedule #(vim.cmd.startinsert)))))})
+(use! :lewis6991/gitsigns.nvim
+      (let [signs {:add {:text "┃"}
+                   :change {:text "┃"}
+                   :delete {:text "┃"}
+                   :untracked {:text "┆"}}
+            signs_staged {:add {:text "+"}
+                          :change {:text "~"}
+                          :delete {:text "-"}
+                          :untracked {:text "┆"}}]
+        {:setup {:gitsigns {:signcolumn false
+                            ;; :numhl true
+                            ;; : signs
+                            : signs_staged
+                            :linehl false
+                            :word_diff false
+                            :sign_priority 0}}
+         :hl #(let [for-bg #(mix colors.bg0 $1 0.9)
+                    for-inline #(mix colors.bg0 $1 0.7)]
+                {;; Used in signcolumn
+                 :Added {:fg colors.green}
+                 :Changed {:fg colors.cyan}
+                 :Removed {:fg colors.red}
+                 ;; Used for linehl
+                 :DiffAdd {:bg (for-bg colors.green)}
+                 :DiffChange {:bg (for-bg colors.cyan)}
+                 :DiffDelete {:bg (for-bg colors.red)}
+                 ;; Used for word_diff
+                 :GitSignsDeleteInline {:bg (for-inline colors.red)}
+                 :GitSignsAddInline {:bg (for-inline colors.green)}
+                 :GitSignsChangeInline {:bg (for-inline colors.cyan)}})
+         :keymaps {[:n :v] {"]g" #(vim.cmd.Gitsigns :nav_hunk :next)
+                            "[g" #(vim.cmd.Gitsigns :nav_hunk :prev)}
+                   :n {:<leader> {:g {:a #(vim.cmd.Gitsigns :stage_hunk)
+                                      :RRR #(vim.cmd.Gitsigns :reset_hunk)
+                                      :h #(vim.cmd.Gitsigns :preview_hunk_inline)}
+                                  :tg {:l #(do
+                                             ;; (vim.cmd.Gitsigns :toggle_linehl)
+                                             (vim.cmd.Gitsigns :toggle_word_diff))}
+                                  :og {:b #(vim.cmd.Gitsigns :blame)}}}}}))
 
-(ft-autocmd! {:fennel (fn []
-                        (keymaps! {:n {:gqq {:desc "Format fennel file"
-                                             :callback (.. ":<C-u>w<CR>:"
-                                                           "! fnlfmt --fix %<CR><CR>")}}
-                                   :x {:gq {:desc "Format fennel selection"
-                                            :callback (.. ":'<,'>! fnlfmt -<CR>")}}}
-                                  {:buffer true})
-                        (setl! commentstring ";; %s")
-                        (let [{: find_files} (require :telescope.builtin)
-                              {: cache-prefix} (require :hotpot.api.cache)]
-                          (setl- iskeyword ".") ; Search in cache ; (keymaps! {:n {"<leader>" {"f" {"c" #(find_files {:cwd (cache-prefix) :hidden true})}}}} {:buffer true :silent true})
-                          ))
-              :c #(setl! shiftwidth 2)
-              :cpp #(setl! shiftwidth 2)
-              :dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
-              :markdown (fn []
-                          (setl! nobackup)
-                          (setl! nowritebackup)
-                          (setl+ iskeyword "\\")
-                          (vim.cmd "abbreviate <buffer> \\bf \\mathbf
+;; (autocmd! {:event [:BufEnter]
+;;            :pattern "*"
+;;            :callback (vim.schedule_wrap #(when (starts-with vim.bo.filetype
+;;                                                             "dap")
+;;                                            (case vim.bo.buftype
+;;                                              :prompt (do
+;;                                                          (vim.print "")
+;;                                                          (vim.cmd.startinsert)))))})
+
+(ft! {:fennel (fn []
+                (dispatchables! :b
+                                {:fmt_range #(feed ":'<,'>! fnlfmt -<CR>")
+                                 :fmt_file #(feed ":<C-u>w<CR>:! fnlfmt --fix %<CR><CR>")})
+                (keymaps! {; :n {:gqq {:desc "Format fennel file"
+                           ;           :callback (.. ":<C-u>w<CR>:"
+                           ;                         "! fnlfmt --fix %<CR><CR>")}}
+                           ; :x {:gq {:desc "Format fennel selection"
+                           ;          :callback (.. ":'<,'>! fnlfmt -<CR>")}}
+                           } {:buffer true})
+                (setl! commentstring ";; %s")
+                (let [{: find_files} (require :telescope.builtin)
+                      {: cache-prefix} (require :hotpot.api.cache)]
+                  (setl- iskeyword ".") ; Search in cache ; (keymaps! {:n {"<leader>" {"f" {"c" #(find_files {:cwd (cache-prefix) :hidden true})}}}} {:buffer true :silent true})
+                  ))
+      :c #(setl! shiftwidth 2)
+      :cpp #(setl! shiftwidth 2)
+      :markdown (fn []
+                  (setl! nobackup)
+                  (setl! nowritebackup)
+                  (setl+ iskeyword "\\")
+                  (vim.cmd "abbreviate <buffer> \\bf \\mathbf
                                                   abbreviate <buffer> \\rm \\mathrm
                                                   abbreviate <buffer> \\cal \\mathcal
                                                   abbreviate <buffer> \\bb \\mathbb
                                                   abbreviate <buffer> \\frak \\mathfrak
                                                   abbreviate <buffer> iff if and only if"))
-              :org (fn []
-                     (let [{: action} (require :orgmode)]
-                       (keymaps! {:i {:<C-CR> {:desc "Org meta return"
-                                               :callback #(action :org_mappings.meta_return)}}}
-                                 {:buffer true}))
-                     (vim.cmd "abbreviate -- - [ ]"))
-              :qf #(keymaps! {:n {:q {:desc "Close quickfix"
-                                      :callback :<Cmd>cclose<CR>}}}
-                             {:buffer true})
-              ;; FIXME: looks weird
-              :rust #(keymaps! {:n {"<leader>" {"c" {"r" {:desc "Cargo run"
-                                                          :callback ":<C-u>Cargo run<CR>"}
-                                                     "b" {:desc "Cargo build"
-                                                          :callback ":<C-u>Cargo build<CR>"}
-                                                     "t" {:desc "Cargo test"
-                                                          :callback ":<C-u>Cargo test<CR>"}
-                                                     "l" {:desc "Cargo clippy"
-                                                          :callback ":<C-u>Cargo clippy<CR>"}}
-                                                "r" {"f" {:desc "Format file"
-                                                          :callback ":<C-u>RustFmt<CR>"}}}}
-                                :v {"<leader>" {"r" {"f" {:desc "Format range"
-                                                          :callback ":RustFmtRange<CR>"}}}}}
-                               {:buffer true})
-              :sh #(setl! shiftwidth 4)
-              :zsh #(setl! shiftwidth 4)})
+      :oil (fn []
+             (keymaps! {:n {"<ESC>" "<C-^>"}} {:buffer true}))
+      :org (fn []
+             (let [{: action} (require :orgmode)]
+               (keymaps! {:i {:<C-CR> {:desc "Org meta return"
+                                       :callback #(action :org_mappings.meta_return)}}}
+                         {:buffer true}))
+             (vim.cmd "abbreviate -- - [ ]"))
+      :qf #(keymaps! {:n {:q {:desc "Close quickfix"
+                              :callback :<Cmd>cclose<CR>}}}
+                     {:buffer true})
+      ;; FIXME: looks weird
+      :rust #(let [cmd (fn [action]
+                         #(vim.cmd.RustLsp action))]
+               (dispatchables! :b
+                               {:fmt_file vim.cmd.RustFmt
+                                :code_action (cmd :codeAction)
+                                :start_debugger (cmd :debuggables)
+                                :debug_at_cursor (cmd :debug)})
+               (keymaps! {:n {"<C-CR>" (cmd :run)
+                              "<leader>" {"c" {"r" {:desc "Cargo run"
+                                                    :callback ":<C-u>Cargo run<CR>"}
+                                               "b" {:desc "Cargo build"
+                                                    :callback ":<C-u>Cargo build<CR>"}
+                                               "t" {:desc "Cargo test"
+                                                    :callback ":<C-u>Cargo test<CR>"}
+                                               "l" {:desc "Cargo clippy"
+                                                    :callback ":<C-u>Cargo clippy<CR>"}}
+                                          "r" {"f" {:desc "Format file"
+                                                    :callback ":<C-u>RustFmt<CR>"}}}}
+                          :v {"<leader>" {"r" {"f" {:desc "Format range"
+                                                    :callback ":RustFmtRange<CR>"}}}}}
+                         {:buffer true}))
+      :sh #(setl! shiftwidth 4)
+      :zsh #(setl! shiftwidth 4)})
 
 ;; Floating preview in quickfix window
 (use! :kevinhwang91/nvim-bqf
@@ -681,78 +634,156 @@
       {:hl {:IblScope {:fg colors.dark_green :bold true}
             :IblIndent {:fg colors.bg2 :bold true}}
        :setup {:ibl {:enabled false}}
-       :map #{:n {:<leader>ti {:desc "Toggle Indent Lines"
-                               :callback vim.cmd.IBLToggle}}}})
+       :keymaps #{:n {:<leader>ti {:desc "Toggle Indent Lines"
+                                   :callback vim.cmd.IBLToggle}}}})
 
 (reload :setup/which-key)
 
-(vim.diagnostic.config {:float {:border _G.border-type}})
+(vim.diagnostic.config {:float {:border _G.border-type}
+                        :virtual_lines false
+                        :virtual_text {:current_line true}})
+
+(do
+  (var current-state-idx 1)
+  (let [toggle-states [;; Only virtual text in current lines
+                       {:virtual_lines false
+                        :virtual_text {:current_line true}}
+                       ;; Only lsp-lines in current lines
+                       {:virtual_lines {:current_line true}
+                        :virtual_text false}
+                       ;; Lsp lines in all lines
+                       {:virtual_lines true :virtual_text false}]
+        ;; Cycle states
+        next-state (fn []
+                     (if (= current-state-idx (length toggle-states))
+                         1
+                         (+ current-state-idx 1)))
+        set-state (fn [idx]
+                    (set current-state-idx idx)
+                    (vim.diagnostic.config (. toggle-states idx)))]
+    ;; Set initial state
+    (set-state 1)
+    (keymaps! {:n {:<leader>t {;; Keybind to cycle states
+                               :l {:callback #(set-state (next-state))}
+                               ;; Go back to first state
+                               :L {:callback #(set-state 1)}}}})))
 
 (keymaps! {:n {:<leader> {"k" #(vim.lsp.buf.hover {:border _G.border-type})
                           "t" {"h" #(vim.lsp.inlay_hint.enable (not (vim.lsp.inlay_hint.is_enabled)))}}}})
 
+;; Easier clipboard access
+(keymaps! {[:n :x] {"<leader>" {"y" {:desc "Yank to Clipboard"
+                                     :callback "\"+y"}
+                                "p" {:desc "Paste from Clipboard"
+                                     :callback "\"+p"}
+                                "P" {:desc "Paste from Clipboard before cursor"
+                                     :callback "\"+P"}}}
+           :i {:<C-p> {:desc "Paste from Clipboard" :callback :<C-r>+}}})
+
 ;; Helix-like bindings
-(keymaps! {:v {"<leader>" {"y" {:desc "Yank to Clipboard" :callback "\"+y"}
-                           "p" {:desc "Paste from Clipboard" :callback "\"+p"}
-                           "P" {:desc "Paste from Clipboard before cursor"
-                                :callback "\"+P"}}}
-           :n {"g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
+(keymaps! {:n {"g" {"d" {:desc "Goto Definition" :callback "<C-]>"}
                     "D" {:desc "Goto Declaration"
                          :callback vim.lsp.buf.declaration}
                     "t" {:desc "Goto Type Definition"
                          :callback vim.lsp.buf.type_definition}
-                    "i" {:desc "Goto Implementation"
+                    "y" {:desc "Goto Type Definition"
+                         :callback vim.lsp.buf.type_definition}
+                    "i" {:desc "Goto Implementat[ion"
                          :callback vim.lsp.buf.implementation}
                     "r" {:desc "Goto References"
                          :callback vim.lsp.buf.references}
                     "a" {:desc "Goto Alternate File" :callback "<C-^>"}}
+               "<C-w>" {"V" {:callback #(do
+                                          (vim.cmd.vsplit)
+                                          (vim.cmd.terminal {:args [:fish]}))}
+                        "S" {:callback #(do
+                                          (vim.cmd.split)
+                                          (vim.cmd.terminal {:args [:fish]}))}}
+               ["<leader>w"] {:desc "Window Commands"
+                              :callback "<C-w>"
+                              :remap true}
                "<leader>" {"rn" {:desc "Rename Symbol"
                                  :callback vim.lsp.buf.rename}
-                           "w" {:desc "Window Commands" :callback "<C-w>"}
                            "s" {:desc "Save File" :callback ":update<CR>"}
                            "S" {:desc "Save All Files" :callback ":wall<CR>"}
-                           "y" {:desc "Yank to Clipboard" :callback "\"+y"}
-                           "p" {:desc "Paste from Clipboard" :callback "\"+p"}
-                           "P" {:desc "Paste from Clipboard before Cursor"
-                                :callback "\"+P"}
                            "a" {:desc "Code Action"
-                                :callback vim.lsp.buf.code_action}
+                                :callback #(dispatch! :code_action)}
+                           "A" {:desc "Code Lenses"
+                                :callback vim.lsp.codelens.run}
                            "o" {"d" vim.diagnostic.open_float}
                            "x" {"R" {:desc "Reload Config"
                                      :callback #(do
                                                   (vim.print "Reloading config")
                                                   (dofile vim.env.MYVIMRC))}}}}})
 
-;; Window
-;; FIXME: cleanup
+;; Window and tab management
 (let [keys (let [res {}]
              (for [i 1 9]
                (set (. res (tostring i)) i))
              res)]
-  (keymaps! {:n {"<leader>" {"" (collect [as_str _ (pairs keys)]
+  (keymaps! {:n {"<leader>" {;; <n>: go to window <n>
+                             "" (collect [as_str _ (pairs keys)]
                                   (values as_str
                                           {:desc (.. "Focus Window " as_str)
                                            :callback (.. as_str "<C-w>w")}))
+                             ;; t+<n>: go to tab <n>
                              "t" (collect [as_str _ (pairs keys)]
                                    (values as_str
                                            {:desc (.. "Focus Tab " as_str)
                                             :callback (.. as_str "gt")}))
+                             ;; q+<n>: delete window <n>
                              "q" (collect [as_str n (pairs keys)]
                                    (values as_str
                                            {:desc (.. "Kill Window " as_str)
                                             :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
                                                                                false)}))}
-                 "<M-n>" {:desc "Go to next tab" :callback vim.cmd.tabnext}
-                 "<M-p>" {:desc "Go to previous tab"
-                          :callback vim.cmd.tabprevious}
-                 "<M-c>" {:desc "Create New Tab" :callback vim.cmd.tabnew}
                  "" (collect [as_str _ (pairs keys)]
-                      (values (.. "<M-" as_str ">")
-                              {:desc (.. "Focus Tab " as_str)
-                               :callback (.. as_str "gt")}))}}))
+                       (values (.. "<M-" as_str ">")
+                               {:desc (.. "Focus Tab " as_str)
+                                :callback (.. as_str "gt")}))
+                 ;; "<M-c>" {:desc "Create New Tab" :callback vim.cmd.tabnew}
+                 }
+             ;; TODO: experimental: Alt+<n> to go to tab <n>
+             ;; FIXME: deduplicate, also see above
+             :i (collect [as_str _ (pairs keys)]
+                       (values (.. "<M-" as_str ">")
+                               {:desc (.. "Focus Tab " as_str)
+                                :callback (.. "<esc>" as_str "gt")}))
+             :t (collect [as_str _ (pairs keys)]
+                       (values (.. "<M-" as_str ">")
+                               {:desc (.. "Focus Tab " as_str)
+                                :callback (.. "<C-\\><C-n>" as_str "gt")}))}))
 
-;; Always move go to marked column
-(keymaps! {:n {"'" "`"
+(keymaps! {:n {;; Always move go to marked column
+               ;; "'" "`"
+               ;; Open configuration
                "<leader>oC" ":e ~/.config/<CR>"}})
 
+;; Swap j <-> gj, k <-> gk
+(keymaps! {[:n :v] {"<C-j>" "gj" "<C-k>" "gk"}})
+
 (reload :setup/terminal)
+
+(opt! exrc true)
+;; Discover and safely run .nvim.fnl files
+(reload :setup/exrc)
+
+(fn readchar []
+  (-> (vim.fn.getchar)
+      (vim.fn.nr2char)))
+
+;; Sets an uppcase/global mark by reading a lowercase one
+(fn set-global-mark []
+  (let [char (-> (readchar)
+                 (string.upper))]
+    (feed (.. :m char))))
+
+;; Go to an uppcase/global mark by reading a lowercase one
+(fn goto-global-mark [in-column]
+  (let [char (-> (readchar)
+                 (string.upper))]
+    (feed (.. (if in-column "`" "'") char))))
+
+(keymaps! {[:n :v] {:<leader> {:m set-global-mark
+                               "'" (partial goto-global-mark false)
+                               "`" (partial goto-global-mark true)}}})

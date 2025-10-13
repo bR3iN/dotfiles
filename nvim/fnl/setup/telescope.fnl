@@ -1,10 +1,19 @@
 (local {: keymaps!} (require :utils))
-(local {: setup : load_extension} (require :telescope))
+(local {:setup setup_telescope : load_extension} (require :telescope))
 (local {: buffer_dir} (require :telescope.utils))
 (local builtins (require :telescope.builtin))
 (local actions (require :telescope.actions))
+(local sorters (require :telescope.sorters))
 
-(vim.system [:make] {:cwd (.. vim.env.HOME "/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/")})
+(local pickers (require :telescope.pickers))
+(local finders (require :telescope.finders))
+(local make_entry (require :telescope.make_entry))
+(local conf (. (require :telescope.config) :values))
+
+;; FIXME
+(vim.system [:make]
+            {:cwd (.. vim.env.HOME
+                      "/.local/share/nvim/site/pack/core/opt/telescope-fzf-native.nvim/")})
 
 (local smart_qf_and_open (fn [bufnr]
                            (actions.smart_send_to_qflist bufnr) ; (actions.open_qflist bufnr)
@@ -51,21 +60,51 @@
                          ;;     "<C-s>" actions.select_horizontal}
                          }})
 
-(setup {:defaults {:sorting_strategy :ascending
-                   :scroll_strategy :limit
-                   :layout_config {:prompt_position :top}
-                   :layout_strategy :flex
-                   :mappings keymaps.picker}
-        :extensions {:fzf {:fuzzy false
-                           :override_generic_sorter true
-                           :override_file_sorter true
-                           :case_mode :smart_case}}
-        :pickers {:buffers {:mappings {:n {:<C-x> :delete_buffer}
-                                       :i {:<C-x> :delete_buffer}}}}})
+(setup_telescope {:defaults {:sorting_strategy :ascending
+                             :scroll_strategy :limit
+                             :layout_config {:prompt_position :top}
+                             :layout_strategy :flex
+                             :mappings keymaps.picker}
+                  :extensions {:fzf {:fuzzy false
+                                     :override_generic_sorter true
+                                     :override_file_sorter true
+                                     :case_mode :smart_case}}
+                  :pickers {:diagnostics {:sort_by :severity}
+                            :buffers {:mappings {:n {:<C-x> :delete_buffer}
+                                                 :i {:<C-x> :delete_buffer}}}}})
 
 (load_extension :fzf)
 
+;; Format expected by mmake_entry.gen_from_buffer
+(fn bufnr->entry [bufnr]
+  (let [flag ""]
+    {: bufnr :info (. (vim.fn.getbufinfo bufnr) 1) : flag}))
+
+(fn pick-bufs [bufnrs ?opts]
+  (let [opts (or ?opts {})
+        _ (set (. opts :bufnr_width)
+               (-> bufnrs (_G.unpack) (math.max) (tostring) (length)))
+        entry_maker (or opts.entry_maker (make_entry.gen_from_buffer opts))
+        picker (pickers.new opts
+                            {:prompt_title "terminal buffer"
+                             :finder (finders.new_table {:results (vim.tbl_map bufnr->entry
+                                                                               bufnrs)
+                                                         : entry_maker})
+                             :sorter (conf.generic_sorter opts)
+                             :previewer (conf.grep_previewer opts)})]
+    (picker:find)))
+
+(fn term-buffers []
+  (let [show-buffer? (fn [bufnr]
+                       (and (vim.api.nvim_buf_is_loaded bufnr)
+                            (= (. vim.bo bufnr :buftype) :terminal)))]
+    (->> (vim.api.nvim_list_bufs)
+         (vim.tbl_filter show-buffer?))))
+
 (keymaps! {:n {:<leader> {";" {:desc "Resume Picker" :callback #(pick :resume)}
+                          :T {:desc "Pick Terminal"
+                              :callback #(-> (term-buffers)
+                                             (pick-bufs))}
                           :i {:desc "Document Symbols"
                               :callback #(pick :lsp_document_symbols)}
                           :I {:desc "Workspace Symbols"
@@ -75,31 +114,38 @@
                                                {:select_current true
                                                 :sort_lastused true
                                                 :sort_mru true})}
+                          ;; (local conf (. (require :telescope.config) :values))
                           :d {:desc "Find Diagnostics"
-                              :callback #(pick :diagnostics)}
+                              :callback #(pick :diagnostics
+                                               {:bufnr 0})}
                           :D {:desc "Workspace Diagnostics"
-                              :callback #(pick :diagnostics {:workspace true})}
+                              :callback #(pick :diagnostics)}
+                          :o {
+                              :e {:desc "Workspace Errors"
+                                  :callback #(pick :diagnostics
+                                                   {:bufnr 0
+                                                    :severity vim.diagnostic.severity.ERROR
+                                                    :prompt_title "Buffer Errors"})}
+                              :E {:desc "Workspace Errors"
+                                  :callback #(pick :diagnostics
+                                                   {:severity vim.diagnostic.severity.ERROR
+                                                    :prompt_title "Workspace Errors"})}}
                           :G {:desc "Git Status" :callback #(pick :git_status)}
                           :f {:f {:desc "Find Files"
-                                  :callback #(pick :find_files {:follow true})}
-                              :F {:desc "Find Files (CWD)"
                                   :callback #(pick :find_files
-                                                   {:cwd (oil-or-buffer-dir)
-                                                    :follow true})}
+                                                   {:follow true
+                                                    :cwd (try-get-cwd)})}
                               :/ {:desc "Live Grep"
-                                  :callback #(pick :live_grep {})}
-                              :? {:desc "Live Grep (CWD)"
                                   :callback #(pick :live_grep
-                                                   {:cwd (oil-or-buffer-dir)})}
+                                                   {:cwd (try-get-cwd)})}
                               :l {:desc "Live Grep in Open Files"
-                                  :callback #(pick :live_grep {:grep_open_files true})}
-                              :h {:desc "Help Tags" :callback #(pick :help_tags)}}}}
+                                  :callback #(pick :live_grep
+                                                   {:grep_open_files true
+                                                    :cwd (try-get-cwd)})}
+                              :h {:desc "Help Tags"
+                                  :callback #(pick :help_tags)}}}}
            :v {:<leader> {:/ {:desc "Live Grep for Selection"
                               :callback #(pick :grep_string {})}
-                          :? {:desc "Live Grep for Selection (CWD)"
-                              :callback #(pick :grep_string {:cwd (oil-or-buffer-dir)})}
                           :f {:l {:desc "Live Grep for Selection in Open Files"
-                                  :callback #(pick :grep_string {:grep_open_files true})}
-                              :L {:desc "Live Grep for Selection in Open Files (CWD)"
-                                  :callback #(pick :grep_string {:grep_open_fies true
-                                                                 :cwd (oil-or-buffer-dir)})}}}}})
+                                  :callback #(pick :grep_string
+                                                   {:grep_open_files true})}}}}})

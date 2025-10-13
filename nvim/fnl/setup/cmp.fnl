@@ -1,5 +1,7 @@
 (local cmp (require :cmp))
+;; (local {: is_dap_buffer} (require :cmp_dap))
 (local ls (require :luasnip))
+(local {: default_capabilities} (require :cmp_nvim_lsp))
 
 (fn next-or-complete [_fallback]
   (if (cmp.visible)
@@ -14,6 +16,11 @@
 (fn confirm [fallback]
   (if (cmp.visible)
       (cmp.confirm {:select true})
+      (fallback)))
+
+(fn close [fallback]
+  (if (cmp.visible)
+      (cmp.close)
       (fallback)))
 
 (fn snippet-next [fallback]
@@ -54,16 +61,21 @@
              :<Right> confirm
              :<Tab> snippet-next
              :<S-Tab> snippet-prev
-             :<C-k> snippet-expand
+             ;; :<C-k> snippet-expand
+             :<C-k> close
              :<C-e> abort
              :<C-d> docs-down
              :<C-u> docs-up})
+
+(vim.lsp.config "*" {:capabilities (default_capabilities)})
 
 (cmp.setup {:mapping (collect [lhs rhs (pairs maps)]
                        (values lhs (cmp.mapping rhs [:i :s])))
             :completion {:completeopt "menu,menuone"}
             :snippet {:expand (fn [{: body}]
                                 (ls.lsp_expand body))}
+            ;; :enabled #(or (not= vim.bo.buftype :prompt)
+            ;;               (is_dap_buffer))
             ;; The LSP specifies that certain items should be preselected, ignoring their position in the suggestion list. This disables this.
             :preselect cmp.PreselectMode.None
             :sources [{:name :nvim_lsp}
@@ -72,8 +84,8 @@
                       {:name :nvim_lua}
                       {:name :neorg}
                       ;; Freezes sometimes when completing root dir
-                      ;; {:name :path}
-                      {:name :dap}
+                      {:name :path}
+                      ;; {:name :dap}
                       {:name :latex_symbols}
                       {:name :omni}
                       {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
