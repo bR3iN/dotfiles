@@ -86,7 +86,7 @@
                       ;; Freezes sometimes when completing root dir
                       {:name :path}
                       ;; {:name :dap}
-                      {:name :latex_symbols}
+                      ;; {:name :latex_symbols}
                       {:name :omni}
                       {:name :buffer :option {:keyword_pattern "\\k\\+"}}]
             ;; :window {:completion (cmp.config.window.bordered)
@@ -94,7 +94,7 @@
             :formatting {:format (let [display-names {:nvim_lsp "[LSP]"
                                                       :luasnip "[Snp]"
                                                       :nvim_lua "[Lua]"
-                                                      :latex_symbols "[LTX]"
+                                                      ;; :latex_symbols "[LTX]"
                                                       :path "[Pth]"
                                                       :omni "[Omn]"
                                                       :calc "[Clc]"

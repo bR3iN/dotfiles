@@ -28,7 +28,7 @@
 
 (fn feed [keys]
   (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
-                         :m false))
+                         :n false))
 
 (dispatchables! :g {:code_action vim.lsp.buf.code_action
                     :fmt_range #(feed :gq)})
@@ -179,7 +179,9 @@
 
 ;; Highlights hex color codes with their color
 (use! :NvChad/nvim-colorizer.lua
-      {:setup {:colorizer {:user_default_options {:names false}}}})
+      {:setup {:colorizer {:user_default_options {:names false}}}
+       :keymaps {:n {:<leader>tc {:desc "Toggle Colorizer"
+                                  :callback vim.cmd.ColorizerToggle}}}})
 
 (use! :lukas-reineke/headlines.nvim
       {:setup {:headlines {:markdown {:fat_headlines false}}}})
@@ -196,7 +198,8 @@
 
 ;; Sane `<Esc>` behaviour in terminal mode
 (keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
-               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal" :callback :<Esc>}}})
+               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal"
+                                           :callback :<Esc>}}})
 
 ;; Open main.fnl
 (keymaps! {:n {:<leader>ov {:desc "Open Vim Config"
@@ -271,7 +274,7 @@
 ;; Leap with s
 (use! :ggandor/leap.nvim
       {:setup {:leap {:safe_labels {}}}
-       :keymaps {[:n :v] {:s "<Plug>(leap-anywhere)"}}})
+       :keymaps {[:n :v] {:s "<Plug>(leap)" :S "<Plug>(leap-from-window)"}}})
 
 ;; Smooth scrolling
 (use! :karb94/neoscroll.nvim
@@ -364,7 +367,7 @@
 (use! [:hrsh7th/nvim-cmp
        :hrsh7th/cmp-nvim-lsp
        :hrsh7th/cmp-nvim-lua
-       :kdheepak/cmp-latex-symbols
+       ;; :kdheepak/cmp-latex-symbols
        :hrsh7th/cmp-path
        :hrsh7th/cmp-omni
        :hrsh7th/cmp-buffer
@@ -688,7 +691,7 @@
                          :callback vim.lsp.buf.type_definition}
                     "y" {:desc "Goto Type Definition"
                          :callback vim.lsp.buf.type_definition}
-                    "i" {:desc "Goto Implementat[ion"
+                    "i" {:desc "Goto Implementation"
                          :callback vim.lsp.buf.implementation}
                     "r" {:desc "Goto References"
                          :callback vim.lsp.buf.references}
@@ -738,21 +741,21 @@
                                             :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
                                                                                false)}))}
                  "" (collect [as_str _ (pairs keys)]
-                       (values (.. "<M-" as_str ">")
-                               {:desc (.. "Focus Tab " as_str)
-                                :callback (.. as_str "gt")}))
+                      (values (.. "<M-" as_str ">")
+                              {:desc (.. "Focus Tab " as_str)
+                               :callback (.. as_str "gt")}))
                  ;; "<M-c>" {:desc "Create New Tab" :callback vim.cmd.tabnew}
                  }
              ;; TODO: experimental: Alt+<n> to go to tab <n>
              ;; FIXME: deduplicate, also see above
              :i (collect [as_str _ (pairs keys)]
-                       (values (.. "<M-" as_str ">")
-                               {:desc (.. "Focus Tab " as_str)
-                                :callback (.. "<esc>" as_str "gt")}))
+                  (values (.. "<M-" as_str ">")
+                          {:desc (.. "Focus Tab " as_str)
+                           :callback (.. "<esc>" as_str "gt")}))
              :t (collect [as_str _ (pairs keys)]
-                       (values (.. "<M-" as_str ">")
-                               {:desc (.. "Focus Tab " as_str)
-                                :callback (.. "<C-\\><C-n>" as_str "gt")}))}))
+                  (values (.. "<M-" as_str ">")
+                          {:desc (.. "Focus Tab " as_str)
+                           :callback (.. "<C-\\><C-n>" as_str "gt")}))}))
 
 (keymaps! {:n {;; Always move go to marked column
                ;; "'" "`"
