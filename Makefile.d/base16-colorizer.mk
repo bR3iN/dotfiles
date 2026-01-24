@@ -9,7 +9,7 @@ base16-colorizer: \
 	$(STAMP)/ignore-base16
 
 $(STAMP)/ignore-base16:
-	lib/ignore-base16.sh on
+	scripts/ignore-base16.sh on
 	@touch "$@"
 
 $(HOME)/.local/bin/base16-colorizer:

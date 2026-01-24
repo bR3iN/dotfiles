@@ -2,6 +2,10 @@ CONFIG_DIR ?= $(or $(XDG_CONFIG_HOME),$(HOME)/.config)
 USER_THEMES ?= $(HOME)/.themes
 SYSTEM_THEMES ?= /usr/share/themes
 
+# Have to come before includes to be used
+STAMP = .tag
+OS_ID ?= $(shell source /etc/os-release && echo $$ID)
+FLATPAK_APP ?= /var/lib/flatpak/app
 
 ###########
 # Targets #
@@ -10,8 +14,8 @@ SYSTEM_THEMES ?= /usr/share/themes
 .PHONY: autorandr
 autorandr: $(CONFIG_DIR)/autorandr
 
-.PHONY: tbash
-tbash: \
+.PHONY: bash
+bash: \
 	$(HOME)/bashrc \
 	$(HOME)/bash_profile
 
@@ -153,7 +157,3 @@ endef
 
 reset:
 	rm -f $(STAMP)/*
-
-STAMP = .tag
-OS_ID = $(shell source /etc/os-release && echo $$ID)
-FLATPAK_APP ?= /var/lib/flatpak/app
