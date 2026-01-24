@@ -172,19 +172,19 @@
 (local hl--mode-map
        {:NORMAL {:color named.dark_green :modes [:n :niI :niR :niV :nt]}
         :OP {:color named.dark_green :modes [:no :nov :noV "no\022"]}
-        :VISUAL {:color named.base0D :modes [:v :vs]}
-        :LINES {:color named.base0D :modes [:V :Vs]}
-        :BLOCK {:color named.base0D :modes ["\022" "\022s" "\019"]}
-        :SELECT {:color named.base09 :modes [:s :S]}
+        :VISUAL {:color named.cyan :modes [:v :vs]}
+        :LINES {:color named.blue :modes [:V :Vs]}
+        :BLOCK {:color named.blue :modes ["\022" "\022s" "\019"]}
+        :SELECT {:color named.orange :modes [:s :S]}
         :INSERT {:color named.yellow :modes [:i :ic :ix :t]}
-        :REPLACE {:color named.base0E :modes [:R :Rc :Rx]}
-        :V-REPLACE {:color named.base0E :modes [:Rv :Rvc :Rvx]}
+        :REPLACE {:color named.magenta :modes [:R :Rc :Rx]}
+        :V-REPLACE {:color named.magenta :modes [:Rv :Rvc :Rvx]}
         :COMMAND {:color named.dark_magenta :modes [:c :cv :ce]}
-        :ENTER {:color named.base0C :modes [:r]}
-        :MORE {:color named.base0C :modes [:rm]}
-        :CONFIRM {:color named.base09 :modes [:r?]}
+        :ENTER {:color named.cyan :modes [:r]}
+        :MORE {:color named.cyan :modes [:rm]}
+        :CONFIRM {:color named.orange :modes [:r?]}
         :SHELL {:color named.dark_green :modes [" !"]}
-        :NONE {:color named.base0A :modes [:null]}})
+        :NONE {:color named.yellow :modes [:null]}})
 
 (local hl--mode-lookup (let [res {}]
                          (each [name {: color : modes} (pairs hl--mode-map)]
@@ -524,6 +524,7 @@
 
 (fn curr-winbar-color []
   (if (is_active) winbar-active-color winbar-color))
+(local winbar-active-bg (mix named.blue named.fg0 0.8))
 
 (local winbar
        [;; left side
@@ -532,9 +533,11 @@
             hl--win-nr
             hl--space
             {:hl #(if (is_active)
-                      {:bg named.dark_green :fg (curr-winbar-color)}
-                      {:bg (mix named.fg0 named.bg3 0.7)
-                       :fg (curr-winbar-color)})
+                      {:bg winbar-active-bg :fg named.transparent}
+                      {
+                       ;; :bg (mix named.fg0 named.bg3 0.7)
+                       :bg named.dark_fg0
+                       :fg named.transparent})
              1 [(backward-transition normal-color)
                 hl--space
                 hl--file
