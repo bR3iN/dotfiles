@@ -15,8 +15,14 @@
       {:setup {:colorizer {:user_default_options {:names false}}}
        :keymaps {:n {:<Plug>ui#toggle-colorizer vim.cmd.ColorizerToggle}}})
 
-(use! :lukas-reineke/headlines.nvim
-      {:setup {:headlines {:markdown {:fat_headlines false}}}})
+;; (use! :lukas-reineke/headlines.nvim
+;;       {:setup {:headlines {:markdown {:fat_headlines false}}}})
+
+(use! [:MeanderingProgrammer/render-markdown.nvim
+       ;; :nvim-mini/mini.nvim
+       ]
+      {:setup {:render-markdown {:completions {:lsp {:enabled true}}}
+               }})
 
 ;; Floating preview in quickfix window
 (use! :kevinhwang91/nvim-bqf
@@ -24,11 +30,11 @@
        :setup {:bqf {:func_map {:fzffilter "" :open "<C-]>"}
                      :preview {:winblend 0}}}})
 
-(use! :lukas-reineke/indent-blankline.nvim
-      {:hl {:IblScope {:fg colors.dark_green :bold true}
-            :IblIndent {:fg colors.bg2 :bold true}}
-       :setup {:ibl {:enabled false}}
-       :keymaps #{:n {:<Plug>ui#toggle-indent-lines vim.cmd.IBLToggle}}})
+;; (use! :lukas-reineke/indent-blankline.nvim
+;;       {:hl {:IblScope {:fg colors.dark_green :bold true}
+;;             :IblIndent {:fg colors.bg2 :bold true}}
+;;        :setup {:ibl {:enabled false}}
+;;        :keymaps #{:n {:<Plug>ui#toggle-indent-lines vim.cmd.IBLToggle}}})
 
 (local {: darken} (require :utils.colors))
 

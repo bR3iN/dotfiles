@@ -1,3 +1,6 @@
+-- experimental
+-- vim.loader.enable()
+
 require('bootstrap.hotpot')
 local utils = require('utils')
 

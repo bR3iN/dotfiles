@@ -10,8 +10,9 @@
 (local {: mk-op!} (require :utils.operator))
 
 ;; <Plug> mappings have two uses here:
-;; - Indirection so that we can define all global keymaps in a central place.
-;; - Allowing filetypes to override them buffer-locally.
+;; - Indirection so that we can define all global keymaps in a central place,
+;;   with binding deferred to plugin setups.
+;; - Allowing ftplugins to override keybinds buffer-locally.
 (keymaps! {:n {:<Plug>lsp#code-action vim.lsp.buf.code_action
                :<Plug>edit#format-file vim.lsp.buf.format}})
 
@@ -92,11 +93,6 @@
         :conceallevel 2
         :scrolloff 2
         :linebreak true})
-
-;; Allows keeping scripts in ~/.config/nvim/bin
-(let [path (.. (vim.fn.stdpath :config) :/bin)]
-  (when (not (string.find vim.env.PATH path))
-    (set vim.env.PATH (.. vim.env.PATH ":" path))))
 
 ;; Open urls externally with xdg-open
 (mk-op! :OpenExternally (let [cmd :xdg-open

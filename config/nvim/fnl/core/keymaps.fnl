@@ -69,6 +69,8 @@
 (keymaps! {:n {:<leader>f {:f {:desc "Find Files" :callback :<Plug>pick#files}
                            "/" {:desc "Grep Workspace"
                                 :callback :<Plug>pick#grep-workspace}
+                           :e {:desc "File Explorer"
+                               :callback :<Plug>pick#explorer}
                            :l {:desc "Grep Buffers"
                                :callback :<Plug>pick#grep-buffers}
                            :h {:desc "Help Tags" :callback :<Plug>pick#help}}}
@@ -112,12 +114,13 @@
                                           :callback (.. as_str "gt")}))}}}))
 
 ;; UI toggles and cycles
-(keymaps! {:n {:<leader>u {:h {:desc "Toggle Inlay Hints"
+(keymaps! {:n {:<leader>U :<leader>u
+               :<leader>u {:h {:desc "Toggle Inlay Hints"
                                :callback #(vim.lsp.inlay_hint.enable (not (vim.lsp.inlay_hint.is_enabled)))}
                            :c {:desc "Toggle Colorizer"
                                :callback :<Plug>ui#toggle-colorizer}
-                           :i {:desc "Toggle Indent Lines"
-                               :callback :<Plug>ui#toggle-indent-lines}
+                           ;; :i :<Plug>ui#toggle-indent-lines
+                           ;; :u :<Plug>toggle-menu#
                            :w {:desc "Toggle Line Wrap"
                                :callback #(set vim.wo.wrap (not vim.wo.wrap))}
                            :s {:desc "Toggle Spell Check"
@@ -218,6 +221,7 @@
 (keymaps! {:n {:<leader> {:R {:desc "Reload Config"
                                :callback #(do
                                             (vim.print "Reloading config")
+                                            ;; Conflicts with vim.loader? Check docs
                                             (dofile vim.env.MYVIMRC))}}}
            :v {:<leader> {:y {:desc "Yank to Clipboard" :callback "\"+y"}
                            :p {:desc "Paste from Clipboard" :callback "\"+p"}
@@ -298,12 +302,13 @@
                     "]g" {:desc "Next Git Hunk" :callback :<Plug>nav#next-hunk}
                     "[g" {:desc "Previous Git Hunk"
                           :callback :<Plug>nav#prev-hunk}}
-           :n {:<C-u> {:desc "Scroll Up" :callback :<Plug>nav#scroll-up}
-               :<C-d> {:desc "Scroll Down" :callback :<Plug>nav#scroll-down}
-               :<C-b> {:desc "Scroll Page Up"
-                       :callback :<Plug>nav#scroll-page-up}
-               :<C-f> {:desc "Scroll Page Down"
-                       :callback :<Plug>nav#scroll-page-down}
+           :n {
+               ;; :<C-u> {:desc "Scroll Up" :callback :<Plug>nav#scroll-up}
+               ;; :<C-d> {:desc "Scroll Down" :callback :<Plug>nav#scroll-down}
+               ;; :<C-b> {:desc "Scroll Page Up"
+               ;;         :callback :<Plug>nav#scroll-page-up}
+               ;; :<C-f> {:desc "Scroll Page Down"
+               ;;         :callback :<Plug>nav#scroll-page-down}
                :zt {:desc "Scroll to Top" :callback :<Plug>nav#scroll-top}
                :zz {:desc "Scroll to Center"
                     :callback :<Plug>nav#scroll-center}

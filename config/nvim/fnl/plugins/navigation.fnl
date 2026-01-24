@@ -11,19 +11,19 @@
        :keymaps {[:n :v] {:<Plug>nav#jump-this-buffer "<Plug>(leap)"
                           :<Plug>nav#jump-other-buffer "<Plug>(leap-from-window)"}}})
 
-;; Smooth scrolling
-(use! :karb94/neoscroll.nvim
-      {;; Disable default mappings
-       :setup {:neoscroll {:mappings {}}}
-       :keymaps #(let [{: scroll : zt : zz : zb} (require :neoscroll)
-                       get-height #(vim.api.nvim_win_get_height 0)]
-                   {:n {:<Plug>nav#scroll-up #(scroll (- vim.wo.scroll) {:duration 100})
-                        :<Plug>nav#scroll-down #(scroll vim.wo.scroll {:duration 100})
-                        :<Plug>nav#scroll-page-up #(scroll (- (get-height)) {:duration 250})
-                        :<Plug>nav#scroll-page-down #(scroll (get-height) {:duration 250})
-                        :<Plug>nav#scroll-top #(zt {:half_win_duration 100})
-                        :<Plug>nav#scroll-center #(zz {:half_win_duration 100})
-                        :<Plug>nav#scroll-bottom #(zb {:half_win_duration 100})}})})
+;; ;; Smooth scrolling
+;; (use! :karb94/neoscroll.nvim
+;;       {;; Disable default mappings
+;;        :setup {:neoscroll {:mappings {}}}
+;;        :keymaps #(let [{: scroll : zt : zz : zb} (require :neoscroll)
+;;                        get-height #(vim.api.nvim_win_get_height 0)]
+;;                    {:n {:<Plug>nav#scroll-up #(scroll (- vim.wo.scroll) {:duration 100})
+;;                         :<Plug>nav#scroll-down #(scroll vim.wo.scroll {:duration 100})
+;;                         :<Plug>nav#scroll-page-up #(scroll (- (get-height)) {:duration 250})
+;;                         :<Plug>nav#scroll-page-down #(scroll (get-height) {:duration 250})
+;;                         :<Plug>nav#scroll-top #(zt {:half_win_duration 100})
+;;                         :<Plug>nav#scroll-center #(zz {:half_win_duration 100})
+;;                         :<Plug>nav#scroll-bottom #(zb {:half_win_duration 100})}})})
 
 ;; Split file explorer
 (use! :stevearc/oil.nvim

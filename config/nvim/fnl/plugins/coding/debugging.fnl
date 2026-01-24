@@ -7,10 +7,10 @@
                      {:n {[:q :<ESC>] vim.cmd.quit}}
                      {:buffer true})})
 
-(use! [:mason-org/mason.nvim
-       :jay-babu/mason-nvim-dap.nvim ]
-      {:setup {:mason {}
-               :mason-nvim-dap {}}})
+;; (use! [:mason-org/mason.nvim
+;;        :jay-babu/mason-nvim-dap.nvim ]
+;;       {:setup {:mason {}
+;;                :mason-nvim-dap {}}})
 
 (use! [:mfussenegger/nvim-dap
        :nvim-neotest/nvim-nio
