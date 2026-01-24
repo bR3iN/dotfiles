@@ -16,8 +16,8 @@ autorandr: $(CONFIG_DIR)/autorandr
 
 .PHONY: bash
 bash: \
-	$(HOME)/bashrc \
-	$(HOME)/bash_profile
+	$(HOME)/.bashrc \
+	$(HOME)/.bash_profile
 
 .PHONY: bat
 bat: $(CONFIG_DIR)/bat/config

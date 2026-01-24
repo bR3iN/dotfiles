@@ -1,4 +1,21 @@
-export PATH="$HOME/.local/bin:$HOME/.node_modules/bin:$HOME/.cargo/bin:$HOME/.ghcup/bin:$HOME/.cabal/bin:$HOME/.nix-profile/bin:$HOME/.dotfiles/bin:$PATH"
+dirs=(
+    "$HOME/.local/bin"
+    "$HOME/.node_modules/bin"
+    "$HOME/.cargo/bin"
+    "$HOME/.ghcup/bin"
+    "$HOME/.cabal/bin"
+    "$HOME/.nix-profile/bin"
+    "$HOME/.dotfiles/bin"
+)
+
+for dir in "${dirs[@]}"; do
+    if [ -d "$dir" ]; then
+        PATH="$dir:$PATH"
+    fi
+done
+export PATH
+
+date >> /tmp/log
 
 export EDITOR=nvim
 export VISUAL=nvim
