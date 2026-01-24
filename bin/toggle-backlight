@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Get current DPMS state of the first output
+DPMS_STATE=$(swaymsg -t get_outputs | jq -r '.[0].dpms')
+
+if [ "$DPMS_STATE" = "true" ]; then
+    # Display is on, turn it off
+    swaymsg "output * dpms off"
+else
+    # Display is off, turn it on
+    swaymsg "output * dpms on"
+fi

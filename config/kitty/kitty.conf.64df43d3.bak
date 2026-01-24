@@ -1,0 +1,32 @@
+window_margin_width 2 6
+enable_audio_bell no
+shell /usr/bin/fish
+close_on_child_death yes
+touch_scroll_multiplier 3.0
+hide_window_decorations no #also hides borders
+#shell_integration no-cursor
+
+# background_opacity 0.95
+dynamic_background_opacity yes
+#allow_remote_control yes
+
+font_size   13
+
+
+#                                                                        >=    &     $     @     \\    =~  + g     {. .} .=    .-    :-    >>= + /=    *
+font_family      family='FiraCode Nerd Font Mono' style=Retina features='+ss02 +ss03 +ss04 +ss05 +ss06 +ss07 +cv02 +cv28 +cv32 +cv25 +cv26 +ss09 +cv24 +cv16'
+bold_font        family='FiraCode Nerd Font Mono' style=Bold   features='+ss02 +ss03 +ss04 +ss05 +ss06 +ss07 +cv02 +cv28 +cv32 +cv25 +cv26 +ss09 +cv24 +cv16'
+italic_font      family='FiraCode Nerd Font Mono' style=Light  features='+ss02 +ss03 +ss04 +ss05 +ss06 +ss07 +cv02 +cv28 +cv32 +cv25 +cv26 +ss09 +cv24 +cv16'
+bold_italic_font family='FiraCode Nerd Font Mono' style=Medium features='+ss02 +ss03 +ss04 +ss05 +ss06 +ss07 +cv02 +cv28 +cv32 +cv25 +cv26 +ss09 +cv24 +cv16'
+
+modify_font underline_position 2
+modify_font underline_thickness 150%
+
+# Unmap default shortcuts
+clear_all_shortcuts yes
+map ctrl+shift+c copy_to_clipboard
+map ctrl+shift+v paste_from_clipboard
+
+# load local config and colors
+include local.conf
+include base16.conf

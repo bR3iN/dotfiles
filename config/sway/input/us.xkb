@@ -1,0 +1,30 @@
+xkb_keymap {
+    xkb_keycodes { include "evdev+aliases(qwerty)" };
+    xkb_types { include "complete" };
+    xkb_compatibility { include "complete" };
+
+    xkb_symbols {
+        include "pc+us+inet(evdev)"
+        include "altwin(prtsc_rwin)"
+
+        // Caps -> F13, Shift+Caps -> cycle-layouts, Ctrl+Alt+Caps -> Caps
+        replace key <CAPS> {
+            type= "CTRL+ALT",
+                symbols= [ F13, Multi_key, F13, Multi_key, Caps_Lock]
+        };
+
+        // Don't have the caps key set the lock bit
+        modifier_map None { Caps_Lock };
+
+        // By default bound to X86 tools, but we use it in Neovim as a (local)leader
+        replace key <FK13> { [ F13 ] };
+
+        // replace key <SPCE> {
+        //     symbols=[ space, Multi_key ]
+        // };
+    };
+
+    xkb_geometry { include "pc(pc105)" };
+};
+
+// vim: ft=xkb

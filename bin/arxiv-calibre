@@ -7,8 +7,8 @@ import arxiv
 import os.path
 
 
-# CALIBRE_CMD = ['calibredb']
-CALIBRE_CMD = ['flatpak', 'run', '--filesystem=/tmp', '--command=calibredb', 'com.calibre_ebook.calibre']
+CALIBRE_CMD = ['calibredb']
+# CALIBRE_CMD = ['flatpak', 'run', '--filesystem=/tmp', '--command=calibredb', 'com.calibre_ebook.calibre']
 
 
 def get_id(arg: str) -> str:

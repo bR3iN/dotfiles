@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+import sys
+import re
+from html import unescape
+from urllib.request import urlopen, Request
+
+req = Request(sys.argv[1], headers={'User-Agent': 'Mozilla/5.0'})
+html = urlopen(req, timeout=10).read().decode('utf-8', errors='ignore')
+match = re.search(r'<title[^>]*>(.*?)</title>', html, re.IGNORECASE | re.DOTALL)
+if match:
+    title = unescape(match.group(1))
+    print(re.sub(r'\s+', ' ', title).strip())
+else:
+    print("No title found", file=sys.stderr)
+    sys.exit(1)

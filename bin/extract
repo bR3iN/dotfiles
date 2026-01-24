@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+function extract {
+    local archive="$1"
+
+    mime=$(file --mime-type -b "$archive")
+
+    case "$mime" in
+        application/gzip|application/x-gzip|application/x-tar|application/x-bzip2|application/x-xz|application/x-compressed-tar)
+            tar xvaf "$archive" --one-top-level
+            ;;
+        application/zip)
+            base=$(basename "$archive")
+            outdir="$(dirname "$archive")/${base%%.*}"
+            unzip "$archive" -d "$outdir"
+            ;;
+        *)
+            echo "Error: Unsupported archive type: $mime" >&2
+            exit 1
+            ;;
+    esac
+
+    echo "Removing extracted archive"
+    rm -i "$archive"
+}
+
+for file in "$@"; do
+    extract "$file"
+done

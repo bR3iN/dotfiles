@@ -1,0 +1,236 @@
+#Set mod key
+set $mod Mod4
+
+# Set lock-screen
+# exec swayidle -w before-sleep "swaylock -f"
+exec swayidle -w before-sleep "gtklock -d"
+bindsym $mod+Escape exec lock-wrapper gtklock
+
+
+focus_follows_mouse no
+show_marks yes
+
+
+## Launcher
+
+# Application launcher
+bindcode $mod+61 exec wofi --show drun --run-command "swaymsg exec -- {cmd}"
+
+# Open terminal
+bindsym $mod+t exec kitty
+
+# Open documents
+bindsym $mod+d exec rofi-open
+
+# Open emoji selector
+bindsym $mod+Control+e exec wofi-emoji
+
+# Open script selector
+bindsym $mod+x exec rofi-scripts
+
+# Open bookmark selector
+bindsym $mod+Control+o exec rofi-bookmarks
+
+# Make screenshot
+bindsym $mod+Control+p exec grim -g "$(slurp)" - | swappy -f -
+
+
+## Appearance
+
+font Noto Sans Regular 9
+
+hide_edge_borders none
+# Ambiguity on multiple monitors
+smart_borders off
+# hide_edge_borders --i3 smart_no_gaps  # hides titlebar on containers with one child
+default_floating_border normal # needed to drag on touchscreen?
+default_border pixel 1
+titlebar_padding 4 1
+
+smart_gaps off
+gaps inner 10
+gaps outer 0
+bindsym $mod+Shift+Minus gaps inner current plus 10
+bindsym $mod+Shift+Equal gaps inner current minus 10
+
+bar swaybar_command waybar
+bindsym $mod+o exec killall -SIGUSR1 waybar  # Toggle waybar
+
+# TODO: WIP
+# exec eww daemon
+# exec eww open navigation
+# exec eww open launcher
+
+# Load colors
+include ~/.config/sway/base16
+
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border        BG            Text    Indicator    Child Border
+# client.focused           $base03_light $base03       $base05 $base03      $base03
+# client.focused_inactive  $base02_light $base02       $base04 $base02      $base02
+# client.focused_tab_title $base03       $base03_dark  $base04
+# client.unfocused         $base01_dark  $base01       $base04 $base09      $base00
+# client.urgent            $base08_dark  $base08       $base00 $base08_dark $base08_dark
+
+
+# Child border: Actual window border
+# Border: Border of titlebar
+# Text + BG: Background and text of titlebar
+# Indicator: Indicates which side will be split next
+# Property Name          Border        BG      Text    Indicator    Child Border
+client.focused           $base03_light $base03 $base05 $base0B_dark $base0B_dark
+client.focused_inactive  $base02_light $base02 $base04 $base01_dark $base01_dark
+client.focused_tab_title $base03_light $base03 $base05 $base01_dark $base01_dark
+client.unfocused         $base01_light $base01 $base04 $base01_dark $base01_dark
+client.urgent            $base0A_light $base00 $base08 $base0A_dark $base0A_dark
+
+## Input configuration
+
+# bindsym $mod+Control+i exec rofi-inputs --sway
+
+input * {
+    accel_profile flat
+    xkb_file ~/.config/sway/input/us.xkb
+    tap enabled
+}
+# You can get the names of your inputs by running: swaymsg -t get_inputs
+# Read `man 5 sway-input` for more information about this section.
+
+
+### Navigation
+
+floating_modifier $mod
+
+
+# Toggle gaps
+# bindsym $mod+Control+g gaps inner current toggle $gaps_inner; \
+#                        gaps outer current toggle $gaps_outer
+
+# Toggle sticky
+bindsym $mod+Control+s sticky toggle
+
+# Make the current focus fullscreen
+bindsym $mod+f fullscreen
+
+bindsym $mod+Control+f exec thunar
+
+# Reload sway
+bindsym $mod+Control+r reload; exec killall -sSIGHUP kanshi
+
+# Close focused client
+bindsym $mod+q kill
+
+# Move to and show scratchpad
+bindsym $mod+Control+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+# Toggle floating status of current client
+bindsym $mod+Control+space floating toggle
+
+# Swap focus between the tiling area and the floating area
+bindsym $mod+space focus mode_toggle
+
+# Move the focus
+bindsym $mod+h      focus left
+bindsym $mod+j      focus down
+bindsym $mod+k      focus up
+bindsym $mod+l      focus right
+bindsym $mod+Left   focus left
+bindsym $mod+Down   focus down
+bindsym $mod+Up     focus up
+bindsym $mod+Right  focus right
+
+# Move the focused client
+bindsym $mod+Control+h      move left
+bindsym $mod+Control+j      move down
+bindsym $mod+Control+k      move up
+bindsym $mod+Control+l      move right
+bindsym $mod+Control+Left   move left
+bindsym $mod+Control+Down   move down
+bindsym $mod+Control+Up     move up
+bindsym $mod+Control+Right  move right
+
+# Switch to workspace
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+
+# Move with focused container to workspace
+bindsym $mod+Control+1 move container to workspace number 1; \
+	workspace number 1
+bindsym $mod+Control+2 move container to workspace number 2; \
+	workspace number 2
+bindsym $mod+Control+3 move container to workspace number 3; \
+	workspace number 3
+bindsym $mod+Control+4 move container to workspace number 4; \
+	workspace number 4
+bindsym $mod+Control+5 move container to workspace number 5; \
+	workspace number 5
+bindsym $mod+Control+6 move container to workspace number 6; \
+	workspace number 6
+bindsym $mod+Control+7 move container to workspace number 7; \
+	workspace number 7
+bindsym $mod+Control+8 move container to workspace number 8; \
+	workspace number 8
+bindsym $mod+Control+9 move container to workspace number 9; \
+    workspace number 9
+bindsym $mod+Control+0 move container to workspace number 10; \
+    workspace number 10
+
+
+# Create new split
+bindsym $mod+g splith
+bindsym $mod+v splitv
+
+# Switch layout of current container
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Move focus to the parent/child container
+bindsym $mod+a focus parent
+bindsym $mod+c focus child
+
+
+## Bind media keys
+
+# Brightness keys
+bindsym --locked XF86MonBrightnessDown exec backlight decrease
+bindsym --locked XF86MonBrightnessUp   exec backlight increase
+
+# Toggle keyboard and screen backlight
+bindsym --locked Mod4+Home exec kbbacklight_toggle
+# bindsym --locked Mod4+Home exec kbdbacklight cycle
+bindsym --locked Mod4+End  exec toggle-backlight
+
+# Raise, lower and mute audio
+bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym --locked XF86AudioMute        exec pactl set-sink-mute   @DEFAULT_SINK@ toggle
+bindsym --locked XF86AudioMicMute     exec pactl set-source-mute 0              toggle
+
+# Mod + audio keys as player control
+bindsym --locked $mod+XF86AudioMute        exec playerctl play-pause
+bindsym --locked $mod+XF86AudioLowerVolume exec playerctl previous
+bindsym --locked $mod+XF86AudioRaiseVolume exec playerctl next
+bindsym --locked $mod+XF86AudioMicMute     exec playerctl stop
+
+# Bind player keys (used e.g. by bluetooth headset)
+bindsym --locked XF86AudioPlay  exec playerctl play-pause
+bindsym --locked XF86AudioNext  exec playerctl next
+bindsym --locked XF86AudioPrev  exec playerctl previous
+
+
+include ~/.config/sway/config.d/*
+
+# vim: ft=conf
