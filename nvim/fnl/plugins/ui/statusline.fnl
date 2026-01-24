@@ -1,6 +1,3 @@
-(import-macros {: opt! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb}
-               :utils.macros)
-
 (local {: darken : get-named : mix : lighten} (require :utils.colors))
 (local {: empty?
         : hl!
@@ -8,7 +5,6 @@
         : remove-opt-prefix
         : autocmd!
         : starts-with
-        : autocmd!
         : unique-bufname} (require :utils))
 
 (local {:setup setup-heirline} (require :heirline))
@@ -175,8 +171,8 @@
         :VISUAL {:color named.cyan :modes [:v :vs]}
         :LINES {:color named.blue :modes [:V :Vs]}
         :BLOCK {:color named.blue :modes ["\022" "\022s" "\019"]}
-        :SELECT {:color named.orange :modes [:s :S]}
-        :INSERT {:color named.yellow :modes [:i :ic :ix :t]}
+        :SELECT {:color named.dark_orange :modes [:s :S]}
+        :INSERT {:color named.dark_yellow :modes [:i :ic :ix :t]}
         :REPLACE {:color named.magenta :modes [:R :Rc :Rx]}
         :V-REPLACE {:color named.magenta :modes [:Rv :Rvc :Rvx]}
         :COMMAND {:color named.dark_magenta :modes [:c :cv :ce]}
@@ -412,34 +408,38 @@
 (local tab-selected (darken named.bg3 0.1))
 (local tab-nonselected named.bg1)
 
-(local hl--tablist {;;:condition #(< 1 (length (vim.api.nvim_list_tabpages)))
-                    1 (make_tablist {:hl #{:bg (if $1.is_active tab-selected tab-nonselected)
-                                           :fg (if $1.is_active (lighten named.fg0 0.2) (darken named.fg0 0.1))}
-                                     ;; :condition #(vim.api.nvim_tabpage_is_valid $1.tabnr)
-                                     1 [(forward-transition tabline-color (if $1.is_active tab-selected tab-nonselected))
-                                        {:provider #(.. "%" $1.tabnr "T ")}
-                                        ;; Tab nr
-                                        {:hl {:fg named.dark_yellow}
-                                         :provider #$1.tabnr}
-                                        ;; Separator
-                                        {:hl {:fg named.fg0}
-                                         :provider ":"}
-                                        ;; Selected window
-                                        {:provider #(-> $.tabpage
-                                                        (vim.api.nvim_tabpage_get_win)
-                                                        (vim.api.nvim_win_get_buf)
-                                                        (get-bufname-shortest)
-                                                        (truncated))}
-                                        {:hl {:fg named.fg0} :provider "/"}
-                                        ;; Number of windows
-                                        {:hl {:fg named.fg0}
-                                         :provider #(->> $1.tabpage
-                                                         (vim.api.nvim_tabpage_list_wins)
-                                                         (vim.tbl_filter is-not-incline-win)
-                                                         (length))}
-                                        {:provider " %T"}
-                                        (backward-transition (if $1.is_active tab-selected tab-nonselected) tabline-color)
-                                        ]})})
+(local hl--tablist
+       {;;:condition #(< 1 (length (vim.api.nvim_list_tabpages)))
+        1 (make_tablist {:hl #{:bg (if $1.is_active tab-selected
+                                       tab-nonselected)
+                               :fg (if $1.is_active (lighten named.fg0 0.2)
+                                       (darken named.fg0 0.1))}
+                         ;; :condition #(vim.api.nvim_tabpage_is_valid $1.tabnr)
+                         1 [(forward-transition tabline-color
+                                                (if $1.is_active tab-selected
+                                                    tab-nonselected))
+                            {:provider #(.. "%" $1.tabnr "T ")}
+                            ;; Tab nr
+                            {:hl {:fg named.dark_yellow} :provider #$1.tabnr}
+                            ;; Separator
+                            {:hl {:fg named.fg0} :provider ":"}
+                            ;; Selected window
+                            {:provider #(-> $.tabpage
+                                            (vim.api.nvim_tabpage_get_win)
+                                            (vim.api.nvim_win_get_buf)
+                                            (get-bufname-shortest)
+                                            (truncated))}
+                            {:hl {:fg named.fg0} :provider "/"}
+                            ;; Number of windows
+                            {:hl {:fg named.fg0}
+                             :provider #(->> $1.tabpage
+                                             (vim.api.nvim_tabpage_list_wins)
+                                             (vim.tbl_filter is-not-incline-win)
+                                             (length))}
+                            {:provider " %T"}
+                            (backward-transition (if $1.is_active tab-selected
+                                                     tab-nonselected)
+                                                 tabline-color)]})})
 
 ;; Top-level statusline definitions
 
@@ -448,18 +448,18 @@
         {:provider "@"}
         {:provider (vim.uv.os_gethostname)}])
 
-(local tabline
-       [;; left side
-        ;; hl--mode-short
-        hl--tablist
-        {:provider "%="}
-        ;; right side
-        ;; {:condition is_git_repo 1 [hl--space hl--git]}
-        ;; hl--space
-        ;; {:hl {:bg named.bg2} 1 [hl--space hl--user-and-host hl--space]}
-        ])
+(local tabline [;; left side
+                ;; hl--mode-short
+                hl--tablist
+                {:provider "%="}
+                ;; right side
+                ;; {:condition is_git_repo 1 [hl--space hl--git]}
+                ;; hl--space
+                ;; {:hl {:bg named.bg2} 1 [hl--space hl--user-and-host hl--space]}
+                ])
 
 (autocmd! {:event [:ModeChanged :InsertLeave :InsertEnter]
+           ;; :callback #(vim.cmd.redrawstatus)
            :callback #(vim.cmd.redrawtabline)})
 
 (fn padded [?left-pad ?inner ?right-pad]
@@ -509,9 +509,11 @@
                    {:condition lsp_attached 1 [hl--lsp-list hl--wide-sep]}
                    {:condition is_git_repo
                     1 [;; Current branch
-                       hl--git hl--space
+                       hl--git
+                       hl--space
                        ;; Shortstats
-                       hl--git-shortstat hl--wide-sep]}
+                       hl--git-shortstat
+                       hl--wide-sep]}
                    ;; Line Count
                    {:hl {:fg named.dark_magenta} 1 hl--line-count}
                    hl--wide-sep
@@ -524,6 +526,7 @@
 
 (fn curr-winbar-color []
   (if (is_active) winbar-active-color winbar-color))
+
 (local winbar-active-bg (mix named.blue named.fg0 0.8))
 
 (local winbar
@@ -533,9 +536,10 @@
             hl--win-nr
             hl--space
             {:hl #(if (is_active)
-                      {:bg winbar-active-bg :fg named.transparent}
-                      {
-                       ;; :bg (mix named.fg0 named.bg3 0.7)
+                      {:bg winbar-active-bg
+                       ;; :bg (. hl--mode-lookup (get-mode) :color)
+                       :fg named.transparent}
+                      {;; :bg (mix named.fg0 named.bg3 0.7)
                        :bg named.dark_fg0
                        :fg named.transparent})
              1 [(backward-transition normal-color)

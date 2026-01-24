@@ -1,6 +1,3 @@
-(import-macros {: set! : setl! : setl+ : setl- : setg! : set+ : let! : with-cb}
-               :utils.macros)
-
 (local {: hl!
         : use!
         : setup
@@ -42,13 +39,13 @@
                                                             {:fg colors.green
                                                              :bg colors.base02})
                                                        ;; Load after setting `CommentHighlighted` above
-                                                       ;; Use <C-o><C-h> instead 
+                                                       ;; Use <C-o><C-h> instead
                                                        ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
                                                        (setup :plugin.toggle-comments)
-                                                       (keymaps! {:n {:<C-h> ":ToggleComments<CR>"}}))]
+                                                       (keymaps! {:n {:<Plug>ui#toggle-comments ":ToggleComments<CR>"}}))]
                                              (cb)
                                              cb)}}
-       :init #(let! nord_disable_background true)
+       :init #(set vim.g.nord_disable_background true)
        :setup {:tokyonight {:transparent true}
                :gruvbox {:transparent_mode true}
                :kanagawa {:transparent true}}

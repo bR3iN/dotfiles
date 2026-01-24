@@ -5,7 +5,8 @@ local utils = require('utils')
 utils.init()
 
 -- (Re)load main config
-utils.reload('main')
+utils.reload('core')
+utils.reload('plugins')
 
 -- Sync declared plugins
 utils.sync()

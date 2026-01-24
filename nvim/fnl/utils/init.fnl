@@ -106,8 +106,33 @@
 (fn M.keymaps! [tbl ?opts]
   (keymaps-inner! tbl ?opts))
 
-(fn M.local-keymaps! [tbl]
+(fn M.buf-keymaps! [tbl]
   (keymaps-inner! tbl {:buffer true}))
+
+(fn parse-opt-name [name]
+  "Parse option name to extract base name and operation suffix (+, -, ^)"
+  (let [last-char (string.sub name -1)]
+    (case last-char
+      "+" {:name (string.sub name 1 -2) :op :append}
+      "-" {:name (string.sub name 1 -2) :op :remove}
+      "^" {:name (string.sub name 1 -2) :op :prepend}
+      _ {:name name :op :set})))
+
+(fn opts-inner! [tbl opt-obj]
+  (each [name val (pairs tbl)]
+    (let [{:name opt-name :op op} (parse-opt-name name)
+          opt-meta (. opt-obj opt-name)]
+      (case op
+        :set (let [current (: opt-meta :get)]
+               (when (not= current val)
+                 (tset opt-obj opt-name val)))
+        _ (: opt-meta op val)))))
+
+(fn M.opts! [tbl]
+  (opts-inner! tbl vim.opt))
+
+(fn M.buf-opts! [tbl]
+  (opts-inner! tbl vim.opt_local))
 
 (fn parse-map-options [list]
   (local opt-tbl {:noremap true :silent true}) ; Default options

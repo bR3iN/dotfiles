@@ -101,51 +101,39 @@
     (->> (vim.api.nvim_list_bufs)
          (vim.tbl_filter show-buffer?))))
 
-(keymaps! {:n {:<leader> {";" {:desc "Resume Picker" :callback #(pick :resume)}
-                          :T {:desc "Pick Terminal"
-                              :callback #(-> (term-buffers)
-                                             (pick-bufs))}
-                          :i {:desc "Document Symbols"
-                              :callback #(pick :lsp_document_symbols)}
-                          :I {:desc "Workspace Symbols"
-                              :callback #(pick :lsp_workspace_symbols)}
-                          :b {:desc "Find Buffers"
-                              :callback #(pick :buffers
-                                               {:select_current true
-                                                :sort_lastused true
-                                                :sort_mru true})}
-                          ;; (local conf (. (require :telescope.config) :values))
-                          :d {:desc "Find Diagnostics"
-                              :callback #(pick :diagnostics
-                                               {:bufnr 0})}
-                          :D {:desc "Workspace Diagnostics"
-                              :callback #(pick :diagnostics)}
-                          :o {
-                              :e {:desc "Workspace Errors"
-                                  :callback #(pick :diagnostics
+;; Define <Plug> mappings for pickers
+(keymaps! {:n {:<Plug>pick# {:resume #(pick :resume)
+                             :terminal #(-> (term-buffers) (pick-bufs))
+                             :document-symbols #(pick :lsp_document_symbols)
+                             :workspace-symbols #(pick :lsp_workspace_symbols)
+                             :buffers #(pick :buffers
+                                             {:select_current true
+                                              :sort_lastused true
+                                              :sort_mru true})
+                             :buffer-diagnostics #(pick :diagnostics {:bufnr 0})
+                             :workspace-diagnostics #(pick :diagnostics)
+                             :config-files #(pick :find_files
+                                                  {:cwd (.. vim.env.HOME "/.config/nvim")
+                                                   :follow true})
+                             :config-grep #(pick :live_grep
+                                                 {:cwd (.. vim.env.HOME "/.config/nvim")})
+                             :buffer-errors #(pick :diagnostics
                                                    {:bufnr 0
                                                     :severity vim.diagnostic.severity.ERROR
-                                                    :prompt_title "Buffer Errors"})}
-                              :E {:desc "Workspace Errors"
-                                  :callback #(pick :diagnostics
-                                                   {:severity vim.diagnostic.severity.ERROR
-                                                    :prompt_title "Workspace Errors"})}}
-                          :G {:desc "Git Status" :callback #(pick :git_status)}
-                          :f {:f {:desc "Find Files"
-                                  :callback #(pick :find_files
-                                                   {:follow true
-                                                    :cwd (try-get-cwd)})}
-                              :/ {:desc "Live Grep"
-                                  :callback #(pick :live_grep
-                                                   {:cwd (try-get-cwd)})}
-                              :l {:desc "Live Grep in Open Files"
-                                  :callback #(pick :live_grep
+                                                    :prompt_title "Buffer Errors"})
+                             :workspace-errors #(pick :diagnostics
+                                                      {:severity vim.diagnostic.severity.ERROR
+                                                       :prompt_title "Workspace Errors"})
+                             :git-status #(pick :git_status)
+                             :files #(pick :find_files
+                                           {:follow true
+                                            :cwd (try-get-cwd)})
+                             :grep-workspace #(pick :live_grep
+                                                     {:cwd (try-get-cwd)})
+                             :grep-buffers #(pick :live_grep
                                                    {:grep_open_files true
-                                                    :cwd (try-get-cwd)})}
-                              :h {:desc "Help Tags"
-                                  :callback #(pick :help_tags)}}}}
-           :v {:<leader> {:/ {:desc "Live Grep for Selection"
-                              :callback #(pick :grep_string {})}
-                          :f {:l {:desc "Live Grep for Selection in Open Files"
-                                  :callback #(pick :grep_string
-                                                   {:grep_open_files true})}}}}})
+                                                    :cwd (try-get-cwd)})
+                             :help #(pick :help_tags)}}
+           :v {:<Plug>pick# {:grep-selection-workspace #(pick :grep_string {})
+                             :grep-selection-buffers #(pick :grep_string
+                                                            {:grep_open_files true})}}})

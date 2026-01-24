@@ -1,8 +1,6 @@
 (local {: use!
-        : dispatchables!
         : ft!
-        : keymaps!
-        : dispatch!} (require :utils))
+        : keymaps!} (require :utils))
 
 (ft! {:dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
       :dap-float #(keymaps!
@@ -25,9 +23,8 @@
       {:keymaps #(let [dap (require :dap)
                    widgets (require :dap.ui.widgets)
                    dapui (require :dapui)]
-                 ;; Allows ftplugins to overwrite for language specific entrypoint pickers
-               (dispatchables! :g {:start_debugger vim.cmd.DapNew})
-               {:n {:<leader> {"t" {;; "d" {:desc "Toggle Debug REPL"
+               {:n {:<Plug>debug#start vim.cmd.DapNew
+                    :<leader> {"t" {;; "d" {:desc "Toggle Debug REPL"
                                     ;;      :callback dap.repl.toggle}
                                     "d" {:desc "Toggle Debug REPL"
                                          :callback vim.cmd.DapViewToggle}
@@ -36,36 +33,36 @@
                                "<CR>" {:desc "Run to Cursor"
                                        :callback dap.run_to_cursor}
                                "<C-CR>" {:desc "Run at Cursor"
-                                       :callback #(dispatch! :debug_at_cursor)}
+                                       :callback :<Plug>debug#at-cursor}
                                "<TAB>" {:desc "Toggle Breakpoint"
                                         :callback dap.toggle_breakpoint}
-                               "g" {:b {:desc "Toggle Breakpoint"
+                               "g" {"b" {:desc "Toggle Breakpoint"
                                         :callback dap.toggle_breakpoint}
-                                    :l {:desc "List Breakpoints"
+                                    "l" {:desc "List Breakpoints"
                                         :callback dap.list_breakpoints}
-                                    :e {:desc "Eval Expression"
+                                    "e" {:desc "Eval Expression"
                                         :callback #(dapui.eval nil
                                                                {:enter true})}
-                                    :s {:desc "Step Into"
+                                    "s" {:desc "Step Into"
                                         :callback dap.step_into}
-                                    :n {:desc "Step Over"
+                                    "n" {:desc "Step Over"
                                         :callback dap.step_over}
-                                    :o {:desc "Step Out"
+                                    "o" {:desc "Step Out"
                                         :callback dap.step_out}
-                                    :N {:desc "DapNew"
-                                        :callback #(dispatch! :start_debugger)}
-                                    :R {:desc "Run Last"
+                                    "N" {:desc "DapNew"
+                                        :callback :<Plug>debug#start}
+                                    "R" {:desc "Run Last"
                                         :callback dap.run_last}
-                                    :T {:desc "Terminate"
+                                    "T" {:desc "Terminate"
                                         :callback dap.terminate}
-                                    :c {:desc "Continue"
+                                    "c" {:desc "Continue"
                                         :callback dap.continue}
-                                    :r {:desc "Restart" :callback dap.restart}
-                                    :h {:desc "Hover"
+                                    "r" {:desc "Restart" :callback dap.restart}
+                                    "h" {:desc "Hover"
                                         :callback widgets.hover}
-                                    :p {:desc "Preview"
+                                    "p" {:desc "Preview"
                                         :callback widgets.preview}
-                                    :d {:desc "Clear Breakpoints"
+                                    "d" {:desc "Clear Breakpoints"
                                         :callback dap.clear_breakpoints}}}}})
        :setup {:nvim-dap-virtual-text {:virt_text_pos :inline}
                :dap-view {}
