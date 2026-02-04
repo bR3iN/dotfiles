@@ -44,8 +44,7 @@
 (fn M.init []
   (set augroup (vim.api.nvim_create_augroup :my_init {:clear true})))
 
-;; FIXME
-(fn init-aucmd [event opts]
+(fn init-autocmd [event opts]
   (let [group (or augroup (error "not initialized"))
         opts (vim.tbl_extend :error opts {: group})]
     ;; Prevent autocmd from being removed when returning last expression...
@@ -55,10 +54,6 @@
                               (cb $...)
                               nil))))
     (vim.api.nvim_create_autocmd event opts)))
-
-(fn init-aucmd! [tbl]
-  (each [event opts (pairs tbl)]
-    (init-aucmd event opts)))
 
 (set M.UNBIND :unset-key)
 
@@ -103,7 +98,7 @@
 
 (fn M.ft! [tbl]
   (each [filetype callback (pairs tbl)]
-    (init-aucmd! {:FileType {:pattern filetype : callback}})))
+    (init-autocmd :FileType {:pattern filetype : callback})))
 
 ;; TODO: Unnecessary?
 ;; (fn M.ft-keymaps! [tbl]
@@ -148,13 +143,27 @@
 
 (fn M.autocmd! [& cmds]
   (each [_ {: event & opts} (ipairs cmds)]
-    (init-aucmd event opts)))
+    (init-autocmd event opts)))
 
 (fn M.replace-termcodes [keys]
   (vim.api.nvim_replace_termcodes keys true false true))
 
 (fn M.put! [text]
   (vim.api.nvim_put [text] "" false true))
+
+(fn M.hl! [name {: extend & opts}]
+  (let [opts (if extend
+                 ;; If `extend` is a string, extend this hl group, otherwise use this one
+                 (let [name (if (= true extend) name extend)]
+                   (->> {: name}
+                        (vim.api.nvim_get_hl 0)
+                        (vim.tbl_extend :keep opts)))
+                 opts)]
+    (vim.api.nvim_set_hl 0 name opts)))
+
+(fn M.hls! [tbl]
+  (each [name opts (pairs tbl)]
+    (M.hl! name opts)))
 
 (fn has-schema? [str]
   (case (string.find str "://")
@@ -202,26 +211,30 @@
          : ft
          : command} (or ?opts {})
         reload (if (M.table? reload) reload [reload])
+        set-hls! (when hl
+                   #(each [name opts (pairs (eval hl))]
+                      (M.hl! name opts)))
         before (fn []
                  (when init
                    (init)))
         after (fn []
                 ;; Some plugins (e.g. indent-blankline) require highlight groups to be set before setup.
-                (when hl
-                  (let [set-hls! #(each [name opts (pairs (eval hl))]
-                                    (M.hl! name opts))]
-                    (set-hls!)
-                    (init-aucmd! {:ColorScheme {:callback set-hls!}})))
+                (when set-hls!
+                  (set-hls!)
+                  (init-autocmd :ColorScheme {:callback set-hls!}))
                 (when setup
                   (each [module opts (pairs (eval setup))]
                     (use-setup module opts)))
                 (when autocmds
-                  (init-aucmd! (eval autocmds)))
+                  (each [event opts (pairs (eval autocmds))]
+                    (init-autocmd event opts)))
                 (when reload
                   (each [_ mod (ipairs (eval reload))]
                     (M.reload mod)))
                 (when config
                   (config))
+                (when set-hls!
+                  (set-hls!))
                 (when ft
                   (M.ft! (eval ft)))
                 (when command
@@ -249,14 +262,6 @@
         (vim.pack.add))
     (each [_ {: after} (pairs pkgs)]
       (after))))
-
-(fn M.hl! [name {: extend & opts}]
-  (let [opts (if extend
-                 (->> {: name}
-                      (vim.api.nvim_get_hl 0)
-                      (vim.tbl_extend :keep opts))
-                 opts)]
-    (vim.api.nvim_set_hl 0 name opts)))
 
 (fn M.lsps! [tbl]
   (each [name config (pairs tbl)]
@@ -364,5 +369,12 @@
 
 (fn M.unique-bufname [name]
   (unique-path name (create-bufname-index)))
+
+(fn M.get-cwd-override []
+    ;; If in an oil buffer, use the buffer's directory as `cwd`
+  (if (= vim.o.filetype :oil)
+    (let [{: get_current_dir} (require :oil)]
+      (get_current_dir))
+    nil))
 
 M

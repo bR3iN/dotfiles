@@ -1,11 +1,34 @@
 (local {: hl!
         : use!
+        : reload
+        : opts!
         : setup
         : keymaps!} (require :utils))
+(local {: get-named : darken} (require :utils.colors))
 
-(local {: get-named} (require :utils.colors))
 (local {: name} (require :base16-colors))
 (local colors (get-named))
+
+(opts! {:winborder :solid
+        :signcolumn :yes
+        :termguicolors true
+        ;; Remove redundant mode prompt in insert area
+        :showmode true
+        :cmdheight 1})
+
+(opts! {;; Always display tab line
+        :showtabline 1
+        ;; Show statusline on all windows
+        :laststatus 3
+        :fillchars "vert:│,wbr: "
+        :conceallevel 2
+        :scrolloff 2
+        :linebreak true})
+
+(reload :appearance.colorscheme)
+
+(use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
+      {:reload :appearance.statusline})
 
 ;; Custom color setup; load colorscheme description (name + base16 colors)
 (use! [;;:bR3iN/base16.nvim
@@ -42,7 +65,8 @@
                                                        ;; Use <C-o><C-h> instead
                                                        ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
                                                        (setup :plugin.toggle-comments)
-                                                       (keymaps! {:n {:<Plug>ui#toggle-comments ":ToggleComments<CR>"}}))]
+                                                       (keymaps! {:n {:<C-h> {:desc "Toggle Comment Highlighting" :callback ":ToggleComments<CR>"}
+                                                                      :<Plug>ui#toggle-comments ":ToggleComments<CR>"}}))]
                                              (cb)
                                              cb)}}
        :init #(set vim.g.nord_disable_background true)
@@ -53,8 +77,7 @@
                   ;; Decide if we use an external colorscheme or our own base16-based one
                   (case name
                     "Tokyonight Moon"
-                    (do
-                      (vim.cmd.colorscheme :tokyonight-moon))
+                    (vim.cmd.colorscheme :tokyonight-moon)
                     "Nord"
                     (vim.cmd.colorscheme :nord)
                     "Gruvbox"
@@ -72,3 +95,48 @@
                     ;; Fallback; derives colorscheme from base16 colors
                     _
                     (vim.cmd.colorscheme :base16)))})
+
+(use! :folke/which-key.nvim
+      {:hl {:WhichKeyDesc {:fg colors.base05}
+            :WhichKeySeparator {:fg (darken colors.base04 0.2)}}
+       :setup {:which-key {:delay 300
+                           :win {:width {:min 30 :max 60}
+                                 :height {:min 4 :max 0.75}
+                                 :padding [0 1]
+                                 :col -1
+                                 :row -1
+                                 :border :rounded
+                                 :title true
+                                 :title_pos :left}
+                           :layout {:width {:min 30}}
+                           :icons {:mappings false
+                                   :rules false
+                                   :keys (collect [_ key (ipairs [:Up
+                                                                  :Down
+                                                                  :Left
+                                                                  :Right
+                                                                  :C
+                                                                  :M
+                                                                  :D
+                                                                  :S
+                                                                  :CR
+                                                                  :Esc
+                                                                  :ScrollWheelDown
+                                                                  :ScrollWheelUp
+                                                                  :NL
+                                                                  :BS
+                                                                  :Space
+                                                                  :Tab
+                                                                  :F1
+                                                                  :F2
+                                                                  :F3
+                                                                  :F4
+                                                                  :F5
+                                                                  :F6
+                                                                  :F7
+                                                                  :F8
+                                                                  :F9
+                                                                  :F10
+                                                                  :F11
+                                                                  :F12])]
+                                           (values key (.. "[" key "]")))}}}})

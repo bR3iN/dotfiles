@@ -1,1 +1,1 @@
-require('utils').reload('base16')
+require('utils').reload('appearance.colorscheme')

@@ -1,4 +1,4 @@
--- TODO: For with fix; find out why it is not a comon problem and make issue upstream
+-- TODO: Fork with fix; find out why it is not a comon problem and make issue upstream
 vim.pack.add({"https://github.com/bR3iN/hotpot.nvim"})
 
 -- Setup hotpot

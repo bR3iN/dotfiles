@@ -7,9 +7,9 @@ local utils = require('utils')
 -- Resets internal state when reloading config
 utils.init()
 
--- (Re)load main config
-utils.reload('core')
-utils.reload('plugins')
+-- (Re)load config
+utils.reload('main')
+utils.reload('appearance')
 
 -- Sync declared plugins
 utils.sync()
