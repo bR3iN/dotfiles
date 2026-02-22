@@ -13,3 +13,7 @@ utils.reload('appearance')
 
 -- Sync declared plugins
 utils.sync()
+
+-- exrc with added fennel implementation
+vim.o.exrc = true
+utils.reload('utils/exrc')

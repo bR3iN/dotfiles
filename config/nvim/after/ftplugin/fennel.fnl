@@ -7,7 +7,7 @@
       {: cache-prefix} (require :hotpot.api.cache)
       {: eval-file} (require :hotpot.api.eval)]
   (buf-opts! {:iskeyword- "."})
-  (buf-keymaps! {:n {"<localleader>" {"r" {:desc "Run"
+  (buf-keymaps! {:n {"<localleader>" {"r" {:desc "Eval current file"
                                            :callback #(eval-file (vim.fn.expand "%"))}
                                       "c" {:desc "Search cache"
                                            :callback #(find_files {:cwd (cache-prefix)

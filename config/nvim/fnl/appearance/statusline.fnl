@@ -127,38 +127,6 @@
       (get-bufname-shorter)
       (truncated)))
 
-(local navic-sep "  ")
-(local navic-sep-hl {:fg (darken named.fg0 0.2)})
-
-(local navic-hls {:NavicIconsArray {:fg named.yellow}
-                  :NavicIconsBoolean {:fg named.cyan :bold true}
-                  :NavicIconsClass {:fg named.cyan}
-                  :NavicIconsConstant {:fg named.yellow}
-                  :NavicIconsConstructor {:fg named.cyan}
-                  :NavicIconsEnum {:fg named.cyan}
-                  :NavicIconsEnumMember {:fg named.dark_cyan}
-                  :NavicIconsEvent {:fg named.fg0}
-                  :NavicIconsField {:fg named.dark_orange :italic true}
-                  :NavicIconsFile {:fg named.green}
-                  :NavicIconsFunction {:fg named.blue :italic true}
-                  :NavicIconsInterface {:fg named.cyan}
-                  :NavicIconsKey {:fg named.cyan}
-                  :NavicIconsMethod {:fg named.blue :italic true}
-                  :NavicIconsModule {:fg named.dark_green :italic true}
-                  :NavicIconsNamespace {:fg named.fg0 :italic true}
-                  :NavicIconsNull {:fg named.cyan}
-                  :NavicIconsNumber {:fg named.magenta}
-                  :NavicIconsObject {:fg named.cyan}
-                  :NavicIconsOperator {:fg named.cyan}
-                  :NavicIconsPackage {:fg named.fg0 :italic true}
-                  :NavicIconsProperty {:fg named.dark_orange :italic true}
-                  :NavicIconsString {:fg named.green :italic true}
-                  :NavicIconsStruct {:fg named.cyan}
-                  :NavicIconsTypeParameter {:fg named.blue}
-                  :NavicIconsVariable {:fg named.dark_yellow :bold true}
-                  :NavicText {:fg named.fg1}
-                  :NavicSeparator navic-sep-hl})
-
 (local hl--sep {:provider "│" :hl {:fg named.bg0 :bold true}})
 (local hl--sep-left-aligned {:provider "⎸" :hl {:fg named.bg0 :bold true}})
 (local hl--sep-right-aligned {:provider "⎹" :hl {:fg named.bg0 :bold true}})
@@ -225,7 +193,8 @@
                           ;;     (.. navic-sep loc)
                           ;;     loc)
                           loc)]
-         {:hl navic-sep-hl
+         {:hl {:link :NavicSeparator}
+          ;; navic-sep-hl
           :update :CursorMoved
           1 {:flexible 5
              1 {:provider #(navic-get)}
@@ -332,8 +301,8 @@
    :guifg named.dark_cyan
    :gui "bold"})
 
-(hl! :InclineNormal {:link :WinBar})
-(hl! :InclineNormalNC {:link :InclineNormal})
+;; (hl! :InclineNormal {:link :WinBar})
+;; (hl! :InclineNormalNC {:link :InclineNormal})
 
 ;; (setup-incline {:window {
 ;;                          ;; :overlap {:borders false}
@@ -571,23 +540,14 @@
 
 ;; Setup
 
-;; Navic highlight groups
-(each [hl-name hl-opt (pairs navic-hls)] ; (set hl-opt.bg named.bg2)
-  (hl! hl-name hl-opt))
+;; (hl! :StatusLine {:fg named.fg1 :bg named.bg2})
+;; (hl! :WinBarNC {:fg named.fg0 :bg winbar-color})
+;; (hl! :WinBar {:fg named.fg0 :bg winbar-active-color})
+;; (hl! :TabLine {:fg named.fg0 :bg tabline-color :bold false})
+;; (hl! :TabLineSel {:fg named.green :bg named.bg3 :bold false})
 
-(hl! :StatusLine {:fg named.fg1 :bg named.bg2})
-;; (hl! :StatusLineNC {:fg named.fg1 :bg (darken named.bg1 0.0)})
-;; (hl! :StatusLine {:bg named.base02 :fg named.base03 :bold false})
-;; (hl! :StatusLineNC {:bg named.base02 :fg named.base03 :bold false})
-;; :hl {:fg (lighten named.fg0 0.2) :bg (darken named.bg3 0.2)}
-(hl! :WinBarNC {:fg named.fg0 :bg winbar-color})
-(hl! :WinBar {:fg named.fg0 :bg winbar-active-color})
-(hl! :TabLine {:fg named.fg0 :bg tabline-color :bold false})
-(hl! :TabLineSel {:fg named.green :bg named.bg3 :bold false})
-
-(hl! :Normal {:extend true :bg normal-color})
 ;; (hl! :NormalNC {:extend true :bg (darken named.bg0 0.5)})
-(setup-navic {:highlight true :separator navic-sep :lsp {:auto_attach true}})
+;; (setup-navic {:highlight true :separator navic-sep :lsp {:auto_attach true}})
 
 ;; (autocmd! {:event :TermOpen
 ;;            :pattern :*

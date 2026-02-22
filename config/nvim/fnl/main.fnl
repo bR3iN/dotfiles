@@ -1,5 +1,4 @@
 (local {: buf-opts!
-        : ft!
         : put!
         : get-cwd-override
         : opts!
@@ -7,11 +6,13 @@
         : keymaps!
         : lsps!
         : autocmd!
+        : feed!
         : reload} (require :utils))
 
 (local {: spawn-capture-output : spawn} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
 (local {: get-named : mix} (require :utils.colors))
+(import-macros {: with-saved : with-cleanup : input!} :utils.macros)
 
 (local colors (get-named))
 
@@ -53,6 +54,7 @@
         :shiftwidth 4
         :tabstop 4
         :expandtab true
+        :conceallevel 3
         ;; Start with folds expanded
         :foldlevelstart 99})
 
@@ -73,10 +75,6 @@
                           (fn [lines]
                             (vim.tbl_map open lines))))
 
-;; Allows ftplugins to override keybinds buffer-locally.
-(keymaps! {:n {:<Plug>lsp#code-action vim.lsp.buf.code_action
-               :<Plug>edit#format-file vim.lsp.buf.format}})
-
 ;; FIXME: for debugging
 ;; (keymaps! {:n (collect [_ key (ipairs [:<C-CR>
 ;;                                        :<M-CR>
@@ -93,32 +91,27 @@
 ;;                                        :<M-Left>])]
 ;;                 (values key #(vim.print key)))})
 
-;; Use <F13> (emitted by caps lock) as alternative localleader and as <C-o> in normal mode
-;; (keymaps! {[:n :x] {"<F13>" {:desc "Alternative localleader"
-;;                              :callback "<localleader>"}
-;;                     :<localleader> {:<ESC> {:desc "Cancel prefix"
-;;                                             :callback (fn [])}}}
-;;            :i {"<F13>" {:desc "Nested Normal Mode" :callback "<C-o>"}}})
-
 ;; Aliases
-(keymaps! {:n {"<CR>" "<C-]>" "<M-o>" "<C-i>"}} {:remap true})
+(keymaps! {:n {"<M-o>" {:desc "Forward Jump" :callback "<C-i>"}}})
+;; (keymaps! {:n {"<CR>" "<C-]>"}} {:remap true})
+(keymaps! {:n {:<leader> {:w {:desc "Window Commands"
+                              :callback "<C-w>"
+                              :remap true}}}})
 
 ;; Insert mode keymaps
-(keymaps! {:i {;; Correctly indent when pasting multiple lines in insert mode
-               :<C-r> {:desc "Paste (auto-indent)" :callback :<C-r><C-o>}
+(keymaps! {:i {:<C-CR> {:desc "Break line after cursor"
+                        :callback "<C-o>mz<CR><ESC>`za"}
+               ;; Correctly indent when pasting multiple lines in insert mode
+               :<C-r> {:desc "Paste (auto-indent)" :callback "<C-r><C-o>"}
                ;; Capitalize word in front of cursor
-               :<C-u> {:desc "Capitalize Word" :callback :<Esc>viwUea}}})
-
-;; Clear highlight search
-;; (keymaps! {:n {:<ESC> {:desc "Clear Search Highlight"
-;;                        :callback ":<C-u>nohlsearch<CR><C-l>"}}})
+               :<C-u> {:desc "Capitalize Word" :callback "<Esc>viwUea"}}})
 
 ;; Select until end of line (like `C`, `D` and `Y`)
 ;; (keymaps! {:n {:<leader>v {:desc "Select to End of Line" :callback :vg_}}})
 
-;; Open/Close things
-(keymaps! {:n {:<leader>a {:desc "Open Alternate File" :callback "<C-^>"}
-               :<leader>o {:v {:desc "Open Vim Config Files"
+;; [O]pen things
+(keymaps! {:n {:<leader>o {:a {:desc "Open Alternate File" :callback "<C-^>"}
+                           :v {:desc "Open Vim Config Files"
                                :callback #(vim.cmd.edit (.. vim.env.HOME
                                                             "/.config/nvim/fnl/main.fnl"))}
                            :V {:desc "Open Vim Runtime"
@@ -126,36 +119,55 @@
                            :p {:desc "Open Plugin Files"
                                :callback #(vim.cmd.edit (.. vim.env.HOME
                                                             "/.local/share/nvim/site/pack"))}
-                           :q {:desc "Open Quickfix"
-                               :callback ":<C-u>copen<CR>"}
-                           :l {:desc "Open Location List"
-                               :callback ":<C-u>lopen<CR>"}
                            :n {:desc "Open Notes"
                                :callback #(let [notes-dir (.. vim.env.HOME
                                                               :/Notes)]
                                             (vim.cmd.cd notes-dir)
                                             (vim.cmd.edit :index.md))}
-                           :d vim.diagnostic.open_float
-                           :c ":e ~/.config/<CR>"}
-               :<leader>q {:V {:desc "Quit NeoVim" :callback ":<C-u>qall<CR>"}
+                           :c {:desc "Open Config Dir"
+                               :callback ":e ~/.config/<CR>"}}}})
+
+;; [Q]uit things
+(keymaps! {:n {:<leader>q {:V {:desc "Quit NeoVim" :callback ":<C-u>qall<CR>"}
                            :w {:desc "Quit Window" :callback ":q<CR>"}
-                           :q {:desc "Close Quickfix"
-                               :callback ":<C-u>cclose<CR>"}
-                           :l {:desc "Close Location List"
-                               :callback ":<C-u>lclose<CR>"}}}})
+                           :p {:desc "Close Preview" :callback "<C-w>z"}}}})
+
+(fn toggle-loclist []
+  (if (not= 0 (. (vim.fn.getloclist 0 {:winid 0}) :winid))
+      (vim.cmd.lclose)
+      (vim.cmd.lopen)))
+
+(fn toggle-quickfix []
+  (if (not= 0 (. (vim.fn.getqflist {:winid 0}) :winid))
+      (vim.cmd.cclose)
+      (vim.cmd.copen)))
+
+(keymaps! {:n {:<leader>k {:desc "Hover" :callback "K" :remap true}}})
+
+;; [V]iew things, often by toggling changes to the window layout
+(keymaps! {:n {:<leader>v {:d {:desc "Open Diagnostic"
+                               :callback #(vim.diagnostic.open_float)}
+                           :q {:desc "Toggle Quickfix"
+                               :callback toggle-quickfix}
+                           :l {:desc "Toggle Location List"
+                               :callback toggle-loclist}}}})
 
 ;; Expand selection using LSP
-(keymaps! {:n {"+" "vin"} :v {"+" "an" "-" "in"}} {:remap true})
+;; TODO
+(keymaps! {:n {"+" {:desc "Expand Selection" :callback "vin"}}
+           :v {"+" {:desc "Expand Selection" :callback "an"}
+               "-" {:desc "Contract Selection" :callback "in"}}}
+          {:remap true})
 
 ;; File Operations
 ;; Not under leader to not accidentally trigger the tmux leader <C-space> when doing e.g. `<C-]><space>s`
 (keymaps! {:n {"<leader>x" {:S {:desc "Save File" :callback ":<C-u>update<CR>"}
-                            :w {:desc "Save File (Force)"
-                                :ocallback ":<C-u>write<CR>"}
-                            :l {:desc "Reload File from Disk"
+                            :E {:desc "Reload File from Disk"
                                 :callback ":<C-u>e!<CR>"}
                             :s {:desc "Save All Files"
                                 :callback ":<C-u>wall<CR>"}
+                            :w {:desc "Save File (Force)"
+                                :ocallback ":<C-u>write<CR>"}
                             :W {:desc "Write as Root"
                                 :callback ":<C-u>w !pkexec tee % >/dev/null<CR>"}}}})
 
@@ -174,25 +186,26 @@
                                :P {:desc "Paste from Clipboard before cursor"
                                    :callback "\"+P"}}}})
 
-(keymaps! {:n {:<leader> {:v {:desc "Select to End of Line" :callback :vg_}
-                          :w {:desc "Window Commands"
-                              :callback "<C-w>"
-                              :remap true}}}})
-
 ;; Navigation
 
-(keymaps! {[:n :v] {;; FIXME: useful? C.f. terminal [s/]s binds
-                    "]]" "<C-i>"
-                    "[[" "<C-o>"
-                    "]e" {:desc "Go to next error"
-                          :callback #(vim.diagnostic.jump {:count 1
-                                                           :severity vim.diagnostic.severity.ERROR})}
-                    "[e" {:desc "Go to previous error"
-                          :callback #(vim.diagnostic.jump {:count -1
-                                                           :severity vim.diagnostic.severity.ERROR})}}})
+;; (macro no-animate [...]
+;;   ;; Specifying the location like this is necessary as fennel disallows binding to the shadowed identifier otherwise
+;;   `(with-saved [(. _G.vim.b :snacks_animate) (. _G.vim.go :lazyredraw)]
+;;      (tset _G.vim.b :snacks_animate false)
+;;      (tset _G.vim.go :lazyredraw true)
+;;      ,...))
+;;
+;; (keymaps! {:n {"]<space>" {:callback #(no-animate (feed! "mza<CR><Esc>`z"))
+;;                            :desc "Break line after cursor"
+;;                            :repeatable true}
+;;                "[<space>" {:callback #(no-animate (feed! "i<CR><ESC>l"))
+;;                            :desc "Break line before cursor"
+;;                            :repeatable true}}})
+
+(keymaps! {[:n :v] {}})
 
 ;; Leap with s/gs
-(use! :ggandor/leap.nvim
+(use! :https://codeberg.org/andyg/leap.nvim
       {:setup {:leap {:safe_labels {}}}
        :keymaps {[:n :v] {:s {:desc "Jump in Buffer" :callback "<Plug>(leap)"}
                           :gs {:desc "Jump to Other Buffer"
@@ -200,6 +213,7 @@
 
 (use! [:nvim-telescope/telescope.nvim
        :nvim-telescope/telescope-fzf-native.nvim
+       :nvim-telescope/telescope-ui-select.nvim
        :nvim-lua/plenary.nvim]
       {:config (fn []
                  ;; fzf-native needs `make` to be run, vim.pack.add currently does not support this
@@ -252,6 +266,7 @@
                                    :buffers {:mappings {:n {:<C-x> :delete_buffer}
                                                         :i {:<C-x> :delete_buffer}}}}})
                  (load_extension :fzf)
+                 (load_extension :ui-select)
 
                  (fn bufnr->entry [bufnr]
                    ;; Format expected by make_entry.gen_from_buffer
@@ -283,11 +298,12 @@
                      (->> (vim.api.nvim_list_bufs)
                           (vim.tbl_filter show-buffer?))))
 
-                 (keymaps! {:n {"<leader>f" {:desc "Open File"
-                                             :callback #(pick :find_files
-                                                              {:follow true
-                                                               :cwd (get-cwd-override)})}
-                                :<leader> {";" #(pick :resume)
+                 (keymaps! {:n {:<leader> {:f {:desc "Open File"
+                                               :callback #(pick :find_files
+                                                                {:follow true
+                                                                 :cwd (get-cwd-override)})}
+                                           ";" {:desc "Resume Last Picker"
+                                                :callback #(pick :resume)}
                                            "/" {:desc "Grep Workspace"
                                                 :callback #(pick :live_grep
                                                                  {:cwd (get-cwd-override)})}
@@ -311,22 +327,22 @@
                                            ;;                       :prompt_title "Workspace Errors"})}
                                            :H {:desc "Help Tags"
                                                :callback #(pick :help_tags)}
-                                           "_" {:desc "Pick Terminal"
-                                                ;; FIXME: error less hard when no are available
-                                                :callback #(let [bufs (term-buffers)]
-                                                             (if (= (length bufs)
-                                                                    0)
-                                                                 (vim.notify "No terminal buffers")
-                                                                 (pick-bufs bufs)))}
+                                           "<BS>" {:desc "Pick Terminal"
+                                                   ;; FIXME: error less hard when no are available
+                                                   :callback #(let [bufs (term-buffers)]
+                                                                (if (= (length bufs)
+                                                                       0)
+                                                                    (vim.notify "No terminal buffers")
+                                                                    (pick-bufs bufs)))}
                                            :b {:desc "Find Buffers"
                                                :callback #(pick :buffers
                                                                 {:select_current true
                                                                  :sort_lastused true
                                                                  :sort_mru true})}
-                                           :d {:desc "Buffer Diagnostics"
+                                           :e {:desc "Buffer Diagnostics"
                                                :callback #(pick :diagnostics
                                                                 {:bufnr 0})}
-                                           :D {:desc "Workspace Diagnostics"
+                                           :E {:desc "Workspace Diagnostics"
                                                :callback #(pick :diagnostics)}
                                            :G {:desc "Git Status"
                                                :callback #(pick :git_status)}}}
@@ -337,13 +353,9 @@
                                                :callback #(pick :grep_string
                                                                 {:grep_open_files true})}}}}))})
 
-(fn feed [keys]
-  (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
-                         :n false))
-
 ;; Navigate history containing substring
-(keymaps! {:c {:<M-p> {:desc "Previous History" :callback #(feed :<Up>)}
-               :<M-n> {:desc "Next History" :callback #(feed :<Down>)}}})
+(keymaps! {:c {:<M-p> {:desc "Previous History" :callback #(feed! :<Up>)}
+               :<M-n> {:desc "Next History" :callback #(feed! :<Down>)}}})
 
 ;; Navigate windows with Alt + vim keys
 (let [nav-maps (collect [_ key (ipairs [:h :j :k :l])]
@@ -357,20 +369,28 @@
               (values lhs {:callback (.. "<C-\\><C-n>" rhs)}))]
   (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
 
-;; Buffer and list navigation
 (keymaps! {:n {;; Buffer navigation
                "]b" {:desc "Next Buffer" :callback ":<C-u>bnext<CR>"}
                "[b" {:desc "Previous Buffer" :callback ":<C-u>bprev<CR>"}
-               "]q" {:desc "Next Quickfix" :callback ":<C-u>cnext<CR>"}
+               ;; Quickfix list
                "[q" {:desc "Previous Quickfix" :callback ":<C-u>cprev<CR>"}
-               "]Q" {:desc "Last Quickfix" :callback ":<C-u>clast<CR>"}
+               "]q" {:desc "Next Quickfix" :callback ":<C-u>cnext<CR>"}
                "[Q" {:desc "First Quickfix" :callback ":<C-u>cfirst<CR>"}
-               "]l" {:desc "Next Location" :callback ":<C-u>lnext<CR>"}
+               "]Q" {:desc "Last Quickfix" :callback ":<C-u>clast<CR>"}
+               ;; Location list
                "[l" {:desc "Previous Location" :callback ":<C-u>lprev<CR>"}
+               "]l" {:desc "Next Location" :callback ":<C-u>lnext<CR>"}
+               "[L" {:desc "First Location" :callback ":<C-u>lfirst<CR>"}
                "]L" {:desc "Last Location" :callback ":<C-u>llast<CR>"}
-               "[L" {:desc "First Location" :callback ":<C-u>lfirst<CR>"}}})
+               ;; Errors
+               "[e" {:desc "Go to previous error"
+                     :callback #(vim.diagnostic.jump {:count -1
+                                                      :severity vim.diagnostic.severity.ERROR})}
+               "]e" {:desc "Go to next error"
+                     :callback #(vim.diagnostic.jump {:count 1
+                                                      :severity vim.diagnostic.severity.ERROR})}}})
 
-
+;; Navigate tabs and windows
 (let [keys (let [res {}]
              (for [i 1 9]
                (set (. res (tostring i)) i))
@@ -391,16 +411,19 @@
                       (values (.. "<M-" as_str ">")
                               {:desc (.. "Focus Tab " as_str)
                                :callback (.. as_str "gt")}))}
+             ;; Same in insert mode
              :i (collect [as_str _ (pairs keys)]
                   (values (.. "<M-" as_str ">")
                           {:desc (.. "Focus Tab " as_str)
                            :callback (.. "<esc>" as_str "gt")}))
+             ;; Same in terminal mode
              :t (collect [as_str _ (pairs keys)]
                   (values (.. "<M-" as_str ">")
                           {:desc (.. "Focus Tab " as_str)
                            :callback (.. "<C-\\><C-n>" as_str "gt")}))}))
 
-(keymaps! {[:n :v] {"<C-j>" "gj" "<C-k>" "gk"}})
+(keymaps! {[:n :v] {"<C-j>" {:desc "Down (Display Line)" :callback "gj"}
+                    "<C-k>" {:desc "Up (Display Line)" :callback "gk"}}})
 
 (use! :tpope/vim-repeat)
 
@@ -414,39 +437,40 @@
                                          :insert_line :<C-s><C-s>}}}})
 
 (use! [:mbbill/undotree]
-      {:keymaps {:n {:<leader>tu {:callback (fn []
+      {:keymaps {:n {:<leader>vu {:desc "Toggle Undo Tree"
+                                  :callback (fn []
                                               (vim.cmd.UndotreeToggle)
                                               (vim.cmd.UndotreeFocus))}}}})
-
-;; Highlights hex color codes in their color
-(use! :NvChad/nvim-colorizer.lua
-      {:setup {:colorizer {:user_default_options {:names false}}}
-       :keymaps {:n {:<leader>t {:c {:desc "Toggle Colorizer"
-                                     :callback vim.cmd.ColorizerToggle}}}}})
 
 ;; Floating preview in quickfix window
 (use! :kevinhwang91/nvim-bqf
       {:hl {:BqfPreviewBorder {:bg :NONE :fg colors.mid}}
        :setup {:bqf {:func_map {:fzffilter "" :open "<C-]>"}
-                     :preview {:winblend 0}}}})
+                     :preview {:winblend 0 :border :rounded}}}})
 
+(use! [;; Highlights hex color codes in their color
+       :NvChad/nvim-colorizer.lua]
+      {:setup {:colorizer {:user_default_options {:names false}}}
+       :keymaps {:n {:<leader> {:t {:c {:desc "Toggle Colorizer"
+                                        :callback vim.cmd.ColorizerToggle}}}}}})
 
-(keymaps! {:n {"<leader>m" {:k {:desc "Make" :callback ":make!<CR>"}
-                            :f {:desc "Make Flash"
-                                :callback ":make! flash<CR>"}
-                            :c {:desc "Make Clean"
-                                :callback ":make! clean<CR>"}
-                            :t {:desc "Make Test" :callback ":make! test<CR>"}
-                            :b {:desc "Make Build"
-                                :callback ":make! build<CR>"}}}})
-
+;; (keymaps! {:n {"<leader>m" {:k {:desc "Make" :callback ":make!<CR>"}
+;;                             :f {:desc "Make Flash"
+;;                                 :callback ":make! flash<CR>"}
+;;                             :c {:desc "Make Clean"
+;;                                 :callback ":make! clean<CR>"}
+;;                             :t {:desc "Make Test" :callback ":make! test<CR>"}
+;;                             :b {:desc "Make Build"
+;;                                 :callback ":make! build<CR>"}}}})
 
 (use! [:nvim-mini/mini.nvim] {:setup {:mini.align {}
-                                      :mini.bracketed {:diagnostic {:suffix ""}}
+                                      :mini.bracketed {:diagnostic {:suffix ""}
+                                                       :quickfix {:suffix ""}}
                                       ;; :mini.jump {}
                                       }})
 
-(use! [:folke/snacks.nvim]
+(use! [;; Also renders latex inline
+       :folke/snacks.nvim]
       {;; Force resetup of snacks.nvim on reload
        :init #(-?> _G
                    (. :package)
@@ -456,6 +480,10 @@
        :setup {:snacks {:animate {:fps 120}
                         :bigfile {}
                         :image {}
+                        :input {:win {:border :rounded
+                                      :keys {:i_esc {1 :<esc>
+                                                     2 :cancel
+                                                     :mode :i}}}}
                         :dim {:animate {:enabled false}}
                         :indent {:enabled false}
                         ;; :words {}
@@ -493,14 +521,14 @@
                              :h (toggle.inlay_hints)
                              :z (toggle.zen)
                              :- (toggle.dim)
-                             :dd (toggle.diagnostics)
-                             :dv (toggle.new diag-lines)
-                             :dl (toggle.new diag-curr)
+                             ;; :D (toggle.diagnostics)
+                             :l (toggle.new diag-lines)
+                             :L (toggle.new diag-curr)
                              :r (toggle.words)
                              :+ (toggle.zoom)
-                             :lr (toggle.option :relativenumber
-                                                {:name "Relative Numbers"})
-                             :ln (toggle.option :number {:name "Line Numbers"})
+                             :r (toggle.option :relativenumber
+                                               {:name "Relative Numbers"})
+                             :n (toggle.option :number {:name "Line Numbers"})
                              :w (toggle.option :wrap {:name "Wrap"})
                              :s (toggle.option :spell {:name "Spellcheck"})}]
                    (each [key bind (pairs keys)]
@@ -510,7 +538,9 @@
                                          :callback bufdelete.delete}
                                    :- {:desc "Toggle scratch buffer"
                                        :callback scratch.open}
-                                   :oN notifier.show_history
+                                   ;; FIXME: borders
+                                   :vN {:desc "Notification History"
+                                        :callback notifier.show_history}
                                    ;; :fe {:callback explorer}
                                    }}})})
 
@@ -539,38 +569,10 @@
 
 ;; Terminal
 
-(fn open-term [{: autoclose}]
-  (let [cwd (get-cwd-override)
-        buf (vim.api.nvim_create_buf false true)]
-    (vim.api.nvim_set_current_buf buf)
-    (tset vim.b buf :term_autoclose autoclose)
-    (vim.fn.jobstart [:/usr/bin/fish] {:term true : cwd})))
-
-;; Terminal keymaps
-(keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
-               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal"
-                                           :callback :<Esc>}}})
-(keymaps! {:t {[:<Esc> "<C-[>"] {:desc "Exit Terminal Mode"
-                                 :callback "<C-\\><C-n>"}}
-           :n {;; Open terminal
-               "<BS>" {:desc "Open Terminal"
-                       :callback #(open-term {:autoclose :buffer})}
-               "<C-w>" {"V" {:callback #(do
-                                          (vim.cmd.vsplit)
-                                          (vim.cmd.terminal {:args [:fish]}))}
-                        "S" {:callback #(do
-                                          (vim.cmd.split)
-                                          (vim.cmd.terminal {:args [:fish]}))}}}})
-
-
-
-;; Flattens files opened in terminal into current instance
-(use! "willothy/flatten.nvim" {:setup {:flatten {}}})
-
 ;; Clear autocmds from `:h default-autocmd` that auto-close shell terminals on exit
+;; We reimplement it in a more controlled way below
 (vim.api.nvim_clear_autocmds {:group :nvim.terminal :event :TermClose})
 
-;; Terminal setup
 (autocmd! {:event :TermOpen
            :callback (fn [{: buf}]
                        ;; (set vim.wo.number false)
@@ -579,14 +581,15 @@
                        ;; (set vim.bo.buflisted false)
                        ;; Don't insert here as this doesn't have to be an active buffer
                        (keymaps! {:n {;; Go to shell prompts
-                                      "[s" "[["
-                                      "]s" "]]"
+                                      "[s" {:desc "Previous Shell Prompt"
+                                            :callback "[["}
+                                      "]s" {:desc "Next Shell Prompt"
+                                            :callback "]]"}
                                       ;; "Forward" some keys directly in terminal mode
                                       "" (let [keys ["<CR>"
                                                      "<C-c>"
                                                      "<C-n>"
-                                                     "<C-p>"
-                                                     "q"]]
+                                                     "<C-p>"]]
                                            (collect [_ key (ipairs keys)]
                                              (values key (.. "i" key))))}}
                                  {:buffer buf}))}
@@ -606,12 +609,49 @@
                            :buffer (_G.Snacks.bufdelete.delete buf)
                            nil nil
                            other (error (.. "value unknown: " other)))
-                         (_G.Snacks.bufdelete.delete buf))
-                       )}
+                         (_G.Snacks.bufdelete.delete buf)))}
           {:event [:BufWinEnter :BufEnter]
            :callback ;; Avoids triggering wrongly as startinsert will only happen after a sequence of commands and also catches more cases (for some reason).
-           (vim.schedule_wrap #(when (= vim.bo.buftype :terminal)
-                                           (vim.cmd.startinsert)))})
+           (vim.schedule_wrap #(when (and (or (= vim.bo.buftype
+                                                           :terminal)
+                                                        (= vim.bo.buftype
+                                                           :prompt))
+                                                    (-?> (vim.api.nvim_get_mode)
+                                                         (. :mode)
+                                                         (vim.startswith :n))
+                                                    ;; NOTE: Don't do that in telescope prompts as this inserts a literal "A" in there
+                                                    (not= vim.bo.filetype
+                                                          :TelescopePrompt))
+                                           (vim.cmd :startinsert!)))})
+
+(fn open-term [{: autoclose}]
+  (let [cwd (get-cwd-override)
+        buf (vim.api.nvim_create_buf false true)]
+    (vim.api.nvim_set_current_buf buf)
+    (tset vim.b buf :term_autoclose autoclose)
+    (vim.fn.jobstart [:/usr/bin/fish] {:term true : cwd})))
+
+;; Terminal keymaps
+(keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
+               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal"
+                                           :callback :<Esc>}}})
+
+(keymaps! {:t {[:<Esc> "<C-[>"] {:desc "Exit Terminal Mode"
+                                 :callback "<C-\\><C-n>"}}
+           :n {;; Open terminal
+               "<BS>" {:desc "Open Terminal"
+                       :callback #(open-term {:autoclose :buffer})}
+               "<C-w>" {"V" {:desc "Terminal in Vertical Split"
+                             :callback #(do
+                                          (vim.cmd.vsplit)
+                                          (vim.cmd.terminal {:args [:fish]}))}
+                        "S" {:desc "Terminal in Horizontal Split"
+                             :callback #(do
+                                          (vim.cmd.split)
+                                          (vim.cmd.terminal {:args [:fish]}))}}}})
+
+;; Flattens files opened in terminal into current instance
+(use! "willothy/flatten.nvim" {:setup {:flatten {}}})
 
 ;; (use! "akinsho/toggleterm.nvim"
 ;;       {:setup {:toggleterm {:highlights {:StatusLine {:guibg colors.statusline}}
@@ -619,23 +659,13 @@
 ;;                             :shade_terminals false
 ;;                             :open_mapping "<c-j>"}}})
 
-
 ;; Autocompletion & Snippets
 
-;; (use! [:L3MON4D3/LuaSnip :rafamadriz/friendly-snippets]
-;;       ;; Setup custom snippets in separate module to not duplicate them when ; reloading the config
-;;       ;; Find snippets defined by plugins
-;;       {:config #(let [{:lazy_load load_from_vscode} (require :luasnip.loaders.from_vscode)
-;;                       ; {:lazy_load load_from_lua} (require :luasnip.loaders.from_lua)
-;;                       ]
-;;                   (load_from_vscode {:exclude [:norg]})
-;;                   ;; (setup :snippets)
-;;                   ;; (load_from_lua)
-;;                   )})
-
 (use! [{:src :saghen/blink.cmp :version (vim.version.range "v1.*")}
-       :rafamadriz/friendly-snippets]
-      {:setup {:blink.cmp {:completion {:menu {:border :none}
+       :rafamadriz/friendly-snippets
+       :chrisgrieser/nvim-scissors]
+      {:setup {:scissors {:snippetDir (.. (vim.fn.stdpath :config) "/snippets")}
+               :blink.cmp {:completion {:menu {:border :none}
                                         :documentation {:auto_show true
                                                         :auto_show_delay_ms 200
                                                         :window {:border :single
@@ -674,17 +704,17 @@
 ;; Version control
 
 (use! :lewis6991/gitsigns.nvim
-      (let [_signs {:add {:text "┃"}
-                    :change {:text "┃"}
-                    :delete {:text "┃"}
-                    :untracked {:text "┆"}}
+      (let [signs {:add {:text "┃"}
+                   :change {:text "┃"}
+                   :delete {:text "┃"}
+                   :untracked {:text "┆"}}
             signs_staged {:add {:text "+"}
                           :change {:text "~"}
                           :delete {:text "-"}
                           :untracked {:text "┆"}}]
         {:setup {:gitsigns {:signcolumn false
                             ;; :numhl true
-                            ;; : signs
+                            : signs
                             : signs_staged
                             :linehl false
                             :word_diff false
@@ -712,49 +742,67 @@
                                    :RRR {:desc "Reset Hunk"
                                          :callback #(vim.cmd.Gitsigns :reset_hunk)}
                                    :h {:desc "Preview Hunk"
-                                       :callback #(vim.cmd.Gitsigns :preview_hunk_inline)}}
-                       :<leader>u {:g {:desc "Toggle Git Diff"
-                                       :callback #(vim.cmd.Gitsigns :toggle_word_diff)}}
-                       :<leader>o {:g {:b {:desc "Open Git Blame"
-                                           :callback #(vim.cmd.Gitsigns :blame)}}}}}}))
+                                       :callback #(vim.cmd.Gitsigns :preview_hunk_inline)}
+                                   :s {:desc "Toggle Git Signcolumn"
+                                       :callback #(vim.cmd.Gitsigns :toggle_signs)}
+                                   :d {:desc "Toggle Git Diff"
+                                       :callback #(vim.cmd.Gitsigns :toggle_word_diff)}
+                                   :b {:desc "Open Git Blame"
+                                       :callback #(vim.cmd.Gitsigns :blame)}}}}}))
 
 ;; LSP & Co.
 
-(keymaps! {:n {:<leader>l {:d {:desc "Goto Definition" :callback "<C-]>"}
-                           :D {:desc "Goto Declaration"
-                               :callback vim.lsp.buf.declaration}
-                           :t {:desc "Goto Type Definition"
-                               :callback vim.lsp.buf.type_definition}
-                           :i {:desc "Goto Implementation"
-                               :callback vim.lsp.buf.implementation}
-                           :r {:desc "Goto References"
-                               :callback vim.lsp.buf.references}
-                           :h {:desc "Hover"
-                               ;; :callback #(vim.lsp.buf.hover {:border _G.border-type})
-                               :callback #(vim.lsp.buf.hover {:silent true})}
-                           :n {:desc "Rename Symbol"
-                               :callback vim.lsp.buf.rename}
-                           :a {:desc "Code Action"
-                               :callback :<Plug>lsp#code-action}
-                           :l {:desc "Code Lenses"
-                               :callback vim.lsp.codelens.run}
-                           :f {:desc "Format File"
-                               :callback :<Plug>edit#format-file}}}})
+(vim.diagnostic.config {;;:float {:border _G.border-type}
+                        :virtual_lines false
+                        :virtual_text {:current_line true}
+                        :signs {:text {vim.diagnostic.severity.ERROR ""
+                                       ; ""
+                                       vim.diagnostic.severity.WARN ""
+                                       ; ""
+                                       vim.diagnostic.severity.INFO ""
+                                       ; ""
+                                       vim.diagnostic.severity.HINT ""
+                                       ; "󰌵"
+                                       }}})
 
+(keymaps! {:n {;; :K #(vim.lsp.buf.hover {:border :none})
+               :<leader> {:a {:desc "Code Action"
+                              :callback :<Plug>lsp#code-action}
+                          :A {:desc "Code Lenses"
+                              :callback vim.lsp.codelens.run}
+                          :r {:n {:desc "Rename Symbol"
+                                  :callback vim.lsp.buf.rename}
+                              :f {:desc "Format File"
+                                  :callback :<Plug>edit#format-file}}
+                          :l {:d {:desc "Goto Definition" :callback "<C-]>"}
+                              :D {:desc "Goto Declaration"
+                                  :callback vim.lsp.buf.declaration}
+                              :t {:desc "Goto Type Definition"
+                                  :callback vim.lsp.buf.type_definition}
+                              :i {:desc "Goto Implementation"
+                                  :callback vim.lsp.buf.implementation}
+                              :r {:desc "Goto References"
+                                  :callback vim.lsp.buf.references}}}
+               ;; Some indirection to allow buffer local overrides of certain actions
+               :<Plug> {:edit#format-file vim.lsp.buf.format
+                        :lsp#code-action vim.lsp.buf.code_action}}})
 
 (use! [:neovim/nvim-lspconfig]
       {:config (fn []
                  (autocmd! {:event :LspAttach
                             :pattern :*
-                            :callback (fn [{: buf}]
+                            :callback (fn [{:buf bufnr}]
                                         ;; Initial displaying
-                                        (vim.lsp.codelens.refresh {:bufnr buf})
+                                        (_G.vim.lsp.codelens.enable true
+                                                                    {: bufnr})
                                         ;; Updating lenses
-                                        (vim.api.nvim_create_autocmd [:BufEnter
-                                                                      :CursorHold
-                                                                      :InsertLeave]
-                                                                     {:callback #(vim.lsp.codelens.refresh {:bufnr 0})
-                                                                      :buffer buf}))})
+                                        ;; FIXME: might be no longer needed
+                                        ;; (vim.api.nvim_create_autocmd [:BufEnter
+                                        ;;                               :CursorHold
+                                        ;;                               :InsertLeave]
+                                        ;;                              {:callback #(vim.lsp.codelens.refresh {:bufnr 0})
+                                        ;;                               :buffer buf})
+                                        )})
                  (lsps! {:clangd {:on_attach (fn [_client bufnr]
                                                (keymaps! {:n {:<C-c> {:desc "Switch source/header"
                                                                       :callback #(vim.cmd.LspClangdSwitchSourceHeader)}}}
@@ -763,7 +811,8 @@
                          ;; :vimls {}
                          :fennel_ls {}
                          :cmake {}
-                         ;; :rust_analyzer {}  ; Configured by rustaceans instead
+                         ;; :rust_analyzer {}
+                         ; Configured by rustaceans instead
                          ;; :marksman {}
                          ;; :racket_langserver {}
                          })
@@ -799,24 +848,7 @@
                  (opts! {:foldmethod :expr
                          :foldexpr "nvim_treesitter#foldexpr()"}))})
 
-;; FIXME:
-(vim.diagnostic.config {;;:float {:border _G.border-type}
-                        :virtual_lines false
-                        :virtual_text {:current_line true}
-                        :signs {:text {vim.diagnostic.severity.ERROR ""
-                                       ; ""
-                                       vim.diagnostic.severity.WARN ""
-                                       ; ""
-                                       vim.diagnostic.severity.INFO ""
-                                       ; ""
-                                       vim.diagnostic.severity.HINT ""
-                                       ; "󰌵"
-                                       }}})
-
 ;; Debugging
-
-(ft! {:dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
-      :dap-float #(keymaps! {:n {[:q :<ESC>] vim.cmd.quit}} {:buffer true})})
 
 ;; (use! [:mason-org/mason.nvim
 ;;        :jay-babu/mason-nvim-dap.nvim ]
@@ -824,96 +856,132 @@
 ;;                :mason-nvim-dap {}}})
 
 (use! [:mfussenegger/nvim-dap
-       :nvim-neotest/nvim-nio
+       ;; :nvim-neotest/nvim-nio
        ; needed by nvim-dap-ui
        :igorlfs/nvim-dap-view
-       :rcarriga/nvim-dap-ui
+       ;; :rcarriga/nvim-dap-ui
        :theHamsta/nvim-dap-virtual-text
        ;; :mfussenegger/nvim-dap-python
        ]
-      {:keymaps #(let [dap (require :dap)
-                       widgets (require :dap.ui.widgets)
-                       dapui (require :dapui)]
-                   {:n {:<leader> {"t" {;; "d" {:desc "Toggle Debug REPL"
-                                        ;;      :callback dap.repl.toggle}
-                                        "dr" {:desc "Toggle Debug REPL"
-                                              :callback vim.cmd.DapViewToggle}
-                                        "du" {:desc "Toggle Debug UI"
-                                              :callback dapui.toggle}}
-                                   "<CR>" {:desc "Run to Cursor"
-                                           :callback dap.run_to_cursor}
-                                   "<C-CR>" {:desc "Run at Cursor"
-                                             :callback :<Plug>debug#at-cursor}
-                                   "<TAB>" {:desc "Toggle Breakpoint"
-                                            :callback dap.toggle_breakpoint}
-                                   ;; FIXME: hydra
-                                   "g" {"b" {:desc "Toggle Breakpoint"
-                                             :callback dap.toggle_breakpoint}
-                                        "l" {:desc "List Breakpoints"
-                                             :callback dap.list_breakpoints}
-                                        "e" {:desc "Eval Expression"
-                                             :callback #(dapui.eval nil
-                                                                    {:enter true})}
-                                        "s" {:desc "Step Into"
-                                             :callback dap.step_into}
-                                        "n" {:desc "Step Over"
-                                             :callback dap.step_over}
-                                        "o" {:desc "Step Out"
-                                             :callback dap.step_out}
-                                        "N" {:desc "DapNew"
-                                             :callback vim.cmd.DapNew}
-                                        "R" {:desc "Run Last"
-                                             :callback dap.run_last}
-                                        "T" {:desc "Terminate"
-                                             :callback dap.terminate}
-                                        "c" {:desc "Continue"
-                                             :callback dap.continue}
-                                        "r" {:desc "Restart"
-                                             :callback dap.restart}
-                                        "h" {:desc "Hover"
-                                             :callback widgets.hover}
-                                        "p" {:desc "Preview"
-                                             :callback widgets.preview}
-                                        "d" {:desc "Clear Breakpoints"
-                                             :callback dap.clear_breakpoints}}}}})
-       :setup {:nvim-dap-virtual-text {:virt_text_pos :inline}
-               :dap-view {}
-               :dapui {}
+      {:setup {:nvim-dap-virtual-text {:virt_text_pos :inline}
+               :dap-view {:winbar {:sections ["watches"
+                                              "scopes"
+                                              "exceptions"
+                                              "breakpoints"
+                                              "threads"
+                                              "repl"
+                                              "console"]}}
                ;; :dap-python :python
                }
-       :config (let [adapter-configs {:gdb {:type :executable
-                                            :command :gdb
-                                            :args [:--interpreter=dap
-                                                   :--eval-command
-                                                   "set print pretty on"]}
-                                      :codelldb {:type :executable
-                                                 :id :codelldb
-                                                 :command :codelldb}
-                                      ;; :lldb {:type :executable
-                                      ;;        :id :lldb
-                                      ;;        :command :/usr/bin/lldb-dap}
-                                      }
-                     ask-exe #(vim.fn.input "Path to executable: "
-                                            (.. (vim.fn.getcwd) "/") :file)
-                     filetype-configs {:cpp [{:name "Launch lldb"
-                                              :type :lldb
-                                              :request :launch
-                                              :program ask-exe
-                                              :stopOnEntry false
-                                              :runInTerminal false
-                                              :cwd "${workspaceFolder}"}
-                                             {:name "Launch gdb"
-                                              :type :gdb
-                                              :request :launch
-                                              :program ask-exe
-                                              :stopOnEntry false
-                                              :runInTerminal false
-                                              :cwd "${workspaceFolder}"}]}]
-                 #(let [{: adapters : configurations} (require :dap)]
-                    (each [name config (pairs adapter-configs)]
-                      (set (. adapters name) config))
-                    (each [name config (pairs filetype-configs)]
-                      (set (. configurations name) config))))})
+       :reload [:dap-configs]
+       :ft {:dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
+            :dap-float (fn [{: buf}]
+                         (keymaps! {:n {[:q :<ESC>] {:desc "Close Float"
+                                                     :callback vim.cmd.quit}}}
+                                   {:buffer buf}))}
+       :keymaps #(let [dap (require :dap)
+                       {: run_last} (require :utils.dap)
+                       {: show_view :open open_view} (require :dap-view)
+                       widgets (require :dap.ui.widgets)
+                       ;; sidebar #(let [sidebar (->> $1
+                       ;;                             (. widgets)
+                       ;;                             (widgets.sidebar))]
+                       ;;            #(sidebar.toggle))
+                       ;; cfloat #(->> $1 (. widgets) (widgets.centered_float))
+                       interactive-breakpoint #(input! [cond
+                                                        {:prompt "Condition: "}
+                                                        count
+                                                        {:prompt "Count: "}
+                                                        log
+                                                        {:prompt "Log Message: "}]
+                                                       (dap.toggle_breakpoint cond
+                                                                              count
+                                                                              log))]
+                   {:v {:<leader>d {;; :k {:desc "Hover" :callback widgets.hover}
+                                    :e {:desc "Eval Expression"
+                                        :callback #(-> (vim.fn.getregion (vim.fn.getpos ".")
+                                                                         (vim.fn.getpos "v"))
+                                                       (widgets.hover {}))}}}
+                    :n {"[f" {:desc "Up Stack Frame" :callback dap.up}
+                        "]f" {:desc "Down Stack Frame" :callback dap.down}
+                        :<leader>d {:<CR> {:desc "Run to Cursor"
+                                           :callback #(dap.run_to_cursor)}
+                                    :<Tab> {:desc "Toggle Breakpoint"
+                                            :callback dap.toggle_breakpoint}
+                                    :<S-Tab> {:desc "Toggle Breakpoint (Interactive)"
+                                              :callback interactive-breakpoint}
+                                    :k {:desc "Eval Expression"
+                                        :callback #(-> (vim.fn.expand :<cexpr>)
+                                                       (widgets.hover {}))}
+                                    :K {:desc "Eval Expression (Interactive)"
+                                        :callback #(input! [expr
+                                                            {:prompt "Expr: "
+                                                             :default (vim.fn.expand :<cexpr>)}]
+                                                           (widgets.hover expr
+                                                                          {}))}
+                                    :q {:desc "Terminate"
+                                        :callback dap.terminate}
+                                    :c {:desc "Continue"
+                                        :callback dap.continue
+                                        :repeatable true}
+                                    :s {:desc "Step Into"
+                                        :callback dap.step_into
+                                        :repeatable true}
+                                    :p {:desc "Step Back"
+                                        :callback dap.step_back
+                                        :repeatable true}
+                                    :P {:desc "Reverse Continue"
+                                        :callback dap.reverse_continue
+                                        :repeatable true}
+                                    :n {:desc "Step Over"
+                                        :callback dap.step_over
+                                        :repeatable true}
+                                    :o {:desc "Step Out"
+                                        :callback dap.step_out
+                                        :repeatable true}
+                                    :r {:desc "Restart / Run Last"
+                                        :callback #(if (dap.session)
+                                                       (dap.restart)
+                                                       (do
+                                                         (vim.print "Rerunning last DAP session")
+                                                         (run_last)))}
+                                    :<space> {:desc "Focus Frame"
+                                              :callback dap.focus_frame}
+                                    ;; :l {:desc "List Breakpoints"
+                                    ;;     :callback (fn []
+                                    ;;                 (dap.list_breakpoints)
+                                    ;;                 (vim.cmd.copen))}
+                                    :H {:desc "Toggle Debug Virtual Text"
+                                        :callback vim.cmd.DapVirtualTextToggle}
+                                    :N {:desc "New Session"
+                                        :callback vim.cmd.DapNew
+                                        :deprecated "handled by dap.continue"}
+                                    :L {:desc "Dap Logs"
+                                        :callback vim.cmd.DapShowLog}
+                                    :D {:desc "Clear Breakpoints"
+                                        :callback dap.clear_breakpoints}
+                                    "" (collect [key view (pairs {:B :breakpoints
+                                                                  :E :exceptions
+                                                                  :W :watches
+                                                                  :R :repl
+                                                                  :T :threads
+                                                                  :C :console
+                                                                  :S :scopes})]
+                                         (values key
+                                                 {:callback (fn []
+                                                              (open_view)
+                                                              (show_view view))
+                                                  :desc (string.format "Open View: %s"
+                                                                       view)
+                                                  ;; EXPERIMENTAL: should jump to the view after opening it
+                                                  :repeatable true}))
+                                    :V {:desc "Toggle DAP View"
+                                        :callback #(vim.cmd :DapViewToggle!)}}}})
+       :signs {:DapBreakpoint {:text :B :texthl :DiagnosticHint}
+               :DapBreakpointCondition {:text :C :texthl :DiagnosticWarn}
+               :DapLogPoint {:text :L :texthl :DiagnosticInfo}
+               :DapStopped {:text :→ :texthl :DiagnosticOk}
+               :DapBreakpointRejected {:text :R :texthl :DiagnosticError}}})
 
 ;; Plugins for specific filetypes
 
@@ -921,7 +989,6 @@
 
 ;; Treesitter indentation for fennel is messed up, so use this plugin for this
 (use! :jaawerth/fennel.vim)
-;; FIXME: find place for `curl -o $HOME/.local/share/fennel-ls/docsets/nvim.lua https://git.sr.ht/~micampe/fennel-ls-nvim-docs/blob/main/nvim.lua`
 
 (use! :lervag/vimtex
       {:config (fn []
@@ -936,28 +1003,52 @@
                                                 :imports {;; Merge auto imports on the module level
                                                           :granularity {:group :module}
                                                           ;; Prefer relative auto import paths
-                                                          :prefix :self}}}]
+                                                          :prefix :self}}}
+                    codelldb-path (.. vim.env.HOME "/.local/share/codelldb")
+                    adapter {:executable {:command (.. codelldb-path
+                                                       "/adapter/codelldb")
+                                          :args ["--liblldb"
+                                                 (.. codelldb-path
+                                                     "lldb/lib/liblldb")
+                                                 "--port"
+                                                 "${port}"]}
+                             :host "127.0.0.1"
+                             :port "${port}"
+                             :type :server}]
                 ;; Avoids "Unrecognized option: 'write-mode'" error.
                 ;; FIXME: see if it is valid here, was previously top-level
                 (set vim.g.rustfmt_detect_version 1)
                 (set vim.g.rustaceanvim
-                     {:server {:default_settings lsp-config}}))})
+                     {:tools {:float_win_config {:border :none}}
+                      :server {:default_settings lsp-config}
+                      :dap {: adapter}}))
+       :ft {:rust #(keymaps! {:n {:<Plug> {:lsp#code-action #(vim.cmd.RustLsp :codeAction)
+                                           :debug#start #(vim.cmd.RustLsp :debuggables)
+                                           :edit#format-file vim.cmd.RustFmt}
+                                  :<localleader> {:d {:desc "Run Debuggables"
+                                                      :callback #(vim.cmd.RustLsp :debuggables)}
+                                                  :D {:desc "Debug"
+                                                      :callback #(vim.cmd.RustLsp :debug)}
+                                                  :r {:desc "Run"
+                                                      :callback #(vim.cmd.RustLsp :run)}}}}
+                             {:buffer true})}})
 
 ;; Forked as plugin doesn't have an API for custom keybindings
 (use! :bR3iN/jupynium.nvim {:setup {:jupynium {}}})
 
-(use! [:MeanderingProgrammer/render-markdown.nvim]
-      {:setup {:render-markdown {:completions {:lsp {:enabled true}}
-                                 :code {;;:width :block
-                                        :language_name false}}}})
+;; (use! [:MeanderingProgrammer/render-markdown.nvim]
+;;       {:setup {:render-markdown {:completions {:lsp {:enabled true}}
+;;                                  :latex {:enabled false}
+;;                                  :code {;;:width :block
+;;                                         :language_name false}}}})
 
-(use! :iamcco/markdown-preview.nvim
-      {:init #(set vim.g.mkdp_combine_preview true)
-       :config #((. vim.fn "mkdp#util#install"))
-       :ft! {:markdown (fn [{: buf}]
-                         (keymaps! {:<localleader> {:c {:desc "Preview in Browser"
-                                                        :callback vim.cmd.MarkdownPreview}}}
-                                   {:buffer buf}))}})
+;; (use! :iamcco/markdown-preview.nvim
+;;       {:init #(set vim.g.mkdp_combine_preview true)
+;;        :config #((. vim.fn "mkdp#util#install"))
+;;        :ft! {:markdown (fn [{: buf}]
+;;                          (keymaps! {:<localleader> {:c {:desc "Preview in Browser"
+;;                                                         :callback vim.cmd.MarkdownPreview}}}
+;;                                    {:buffer buf}))}})
 
 (use! :zk-org/zk-nvim
       {:config #(let [zk (require :zk)
@@ -1026,6 +1117,24 @@
                                             {:buffer bufnr}))]
                   (zk.setup {:picker :telescope :lsp {:config {: on_attach}}}))})
 
+;; TODO: move to `bin` ftplugin?
+(vim.api.nvim_create_user_command "Hex"
+                                  (fn []
+                                    (vim.cmd "%!xxd")
+                                    ;; Set ft=xxd, saving the old one
+                                    (set vim.b._old_ft vim.bo.filetype)
+                                    (set vim.bo.filetype :xxd))
+                                  {})
+
+(vim.api.nvim_create_user_command "UnHex"
+                                  (fn []
+                                    (vim.cmd "%!xxd -r")
+                                    ;; Restore old ft (if applicable)
+                                    (when vim.b._old_ft
+                                      (set vim.bo.filetype vim.b._old_ft)
+                                      (set vim.b._old_ft nil)))
+                                  {})
+
 ;; Misc Autocmds
 
 (autocmd! ;; Autoreload config files on save
@@ -1044,8 +1153,3 @@
           {:event :TextYankPost
            :pattern "*"
            :callback #(vim.highlight.on_yank {:higroup :IncSearch :timeout 150})})
-
-
-;; Discover and safely run .nvim.{.lua,fnl} files
-(opts! {:exrc true})
-(reload :utils/exrc)

@@ -55,10 +55,8 @@
 (fn M.with-saved-view [& body]
   "Save view and redraw lazy while executing the body."
   `(let [view# (vim.fn.winsaveview)]
-    ,(M.set-locally
-      `[,(sym "vim.o.lazyredraw") true]
-      (exec body)
-      `(vim.fn.winrestview view#))))
+     ,(M.set-locally `[,(sym "vim.o.lazyredraw") true] (exec body)
+                     `(vim.fn.winrestview view#))))
 
 ; Execute code with a callback called at the end of the body, even if
 ; encountering an error.
@@ -72,5 +70,23 @@
        [false err#] (do
                       (cb#)
                       (error err#)))))
+
+(fn M.input! [bindings ...]
+  (var len (length bindings))
+  (var out `(do
+              ,...))
+  (while (> len 0)
+    (let [sym (. bindings (- len 1))
+          opts (. bindings len)]
+      (when (not (_G.sym? sym))
+        (error (string.format "not a symbol: %s" sym)))
+      (when (= nil opts)
+        (error "symbol without options"))
+      (set out `(_G.vim.ui.input ,opts
+                              (fn [,sym]
+                                (when (not= nil ,sym)
+                                  ,out))))
+      (set len (- len 2))))
+  out)
 
 M

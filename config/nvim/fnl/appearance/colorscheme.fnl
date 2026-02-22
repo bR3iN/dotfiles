@@ -12,6 +12,9 @@
 ;; c.f. https://github.com/shaunsingh/nord.nvim/blob/master/lua/nord/theme.lua
 ;; for highlight groups used usually in colorschemes.
 
+
+;; Base Colorscheme
+
 ;; Builtin highlight groups , c.f. `:h highlight-groups`, with unset groups
 ;; as comments.
 (hl! :ColorColumn {:bg named.base02})
@@ -96,15 +99,7 @@
 ;; SpellBad
 (hl! :SpellCap {:bg named.base03})
 
-(hl! :StatusLine {:bg named.base02 :fg named.base03 :bold true})
-(hl! :StatusLineNC {:bg named.base02 :fg named.base03 :bold true})
-
-(hl! :WinBar {:bg named.base02 :fg named.fg1 :bold true})
-(hl! :WinBarNC {:bg named.base01 :fg named.fg0 :bold true})
-
-(hl! :TabLine {:bg named.base01})
 ;; TabLineFill
-;; TabLineSel
 (hl! :Title {:fg named.base0E})
 (hl! :Visual {:bg (mix named.dark_cyan named.base02 0.1)})
 (hl! :VisualNOS {:bg (mix named.dark_yellow named.base02 0.1)})
@@ -246,3 +241,55 @@
                  :bg named.base00
                  :underline true
                  :nocombine true})
+
+
+;; Overrides
+;; Keep these when changing to another colorscheme
+
+;; TODO: Can't really get rid of boldness within heirline for some reason,
+;; so unset it here.
+(hl! :StatusLine {:fg named.fg1 :bg named.bg2 :bold false})
+(hl! :StatusLineNC {:fg named.base02 :bg named.bg2 :bold false})
+
+(hl! :WinBar {:fg named.fg0 :bg named.bg3})
+(hl! :WinBarNC {:fg named.fg0 :bg named.bg3})
+
+(hl! :TabLine {:fg named.fg0 :bg named.transparent})
+(hl! :TabLineSel {:fg named.green :bg named.bg3})
+
+;; Transparent background
+(hl! :Normal {:extend true :bg named.transparent})
+
+;; Navic highlight groups
+(local navic-hls {:NavicIconsArray {:fg named.yellow}
+                  :NavicIconsBoolean {:fg named.cyan :bold true}
+                  :NavicIconsClass {:fg named.cyan}
+                  :NavicIconsConstant {:fg named.yellow}
+                  :NavicIconsConstructor {:fg named.cyan}
+                  :NavicIconsEnum {:fg named.cyan}
+                  :NavicIconsEnumMember {:fg named.dark_cyan}
+                  :NavicIconsEvent {:fg named.fg0}
+                  :NavicIconsField {:fg named.dark_orange :italic true}
+                  :NavicIconsFile {:fg named.green}
+                  :NavicIconsFunction {:fg named.blue :italic true}
+                  :NavicIconsInterface {:fg named.cyan}
+                  :NavicIconsKey {:fg named.cyan}
+                  :NavicIconsMethod {:fg named.blue :italic true}
+                  :NavicIconsModule {:fg named.dark_green :italic true}
+                  :NavicIconsNamespace {:fg named.fg0 :italic true}
+                  :NavicIconsNull {:fg named.cyan}
+                  :NavicIconsNumber {:fg named.magenta}
+                  :NavicIconsObject {:fg named.cyan}
+                  :NavicIconsOperator {:fg named.cyan}
+                  :NavicIconsPackage {:fg named.fg0 :italic true}
+                  :NavicIconsProperty {:fg named.dark_orange :italic true}
+                  :NavicIconsString {:fg named.green :italic true}
+                  :NavicIconsStruct {:fg named.cyan}
+                  :NavicIconsTypeParameter {:fg named.blue}
+                  :NavicIconsVariable {:fg named.dark_yellow :bold true}
+                  :NavicText {:fg named.fg1}
+                  :NavicSeparator {:fg (darken named.fg0 0.2)}})
+
+(each [hl-name hl-opt (pairs navic-hls)]
+  ;; (set hl-opt.bg named.bg2)
+  (hl! hl-name hl-opt))

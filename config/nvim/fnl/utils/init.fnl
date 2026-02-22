@@ -3,6 +3,7 @@
 (fn _G.unload [mod]
   (set (. _G.package.loaded mod) nil))
 
+;; FIXME: vim.vim.startswith
 (fn M.starts-with [str prefix]
   (= (string.sub str 1 (length prefix)) prefix))
 
@@ -38,6 +39,12 @@
 (fn M.reload [mod]
   (set (. _G.package.loaded mod) nil)
   (require mod))
+
+(fn parse-keys [keys]
+  (vim.api.nvim_replace_termcodes keys true false true))
+
+(fn M.feed! [keys ?remap]
+  (vim.api.nvim_feedkeys (parse-keys keys) (if ?remap :m :n) false))
 
 (var augroup nil)
 
@@ -85,26 +92,42 @@
          (or (M.contains rhs :<plug>) (M.contains rhs :<localleader>)
              (M.contains rhs :<leader>)))))
 
+(fn resolve-opts [lhs rhs opts]
+  ;; Resolve custom options, returning `lhs`, `rhs` and `opts` suitable for `vim.keymap.set`,
+  ;; `opts` will be modified in place.
+  (let [derived-opts (if (auto-remap? rhs) {:remap true} {})
+        opts (vim.tbl_extend :force opts derived-opts)
+        {: repeatable : deprecated} opts ;; Integrate with dot-repeat
+        rhs (fn []
+              (if (M.string? rhs)
+                  (M.feed! rhs opts.remap)
+                  (rhs))
+              (when deprecated
+                (vim.notify (string.format "Don't use %s: %s" lhs deprecated)
+                            vim.log.levels.WARN))
+              ;; Enable dot-repeat
+              (when (and repeatable _G.vim.fn.repeat#set)
+                (_G.vim.fn.repeat#set (parse-keys lhs))))]
+    ;; Always unset custom options to allow explicit `false` values (possibly overriding base options)
+    (set opts.repeatable nil)
+    (set opts.deprecated nil)
+    (values lhs rhs opts)))
+
 (fn keymaps-inner! [tbl ?base-opts]
   (let [default-opts {:silent true :remap false}]
     (each [modes maps-tbl (pairs tbl)]
       (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
-        (let [opts (vim.tbl_extend :force default-opts
-                                   (if (auto-remap? rhs) {:remap true} {})
-                                   (or ?base-opts {}) opts)]
-          (if (= rhs M.UNBIND)
-              (vim.keymap.del modes lhs)
+        (if (= rhs M.UNBIND)
+            ;; Sentinel value to unbind key
+            (vim.keymap.del modes lhs)
+            (let [opts (vim.tbl_extend :force default-opts (or ?base-opts {})
+                                       opts)
+                  (lhs rhs opts) (resolve-opts lhs rhs opts)]
               (vim.keymap.set modes lhs rhs opts)))))))
 
 (fn M.ft! [tbl]
   (each [filetype callback (pairs tbl)]
     (init-autocmd :FileType {:pattern filetype : callback})))
-
-;; TODO: Unnecessary?
-;; (fn M.ft-keymaps! [tbl]
-;;   (M.ft-autocmd! (vim.tbl_map (fn [maps]
-;;                                 #(keymaps-inner! maps {:buffer true}))
-;;                               tbl)))
 
 (fn M.keymaps! [tbl ?opts]
   (keymaps-inner! tbl ?opts))
@@ -209,6 +232,7 @@
          : reload
          : hl
          : ft
+         : signs
          : command} (or ?opts {})
         reload (if (M.table? reload) reload [reload])
         set-hls! (when hl
@@ -235,6 +259,8 @@
                   (config))
                 (when set-hls!
                   (set-hls!))
+                (when signs
+                  (M.signs! (eval signs)))
                 (when ft
                   (M.ft! (eval ft)))
                 (when command
@@ -371,10 +397,14 @@
   (unique-path name (create-bufname-index)))
 
 (fn M.get-cwd-override []
-    ;; If in an oil buffer, use the buffer's directory as `cwd`
+  ;; If in an oil buffer, use the buffer's directory as `cwd`
   (if (= vim.o.filetype :oil)
-    (let [{: get_current_dir} (require :oil)]
-      (get_current_dir))
-    nil))
+      (let [{: get_current_dir} (require :oil)]
+        (get_current_dir))
+      nil))
+
+(fn M.signs! [tbl]
+  (each [key value (pairs tbl)]
+    (vim.fn.sign_define key value)))
 
 M
