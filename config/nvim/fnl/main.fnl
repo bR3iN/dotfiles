@@ -569,10 +569,6 @@
 
 ;; Terminal
 
-;; Clear autocmds from `:h default-autocmd` that auto-close shell terminals on exit
-;; We reimplement it in a more controlled way below
-(vim.api.nvim_clear_autocmds {:group :nvim.terminal :event :TermClose})
-
 (autocmd! {:event :TermOpen
            :callback (fn [{: buf}]
                        ;; (set vim.wo.number false)
@@ -595,21 +591,15 @@
                                  {:buffer buf}))}
           {:event :TermClose
            :callback (fn [{: buf}]
-                       ;; Don't alter window layout when closing with <CR>, but allow doing so with <BS>
-                       (keymaps! {[:t :n] {:<CR> {:desc "Delete Buffer"
-                                                  :callback #(_G.Snacks.bufdelete.delete buf)}
-                                           :<BS> {:desc "Kill Buffer and Window"
-                                                  :callback #(vim.api.nvim_buf_delete buf
-                                                                                      {})}}}
-                                 {:buffer buf})
-                       ;; Autoclose terminal buffers on clean exit; `default-autocmd` does something similar for simple shell buffers, but always closes the window in the process.
-                       (when (= 0 vim.v.event.status)
-                         (case (. vim.b buf :term_autoclose)
-                           :window (vim.api.nvim_buf_delete buf {:force true})
-                           :buffer (_G.Snacks.bufdelete.delete buf)
-                           nil nil
-                           other (error (.. "value unknown: " other)))
-                         (_G.Snacks.bufdelete.delete buf)))}
+                       (when (vim.api.nvim_buf_is_valid buf)
+                         ;; Autoclose terminal buffers on clean exit; `default-autocmd` does something similar for simple shell buffers, but always closes the window in the process.
+                         ;; We keep this functionality as things like `:Cargo` rely on the auto-closing behavior (which is why we check for buffer validity) above but reimplement it for other buffers in a more granular way, not necessarily deleting the window.
+                         (when (= 0 vim.v.event.status)
+                           (case (. vim.b buf :term_autoclose)
+                             :window (vim.api.nvim_buf_delete buf {:force true})
+                             :buffer (_G.Snacks.bufdelete.delete buf)
+                             nil nil
+                             other (error (.. "value unknown: " other))))))}
           {:event [:BufWinEnter :BufEnter]
            :callback ;; Avoids triggering wrongly as startinsert will only happen after a sequence of commands and also catches more cases (for some reason).
            (vim.schedule_wrap #(when (and (or (= vim.bo.buftype
@@ -644,11 +634,11 @@
                "<C-w>" {"V" {:desc "Terminal in Vertical Split"
                              :callback #(do
                                           (vim.cmd.vsplit)
-                                          (vim.cmd.terminal {:args [:fish]}))}
+                                          (open-term {:autoclose :window}))}
                         "S" {:desc "Terminal in Horizontal Split"
                              :callback #(do
                                           (vim.cmd.split)
-                                          (vim.cmd.terminal {:args [:fish]}))}}}})
+                                          (open-term {:autoclose :window}))}}}})
 
 ;; Flattens files opened in terminal into current instance
 (use! "willothy/flatten.nvim" {:setup {:flatten {}}})

@@ -407,4 +407,11 @@
   (each [key value (pairs tbl)]
     (vim.fn.sign_define key value)))
 
+(fn M.pack_sync []
+  (let [plugins (vim.pack.get nil {:info false})
+        to-delete (icollect [_ {: active :spec {: name}} (ipairs plugins)]
+                    (when (not active) name))]
+    (when (not= 0 (length to-delete))
+        (vim.pack.del to-delete))))
+
 M

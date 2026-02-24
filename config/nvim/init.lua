@@ -17,3 +17,6 @@ utils.sync()
 -- exrc with added fennel implementation
 vim.o.exrc = true
 utils.reload('utils/exrc')
+
+-- Remove unused plugins from disk
+utils.pack_sync()
