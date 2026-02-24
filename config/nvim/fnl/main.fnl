@@ -107,10 +107,16 @@
                :<C-u> {:desc "Capitalize Word" :callback "<Esc>viwUea"}}})
 
 ;; Select until end of line (like `C`, `D` and `Y`)
-;; (keymaps! {:n {:<leader>v {:desc "Select to End of Line" :callback :vg_}}})
+(keymaps! {:n {:<leader>v {:desc "Select to End of Line" :callback :vg_}}})
 
 ;; [O]pen things
 (keymaps! {:n {:<leader>o {:a {:desc "Open Alternate File" :callback "<C-^>"}
+                           :L {:desc "Open Lsp Logs"
+                               :callback #(vim.cmd.edit (vim.lsp.log.get_filename))}
+                           :q {:desc "Open Quickfix List"
+                               :callback vim.cmd.copen}
+                           :l {:desc "Open Location List"
+                               :callback vim.cmd.lopen}
                            :v {:desc "Open Vim Config Files"
                                :callback #(vim.cmd.edit (.. vim.env.HOME
                                                             "/.config/nvim/fnl/main.fnl"))}
@@ -124,33 +130,31 @@
                                                               :/Notes)]
                                             (vim.cmd.cd notes-dir)
                                             (vim.cmd.edit :index.md))}
+                           :d {:desc "Open Diagnostic"
+                               :callback #(vim.diagnostic.open_float)}
                            :c {:desc "Open Config Dir"
                                :callback ":e ~/.config/<CR>"}}}})
 
 ;; [Q]uit things
 (keymaps! {:n {:<leader>q {:V {:desc "Quit NeoVim" :callback ":<C-u>qall<CR>"}
                            :w {:desc "Quit Window" :callback ":q<CR>"}
+                           :q {:desc "Close Quickfix List"
+                               :callback vim.cmd.cclose}
+                           :l {:desc "Close Location List"
+                               :callback vim.cmd.lclose}
                            :p {:desc "Close Preview" :callback "<C-w>z"}}}})
 
-(fn toggle-loclist []
+(fn _toggle-loclist []
   (if (not= 0 (. (vim.fn.getloclist 0 {:winid 0}) :winid))
       (vim.cmd.lclose)
       (vim.cmd.lopen)))
 
-(fn toggle-quickfix []
+(fn _toggle-quickfix []
   (if (not= 0 (. (vim.fn.getqflist {:winid 0}) :winid))
       (vim.cmd.cclose)
       (vim.cmd.copen)))
 
 (keymaps! {:n {:<leader>k {:desc "Hover" :callback "K" :remap true}}})
-
-;; [V]iew things, often by toggling changes to the window layout
-(keymaps! {:n {:<leader>v {:d {:desc "Open Diagnostic"
-                               :callback #(vim.diagnostic.open_float)}
-                           :q {:desc "Toggle Quickfix"
-                               :callback toggle-quickfix}
-                           :l {:desc "Toggle Location List"
-                               :callback toggle-loclist}}}})
 
 ;; Expand selection using LSP
 ;; TODO
@@ -437,7 +441,7 @@
                                          :insert_line :<C-s><C-s>}}}})
 
 (use! [:mbbill/undotree]
-      {:keymaps {:n {:<leader>vu {:desc "Toggle Undo Tree"
+      {:keymaps {:n {:<leader>tu {:desc "Toggle Undo Tree"
                                   :callback (fn []
                                               (vim.cmd.UndotreeToggle)
                                               (vim.cmd.UndotreeFocus))}}}})
@@ -539,7 +543,7 @@
                                    :- {:desc "Toggle scratch buffer"
                                        :callback scratch.open}
                                    ;; FIXME: borders
-                                   :vN {:desc "Notification History"
+                                   :oN {:desc "Notification History"
                                         :callback notifier.show_history}
                                    ;; :fe {:callback explorer}
                                    }}})})
