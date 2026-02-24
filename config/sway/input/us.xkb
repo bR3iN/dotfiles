@@ -7,10 +7,9 @@ xkb_keymap {
         include "pc+us+inet(evdev)"
         include "altwin(prtsc_rwin)"
 
-        // Caps -> F13, Shift+Caps -> cycle-layouts, Ctrl+Alt+Caps -> Caps
         replace key <CAPS> {
-            type= "CTRL+ALT",
-                symbols= [ F13, Multi_key, F13, Multi_key, Caps_Lock]
+            type= "TWO_LEVEL",
+            symbols= [ Multi_key, Caps_Lock ]
         };
 
         // Don't have the caps key set the lock bit

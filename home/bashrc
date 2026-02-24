@@ -4,7 +4,6 @@ case $- in
       *) return;;
 esac
 
-stty werase '^H'
 shopt -s checkwinsize
 shopt -s globstar
 
@@ -56,5 +55,6 @@ if [ $TERM = xterm-kitty ]; then
     alias ssh='kitty +kitten ssh'
 fi
 
-stty werase undef
+# FIXME: use .xinputrc instead to configure readline?
+bind -r '\C-w'
 bind '"\C-w": unix-filename-rubout'

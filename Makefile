@@ -58,6 +58,10 @@ $(STAMP)/npm:
 .PHONY: nvim
 nvim: $(CONFIG_DIR)/nvim
 
+.PHONY: nvim-docsets
+nvim-docsets:
+	curl -o "$$HOME/.local/share/fennel-ls/docsets/nvim.lua" "https://git.sr.ht/~micampe/fennel-ls-nvim-docs/blob/main/nvim.lua"
+
 .PHONY: profile
 profile: $(HOME)/.profile $(HOME)/.profile.d
 
