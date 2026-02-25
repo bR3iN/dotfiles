@@ -1027,6 +1027,14 @@
                                                       :callback #(vim.cmd.RustLsp :run)}}}}
                              {:buffer true})}})
 
+(use! [:Civitasv/cmake-tools.nvim]
+      {:setup {:cmake-tools {:cmake_regenerate_on_save false}}
+       :ft {:cpp (fn [{: buf}]
+                   (keymaps! {:n {:<localleader> {:b vim.cmd.CMakeBuild
+                                                  :B vim.cmd.CMakeSelectBuildPreset
+                                                  :C vim.cmd.CMakeSelectConfigurePreset}}}
+                             {:buffer buf}))}})
+
 ;; Forked as plugin doesn't have an API for custom keybindings
 (use! :bR3iN/jupynium.nvim {:setup {:jupynium {}}})
 
