@@ -289,6 +289,7 @@
     (each [_ {: after} (pairs pkgs)]
       (after))))
 
+;; FIXME: Explicitly splitting config & enabling allows the latter to be machine local
 (fn M.lsps! [tbl]
   (each [name config (pairs tbl)]
     (vim.lsp.config name config)

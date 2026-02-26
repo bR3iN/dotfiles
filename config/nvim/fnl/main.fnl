@@ -315,6 +315,10 @@
                                                :callback #(pick :live_grep
                                                                 {:grep_open_files true
                                                                  :cwd (get-cwd-override)})}
+                                           :C {:desc "Incoming Calls (LSP)"
+                                               :callback #(pick :lsp_incoming_calls)}
+                                           :O {:desc "Outcoming Calls (LSP)"
+                                               :callback #(pick :lsp_outgoing_calls)}
                                            :i {:desc "Document Symbols"
                                                :callback #(pick :lsp_document_symbols)}
                                            :I {:desc "Workspace Symbols"
@@ -386,6 +390,9 @@
                "]l" {:desc "Next Location" :callback ":<C-u>lnext<CR>"}
                "[L" {:desc "First Location" :callback ":<C-u>lfirst<CR>"}
                "]L" {:desc "Last Location" :callback ":<C-u>llast<CR>"}
+               "" (let [{: next : prev} (require :utils.goto-lens)]
+                    {"[a" {:desc "Previous Code Lens" :callback prev}
+                     "]a" {:desc "Next Code Lens" :callback next}})
                ;; Errors
                "[e" {:desc "Go to previous error"
                      :callback #(vim.diagnostic.jump {:count -1
@@ -468,6 +475,7 @@
 ;;                                 :callback ":make! build<CR>"}}}})
 
 (use! [:nvim-mini/mini.nvim] {:setup {:mini.align {}
+                                      ;; FIXME: remove, but keep yank-cycling
                                       :mini.bracketed {:diagnostic {:suffix ""}
                                                        :quickfix {:suffix ""}}
                                       ;; :mini.jump {}
@@ -686,8 +694,11 @@
                                     "<C-p>" [:select_prev :fallback]
                                     "<C-l>" [:select_and_accept :fallback]}
                            ;; Experimental
-                           ;; :signature {:enabled true}
-                           }}
+                           :signature {:enabled true
+                                       :trigger {;; Don't autoshow
+                                                 :enabled false}
+                                       ;; :window {:border :none}
+                                       }}}
        :hl {:BlinkCmpLabelMatch {:link ;; Linking to `Normal` doesn't work for whatever reason
                                  :PmenuMatch}
             :BlinkCmpScrollBarThumb {:link :PmenuThumb}
@@ -746,18 +757,12 @@
 
 ;; LSP & Co.
 
-(vim.diagnostic.config {;;:float {:border _G.border-type}
-                        :virtual_lines false
+(vim.diagnostic.config {:virtual_lines false
                         :virtual_text {:current_line true}
                         :signs {:text {vim.diagnostic.severity.ERROR ""
-                                       ; ""
                                        vim.diagnostic.severity.WARN ""
-                                       ; ""
                                        vim.diagnostic.severity.INFO ""
-                                       ; ""
-                                       vim.diagnostic.severity.HINT ""
-                                       ; "󰌵"
-                                       }}})
+                                       vim.diagnostic.severity.HINT ""}}})
 
 (keymaps! {:n {;; :K #(vim.lsp.buf.hover {:border :none})
                :<leader> {:a {:desc "Code Action"
@@ -775,32 +780,43 @@
                                   :callback vim.lsp.buf.type_definition}
                               :i {:desc "Goto Implementation"
                                   :callback vim.lsp.buf.implementation}
+                              :c {:desc "Incoming Calls"
+                                  :callback vim.lsp.buf.incoming_calls}
+                              :o {:desc "Outgoing Calls"
+                                  :callback vim.lsp.buf.outgoing_calls}
                               :r {:desc "Goto References"
                                   :callback vim.lsp.buf.references}}}
                ;; Some indirection to allow buffer local overrides of certain actions
                :<Plug> {:edit#format-file vim.lsp.buf.format
                         :lsp#code-action vim.lsp.buf.code_action}}})
 
+(use! [:jmacadie/telescope-hierarchy.nvim]
+      {:config #(let [{: load_extension} (require :telescope)]
+                    (load_extension :hierarchy))
+       ;; :keymaps #(let [{: run} (require :callgraph)]
+       ;;               {:n {:<leader>l {:C #(run {:direction :in})
+       ;;                                :O #(run {:direction :out})}}})
+       })
+
 (use! [:neovim/nvim-lspconfig]
       {:config (fn []
+                 ;; Partly needed to not override `lspconfig`'s `on_attach`s
                  (autocmd! {:event :LspAttach
-                            :pattern :*
-                            :callback (fn [{:buf bufnr}]
-                                        ;; Initial displaying
-                                        (_G.vim.lsp.codelens.enable true
-                                                                    {: bufnr})
-                                        ;; Updating lenses
-                                        ;; FIXME: might be no longer needed
-                                        ;; (vim.api.nvim_create_autocmd [:BufEnter
-                                        ;;                               :CursorHold
-                                        ;;                               :InsertLeave]
-                                        ;;                              {:callback #(vim.lsp.codelens.refresh {:bufnr 0})
-                                        ;;                               :buffer buf})
-                                        )})
-                 (lsps! {:clangd {:on_attach (fn [_client bufnr]
-                                               (keymaps! {:n {:<C-c> {:desc "Switch source/header"
-                                                                      :callback #(vim.cmd.LspClangdSwitchSourceHeader)}}}
-                                                         {:buffer bufnr}))}
+                            :callback (fn [{: buf :data {: client_id}}]
+                                        (let [name (-> client_id
+                                                       (vim.lsp.get_client_by_id)
+                                                       (?. :name))]
+                                          (case name
+                                            :clangd
+                                            (keymaps! {:n {:<localleader> {:h {:desc "Switch between header and source"
+                                                                               :callback #(vim.cmd.LspClangdSwitchSourceHeader)}
+                                                                           :i {:desc "Show symbol info"
+                                                                               :callback #(vim.cmd.LspClangdSymbolInfo)}}}}
+                                                      {:buffer buf}))
+                                          ;; Initial displaying
+                                          (_G.vim.lsp.codelens.enable true
+                                                                      {:bufnr buf})))})
+                 (lsps! {:clangd {}
                          ;; :bashls {}
                          ;; :vimls {}
                          :fennel_ls {}
@@ -813,6 +829,8 @@
                  (case (pcall reload :lsp-local)
                    (true config) (lsps! config)
                    (false _) nil))})
+
+;; (use! [:j-hui/fidget.nvim] {:setup {:fidget {}}})
 
 (use! [:nvim-treesitter/nvim-treesitter
        :nvim-treesitter/nvim-treesitter-textobjects]
@@ -841,6 +859,19 @@
                  ;; Use treesitter-based folds
                  (opts! {:foldmethod :expr
                          :foldexpr "nvim_treesitter#foldexpr()"}))})
+
+(use! [:stevearc/aerial.nvim]
+      {:setup #(let [actions (require :aerial.actions)]
+                 {:aerial {:keymaps {:o (fn []
+                                          (actions.jump.callback)
+                                          (actions.close.callback))
+                                     :<Tab> :actions.toggle
+                                     :<S-Tab> :actions.toggle_recursive}
+                           :nav {:keymaps {:q :actions.close :o :actions.jump}}}})
+       :keymaps {:n {:<leader> {:to {:desc "Toggle Outline"
+                                     :callback #(vim.cmd.AerialToggle :right)}
+                                :n {:desc "Aerial Nav"
+                                    :callback #(vim.cmd.AerialNavToggle)}}}}})
 
 ;; Debugging
 
