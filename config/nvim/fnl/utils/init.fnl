@@ -36,6 +36,9 @@
 (fn M.empty? [str]
   (= (length str) 0))
 
+(fn into-list [val]
+  (if (M.table? val) val [val]))
+
 (fn M.reload [mod]
   (set (. _G.package.loaded mod) nil)
   (require mod))
@@ -86,44 +89,102 @@
     (step "" tbl)
     out))
 
-(fn auto-remap? [rhs]
-  (and (M.string? rhs)
-       (let [rhs (string.lower rhs)]
-         (or (M.contains rhs :<plug>) (M.contains rhs :<localleader>)
-             (M.contains rhs :<leader>)))))
+(fn pop! [tbl key]
+  (let [val (. tbl key)]
+    (when val
+      (set (. tbl key) nil))
+    val))
 
-(fn resolve-opts [lhs rhs opts]
-  ;; Resolve custom options, returning `lhs`, `rhs` and `opts` suitable for `vim.keymap.set`,
-  ;; `opts` will be modified in place.
-  (let [derived-opts (if (auto-remap? rhs) {:remap true} {})
-        opts (vim.tbl_extend :force opts derived-opts)
-        {: repeatable : deprecated} opts ;; Integrate with dot-repeat
-        rhs (fn []
-              (if (M.string? rhs)
-                  (M.feed! rhs opts.remap)
-                  (rhs))
-              (when deprecated
-                (vim.notify (string.format "Don't use %s: %s" lhs deprecated)
-                            vim.log.levels.WARN))
-              ;; Enable dot-repeat
-              (when (and repeatable _G.vim.fn.repeat#set)
-                (_G.vim.fn.repeat#set (parse-keys lhs))))]
+(fn handle-auto-remap! [map]
+  (when (and (M.string? map.rhs)
+             (let [rhs (string.lower map.rhs)]
+               (or (M.contains rhs :<plug>) (M.contains rhs :<localleader>)
+                   (M.contains rhs :<leader>))))
+    (set map.opts.remap true)))
+
+(fn handle-repeatable! [map]
+  (let [{: lhs : rhs : opts} map]
     ;; Always unset custom options to allow explicit `false` values (possibly overriding base options)
-    (set opts.repeatable nil)
-    (set opts.deprecated nil)
-    (values lhs rhs opts)))
+    (when (pop! opts :repeatable)
+      (set map.rhs
+           (fn []
+             (rhs)
+             (if _G.vim.fn.repeat#set
+                 (_G.vim.fn.repeat#set (parse-keys lhs))
+                 (vim.notify_once (.. "can't enable dot-repeat for '" lhs "'")
+                                  vim.log.levels.WARN)))))))
+
+(fn rhs-to-function! [map]
+  (let [{: rhs :opts {: remap}} map]
+    (when (M.string? rhs)
+      (set map.rhs (fn []
+                     (M.feed! rhs remap))))))
+
+(fn handle-deprecated! [map]
+  (let [{: rhs : opts : lhs} map
+        msg (pop! opts :deprecated)]
+    (when msg
+      (set map.rhs (fn []
+                     (rhs)
+                     (vim.notify (string.format "Don't use %s: %s" lhs msg)
+                                 vim.log.levels.WARN))))))
+
+(fn inject-default-opts! [map]
+  (set map.opts (vim.tbl_extend :force {:silent true :remap false} map.opts)))
+
+(fn transform-map! [map]
+  ;; Modifies `map` in place, resolving (and removing) all custom options modifying the mapping itself
+  (when (and map.rhs (not= map.rhs M.UNBIND))
+    (doto map
+      (inject-default-opts!)
+      (handle-auto-remap!)
+      ;; Uses `remap` value
+      (rhs-to-function!)
+      (handle-deprecated!)
+      (handle-repeatable!))))
+
+(fn apply! [{: modes : lhs : rhs : opts}]
+  ;; Sets or deletes keymap
+  (if (and rhs (not= rhs M.UNBIND)) (vim.keymap.set modes lhs rhs opts)
+      (vim.keymap.del modes lhs {:buffer opts.buffer})))
+
+(fn autocmd-apply! [map event opts]
+  (let [callback (fn [{:buf buffer}]
+                   (apply! (vim.tbl_extend :force map {:opts {: buffer}})))
+        opts (vim.tbl_extend :error opts {: callback})]
+    (init-autocmd event opts)))
+
+(fn lsp-apply! [map opts ?ft]
+  (let [buf-ok? (fn [buf]
+                  (or (not ?ft)
+                      (let [ft (. vim.bo buf :filetype)]
+                        ;; TODO
+                        (if (M.table? ?ft) (vim.list_contains ?ft) (= ft ?ft)))))
+        callback (fn [{: buf}]
+                   (when (buf-ok? buf)
+                     (apply! (vim.tbl_extend :error map {:buffer buf}))))]
+    (autocmd-apply! map :LspAttach (vim.tbl_extend :error opts {: callback}))))
+
+(fn ft-apply! [map fts]
+  (let [callback (fn [{: buf}]
+                   (apply! (vim.tbl_extend :error map {:buffer buf})))]
+    (autocmd-apply! map :FileType {:pattern fts : callback})))
+
+(fn apply-in-ctx! [map]
+  ;; Modifies `map` in place, interpreting (and removing) custom options related to the context in which a mapping should be applied.
+  (let [lsp (pop! map.opts :lsp)
+        ft (pop! map.opts :ft)]
+    (if lsp (lsp-apply! map lsp ft)
+        ft (ft-apply! map ft)
+        (apply! map))))
 
 (fn keymaps-inner! [tbl ?base-opts]
-  (let [default-opts {:silent true :remap false}]
-    (each [modes maps-tbl (pairs tbl)]
-      (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
-        (if (= rhs M.UNBIND)
-            ;; Sentinel value to unbind key
-            (vim.keymap.del modes lhs)
-            (let [opts (vim.tbl_extend :force default-opts (or ?base-opts {})
-                                       opts)
-                  (lhs rhs opts) (resolve-opts lhs rhs opts)]
-              (vim.keymap.set modes lhs rhs opts)))))))
+  (each [modes maps-tbl (pairs tbl)]
+    (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
+      (let [opts (if ?base-opts (vim.tbl_extend :force ?base-opts opts) opts)
+            map {: lhs : rhs : opts : modes}]
+        (transform-map! map)
+        (apply-in-ctx! map)))))
 
 (fn M.ft! [tbl]
   (each [filetype callback (pairs tbl)]
@@ -149,7 +210,7 @@
     (let [{:name opt-name :op op} (parse-opt-name name)
           opt-meta (. opt-obj opt-name)]
       (case op
-        :set (let [current (: opt-meta :get)]
+        :set (let [current (opt-meta:get)]
                (when (not= current val)
                  (tset opt-obj opt-name val)))
         _ (: opt-meta op val)))))
@@ -165,7 +226,7 @@
     (vim.api.nvim_create_user_command lhs rhs opt-tbl)))
 
 (fn M.autocmd! [& cmds]
-  (each [_ {: event & opts} (ipairs cmds)]
+  (each [_ {: event & opts} (ipairs (into-list cmds))]
     (init-autocmd event opts)))
 
 (fn M.replace-termcodes [keys]
@@ -413,6 +474,6 @@
         to-delete (icollect [_ {: active :spec {: name}} (ipairs plugins)]
                     (when (not active) name))]
     (when (not= 0 (length to-delete))
-        (vim.pack.del to-delete))))
+      (vim.pack.del to-delete))))
 
 M
