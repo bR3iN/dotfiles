@@ -27,6 +27,7 @@ alias se sudoedit
 alias te 'TERM=xterm toolbox enter'
 alias tc 'toolbox create --image toolbox'
 alias gdb 'gdb -tui'
+alias rust-gdb 'rust-gdb -tui'
 
 set fish_greeting
 #set fish_prompt_pwd_dir_length 0
@@ -47,7 +48,7 @@ if [ $TERM = xterm-kitty ] && [ -x /usr/bin/kitty ]
     alias ssh 'kitty +kitten ssh'
 end
 
-if [ -f /usr/share/fzf/shell/key-bindings.fish ] && status is-interactive
-    source /usr/share/fzf/shell/key-bindings.fish
-    fzf_key_bindings
-end
+# if [ -f /usr/share/fzf/shell/key-bindings.fish ] && status is-interactive
+#     source /usr/share/fzf/shell/key-bindings.fish
+#     fzf_key_bindings
+# end
