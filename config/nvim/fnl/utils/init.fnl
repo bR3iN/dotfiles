@@ -338,9 +338,11 @@
 ;; FIXME: Explicitly splitting config & enabling allows the latter to be machine local
 (fn M.lsps! [tbl]
   (each [name config (pairs tbl)]
-    (vim.lsp.config name config)
-    (when (not= name "*")
-      (vim.lsp.enable name))))
+    ;; FIXME: backwards compatible but can opt-out
+    (let [enable (or (pop! config :enable) true)]
+      (vim.lsp.config name config)
+      (when enable
+        (vim.lsp.enable name)))))
 
 (fn M.dispatchables! [mode actions]
   (let [var-tbl (. vim mode)
