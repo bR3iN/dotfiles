@@ -161,8 +161,8 @@
             callback (fn [{: buf :data {: client_id}}]
                        (when (buf-ok? buf client_id)
                          (apply! (map-for-buffer buf map))))]
-        (init-autocmd (vim.tbl_extend :error opts
-                                      {:event :LspAttach : callback}))))))
+        (init-autocmd :LspAttach (vim.tbl_extend :error opts
+                                      { : callback}))))))
 
 (fn M.keymaps! [tbl]
   (let [base-opts (or (pop! tbl :opts) {})]
@@ -190,21 +190,22 @@
       "^" {:name (string.sub name 1 -2) :op :prepend}
       _ {:name name :op :set})))
 
-(fn opts-inner! [tbl opt-obj]
+(fn opts-inner! [tbl set-obj get-obj]
   (each [name val (pairs tbl)]
     (let [{:name opt-name :op op} (parse-opt-name name)
-          opt-meta (. opt-obj opt-name)]
+          set-meta (. set-obj opt-name)
+          get-meta (. get-obj opt-name)]
       (case op
-        :set (let [current (opt-meta:get)]
+        :set (let [current (get-meta:get)]
                (when (not= current val)
-                 (tset opt-obj opt-name val)))
-        _ (: opt-meta op val)))))
+                 (tset set-obj opt-name val)))
+        _ (: set-meta op val)))))
 
 (fn M.opts! [tbl]
-  (opts-inner! tbl vim.opt))
+  (opts-inner! tbl vim.opt vim.opt_global))
 
 (fn M.buf-opts! [tbl]
-  (opts-inner! tbl vim.opt_local))
+  (opts-inner! tbl vim.opt_local vim.opt_local))
 
 (fn M.command! [lhs rhs ?opt-tbl]
   (let [opt-tbl (or ?opt-tbl {})]
@@ -295,6 +296,7 @@
                 (when setup
                   (each [module opts (pairs (eval setup))]
                     (use-setup module opts)))
+                ;; TODO: support lists as well?
                 (when autocmds
                   (each [event opts (pairs (eval autocmds))]
                     (init-autocmd event opts)))
