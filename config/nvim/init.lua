@@ -11,6 +11,9 @@ utils.init()
 utils.reload('main')
 utils.reload('appearance')
 
+-- (Re)load machine local config
+pcall(utils.reload, 'local')
+
 -- Sync declared plugins
 utils.sync()
 

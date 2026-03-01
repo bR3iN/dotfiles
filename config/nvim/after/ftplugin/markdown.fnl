@@ -1,4 +1,4 @@
-(local {: buf-opts! : buf-keymaps!} (require :utils))
+(local {: buf-opts! : keymaps!} (require :utils))
 
 ;; Note: backup and writebackup are global options and cannot be set buffer-locally
 ;; (buf-opts! {:backup false :writebackup false})
@@ -34,7 +34,8 @@
         (insert-url-link url)
         (vim.notify "Clipboard is empty" vim.log.levels.WARN))))
 
-(buf-keymaps! {:n {:<localleader> {:i {:desc "Insert URL link (prompt)"
-                                       :callback insert-url-link-prompt}
-                                   :p {:desc "Insert URL link (clipboard)"
-                                       :callback insert-url-link-clipboard}}}})
+(keymaps! {:opts {:buffer true}
+           :n {:<localleader> {:i {:desc "Insert URL link (prompt)"
+                                   :callback insert-url-link-prompt}
+                               :p {:desc "Insert URL link (clipboard)"
+                                   :callback insert-url-link-clipboard}}}})

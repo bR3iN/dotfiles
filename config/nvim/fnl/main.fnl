@@ -158,10 +158,10 @@
 
 ;; Expand selection using LSP
 ;; TODO
-(keymaps! {:n {"+" {:desc "Expand Selection" :callback "vin"}}
+(keymaps! {:opts {:remap true}
+           :n {"+" {:desc "Expand Selection" :callback "vin"}}
            :v {"+" {:desc "Expand Selection" :callback "an"}
-               "-" {:desc "Contract Selection" :callback "in"}}}
-          {:remap true})
+               "-" {:desc "Contract Selection" :callback "in"}}})
 
 ;; File Operations
 ;; Not under leader to not accidentally trigger the tmux leader <C-space> when doing e.g. `<C-]><space>s`
@@ -171,7 +171,7 @@
                             :s {:desc "Save All Files"
                                 :callback ":<C-u>wall<CR>"}
                             :w {:desc "Save File (Force)"
-                                :ocallback ":<C-u>write<CR>"}
+                                :callback ":<C-u>write<CR>"}
                             :W {:desc "Write as Root"
                                 :callback ":<C-u>w !pkexec tee % >/dev/null<CR>"}}}})
 
@@ -361,20 +361,32 @@
                                                :callback #(pick :grep_string
                                                                 {:grep_open_files true})}}}}))})
 
+;; Fennel: hotpot/telescope integration
+(keymaps! {:opts {:ft :fennel}
+           :n {:<localleader> {:r {:desc "Eval current file"
+                                   :callback #(let [{: eval-file} (require :hotpot.api.eval)]
+                                                 (eval-file (vim.fn.expand "%")))}
+                               :c {:desc "Search cache"
+                                   :callback #(let [{: find_files} (require :telescope.builtin)
+                                                     {: cache-prefix} (require :hotpot.api.cache)]
+                                                 (find_files {:cwd (cache-prefix) :hidden true}))}}}})
+
 ;; Navigate history containing substring
 (keymaps! {:c {:<M-p> {:desc "Previous History" :callback #(feed! :<Up>)}
                :<M-n> {:desc "Next History" :callback #(feed! :<Down>)}}})
 
 ;; Navigate windows with Alt + vim keys
-(let [nav-maps (collect [_ key (ipairs [:h :j :k :l])]
-                 (values (.. "<M-" key ">") (.. "<C-w>" key)))
-      nmaps (vim.tbl_extend :error nav-maps
-                            {"<M-x>" "<C-w>q"
-                             "<M-c>" ":tabnew<CR>"
-                             "<M-n>" ":tabnext<CR>"
-                             "<M-p>" ":tabprevious<CR>"})
-      imaps (collect [lhs rhs (pairs nmaps)]
-              (values lhs {:callback (.. "<C-\\><C-n>" rhs)}))]
+(let [dirs {:h "Left" :j "Down" :k "Up" :l "Right"}
+      nmaps (vim.tbl_extend :error
+                            (collect [key desc (pairs dirs)]
+                              (values (.. "<M-" key ">")
+                                      {:desc (.. "Window " desc) :callback (.. "<C-w>" key)}))
+                            {"<M-x>" {:desc "Close Window" :callback "<C-w>q"}
+                             "<M-c>" {:desc "New Tab" :callback ":tabnew<CR>"}
+                             "<M-n>" {:desc "Next Tab" :callback ":tabnext<CR>"}
+                             "<M-p>" {:desc "Previous Tab" :callback ":tabprevious<CR>"}})
+      imaps (collect [lhs {: callback} (pairs nmaps)]
+              (values lhs {:callback (.. "<C-\\><C-n>" callback)}))]
   (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
 
 (keymaps! {:n {;; Buffer navigation
@@ -588,7 +600,8 @@
                        ;; FIXME: use when having separate picker
                        ;; (set vim.bo.buflisted false)
                        ;; Don't insert here as this doesn't have to be an active buffer
-                       (keymaps! {:n {;; Go to shell prompts
+                       (keymaps! {:opts {:buffer buf}
+                                  :n {;; Go to shell prompts
                                       "[s" {:desc "Previous Shell Prompt"
                                             :callback "[["}
                                       "]s" {:desc "Next Shell Prompt"
@@ -600,7 +613,7 @@
                                                      "<C-p>"]]
                                            (collect [_ key (ipairs keys)]
                                              (values key (.. "i" key))))}}
-                                 {:buffer buf}))}
+                                 ))}
           {:event :TermClose
            :callback (fn [{: buf}]
                        (when (vim.api.nvim_buf_is_valid buf)
@@ -808,11 +821,11 @@
                                                        (?. :name))]
                                           (case name
                                             :clangd
-                                            (keymaps! {:n {:<localleader> {:h {:desc "Switch between header and source"
+                                            (keymaps! {:opts {:buffer buf}
+                                                       :n {:<localleader> {:h {:desc "Switch between header and source"
                                                                                :callback #(vim.cmd.LspClangdSwitchSourceHeader)}
                                                                            :i {:desc "Show symbol info"
-                                                                               :callback #(vim.cmd.LspClangdSymbolInfo)}}}}
-                                                      {:buffer buf}))
+                                                                               :callback #(vim.cmd.LspClangdSymbolInfo)}}}}))
                                           ;; Initial displaying
                                           (_G.vim.lsp.codelens.enable true
                                                                       {:bufnr buf})))})
@@ -901,9 +914,9 @@
        :reload [:dap-configs]
        :ft {:dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
             :dap-float (fn [{: buf}]
-                         (keymaps! {:n {[:q :<ESC>] {:desc "Close Float"
-                                                     :callback vim.cmd.quit}}}
-                                   {:buffer buf}))}
+                         (keymaps! {:opts {:buffer buf}
+                                   :n {[:q :<ESC>] {:desc "Close Float"
+                                                    :callback vim.cmd.quit}}}))}
        :keymaps #(let [dap (require :dap)
                        {: run_last} (require :utils.dap)
                        {: show_view :open open_view} (require :dap-view)
@@ -1047,24 +1060,24 @@
                      {:tools {:float_win_config {:border :none}}
                       :server {:default_settings lsp-config}
                       :dap {: adapter}}))
-       :ft {:rust #(keymaps! {:n {:<Plug> {:lsp#code-action #(vim.cmd.RustLsp :codeAction)
-                                           :debug#start #(vim.cmd.RustLsp :debuggables)
-                                           :edit#format-file vim.cmd.RustFmt}
-                                  :<localleader> {:d {:desc "Run Debuggables"
-                                                      :callback #(vim.cmd.RustLsp :debuggables)}
-                                                  :D {:desc "Debug"
-                                                      :callback #(vim.cmd.RustLsp :debug)}
-                                                  :r {:desc "Run"
-                                                      :callback #(vim.cmd.RustLsp :run)}}}}
-                             {:buffer true})}})
+       :keymaps {:opts {:ft :rust}
+                 :n {:<Plug> {:lsp#code-action {:callback #(vim.cmd.RustLsp :codeAction)}
+                               :debug#start {:callback #(vim.cmd.RustLsp :debuggables)}
+                               :edit#format-file {:callback vim.cmd.RustFmt}}
+                      :<localleader> {:d {:desc "Run Debuggables"
+                                          :callback #(vim.cmd.RustLsp :debuggables)}
+                                      :D {:desc "Debug"
+                                          :callback #(vim.cmd.RustLsp :debug)}
+                                      :r {:desc "Run"
+                                          :callback #(vim.cmd.RustLsp :run)}}}}})
+
 
 (use! [:Civitasv/cmake-tools.nvim]
       {:setup {:cmake-tools {:cmake_regenerate_on_save false}}
-       :ft {:cpp (fn [{: buf}]
-                   (keymaps! {:n {:<localleader> {:b vim.cmd.CMakeBuild
-                                                  :B vim.cmd.CMakeSelectBuildPreset
-                                                  :C vim.cmd.CMakeSelectConfigurePreset}}}
-                             {:buffer buf}))}})
+       :keymaps {:opts {:ft :cpp}
+                 :n {:<localleader> {:b {:desc "Build" :callback vim.cmd.CMakeBuild}
+                                     :B {:desc "Select Build Preset" :callback vim.cmd.CMakeSelectBuildPreset}
+                                     :C {:desc "Select Configure Preset" :callback vim.cmd.CMakeSelectConfigurePreset}}}}})
 
 ;; Forked as plugin doesn't have an API for custom keybindings
 (use! :bR3iN/jupynium.nvim {:setup {:jupynium {}}})
@@ -1119,7 +1132,8 @@
                                                                                stdout
                                                                                "]]")))))
                       on_attach (fn [_client bufnr]
-                                  (keymaps! {:n {"<localleader>" {:n {:desc "Create new note"
+                                  (keymaps! {:opts {:buffer bufnr}
+                                             :n {"<localleader>" {:n {:desc "Create new note"
                                                                       :callback create-note}
                                                                   ;; :N {:desc "Create new note and link it"
                                                                   ;;     :callback create-and-insert-link}
@@ -1146,8 +1160,7 @@
                                                  :<C-j> {:desc "Create and insert link"
                                                          :callback create-and-insert-link}
                                                  :<C-p> {:desc "Insert screenshot"
-                                                         :callback insert-screenshot}}}
-                                            {:buffer bufnr}))]
+                                                         :callback insert-screenshot}}}))]
                   (zk.setup {:picker :telescope :lsp {:config {: on_attach}}}))})
 
 ;; TODO: move to `bin` ftplugin?

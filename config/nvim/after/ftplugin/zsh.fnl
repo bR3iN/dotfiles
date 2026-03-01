@@ -1,6 +1,7 @@
-(local {: buf-opts! : buf-keymaps!} (require :utils))
+(local {: buf-opts! : keymaps!} (require :utils))
 
 (buf-opts! {:shiftwidth 4})
 
-(buf-keymaps! {:n {"<localleader>" {"r" {:desc "Run"
-                                         :callback #(vim.cmd "!zsh %")}}}})
+(keymaps! {:opts {:buffer true}
+           :n {"<localleader>" {"r" {:desc "Run"
+                                     :callback #(vim.cmd "!zsh %")}}}})

@@ -36,8 +36,12 @@
 (fn M.empty? [str]
   (= (length str) 0))
 
+(fn list? [el]
+  ;; FIXME: Check if robust enough
+  (and (M.table? el) (. el 1)))
+
 (fn into-list [val]
-  (if (M.table? val) val [val]))
+  (if (list? val) val [val]))
 
 (fn M.reload [mod]
   (set (. _G.package.loaded mod) nil)
@@ -65,8 +69,6 @@
                               nil))))
     (vim.api.nvim_create_autocmd event opts)))
 
-(set M.UNBIND :unset-key)
-
 (fn parse-maps-tbl [tbl]
   (let [out []]
     (fn step [curr-prefix tbl]
@@ -76,7 +78,7 @@
         (let [keys (if (M.table? key) key [key])]
           (each [_ key (ipairs keys)]
             (let [new-prefix (.. curr-prefix key)]
-              ;; `val` can be either a "submap" table which we recurse on, a table-valued leaf (i.e. keymap), which we identify by the presence of a :callback key, a string-valued leaf, or an `M.UNBIND`-valued leaf that deletes an existing keybind.
+              ;; `val` can be either a "submap" table which we recurse on, a table-valued leaf (i.e. keymap), which we identify by the presence of a :callback key, a string-valued leaf, or `false` to delete an existing keybind.
               (if (M.table? val)
                   (let [{: callback & rest} val]
                     (if callback
@@ -91,110 +93,93 @@
 
 (fn pop! [tbl key]
   (let [val (. tbl key)]
-    (when val
-      (set (. tbl key) nil))
-    val))
+    ;; Always clear, including explicit `false` values; normalize to nil
+    (set (. tbl key) nil)
+    (or val nil)))
 
-(fn handle-auto-remap! [map]
-  (when (and (M.string? map.rhs)
-             (let [rhs (string.lower map.rhs)]
-               (or (M.contains rhs :<plug>) (M.contains rhs :<localleader>)
-                   (M.contains rhs :<leader>))))
-    (set map.opts.remap true)))
+(fn auto-remap? [rhs]
+  (and (M.string? rhs)
+       (let [rhs (string.lower rhs)]
+         (or (M.contains rhs :<plug>) (M.contains rhs :<localleader>)
+             (M.contains rhs :<leader>)))))
 
-(fn handle-repeatable! [map]
-  (let [{: lhs : rhs : opts} map]
-    ;; Always unset custom options to allow explicit `false` values (possibly overriding base options)
-    (when (pop! opts :repeatable)
-      (set map.rhs
-           (fn []
-             (rhs)
-             (if _G.vim.fn.repeat#set
-                 (_G.vim.fn.repeat#set (parse-keys lhs))
-                 (vim.notify_once (.. "can't enable dot-repeat for '" lhs "'")
-                                  vim.log.levels.WARN)))))))
+(fn build-rhs [lhs rhs {: repeatable : deprecated : remap}]
+  (fn []
+    (when deprecated
+      (vim.notify (string.format "Don't use %s: %s" lhs deprecated)
+                  vim.log.levels.WARN))
+    ;; The actual rhs
+    (if (M.string? rhs) (M.feed! rhs remap) (rhs))
+    ;; Integrate with vim-repeat
+    (when repeatable
+      (if _G.vim.fn.repeat#set
+          (_G.vim.fn.repeat#set (parse-keys lhs))
+          (vim.notify_once (.. "can't enable dot-repeat for '" lhs "'")
+                           vim.log.levels.WARN)))))
 
-(fn rhs-to-function! [map]
-  (let [{: rhs :opts {: remap}} map]
-    (when (M.string? rhs)
-      (set map.rhs (fn []
-                     (M.feed! rhs remap))))))
-
-(fn handle-deprecated! [map]
-  (let [{: rhs : opts : lhs} map
-        msg (pop! opts :deprecated)]
-    (when msg
-      (set map.rhs (fn []
-                     (rhs)
-                     (vim.notify (string.format "Don't use %s: %s" lhs msg)
-                                 vim.log.levels.WARN))))))
-
-(fn inject-default-opts! [map]
-  (set map.opts (vim.tbl_extend :force {:silent true :remap false} map.opts)))
-
-(fn transform-map! [map]
-  ;; Modifies `map` in place, resolving (and removing) all custom options modifying the mapping itself
-  (when (and map.rhs (not= map.rhs M.UNBIND))
-    (doto map
-      (inject-default-opts!)
-      (handle-auto-remap!)
-      ;; Uses `remap` value
-      (rhs-to-function!)
-      (handle-deprecated!)
-      (handle-repeatable!))))
+(fn resolve-map [lhs rhs opts]
+  (if rhs
+      (let [opts (vim.tbl_extend :force {:silent true :remap false} opts)
+            opts (if (auto-remap? rhs) (doto opts (tset :remap true)) opts)
+            rhs (build-rhs lhs rhs
+                           {:remap opts.remap
+                            :repeatable (pop! opts :repeatable)
+                            :deprecated (pop! opts :deprecated)})]
+        (values lhs rhs opts))
+      (values lhs rhs opts)))
 
 (fn apply! [{: modes : lhs : rhs : opts}]
-  ;; Sets or deletes keymap
-  (if (and rhs (not= rhs M.UNBIND)) (vim.keymap.set modes lhs rhs opts)
+  (if rhs (vim.keymap.set modes lhs rhs opts)
       (vim.keymap.del modes lhs {:buffer opts.buffer})))
 
-(fn autocmd-apply! [map event opts]
-  (let [callback (fn [{:buf buffer}]
-                   (apply! (vim.tbl_extend :force map {:opts {: buffer}})))
-        opts (vim.tbl_extend :error opts {: callback})]
-    (init-autocmd event opts)))
-
-(fn lsp-apply! [map opts ?ft]
-  (let [buf-ok? (fn [buf]
-                  (or (not ?ft)
-                      (let [ft (. vim.bo buf :filetype)]
-                        ;; TODO
-                        (if (M.table? ?ft) (vim.list_contains ?ft) (= ft ?ft)))))
-        callback (fn [{: buf}]
-                   (when (buf-ok? buf)
-                     (apply! (vim.tbl_extend :error map {:buffer buf}))))]
-    (autocmd-apply! map :LspAttach (vim.tbl_extend :error opts {: callback}))))
+(fn map-for-buffer [buffer map]
+  (vim.tbl_extend :force map
+                  {:opts (vim.tbl_extend :error map.opts {: buffer})}))
 
 (fn ft-apply! [map fts]
   (let [callback (fn [{: buf}]
-                   (apply! (vim.tbl_extend :error map {:buffer buf})))]
-    (autocmd-apply! map :FileType {:pattern fts : callback})))
+                   (apply! (map-for-buffer buf map)))]
+    (init-autocmd :FileType {:pattern fts : callback})))
 
-(fn apply-in-ctx! [map]
-  ;; Modifies `map` in place, interpreting (and removing) custom options related to the context in which a mapping should be applied.
-  (let [lsp (pop! map.opts :lsp)
-        ft (pop! map.opts :ft)]
-    (if lsp (lsp-apply! map lsp ft)
-        ft (ft-apply! map ft)
-        (apply! map))))
+(fn lsp-apply! [map lsps ?ft]
+  (let [;; Normalize
+        lsps (if (M.string? lsps) {lsps {}}
+                 (list? lsps) (collect [_ name (ipairs lsps)]
+                                (values name {}))
+                 lsps)
+        ?fts (-?> ?ft (into-list))]
+    (each [name opts (pairs lsps)]
+      (let [buf-ok? (fn [buf client_id]
+                      (and (-> client_id
+                               (vim.lsp.get_client_by_id)
+                               (?. :name)
+                               (= name))
+                           ;; If specified, ensure filetype is correct
+                           (or (not ?fts)
+                               (let [ft (. vim.bo buf :filetype)]
+                                 (vim.list_contains ?fts ft)))))
+            callback (fn [{: buf :data {: client_id}}]
+                       (when (buf-ok? buf client_id)
+                         (apply! (map-for-buffer buf map))))]
+        (init-autocmd (vim.tbl_extend :error opts
+                                      {:event :LspAttach : callback}))))))
 
-(fn keymaps-inner! [tbl ?base-opts]
-  (each [modes maps-tbl (pairs tbl)]
-    (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
-      (let [opts (if ?base-opts (vim.tbl_extend :force ?base-opts opts) opts)
-            map {: lhs : rhs : opts : modes}]
-        (transform-map! map)
-        (apply-in-ctx! map)))))
+(fn M.keymaps! [tbl]
+  (let [base-opts (or (pop! tbl :opts) {})]
+    (each [modes maps-tbl (pairs tbl)]
+      (each [lhs {: rhs : opts} (pairs (parse-maps-tbl maps-tbl))]
+        (let [opts (vim.tbl_extend :force base-opts opts)
+              (lhs rhs opts) (resolve-map lhs rhs opts)
+              lsp (pop! opts :lsp)
+              ft (pop! opts :ft)
+              map {: lhs : rhs : opts : modes}]
+          (if lsp (lsp-apply! map lsp ft)
+              ft (ft-apply! map ft)
+              (apply! map)))))))
 
 (fn M.ft! [tbl]
   (each [filetype callback (pairs tbl)]
     (init-autocmd :FileType {:pattern filetype : callback})))
-
-(fn M.keymaps! [tbl ?opts]
-  (keymaps-inner! tbl ?opts))
-
-(fn M.buf-keymaps! [tbl]
-  (keymaps-inner! tbl {:buffer true}))
 
 (fn parse-opt-name [name]
   "Parse option name to extract base name and operation suffix (+, -, ^)"

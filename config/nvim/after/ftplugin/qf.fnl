@@ -1,4 +1,5 @@
-(local {: buf-keymaps!} (require :utils))
+(local {: keymaps!} (require :utils))
 
-(buf-keymaps! {:n {:q {:desc "Close quickfix"
-                       :callback :<Cmd>quit<CR>}}})
+(keymaps! {:opts {:buffer true}
+           :n {:q {:desc "Close quickfix"
+                   :callback :<Cmd>quit<CR>}}})
