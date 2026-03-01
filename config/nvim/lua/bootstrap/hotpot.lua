@@ -1,4 +1,5 @@
-vim.pack.add({"https://github.com/rktjmp/hotpot.nvim"})
+-- TODO: Fork with fix; find out why it is not a comon problem and make issue upstream
+vim.pack.add({"https://github.com/bR3iN/hotpot.nvim"})
 
 -- Setup hotpot
 require('hotpot').setup{

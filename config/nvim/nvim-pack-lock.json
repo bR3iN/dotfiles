@@ -34,8 +34,8 @@
       "src": "https://github.com/rebelot/heirline.nvim"
     },
     "hotpot.nvim": {
-      "rev": "27cc1025960eae88ad1dd270376f69be7a2d9174",
-      "src": "https://github.com/rktjmp/hotpot.nvim"
+      "rev": "a19ae4341cbeaa56c0df6619048a5dce09af34a9",
+      "src": "https://github.com/bR3iN/hotpot.nvim"
     },
     "incline.nvim": {
       "rev": "8b54c59bcb23366645ae10edca6edfb9d3a0853e",

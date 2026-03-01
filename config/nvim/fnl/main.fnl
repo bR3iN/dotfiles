@@ -4,6 +4,7 @@
         : opts!
         : use!
         : keymaps!
+        : lsps!
         : autocmd!
         : feed!} (require :utils))
 
