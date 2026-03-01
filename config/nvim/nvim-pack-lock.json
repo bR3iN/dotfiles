@@ -46,7 +46,7 @@
       "src": "https://github.com/bR3iN/jupynium.nvim"
     },
     "leap.nvim": {
-      "rev": "f19d43590c4b6d31188ee1ea2954d2b7558a9e11",
+      "rev": "eda0138a408a5600c45e324c69fe73c9df30939c",
       "src": "https://codeberg.org/andyg/leap.nvim"
     },
     "mini.nvim": {
