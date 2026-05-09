@@ -246,6 +246,7 @@
       src))
 
 (fn expand-spec [spec]
+  "Normalize a single plugin SPEC to a {:src ...} object with expanded url."
   (let [spec (if (M.string? spec) {:src spec} spec)]
     (set spec.src (expand-src spec.src))
     spec))
@@ -268,7 +269,8 @@
     (m.setup opts)))
 
 (fn M.use! [spec ?opts]
-  (let [specs (if (vim.islist spec) spec [spec])
+  (let [;; Normalize list of specs
+        specs (if (vim.islist spec) spec [spec])
         specs (vim.tbl_map expand-spec specs)
         {: setup
          : config

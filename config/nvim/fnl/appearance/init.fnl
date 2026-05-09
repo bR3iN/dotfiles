@@ -9,6 +9,12 @@
 (opts! {:winborder :solid
         :signcolumn :yes
         :termguicolors true
+        :guicursor (table.concat [;; Added hl-group to first group, rest is from default value
+                                  "n-v-c-sm:block-Cursor"
+                                  "i-ci-ve:ver25"
+                                  "r-cr-o:hor20"
+                                  "t:block-blinkon500-blinkoff500-TermCursor"]
+                                 ",")
         ;; Remove redundant mode prompt in insert area
         :showmode true
         :cmdheight 1})
@@ -63,10 +69,7 @@
                                                                 ;; Load after setting `CommentHighlighted` above
                                                                 ;; Use <C-o><C-h> instead
                                                                 ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
-                                                                (setup :plugin.toggle-comments)
-                                                                (keymaps! {:n {:<C-h> {:desc "Toggle Comment Highlighting"
-                                                                                       :callback ":ToggleComments<CR>"}
-                                                                               :<Plug>ui#toggle-comments ":ToggleComments<CR>"}}))]
+                                                                (setup :plugin.toggle-comments))]
                                                       (cb)
                                                       cb)}}
                 :init #(set vim.g.nord_disable_background true)
@@ -95,6 +98,12 @@
                              ;; Fallback; derives colorscheme from base16 colors
                              _
                              (vim.cmd.colorscheme :base16)))})
+
+(use! [;; Highlights hex color codes in their color
+       :NvChad/nvim-colorizer.lua]
+      {:setup {:colorizer {:user_default_options {:names false}}}
+       :keymaps {:n {:<leader> {:t {:C {:desc "Toggle Colorizer"
+                                        :callback vim.cmd.ColorizerToggle}}}}}})
 
 (use! :folke/which-key.nvim
       {:hl {:WhichKeyDesc {:fg colors.base05}

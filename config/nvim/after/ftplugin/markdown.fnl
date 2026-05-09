@@ -2,7 +2,9 @@
 
 ;; Note: backup and writebackup are global options and cannot be set buffer-locally
 ;; (buf-opts! {:backup false :writebackup false})
-(buf-opts! {:iskeyword+ "\\"})
+(buf-opts! {:iskeyword+ "\\"
+            ;; Otherwise creates warnings on save in emanote due to temporary files being created.
+            :backupcopy :yes})
 
 (vim.cmd.abbreviate ["<buffer>" "\\bf" "\\mathbf"])
 (vim.cmd.abbreviate ["<buffer>" "\\rm" "\\mathrm"])

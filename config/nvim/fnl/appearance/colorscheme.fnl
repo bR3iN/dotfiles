@@ -20,11 +20,13 @@
 (hl! :ColorColumn {:bg named.base02})
 (hl! :Conceal {:bg named.base01})
 ;; CurSearch
-(hl! :Cursor {:fg named.base00 :bg named.base05})
+(hl! :Cursor {:fg named.base00 :bg named.green})
+(hl! :lCursor {:fg named.base00 :bg named.dark_yellow})
+(hl! :TermCursor {:fg named.base00 :bg named.dark_cyan})
 ;; lCursor
 ;; CursorIM
 (hl! :CursorColumn {:bg named.base01})
-(hl! :CursorLine {:bg (lighten named.base00 0.1)})
+(hl! :CursorLine {:bg (lighten named.base00 0.3)})
 (hl! :Directory {:fg named.base0C})
 (hl! :DiffAdd {:bg (darken named.base0D 0.5)})
 (hl! :DiffChange {:bg (darken named.base0E 0.5)})
@@ -46,7 +48,7 @@
 (hl! :CursorLineNr {:fg named.base0F :cterm nil})
 ;; CursorLineFold
 ;; CursorLineSign
-(hl! :MatchParen {:fg named.base00 :bg named.base0C})
+(hl! :MatchParen {:bg named.base00 :fg named.yellow :bold true})
 (hl! :ModeMsg {:bold true})
 ;; MsgArea
 ;; MsgSeparator

@@ -1,1 +1,1 @@
-{"References Subsection":{"prefix":"#R","body":["### References","- ${1:}"]}}
+{"References Subsection":{"body":["### References","- ${1:}"],"prefix":"#R"},"Info Block":{"body":["> [!${1:info}]${2:} ${3:}","> ${4:}"],"prefix":"Info Block"}}

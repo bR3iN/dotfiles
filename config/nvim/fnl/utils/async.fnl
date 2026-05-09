@@ -17,18 +17,19 @@
 ;               (assert (not err) err)
 ;               (do-smth-with dir)))`
 (macro dispatch! [args ...]
-  ; Split off the luvit call
+  ;; Split off the luvit call
   (let [call (table.remove args)
-        ; Create the callback
-        cb '(fn ,(doto args
-                   ; Insert error paramter into function signature
-                   (table.insert 1 'err#))
+	err (gensym :err)
+        ;; Create the callback
+        cb `(fn ,(doto args
+                   ;; Insert error paramter into function signature
+                   (table.insert 1 err))
               (do
-                ; Add error handling
-                (assert (not err#) err#)
-                ; Actual callback body
+                ;; Add error handling
+                (assert (not ,err) ,err)
+                ;; Actual callback body
                 ,...))]
-    ; Insert callback into libuv call
+    ;; Insert callback into libuv call
     (doto call
       (table.insert cb))))
 

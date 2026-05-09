@@ -207,7 +207,7 @@
                      (icollect [_ diag (ipairs [:hint :info :warn :error])]
                        (let [severity (. vim.diagnostic.severity
                                          (string.upper diag))
-                             {:signs {:text {severity icon}}} (vim.diagnostic.config)]
+                             icon (. (vim.diagnostic.config) :signs :text severity)]
                          ;; Component for a single diagnostic type
                          {:init #(set $1.count
                                       (length (vim.diagnostic.get 0
@@ -223,7 +223,7 @@
 (fn diag-static-state []
   (collect [_ diag (ipairs diag-kinds-lc)]
     (let [severity (. vim.diagnostic.severity (string.upper diag))
-          {:signs {:text {severity icon}}} (vim.diagnostic.config)]
+          icon (. (vim.diagnostic.config) :signs :text severity)]
       (values diag {: icon :color (. named diag) : severity}))))
 
 (fn diag-counts [static]
@@ -249,7 +249,7 @@
                     (icollect [_ diag (ipairs diag-kinds-lc)]
                       (let [severity (. vim.diagnostic.severity
                                         (string.upper diag))
-                            {:signs {:text {severity icon}}} (vim.diagnostic.config)]
+                            icon (. (vim.diagnostic.config) :signs :text severity)]
                         ;; Component for a single diagnostic type
                         {;; :init #(set $1.count
                          ;;           (length (vim.diagnostic.get 0 {: severity})))
@@ -289,7 +289,7 @@
 (fn inc--diag [{: buf}]
   (sep-with (icollect [_ diag (ipairs [:hint :info :warn :error])]
               (let [severity (. vim.diagnostic.severity (string.upper diag))
-                    {:signs {:text {severity icon}}} (vim.diagnostic.config)
+                    icon (. (vim.diagnostic.config) :signs :text severity)
                     count (length (vim.diagnostic.get buf {: severity}))]
                 ;; Component for a single diagnostic type
                 (when (> count 0)
