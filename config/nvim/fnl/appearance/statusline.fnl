@@ -473,6 +473,7 @@
                    hl--space
                    {:hl {:bold true :fg named.fg0} :provider "%f"}
                    {:provider "%="}
+                   hl--space
                    ;; Right side
                    ;; Attached language server
                    {:condition lsp_attached 1 [hl--lsp-list hl--wide-sep]}
@@ -522,7 +523,8 @@
          :hl {:fg named.green}}
         ;; hl--file-icons
         ;; hl--space
-        {:condition #(navic_available) 1 hl--navic}
+        ;; TODO: See if aerial.nvim (<leader>n + <leader>to) is enough
+        ;; {:condition #(navic_available) 1 hl--navic}
         {:provider "%="}
         hl--space
         {;; Intermediate background transition if diagnostics are present
@@ -556,10 +558,13 @@
 ;; (hl! :TerminalBackground {:bg named.bg0})
 ;; (hl! :WinSeparator {:fg named.transparent})
 
+(local sc--line-nr {:provider "%l"})
+
 ;; Setup heirline
 (setup-heirline {: statusline
                  : winbar
                  : tabline
+                 ;; :statuscolumn [sc--line-nr]
                  :opts {:disable_winbar_cb (fn [{: buf}]
                                              (let [is-floating (not= (. (vim.api.nvim_win_get_config 0)
                                                                         :relative)

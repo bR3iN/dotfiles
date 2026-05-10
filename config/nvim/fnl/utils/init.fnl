@@ -106,7 +106,8 @@
 (fn build-rhs [lhs rhs {: repeatable : deprecated : remap}]
   (fn []
     (when deprecated
-      (vim.notify (string.format "Don't use %s: %s" lhs deprecated)
+      (vim.notify (string.format "Don't use %s: %s"
+                                 (string.gsub lhs " " "<space>") deprecated)
                   vim.log.levels.WARN))
     ;; The actual rhs
     (if (M.string? rhs) (M.feed! rhs remap) (rhs))
@@ -130,7 +131,8 @@
 
 (fn apply! [{: modes : lhs : rhs : opts}]
   (if rhs (vim.keymap.set modes lhs rhs opts)
-      (vim.keymap.del modes lhs {:buffer opts.buffer})))
+    ;; FIXME: how to check if a bind exists?
+      (pcall #(vim.keymap.del modes lhs {:buffer opts.buffer}))))
 
 (fn map-for-buffer [buffer map]
   (vim.tbl_extend :force map
@@ -161,8 +163,7 @@
             callback (fn [{: buf :data {: client_id}}]
                        (when (buf-ok? buf client_id)
                          (apply! (map-for-buffer buf map))))]
-        (init-autocmd :LspAttach (vim.tbl_extend :error opts
-                                      { : callback}))))))
+        (init-autocmd :LspAttach (vim.tbl_extend :error opts {: callback}))))))
 
 (fn M.keymaps! [tbl]
   (let [base-opts (or (pop! tbl :opts) {})]

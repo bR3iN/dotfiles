@@ -147,10 +147,12 @@
         ]
     ;; FIXME: remove duplication
     ;; (vim.tbl_extend :force colors darkened lightened)
-    colors
-    ))
+    colors))
 
 (local named-cache (mk-named))
+
+(fn colored-selection [accent-color]
+  (mix accent-color named-cache.bg1 0.03))
 
 (fn get-named []
   ;; (when (not named-cache)
@@ -161,6 +163,7 @@
  : darken
  ;; : scale
  : mix
+ : colored-selection
  :dump (fn []
          (vim.api.nvim_put (vim.split (vim.inspect (get-named)) "\n") :l true
                            true))

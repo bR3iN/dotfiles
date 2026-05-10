@@ -1,4 +1,4 @@
-(local {: lighten : darken : mix : get-named} (require :utils.colors))
+(local {: lighten : darken : mix : get-named : colored-selection} (require :utils.colors))
 (local {: hl! : hls!} (require :utils))
 
 (local named (get-named))
@@ -48,7 +48,8 @@
 (hl! :CursorLineNr {:fg named.base0F :cterm nil})
 ;; CursorLineFold
 ;; CursorLineSign
-(hl! :MatchParen {:bg named.base00 :fg named.yellow :bold true})
+(hl! :MatchParen {:fg named.yellow :bold true})
+;; Defined by `vim-matchup`
 (hl! :ModeMsg {:bold true})
 ;; MsgArea
 ;; MsgSeparator
@@ -103,8 +104,9 @@
 
 ;; TabLineFill
 (hl! :Title {:fg named.base0E})
-(hl! :Visual {:bg (mix named.dark_cyan named.base02 0.1)})
-(hl! :VisualNOS {:bg (mix named.dark_yellow named.base02 0.1)})
+(hl! :Visual {:bg (colored-selection named.dark_cyan)})
+;; [N]ot [O]wning the [S]election
+(hl! :VisualNOS {:bg (colored-selection named.dark_yellow)})
 (hl! :WarningMsg {:fg named.base08})
 (hl! :WildMenu {:fg named.base00 :bg named.base0A})
 ;; WinBar

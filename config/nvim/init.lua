@@ -2,6 +2,7 @@
 -- vim.loader.enable()
 
 require('bootstrap.hotpot')
+_G.package.loaded['utils.colors'] = false
 local utils = require('utils')
 
 -- Resets internal state when reloading config
