@@ -1,6 +1,6 @@
 (local {: buf-opts!
         : put!
-        : reload
+        : command!
         : get-cwd-override
         : opts!
         : use!
@@ -65,47 +65,18 @@
 ;; set leader keys
 (local L " ")
 (local LL " c")
-
 (set vim.g.mapleader L)
 (set vim.g.maplocalleader LL)
 
-;; Open urls externally with xdg-open
-;; FIXME: deprecated helper
-(mk-op! :OpenExternally (let [cmd :xdg-open
-                              open #(let [on-exit (fn [exit]
-                                                    (if (not= exit 0)
-                                                        (error (.. cmd " '" $1
-                                                                   "' failed with exit code "
-                                                                   exit))))]
-                                      (spawn cmd {:args [$1]} on-exit))]
-                          (fn [lines]
-                            (vim.tbl_map open lines))))
-
-;; FIXME: for debugging
-;; (keymaps! {:n (collect [_ key (ipairs [:<C-CR>
-;;                                        :<M-CR>
-;;                                        :<C-M-CR>
-;;                                        :<Tab>
-;;                                        :<C-i>
-;;                                        "<C-[>"
-;;                                        "<C-M-[>"
-;;                                        "<M-[>"
-;;                                        :<ESC>
-;;                                        :<C-ESC>
-;;                                        :<C-Left>
-;;                                        :<C-M-Left>
-;;                                        :<M-Left>])]
-;;                 (values key #(vim.print key)))})
-
 ;; Aliases
-(keymaps! {:n {"<M-o>" {:desc "Forward Jump" :callback "<C-i>"}}})
 ;; (keymaps! {:n {"<CR>" "<C-]>"}} {:remap true})
 (keymaps! {:n {L {:w {:desc "Window Commands" :callback "<C-w>" :remap true}}
                ;; TODO: Test
                "<C-w>" {"a" "<C-w>w"}}})
 
 ;; Insert mode keymaps
-(keymaps! {:i {:<C-CR> {:desc "Break line after cursor"
+(keymaps! {:i {;; FIXME: doesn't work inside tmux
+               :<C-CR> {:desc "Break line after cursor"
                         :callback "<C-o>mz<CR><ESC>`za"}
                ;; Correctly indent when pasting multiple lines in insert mode
                :<C-r> {:desc "Paste (auto-indent)" :callback "<C-r><C-o>"}
@@ -146,29 +117,20 @@
 
 ;; [Q]uit things
 (keymaps! {:n {L {:q {:V {:desc "Quit NeoVim" :callback ":<C-u>qall<CR>"}
-                      :w {:desc "Quit Window" :callback ":q<CR>"}
+                      :w {:desc "Close Window" :callback ":q<CR>"}
                       :q {:desc "Close Quickfix List" :callback vim.cmd.cclose}
                       :l {:desc "Close Location List" :callback vim.cmd.lclose}
                       :p {:desc "Close Preview" :callback "<C-w>z"}}}}})
-
-(keymaps! {:n {L {[:k :oh] {:desc "Hover" :callback "K" :remap true}}}})
-
-;; Expand selection using treesitter
-;; TODO
-(keymaps! {:opts {:remap true}
-           :n {"+" {:desc "Expand Selection" :callback "vin"}}
-           :v {"+" {:desc "Expand Selection" :callback "an"}
-               "-" {:desc "Contract Selection" :callback "in"}}})
 
 ;; File Operations
 ;; Not under leader to not accidentally trigger the tmux leader <C-space> when doing e.g. `<C-]><space>s`
 (keymaps! {:n {:<C-s> {:desc "Save All Files" :callback ":<C-u>wall<CR>"}
                (.. L "x") {:deprecated "use <C-s>" :callback ""}
+               ;; TODO:
                :<M-s> {:desc "Save File" :callback ":<C-u>update<CR>"}}})
 
 ;; `sudo`-write trick with pkexec
-(vim.api.nvim_create_user_command :WriteAsRoot "write !pkexec tee % >/dev/null"
-                                  {})
+(command! :WriteAsRoot "write !pkexec tee % >/dev/null")
 
 (keymaps! {:n {;; :o {:desc "Open URL/file under cursor"
                ;;     :callback #(vim.cmd (.. "!xdg-open "
@@ -185,26 +147,11 @@
 
 ;; Navigation
 
-;; (macro no-animate [...]
-;;   ;; Specifying the location like this is necessary as fennel disallows binding to the shadowed identifier otherwise
-;;   `(with-saved [(. _G.vim.b :snacks_animate) (. _G.vim.go :lazyredraw)]
-;;      (tset _G.vim.b :snacks_animate false)
-;;      (tset _G.vim.go :lazyredraw true)
-;;      ,...))
-;;
-;; (keymaps! {:n {"]<space>" {:callback #(no-animate (feed! "mza<CR><Esc>`z"))
-;;                            :desc "Break line after cursor"
-;;                            :repeatable true}
-;;                "[<space>" {:callback #(no-animate (feed! "i<CR><ESC>l"))
-;;                            :desc "Break line before cursor"
-;;                            :repeatable true}}})
-
-(keymaps! {[:n :v] {}})
-
 ;; Leap with s/gs
 (use! :https://codeberg.org/andyg/leap.nvim
       {:setup {:leap {:safe_labels {}}}
        :keymaps {[:n :v] {:s {:desc "Jump in Buffer" :callback "<Plug>(leap)"}
+                          ;; FIXME:
                           L {:s {:desc "Jump to Other Buffer"
                                  :callback "<Plug>(leap-from-window)"}}}}})
 
@@ -295,25 +242,6 @@
 (keymaps! {:c {:<M-p> {:desc "Previous History" :callback #(feed! :<Up>)}
                :<M-n> {:desc "Next History" :callback #(feed! :<Down>)}}})
 
-;; Navigate windows with Alt + vim keys
-(let [dirs {:h "Left" :j "Down" :k "Up" :l "Right"}
-      nmaps (vim.tbl_extend :error
-                            (collect [key desc (pairs dirs)]
-                              (values (.. "<M-" key ">")
-                                      {:desc (.. "Window " desc)
-                                       :callback (.. "<C-w>" key)}))
-                            {"<M-q>" {:desc "Close Window" :callback "<C-w>q"}
-                             "<M-c>" {:desc "New Tab" :callback ":tabnew<CR>"}
-                             "<M-s>" {:callback "<C-w>s"}
-                             "<M-v>" {:callback "<C-w>v"}
-                             "<M-n>" {:desc "Next Tab"
-                                      :callback ":tabnext<CR>"}
-                             "<M-p>" {:desc "Previous Tab"
-                                      :callback ":tabprevious<CR>"}})
-      imaps (collect [lhs {: callback} (pairs nmaps)]
-              (values lhs {:callback (.. "<C-\\><C-n>" callback)}))]
-  (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
-
 ;; (keymaps! {:n (let [jump (fn [count]
 ;;                            (vim.diagnostic.jump {: count :wrap false}))]
 ;;                 {"]d" {:desc "Next Diagnostic" :callback #(jump vim.v.count1)}
@@ -341,6 +269,7 @@
                "[L" {:desc "First Location" :callback ":<C-u>lfirst<CR>"}
                "]L" {:desc "Last Location" :callback ":<C-u>llast<CR>"}
                ;; Errors
+               ;; TODO
                "[e" {:desc "Go to previous error"
                      :callback #(vim.diagnostic.jump {:count -1
                                                       :severity vim.diagnostic.severity.ERROR})}
@@ -391,6 +320,7 @@
 ;;        :init #(set vim.g.loaded_matchparen 1)
 ;;        :setup {:matchparen {}}})
 
+;; TODO:
 (do
   (fn ensure-forward [?reverse]
     (let [cursor (vim.api.nvim_win_get_cursor 0)
@@ -419,6 +349,7 @@
        :hl {:MatchWord {:link :VisualNOS}}
        :keymaps {:opts {:remap true}
                  :n {;; CTRL-L-default
+                     ;; FIXME: good?
                      :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>"
                              :remap false}
                      :<M-l> "vi%"
@@ -685,8 +616,7 @@
 ;; --- Git ---
 
 (use! :lewis6991/gitsigns.nvim
-      {:setup {:gitsigns {
-                          ;; :numhl true
+      {:setup {:gitsigns {;; :numhl true
                           ;; :signs {;;:add {:text "┃"}
                           ;;         ;;:change {:text "┃"}
                           ;;         ;; :delete {:text "┃"}
@@ -700,8 +630,7 @@
                           :sign_priority 0
                           ;; Are toggled together below.
                           :signcolumn false
-                          :linehl false
-                          }}
+                          :linehl false}}
        :hl #(let [for-bg #(mix colors.bg0 $1 0.9)
                   for-inline #(mix colors.bg0 $1 0.7)]
               {;; Used in signcolumn
@@ -715,20 +644,18 @@
                ;; Used for word_diff
                :GitSignsDeleteInline {:bg (colored-selection colors.red)}
                :GitSignsAddInline {:bg (colored-selection colors.green)}
-               :GitSignsChangeInline {:bg (colored-selection colors.cyan)}
-               })
+               :GitSignsChangeInline {:bg (colored-selection colors.cyan)}})
        :keymaps {[:n :v] {"]g" {:desc "Next Git Hunk"
                                 :callback #(vim.cmd.Gitsigns :nav_hunk :next)}
                           "[g" {:desc "Previous Git Hunk"
                                 :callback #(vim.cmd.Gitsigns :nav_hunk :prev)}}
                  :n {L {:u {:g {:desc "Toggle Git Signcolumn"
-                                :callback #(vim.cmd.Gitsigns :toggle_signs)
-                                }
+                                :callback #(vim.cmd.Gitsigns :toggle_signs)}
                             ;; NOTE: No usecase?
                             ;; :G {:desc "Toggle Line Highlights"
                             ;;     :callback #(vim.cmd.Gitsigns :toggle_linehl)}
                             :G {:desc "Toggle Git Word Diff"
-                                    :callback #(vim.cmd.Gitsigns :toggle_word_diff)}}
+                                :callback #(vim.cmd.Gitsigns :toggle_word_diff)}}
                         :o {}
                         :t {}
                         :g {:a {:desc "Stage Hunk"
@@ -1179,6 +1106,67 @@
        ;;                                :O #(run {:direction :out})}}}})
        })
 
+;; Open urls externally with xdg-open
+;; FIXME: mk-op! is deprecated?
+(mk-op! :OpenExternally (let [cmd :xdg-open
+                              open #(let [on-exit (fn [exit]
+                                                    (if (not= exit 0)
+                                                        (error (.. cmd " '" $1
+                                                                   "' failed with exit code "
+                                                                   exit))))]
+                                      (spawn cmd {:args [$1]} on-exit))]
+                          (fn [lines]
+                            (vim.tbl_map open lines))))
+
+(keymaps! {:n {"<M-o>" {:desc "Forward Jump" :callback "<C-i>"}}})
+
+;; FIXME: for debugging
+;; (keymaps! {:n (collect [_ key (ipairs [:<C-CR>
+;;                                        :<M-CR>
+;;                                        :<C-M-CR>
+;;                                        :<Tab>
+;;                                        :<C-i>
+;;                                        "<C-[>"
+;;                                        "<C-M-[>"
+;;                                        "<M-[>"
+;;                                        :<ESC>
+;;                                        :<C-ESC>
+;;                                        :<C-Left>
+;;                                        :<C-M-Left>
+;;                                        :<M-Left>])]
+;;                 (values key #(vim.print key)))})
+
+;; TODO:
+(keymaps! {:n {L {[:k :oh] {:desc "Hover" :callback "K" :remap true}}}})
+
+;; Expand selection using treesitter
+;; TODO
+(keymaps! {:opts {:remap true}
+           :n {"+" {:desc "Expand Selection" :callback "vin"}}
+           :v {"+" {:desc "Expand Selection" :callback "an"}
+               "-" {:desc "Contract Selection" :callback "in"}}})
+
+;; Navigate windows with Alt + vim keys
+(let [dirs {:h "Left" :j "Down" :k "Up" :l "Right"}
+      nmaps (vim.tbl_extend :error
+                            (collect [key desc (pairs dirs)]
+                              (values (.. "<M-" key ">")
+                                      {:desc (.. "Window " desc)
+                                       :callback (.. "<C-w>" key)}))
+                            {"<M-q>" {:desc "Close Window" :callback "<C-w>q"}
+                             "<M-c>" {:desc "New Tab" :callback ":tabnew<CR>"}
+                             ;; FIXME:
+                             "<M-s>" {:callback "<C-w>s"}
+                             "<M-v>" {:callback "<C-w>v"}
+                             "<M-n>" {:desc "Next Tab"
+                                      :callback ":tabnext<CR>"}
+                             "<M-p>" {:desc "Previous Tab"
+                                      :callback ":tabprevious<CR>"}})
+      imaps (collect [lhs {: callback} (pairs nmaps)]
+              (values lhs {:callback (.. "<C-\\><C-n>" callback)}))]
+  (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
+
 ;; TODOs
 ;; - heirline statuscolumn + git setups
+
 ;; - matchup/treesitter binds

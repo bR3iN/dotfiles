@@ -1,6 +1,11 @@
 -- TODO: Fork with fix; find out why it is not a comon problem and make issue upstream
-vim.pack.add({"https://github.com/bR3iN/hotpot.nvim"})
-require('hotpot').setup()
+vim.pack.add({
+    {
+        src = "https://github.com/rktjmp/hotpot.nvim",
+        version = vim.version.range('^2.0.0')
+    }
+})
+require('hotpot')
 
 -- Setup hotpot
 -- require('hotpot').setup{
