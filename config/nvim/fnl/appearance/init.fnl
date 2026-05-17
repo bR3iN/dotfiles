@@ -6,8 +6,14 @@
 (local {: name} (require :base16-colors))
 (local colors (get-named))
 
-(opts! {:winborder :solid
-        :signcolumn :auto
+(opts! {;; TODO: check
+        ;; Effectively `solid` as we set fg=bg in `hl-FloatBorder`, but
+        ;; allows hl-groups to override this e.g. for emphasis
+        ;; (e.g. orange border on warnings).
+        :winborder :rounded
+        ;; :signcolumn :auto
+        ;; TODO: Move closer to heirline setup
+        :signcolumn :number
         :termguicolors true
         :guicursor (table.concat [;; Added hl-group to first group, rest is from default value
                                   "n-v-c-sm:block-Cursor"

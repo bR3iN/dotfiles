@@ -50,6 +50,8 @@
 (local winbar-active-color named.bg3)
 (local normal-color named.transparent)
 
+(local HL-ALIGN-MARK {:provider "%="})
+
 ;; Is kinda finicky here with transparent backgrounds, so we can't implicitly inherit the current winbar color set by WinBar[NC]
 (macro forward-transition [left-color ?right-color]
   `{:provider "" :hl #{:bg ,left-color :fg ,?right-color}})
@@ -127,13 +129,16 @@
       (get-bufname-shorter)
       (truncated)))
 
-(local hl--sep {:provider "│" :hl {:fg named.bg0 :bold true}})
-(local hl--sep-left-aligned {:provider "⎸" :hl {:fg named.bg0 :bold true}})
-(local hl--sep-right-aligned {:provider "⎹" :hl {:fg named.bg0 :bold true}})
-(local hl--space {:provider " "})
-(local hl--wide-sep [hl--space hl--sep hl--space])
+(local hl-sep {:provider "│" :hl {:fg named.dark_bg0}})
+(local hl-sep-left-aligned {:provider "⎸" :hl {:fg named.dark_bg0}})
+(local hl-sep-right-aligned {:provider "⎹" :hl {:fg named.dark_bg0}})
+(local hl-space {:provider " "})
+(local hl-wide-sep [;; hl-space
+                    {:provider "▕▏" :hl {:fg named.dark_bg0}}
+                    ;; hl-sep hl-space
+                    ])
 
-(local hl--mode-map
+(local hl-mode-map
        {:NORMAL {:color named.dark_green :modes [:n :niI :niR :niV :nt]}
         :OP {:color named.dark_green :modes [:no :nov :noV "no\022"]}
         :VISUAL {:color named.cyan :modes [:v :vs]}
@@ -150,34 +155,33 @@
         :SHELL {:color named.dark_green :modes [" !"]}
         :NONE {:color named.yellow :modes [:null]}})
 
-(local hl--mode-lookup (let [res {}]
-                         (each [name {: color : modes} (pairs hl--mode-map)]
-                           (each [_ mode (ipairs modes)]
-                             (tset res mode {: name : color})))
-                         res))
+(local hl-mode-lookup (let [res {}]
+                        (each [name {: color : modes} (pairs hl-mode-map)]
+                          (each [_ mode (ipairs modes)]
+                            (tset res mode {: name : color})))
+                        res))
 
 (fn get-mode []
   (. (vim.api.nvim_get_mode) :mode))
 
-(local hl--mode-short {:provider "█"
-                       :init #(set $1.color
-                                   (. hl--mode-lookup (get-mode) :color))
-                       :hl #{:fg (. hl--mode-lookup (get-mode) :color)}
-                       :static {}})
+(local hl-mode-short {:provider "█"
+                      :init #(set $1.color (. hl-mode-lookup (get-mode) :color))
+                      :hl #{:fg (. hl-mode-lookup (get-mode) :color)}
+                      :static {}})
 
-(local hl--mode {:provider #(.. " " (. hl--mode-lookup $1.mode :name) " ")
-                 :init #(set $1.mode (get-mode))
-                 :hl #{:reverse true
-                       :bold true
-                       :fg (. hl--mode-lookup $1.mode :color)}
-                 ;; :update {1 :RecordingEnter 2 :RecordingLeave 3 :ModeChanged}
-                 :static {}})
+(local hl-mode {:provider #(.. " " (. hl-mode-lookup $1.mode :name) " ")
+                :init #(set $1.mode (get-mode))
+                :hl #{:reverse true
+                      :bold true
+                      :fg (. hl-mode-lookup $1.mode :color)}
+                ;; :update {1 :RecordingEnter 2 :RecordingLeave 3 :ModeChanged}
+                :static {}})
 
-(local hl--lsp {:icon "" :color (darken named.dark_yellow 0.1)})
+(local hl-lsp {:icon "" :color (darken named.dark_yellow 0.1)})
 
-(local hl--lsp-list
-       {:hl {:fg hl--lsp.color}
-        1 [{:provider hl--lsp.icon}
+(local hl-lsp-list
+       {:hl {:fg hl-lsp.color}
+        1 [{:provider hl-lsp.icon}
            {:provider " "}
            {:flexible 2
             1 [{:provider #(table.concat (icollect [_ {: name} (pairs (vim.lsp.get_clients {:bufnr 0}))]
@@ -185,9 +189,9 @@
                                          " ")}]
             2 [{:provider " "} {:provider #(length (vim.lsp.get_clients))}]}]})
 
-(local hl--lsp-icon {:hl {:fg hl--lsp.color} :provider hl--lsp.icon})
+(local hl-lsp-icon {:hl {:fg hl-lsp.color} :provider hl-lsp.icon})
 
-(local hl--navic
+(local hl-navic
        (let [navic-get #(let [loc (navic_get_location $...)]
                           ;; (if (not (empty? loc))
                           ;;     (.. navic-sep loc)
@@ -200,22 +204,22 @@
              1 {:provider #(navic-get)}
              2 {:provider #(navic-get {:depth_limit 1})}}}))
 
-;; 1 [{:provider " "} hl--sep {:provider " "}]
-;; [hl--sep {:provider " "}]
-(local hl--diag2 {:update [:DiagnosticChanged :BufEnter]
-                  1 [;;{:provider ""}
-                     (icollect [_ diag (ipairs [:hint :info :warn :error])]
-                       (let [severity (. vim.diagnostic.severity
-                                         (string.upper diag))
-                             icon (. (vim.diagnostic.config) :signs :text severity)]
-                         ;; Component for a single diagnostic type
-                         {:init #(set $1.count
-                                      (length (vim.diagnostic.get 0
-                                                                  {: severity})))
-                          :hl {:fg (. named diag) :bg named.bg1}
-                          1 {:condition #(> $1.count 0)
-                             :provider #(.. " " $1.count " ")}}))
-                     {:provider " " :hl {:bg named.bg1}}]})
+;; 1 [{:provider " "} hl-sep {:provider " "}]
+;; [hl-sep {:provider " "}]
+(local hl-diag2 {:update [:DiagnosticChanged :BufEnter]
+                 1 [;;{:provider ""}
+                    (icollect [_ diag (ipairs [:hint :info :warn :error])]
+                      (let [severity (. vim.diagnostic.severity
+                                        (string.upper diag))
+                            icon (. (vim.diagnostic.config) :signs :text
+                                    severity)]
+                        ;; Component for a single diagnostic type
+                        {:init #(set $1.count
+                                     (length (vim.diagnostic.get 0 {: severity})))
+                         :hl {:fg (. named diag) :bg named.bg1}
+                         1 {:condition #(> $1.count 0)
+                            :provider #(.. " " $1.count " ")}}))
+                    {:provider " " :hl {:bg named.bg1}}]})
 
 ;; Lowercase here as we use them to index the map of named colors (`named`)
 (local diag-kinds-lc [:hint :info :warn :error])
@@ -237,26 +241,27 @@
 (fn has-diags []
   (< 0 (length (vim.diagnostic.get 0))))
 
-(local hl--diag {:update [:DiagnosticChanged :BufEnter :CursorHold]
-                 :init (fn [self]
-                         (when (not self.static)
-                           (set self.static (diag-static-state)))
-                         (set self.counts (diag-counts self.static)))
-                 ;; :condition #(< 0 (accumulate [sum 0
-                 ;;                               _ count (pairs $1.counts)]
-                 ;;                    (+ sum n)))
-                 1 [;;{:provider ""}
-                    (icollect [_ diag (ipairs diag-kinds-lc)]
-                      (let [severity (. vim.diagnostic.severity
-                                        (string.upper diag))
-                            icon (. (vim.diagnostic.config) :signs :text severity)]
-                        ;; Component for a single diagnostic type
-                        {;; :init #(set $1.count
-                         ;;           (length (vim.diagnostic.get 0 {: severity})))
-                         :hl #{:fg (. $1.static diag :color) :bg named.bg1}
-                         :condition #(> (. $1.counts diag) 0)
-                         :provider #(.. " " (. $1.counts diag) " ")}))
-                    {:provider " " :hl {:bg named.bg1}}]})
+(local hl-diag {:update [:DiagnosticChanged :BufEnter :CursorHold]
+                :init (fn [self]
+                        (when (not self.static)
+                          (set self.static (diag-static-state)))
+                        (set self.counts (diag-counts self.static)))
+                ;; :condition #(< 0 (accumulate [sum 0
+                ;;                               _ count (pairs $1.counts)]
+                ;;                    (+ sum n)))
+                1 [;;{:provider ""}
+                   (icollect [_ diag (ipairs diag-kinds-lc)]
+                     (let [severity (. vim.diagnostic.severity
+                                       (string.upper diag))
+                           icon (. (vim.diagnostic.config) :signs :text
+                                   severity)]
+                       ;; Component for a single diagnostic type
+                       {;; :init #(set $1.count
+                        ;;           (length (vim.diagnostic.get 0 {: severity})))
+                        :hl #{:fg (. $1.static diag :color) :bg named.bg1}
+                        :condition #(> (. $1.counts diag) 0)
+                        :provider #(.. " " (. $1.counts diag) " ")}))
+                   {:provider " " :hl {:bg named.bg1}}]})
 
 (fn try-around [arr el]
   (when (< 0 (length arr))
@@ -328,7 +333,7 @@
 ;;                            ;;             " ")
 ;;                            ])})
 
-(local hl--git-shortstat
+(local hl-git-shortstat
        {:init #(set $1.status_dict vim.b.gitsigns_status_dict)
         1 [{:provider (fn [self]
                         (.. "+" (or self.status_dict.added 0)))
@@ -340,34 +345,34 @@
                         (.. "~" (or self.status_dict.changed 0)))
             :hl {:fg named.dark_yellow}}]})
 
-(local hl--git {:init #(set $1.status_dict vim.b.gitsigns_status_dict)
-                1 [{:hl {:fg named.dark_orange :bold true}
-                    1 {:provider "󰘬"}
-                    2 {:flexible 4
-                       1 [{:provider " "}
-                          ;; Branchname
-                          {:provider #$1.status_dict.head}]
-                       2 {:provider ""}}}]})
+(local hl-git {:init #(set $1.status_dict vim.b.gitsigns_status_dict)
+               1 [{:hl {:fg named.dark_orange :bold true}
+                   1 {:provider "󰘬"}
+                   2 {:flexible 4
+                      1 [{:provider " "}
+                         ;; Branchname
+                         {:provider #$1.status_dict.head}]
+                      2 {:provider ""}}}]})
 
-(local hl--ruler [{:provider "%l" :hl {:fg named.dark_blue}}
-                  {:provider ":" :hl {:fg (darken named.fg0 0.2)}}
-                  {:provider "%c" :hl {:fg named.dark_blue}}])
+(local hl-ruler [{:provider "%l" :hl {:fg named.dark_blue}}
+                 {:provider ":" :hl {:fg (darken named.fg0 0.2)}}
+                 {:provider "%c" :hl {:fg named.dark_blue}}])
 
-(local hl--file {:hl {:bold true}
-                 :flexible 3
-                 ;; 1 {:provider #(-> (vim.api.nvim_get_current_buf)
-                 ;;                                    (get-bufname-full))}
-                 1 {:provider #(-> (vim.api.nvim_get_current_buf)
-                                   (get-bufname))}
-                 2 {:provider #(-> (vim.api.nvim_get_current_buf)
-                                   (get-bufname)
-                                   (truncated))}})
+(local hl-file {:hl {:bold true}
+                :flexible 3
+                ;; 1 {:provider #(-> (vim.api.nvim_get_current_buf)
+                ;;                                    (get-bufname-full))}
+                1 {:provider #(-> (vim.api.nvim_get_current_buf)
+                                  (get-bufname))}
+                2 {:provider #(-> (vim.api.nvim_get_current_buf)
+                                  (get-bufname)
+                                  (truncated))}})
 
-(local hl--line-count {:provider "%L" :hl {:fg nil}})
-(local hl--perc {:hl {:fg nil} 1 {:provider "%p%%"}})
+(local hl-line-count {:provider "%L" :hl {:fg nil}})
+(local hl-perc {:hl {:fg nil} 1 {:provider "%p%%"}})
 
-(local hl--win-nr {:provider #(tostring (vim.api.nvim_win_get_number 0))
-                   :hl {:fg named.dark_red :bold true}})
+(local hl-win-nr {:provider #(tostring (vim.api.nvim_win_get_number 0))
+                  :hl {:fg named.dark_red :bold true}})
 
 (fn is-not-incline-win [win]
   (and (vim.api.nvim_win_is_valid win)
@@ -377,7 +382,7 @@
 (local tab-selected (darken named.bg3 0.1))
 (local tab-nonselected named.bg1)
 
-(local hl--tablist
+(local hl-tablist
        {;;:condition #(< 1 (length (vim.api.nvim_list_tabpages)))
         1 (make_tablist {:hl #{:bg (if $1.is_active tab-selected
                                        tab-nonselected)
@@ -412,19 +417,19 @@
 
 ;; Top-level statusline definitions
 
-(local hl--user-and-host
+(local hl-user-and-host
        [{:hl {:fg named.green} :provider (. (vim.uv.os_get_passwd) :username)}
         {:provider "@"}
         {:provider (vim.uv.os_gethostname)}])
 
 (local tabline [;; left side
-                ;; hl--mode-short
-                hl--tablist
-                {:provider "%="}
+                ;; hl-mode-short
+                hl-tablist
+                HL-ALIGN-MARK
                 ;; right side
-                ;; {:condition is_git_repo 1 [hl--space hl--git]}
-                ;; hl--space
-                ;; {:hl {:bg named.bg2} 1 [hl--space hl--user-and-host hl--space]}
+                ;; {:condition is_git_repo 1 [hl-space hl-git]}
+                ;; hl-space
+                ;; {:hl {:bg named.bg2} 1 [hl-space hl-user-and-host hl-space]}
                 ])
 
 (autocmd! {:event [:ModeChanged :InsertLeave :InsertEnter]
@@ -448,97 +453,96 @@
     (where :acwrite (= vim.bo.filetype :oil))
     {:icon "" :fg (if vim.bo.modified named.cyan named.dark_brown)}))
 
-(local hl--buftype-icon {:init #(set $1.state (get-buftype-icon))
-                         :provider #(padded " " (?. $1 :state :icon))
-                         :hl #{:fg (?. $1 :state :fg)}})
+(local hl-buftype-icon {:init #(set $1.state (get-buftype-icon))
+                        :provider #(padded " " (?. $1 :state :icon))
+                        :hl #{:fg (?. $1 :state :fg)}})
 
-(local hl--buftype-icon2 [{:condition #(= vim.bo.buftype "")
-                           :provider " 󰈔"
-                           :hl #{:fg named.fg0}}
-                          {:condition #(= vim.bo.buftype "terminal")
-                           :provider " "
-                           :hl {:fg named.brown}}])
+(local hl-buftype-icon2 [{:condition #(= vim.bo.buftype "")
+                          :provider " 󰈔"
+                          :hl #{:fg named.fg0}}
+                         {:condition #(= vim.bo.buftype "terminal")
+                          :provider " "
+                          :hl {:fg named.brown}}])
 
-(local hl--file-icons [{:condition (fn [] vim.bo.readonly)
-                        :provider " "
-                        :hl {:fg named.green}}
-                       {:condition (fn [] vim.bo.modified)
-                        :provider " "
-                        :hl {:fg named.orange}}
-                       {:condition #(not (or vim.bo.modified vim.bo.readonly))
-                        :provider "  "
-                        :hl {:fg named.orange}}])
+(local hl-file-icons [{:condition (fn [] vim.bo.readonly)
+                       :provider " "
+                       :hl {:fg named.green}}
+                      {:condition (fn [] vim.bo.modified)
+                       :provider " "
+                       :hl {:fg named.orange}}
+                      {:condition #(not (or vim.bo.modified vim.bo.readonly))
+                       :provider "  "
+                       :hl {:fg named.orange}}])
 
-(local statusline [hl--mode-short
-                   hl--space
+(local statusline [hl-mode-short
+                   hl-space
                    {:hl {:bold true :fg named.fg0} :provider "%f"}
-                   {:provider "%="}
-                   hl--space
+                   HL-ALIGN-MARK
+                   hl-space
                    ;; Right side
                    ;; Attached language server
-                   {:condition lsp_attached 1 [hl--lsp-list hl--wide-sep]}
+                   {:condition lsp_attached 1 [hl-lsp-list hl-wide-sep]}
                    {:condition is_git_repo
                     1 [;; Current branch
-                       hl--git
-                       hl--space
+                       hl-git
+                       hl-space
                        ;; Shortstats
-                       hl--git-shortstat
-                       hl--wide-sep]}
+                       hl-git-shortstat
+                       hl-wide-sep]}
                    ;; Line Count
-                   {:hl {:fg named.dark_magenta} 1 hl--line-count}
-                   hl--wide-sep
+                   {:hl {:fg named.dark_magenta} 1 hl-line-count}
+                   hl-wide-sep
                    ;; Ruler
-                   hl--ruler
-                   hl--wide-sep
+                   hl-ruler
+                   hl-wide-sep
                    ; Percentage in file
-                   {:hl {:fg named.dark_green} 1 hl--perc}
-                   hl--space])
+                   {:hl {:fg named.dark_green} 1 hl-perc}
+                   hl-space])
 
 (fn curr-winbar-color []
   (if (is_active) winbar-active-color winbar-color))
 
-(local winbar-active-bg (mix named.blue named.fg0 0.8))
+(local winbar-active-bg (mix named.blue named.fg0 0.85))
 
 (local winbar
        [;; left side
         {:hl {:bg normal-color}
-         1 [hl--space
-            hl--win-nr
-            hl--space
+         1 [hl-space
+            hl-win-nr
+            hl-space
             {:hl #(if (is_active)
                       {:bg winbar-active-bg
-                       ;; :bg (. hl--mode-lookup (get-mode) :color)
-                       :fg named.transparent}
+                       ;; :bg (. hl-mode-lookup (get-mode) :color)
+                       :fg named.transparent
+                       ;; High contrast but might not match the colorscheme
+                       :fg "#000000"}
                       {;; :bg (mix named.fg0 named.bg3 0.7)
-                       :bg named.dark_fg0
-                       :fg named.transparent})
+                       :bg named.mid
+                       :fg "#000000"})
              1 [(backward-transition normal-color)
-                hl--space
-                hl--file
-                hl--space
+                hl-space
+                hl-file
+                hl-space
                 (forward-transition nil (curr-winbar-color))]}]}
-        hl--space
+        hl-space
         {:condition (fn [] vim.bo.readonly)
          :provider " "
          :hl {:fg named.green}}
-        ;; hl--file-icons
-        ;; hl--space
+        ;; hl-file-icons
+        ;; hl-space
         ;; TODO: See if aerial.nvim (<leader>n + <leader>to) is enough
-        ;; {:condition #(navic_available) 1 hl--navic}
-        {:provider "%="}
-        hl--space
+        ;; {:condition #(navic_available) 1 hl-navic}
+        HL-ALIGN-MARK
+        hl-space
         {;; Intermediate background transition if diagnostics are present
          :fallthrough false
          1 {:condition has-diags
             :hl #{:bg winbar-secondary}
-            1 [(forward-transition (if (is_active) winbar-active-color
-                                       winbar-color)
-                                   winbar-secondary)
-               hl--diag
+            1 [(forward-transition (curr-winbar-color) winbar-secondary)
+               hl-diag
                (forward-transition nil normal-color)]}
-         2 (forward-transition (if (is_active) winbar-active-color winbar-color)
-                               normal-color)}
-        {:hl {:bg normal-color} 1 [hl--buftype-icon hl--space]}])
+         2 (forward-transition (curr-winbar-color) normal-color)}
+        {:hl {:bg normal-color} 1 [hl-buftype-icon hl-space]}])
 
 ;; Setup
 
@@ -558,13 +562,196 @@
 ;; (hl! :TerminalBackground {:bg named.bg0})
 ;; (hl! :WinSeparator {:fg named.transparent})
 
-(local sc--line-nr {:provider "%l"})
+;; --- Signcolumn ---
+
+;; Signs
+
+(fn sign->category [{: sign_hl_group}]
+  (if (vim.startswith sign_hl_group "GitSigns") :git
+      ;; (and (= vim.v.relnum 0) (vim.startswith sign_hl_group :DiagnosticSign)) nil
+      ;; Other
+      :other))
+
+;; Mostly usefule due to `(set loc val)` not returning the new value.
+(macro get_with_default [loc default]
+  "Gets LOC or sets it to DEFAULT (the latter lazily evaluated), returns LOC's 
+  current value in any case. LOC shouldn't have side effects as it might be evaluted
+  multiple times."
+  `(or ,loc (do
+              (set ,loc ,default)
+              ,loc)))
+
+(fn trim-sign [{: sign_text &as sign}]
+  (set sign.sign_text (vim.trim sign_text))
+  sign)
+
+(fn sort-signs [signs]
+  "Also trims"
+  ;; TODO: buf correct?
+  (let [res {}
+        get-curr (fn [row cat]
+                   (let [entry (get_with_default (. res row) {})
+                         curr (get_with_default (. entry cat)
+                                                {:priority -1 :sign nil})]
+                     curr))]
+    (each [_ [_id row _col {: priority &as details}] (ipairs signs)]
+      (let [cat (sign->category details)]
+        (when cat
+          (let [curr (get-curr row cat)]
+            (when (> priority curr.priority)
+              (set curr.priority priority)
+              (set curr.sign details))))))
+    ;; Remove info needed only for aggregating.
+    (collect [row entry (pairs res)]
+      (values row (collect [cat {: sign} (pairs entry)]
+                    (values cat sign))))))
+
+(fn buffer-signs [?buf ?ns ?fst ?lst]
+  "Defaults to whole current buffer and all namespaces."
+  (vim.api.nvim_buf_get_extmarks (or ?buf 0) (or ?ns -1) [(or ?fst 0) 0]
+                                 [(or ?lst -1) -1] {:details true :type :sign}))
+
+;; (vim.print (buffer-signs))
+
+(fn line-signs [lnum]
+  (buffer-signs nil nil lnum lnum))
+
+;; (let [signs (buffer-signs)]
+;;   (each [_ [_id _row _col details] (ipairs signs)]
+;;     (trim-sign details))
+;;   (vim.print (sort-signs signs)))
+
+;; Line Numbers
+
+(fn line-count [win]
+  (-> win
+      (vim.api.nvim_win_get_buf)
+      (vim.api.nvim_buf_line_count)))
+
+(fn buf-lnum-width [win]
+  (-> win
+      (line-count)
+      (tostring)
+      (length)
+      (math.max 3)))
+
+(local NO-BREAK-SPC " ")
+
+(fn resolve-lnum [win]
+  "Decides which number to show for the current line, respecting options like
+  `number` and `relativenumber`."
+  (let [num? (. vim.wo win :number)
+        relnum? (. vim.wo win :relativenumber)]
+    (if (and (or num? relnum?) (< 0 vim.v.virtnum))
+        ;; NOTE: Space or empty string might be truncated by nvim.
+        ;; NO-BREAK-SPC
+        ""
+        (and relnum? (not (and num? (= 0 vim.v.relnum))))
+        (tostring vim.v.relnum)
+        num?
+        (tostring vim.v.lnum)
+        nil)))
+
+(fn pad [str size]
+  (let [len (length str)
+        diff (- size len)]
+    ;; Regular space might be realigned by neovim
+    (.. (string.rep NO-BREAK-SPC diff) str)))
+
+(fn line-nr []
+  (let [win (vim.api.nvim_get_current_win)
+        lnum (resolve-lnum win)]
+    (pad lnum (buf-lnum-width win))
+    ;; lnum
+    ))
+
+;; (fn sign->component [{: sign_text : sign_hl_group}]
+;;   {:provider sign_text :hl sign_hl_group})
+
+(fn sign-comp [cat ?opts]
+  (let [{: fallback : trim} (or ?opts {})]
+    {:provider #(let [text (?. $1 :signs cat :sign_text)
+                      text (if (and trim text) (vim.trim text) text)]
+                  (or text fallback ""))
+     :hl #(?. $1 :signs cat :sign_hl_group)}))
+
+(fn hl-line-nr [{: pad-left : pad-right : pad-lnum : hl}]
+  (let [;; Inject default options
+        pad-lnum (or pad-lnum true)
+        init (fn [self]
+               (let [win (vim.api.nvim_get_current_win)
+                     lnum (resolve-lnum win)]
+                 (set self.lnum (if (and pad-lnum lnum)
+                                    (pad lnum (buf-lnum-width win))
+                                    lnum))))]
+    {: init
+     : hl
+     1 [{:provider #(when (and pad-left $1.lnum) :▌)
+         :hl {:fg named.transparent}}
+        {:provider #$1.lnum}
+        {:provider #(when (and pad-right $1.lnum) :▐)
+         :hl {:fg named.transparent}}]}))
+
+;; (local hl-line-nr (let []
+;;                      {:init (fn [self]
+;;                               (let [win (vim.api.nvim_get_current_win)
+;;                                     lnum (resolve-lnum win)
+;;                                     lnum (-?> lnum
+;;                                               (pad (buf-lnum-width win)))]
+;;                                 (set self.lnum lnum)))
+;;                       1 [{:provider #(when $1.lnum :▌)
+;;                           :hl {:fg named.transparent}}
+;;                          {:provider #$1.lnum}
+;;                          {:provider #(when $1.lnum :▐)
+;;                           :hl {:fg named.transparent}}]}))
+
+(local cfg {:git_as_left_lnum_padding true})
+
+(local statuscolumn {:condition #(not= :no vim.wo.signcolumn)
+                     :init (fn [self]
+                             (let [;; nvim api uses 0-based line counts here
+                                   lnum (- vim.v.lnum 1)]
+                               (set self.signs
+                                    (-> lnum
+                                        (line-signs)
+                                        (sort-signs)
+                                        (. lnum)))))
+                     1 (let [nr-bg nil]
+                         [;; Only visible when `foldcolumn` is set.
+                          {:provider :%C}
+                          (sign-comp :other {:trim true})
+                          ;; NOTE: This causes neovim to pad until some
+                          ;; internal minimum width, which can be too high if
+                          ;; not using `signcolumn=number`. We also pad
+                          ;; with non-breaking spaces above for this.
+                          HL-ALIGN-MARK
+                          (if cfg.git_as_left_lnum_padding
+                              [;; Replace left-padding of line-nr with gitsigns
+                               (sign-comp :git {:trim true :fallback " "})
+                               (hl-line-nr {:pad-right true
+                                            :pad-lnum false
+                                            :hl {:bg nr-bg}})]
+                              [(sign-comp :git {:trim true})
+                               (hl-line-nr {:pad-left true
+                                            :pad-right true
+                                            :pad-lnum true
+                                            :hl {:bg nr-bg}})])
+                          ;; remove our padding.
+                          ;; {:provider " "}
+                          ;; {:provider "0"}
+                          ;; {:provider " " :hl {:bg nr-bg}}
+                          ;; { :hl {:bg nil}
+                          ;;  1 (sign-comp :git)}
+                          ])})
+
+;; --- Setup ---
 
 ;; Setup heirline
 (setup-heirline {: statusline
                  : winbar
                  : tabline
-                 ;; :statuscolumn [sc--line-nr]
+                 ;; Needs `signcolumn=number` to not have neovim enforce its miminum width.
+                 : statuscolumn
                  :opts {:disable_winbar_cb (fn [{: buf}]
                                              (let [is-floating (not= (. (vim.api.nvim_win_get_config 0)
                                                                         :relative)

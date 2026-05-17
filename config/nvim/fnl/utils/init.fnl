@@ -131,7 +131,7 @@
 
 (fn apply! [{: modes : lhs : rhs : opts}]
   (if rhs (vim.keymap.set modes lhs rhs opts)
-    ;; FIXME: how to check if a bind exists?
+      ;; FIXME: how to check if a bind exists?
       (pcall #(vim.keymap.del modes lhs {:buffer opts.buffer}))))
 
 (fn map-for-buffer [buffer map]
@@ -286,8 +286,7 @@
          : command} (or ?opts {})
         reload (if (M.table? reload) reload [reload])
         set-hls! (when hl
-                   #(each [name opts (pairs (eval hl))]
-                      (M.hl! name opts)))
+                   #(M.hls! (eval hl)))
         before (fn []
                  (when init
                    (init)))
@@ -295,6 +294,7 @@
                 ;; Some plugins (e.g. indent-blankline) require highlight groups to be set before setup.
                 (when set-hls!
                   (set-hls!)
+                  ;; TODO: Do this also for `hls!`?
                   (init-autocmd :ColorScheme {:callback set-hls!}))
                 (when setup
                   (each [module opts (pairs (eval setup))]
@@ -455,6 +455,12 @@
   (if (= vim.o.filetype :oil)
       (let [{: get_current_dir} (require :oil)]
         (get_current_dir))
+      (= vim.o.filetype :minifiles)
+      (let [{: get_explorer_state : close} (require :mini.files)
+            {: branch : depth_focus} (get_explorer_state)]
+        ;; Experimental/hacky: close mini.files here to avoid weird interactions when opening a telescope picker (but avoid redefining them inside the minifiles buffer).
+        (close)
+        (. branch depth_focus))
       nil))
 
 (fn M.signs! [tbl]

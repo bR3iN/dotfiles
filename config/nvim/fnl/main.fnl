@@ -10,7 +10,7 @@
 
 (local {: spawn-capture-output : spawn} (require :utils.async))
 (local {: mk-op!} (require :utils.operator))
-(local {: get-named : mix : colored-selection} (require :utils.colors))
+(local {: get-named : mix} (require :utils.colors))
 (import-macros {: with-saved : with-cleanup : input!} :utils.macros)
 
 (local colors (get-named))
@@ -63,6 +63,7 @@
 (set vim.g.editorconfig true)
 
 ;; set leader keys
+;; TODO: <space>x as LL and try <space>c for buffer local operations? Or not useful?
 (local L " ")
 (local LL " c")
 (set vim.g.mapleader L)
@@ -71,8 +72,7 @@
 ;; Aliases
 ;; (keymaps! {:n {"<CR>" "<C-]>"}} {:remap true})
 (keymaps! {:n {L {:w {:desc "Window Commands" :callback "<C-w>" :remap true}}
-               ;; TODO: Test
-               "<C-w>" {"a" "<C-w>w"}}})
+               }})
 
 ;; Insert mode keymaps
 (keymaps! {:i {;; FIXME: doesn't work inside tmux
@@ -125,9 +125,7 @@
 ;; File Operations
 ;; Not under leader to not accidentally trigger the tmux leader <C-space> when doing e.g. `<C-]><space>s`
 (keymaps! {:n {:<C-s> {:desc "Save All Files" :callback ":<C-u>wall<CR>"}
-               (.. L "x") {:deprecated "use <C-s>" :callback ""}
-               ;; TODO:
-               :<M-s> {:desc "Save File" :callback ":<C-u>update<CR>"}}})
+               :g<C-s> {:desc "Save File" :callback ":<C-u>update<CR>"}}})
 
 ;; `sudo`-write trick with pkexec
 (command! :WriteAsRoot "write !pkexec tee % >/dev/null")
@@ -150,10 +148,9 @@
 ;; Leap with s/gs
 (use! :https://codeberg.org/andyg/leap.nvim
       {:setup {:leap {:safe_labels {}}}
-       :keymaps {[:n :v] {:s {:desc "Jump in Buffer" :callback "<Plug>(leap)"}
-                          ;; FIXME:
-                          L {:s {:desc "Jump to Other Buffer"
-                                 :callback "<Plug>(leap-from-window)"}}}}})
+       :keymaps {[:n :v] {:s {:desc "Jump in Buffer" :callback "<Plug>(leap)"}}
+                 :n {:S {:desc "Jump to Other Buffer"
+                         :callback "<Plug>(leap-from-window)"}}}})
 
 (use! [:nvim-telescope/telescope.nvim
        :nvim-telescope/telescope-fzf-native.nvim
@@ -233,23 +230,14 @@
                                         :callback #(builtin.diagnostics)}
                                     :G {:desc "Git Status"
                                         :callback #(builtin.git_status)}}}
-                             :v {L {"/" {:desc "Grep Selection in Workspace"
-                                         :callback #(builtin.grep_string)}
+                             :v {L {:/ {:desc "Grep Selection in Workspace"
+                                        :callback #(builtin.grep_string)}
                                     :? {:desc "Grep Selection in Buffers"
                                         :callback #(builtin.grep_string {:grep_open_files true})}}}}))})
 
 ;; Navigate history containing substring
 (keymaps! {:c {:<M-p> {:desc "Previous History" :callback #(feed! :<Up>)}
                :<M-n> {:desc "Next History" :callback #(feed! :<Down>)}}})
-
-;; (keymaps! {:n (let [jump (fn [count]
-;;                            (vim.diagnostic.jump {: count :wrap false}))]
-;;                 {"]d" {:desc "Next Diagnostic" :callback #(jump vim.v.count1)}
-;;                  "[d" {:desc "Previous Diagnostic"
-;;                        :callback #(jump (- vim.v.count1))}
-;;                  "]D" {:desc "Last Diagnostic" :callback #(jump vim._maxint)}
-;;                  "[D" {:desc "First Diagnostic"
-;;                        :callback #(jump (- vim._maxint))}})})
 
 (keymaps! {:n (let [{: next : prev} (require :utils.goto-lens)]
                 {"[a" {:desc "Previous Code Lens" :callback prev}
@@ -321,22 +309,20 @@
 ;;        :setup {:matchparen {}}})
 
 ;; TODO:
+(fn selection-forward? []
+  (let [[cl cc] (vim.api.nvim_win_get_cursor 0)
+        [bl bc] (vim.api.nvim_buf_get_mark 0 "<")]
+    (and (= cl bl) (= cc bc))))
+
 (do
-  (fn ensure-forward [?reverse]
-    (let [cursor (vim.api.nvim_win_get_cursor 0)
-          mark (vim.api.nvim_buf_get_mark 0 "<")
-          cur-line (. cursor 1)
-          cur-col (. cursor 2)
-          mk-line (. mark 1)
-          mk-col (. mark 2)
-          cursor-is-ahead (or (> cur-line mk-line)
-                              (and (= cur-line mk-line) (> cur-col mk-col)))]
-      (when (if ?reverse
-                (not cursor-is-ahead)
-                cursor-is-ahead)
+  (fn ensure-forward [?forward]
+    (let [cursor-is-ahead (selection-forward?)]
+      (when (if (= ?forward false)
+                cursor-is-ahead
+                (not cursor-is-ahead))
         (vim.api.nvim_feedkeys "o" "x" false))))
-  (keymaps! {:v {:<Plug> {"(ensure-backwards)" #(ensure-forward true)
-                          "(ensure-forwards)" #(ensure-forward)}}}))
+  (keymaps! {:v {:<Plug> {"(ensure-backward)" #(ensure-forward true)
+                          "(ensure-forward)" #(ensure-forward)}}}))
 
 ;; In particular replaces builtin matchpair plugin to support match-highlighting in comments.
 (use! :andymass/vim-matchup
@@ -352,14 +338,18 @@
                      ;; FIXME: good?
                      :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>"
                              :remap false}
-                     :<M-l> "vi%"
-                     :<M-h> "va%o"
+                     :<M-h> "<Plug>(matchup-[%)v%o"
+                     :<M-l> "<Plug>(matchup-]%)v%o"
+                     :<M-k> "v<M-k>"
+                     :<M-j> "z%<M-k>"
                      :<C-k> "<Plug>(matchup-Z%)"
                      :<C-j> "<Plug>(matchup-z%)"
-                     :<C-l> "<Plug>(matchup-]%)"
-                     :<C-h> "<Plug>(matchup-[%)"}
-                 :x {:<M-l> "i%"
-                     :<M-h> "a%o<Plug>(ensure-backwards)"
+                     :<C-h> "<Plug>(matchup-[%)"
+                     :<C-l> "<Plug>(matchup-]%)"}
+                 :x {:<M-l> "a%<Plug>(ensure-forward)"
+                     :<M-j> "<Esc><M-j>"
+                     :<M-h> "a%<Plug>(ensure-backward)"
+                     :<M-k> "i%<Plug>(ensure-backward)"
                      :z% false}}})
 
 (use! :windwp/nvim-autopairs
@@ -399,12 +389,42 @@
 ;;                             :b {:desc "Make Build"
 ;;                                 :callback ":make! build<CR>"}}}}})
 
-(use! [:nvim-mini/mini.nvim] {:setup {:mini.align {}
-                                      ;; FIXME: remove, but keep yank-cycling
-                                      :mini.bracketed {:diagnostic {:suffix ""}
-                                                       :quickfix {:suffix ""}}
-                                      ;; :mini.jump {}
-                                      }})
+;; --- Plugin Collections ---
+
+(use! [:nvim-mini/mini.nvim]
+      {:setup {:mini.align {}
+               :mini.bracketed #(let [config {:yank {:suffix :y}
+                                              :conflict {:suffix :x}
+                                              :oldfile {:suffix :o
+                                                        :options {:wrap false}}}]
+                                  (vim.tbl_deep_extend :force
+                                                       ;; Disables everything by default
+                                                       (collect [target opts (pairs (. (require :mini.bracketed)
+                                                                                       :config))]
+                                                         (when opts.suffix
+                                                           (values target
+                                                                   {:suffix ""})))
+                                                       config))
+               :mini.files {:options {:use_as_default_file_explorer false}}}
+       :keymaps {:n {"_" {:desc "Open Dir (MiniFiles)"
+                          :callback #(_G.MiniFiles.open (vim.api.nvim_buf_get_name 0)
+                                                        false)}
+                     ;; mini.files -> oil.nvim
+                     :- {:ft :minifiles
+                         :desc "Open Dir in Buffer"
+                         :callback #(-?> (get-cwd-override) (vim.cmd.edit))}}}
+       :hl {:MiniFilesBorderModified {:extend :MiniFilesBorder
+                                      :fg colors.orange}}})
+
+;; Doesn't wrap compared to the default bindings and prints an error on wrap-failure unlike mini.bracketed ones.
+(keymaps! {:n (let [jump (fn [count]
+                           (vim.diagnostic.jump {: count :wrap false}))]
+                {"]d" {:desc "Next Diagnostic" :callback #(jump vim.v.count1)}
+                 "[d" {:desc "Previous Diagnostic"
+                       :callback #(jump (- vim.v.count1))}
+                 "]D" {:desc "Last Diagnostic" :callback #(jump math.huge)}
+                 "[D" {:desc "First Diagnostic"
+                       :callback #(jump (- math.huge))}})})
 
 (use! [:folke/snacks.nvim]
       {;; Force resetup of snacks.nvim on reload
@@ -488,9 +508,7 @@
                                :g. :actions.toggle_hidden
                                :<C-c> "<C-^>"}}}
        :keymaps #(let [{: open} (require :oil)]
-                   {:n {:- {:desc "Open File Explorer" :callback open}
-                        ;; TODO: Test
-                        L {"oe" {:desc "Open File Explorer" :callback open}}}})})
+                   {:n {:- {:desc "Open File Explorer" :callback open}}})})
 
 ;; Terminal
 
@@ -568,7 +586,7 @@
 ;; Flattens files opened in terminal into current instance
 (use! "willothy/flatten.nvim" {:setup {:flatten {}}})
 
-;; Autocompletion & Snippets
+;; --- Autocompletion & Snippets ---
 
 (use! [{:src :saghen/blink.cmp :version (vim.version.range "v1.*")}
        :rafamadriz/friendly-snippets
@@ -582,14 +600,19 @@
                                                                  :scrollbar true}}
                                         ;; Don't preselect first item for easier inserting-without-accepting
                                         :list {:selection {:preselect false}}}
-                           :cmdline {:keymap {:preset :inherit
-                                              "<C-n>" false
-                                              "<C-p>" false
-                                              "<Tab>" [:select_next :show]
-                                              "<S-Tab>" [:select_prev
-                                                         :fallback]}
+                           :cmdline {:enabled true
+                                     :keymap {;;:preset :inherit
+                                              ;; TODO:
+                                              ;; "<C-n>" false
+                                              ;; "<C-p>" false
+                                              ;; "<Tab>" [:show_and_insert_or_accept_single :select_next]
+                                              ;; "<Tab>" [:select_next :show]
+                                              ;; "<S-Tab>" [:select_prev
+                                              ;;            :fallback]
+                                              }
                                      :completion {:menu {:auto_show true}
-                                                  :list {:selection {:preselect false}}}}
+                                                  ;; :list {:selection {:preselect true :auto_insert false}}
+                                                  }}
                            :fuzzy {:sorts [:exact :score :sort_text]}
                            :keymap {;; Conflicts with tmux leader
                                     "<C-space>" false
@@ -616,67 +639,98 @@
 ;; --- Git ---
 
 (use! :lewis6991/gitsigns.nvim
-      {:setup {:gitsigns {;; :numhl true
-                          ;; :signs {;;:add {:text "┃"}
-                          ;;         ;;:change {:text "┃"}
-                          ;;         ;; :delete {:text "┃"}
-                          ;;         ;;:untracked {:text "┆"}
-                          ;;         }
-                          ;; :signs_staged {:add {:text "+"}
-                          ;;                :change {:text "~"}
-                          ;;                :delete {:text "-"}
-                          ;;                :untracked {:text "┆"}}
-                          :word_diff false
-                          :sign_priority 0
-                          ;; Are toggled together below.
-                          :signcolumn false
-                          :linehl false}}
-       :hl #(let [for-bg #(mix colors.bg0 $1 0.9)
-                  for-inline #(mix colors.bg0 $1 0.7)]
-              {;; Used in signcolumn
-               :GitSignsAdd {:fg colors.green :dim true}
-               :GitSignsChange {:fg colors.yellow :dim true}
-               :GitSignsDelete {:fg colors.light_red :dim true}
-               ;; Used for linehl (FIXME: change in colorscheme instead? or sort out overrides)
-               :DiffAdd {:bg (colored-selection colors.green)}
-               :DiffChange {:bg (colored-selection colors.yellow)}
-               :DiffDelete {:bg (colored-selection colors.red)}
-               ;; Used for word_diff
-               :GitSignsDeleteInline {:bg (colored-selection colors.red)}
-               :GitSignsAddInline {:bg (colored-selection colors.green)}
-               :GitSignsChangeInline {:bg (colored-selection colors.cyan)}})
-       :keymaps {[:n :v] {"]g" {:desc "Next Git Hunk"
-                                :callback #(vim.cmd.Gitsigns :nav_hunk :next)}
-                          "[g" {:desc "Previous Git Hunk"
-                                :callback #(vim.cmd.Gitsigns :nav_hunk :prev)}}
-                 :n {L {:u {:g {:desc "Toggle Git Signcolumn"
-                                :callback #(vim.cmd.Gitsigns :toggle_signs)}
-                            ;; NOTE: No usecase?
-                            ;; :G {:desc "Toggle Line Highlights"
-                            ;;     :callback #(vim.cmd.Gitsigns :toggle_linehl)}
-                            :G {:desc "Toggle Git Word Diff"
-                                :callback #(vim.cmd.Gitsigns :toggle_word_diff)}}
-                        :o {}
-                        :t {}
-                        :g {:a {:desc "Stage Hunk"
-                                :callback #(vim.cmd.Gitsigns :stage_hunk)}
-                            :RRR {:desc "Reset Hunk"
-                                  :callback #(vim.cmd.Gitsigns :reset_hunk)}
-                            :h {:desc "Preview Hunk"
-                                :callback #(vim.cmd.Gitsigns :preview_hunk)}
-                            :H {:desc "Preview Hunk Inline"
-                                :callback #(vim.cmd.Gitsigns :preview_hunk_inline)}
-                            :b {:desc "Open Git Blame"
-                                :callback #(vim.cmd.Gitsigns :blame)}}}}}})
+      (let [;; NOTE: For right-aligned bars, use "▊" with {:reverse true}
+            ;; in the hl-groups.
+            ;; thinner than defaults
+            text "│"]
+        {:setup {:gitsigns {:signs {:add {: text}
+                                    :change {: text}
+                                    ;; :delete {: text}
+                                    ;; :untracked {:text "┆"}
+                                    }
+                            :signs_staged_enable true
+                            :signs_staged {:add {:text "+"}
+                                           :change {:text "~"}
+                                           :delete {:text "-"}
+                                           ;; :untracked {:text "┆"}
+                                           }
+                            :current_line_blame_opts {:delay 0}
+                            :signcolumn false
+                            :word_diff false
+                            :linehl false}}
+         :hl #(let [;; For word_diff
+                    for-bg #(mix $1 colors.dark_bg0 0.1)
+                    ;; For in-bufer indications
+                    for-bg-dim #(mix $1 colors.dark_bg0 0.015)
+                    ;; E.g. for signs/numhl
+                    for-fg #(mix $1 colors.dark_bg0 0.1)]
+                {;; Used in signcolumn
+                 :GitSignsAdd {:fg (for-fg colors.green)}
+                 :GitSignsChange {:fg (for-fg colors.yellow)}
+                 :GitSignsDelete {:fg (for-fg colors.red)}
+                 :GitSignsStagedAdd {:link :GitSignsAdd}
+                 :GitSignsStagedChange {:link :GitSignsChange}
+                 :GitSignsStagedDelete {:link :GitSignsDelete}
+                 ;; Used for linehl (FIXME: change in colorscheme instead? or sort out overrides)
+                 :DiffAdd {:bg (for-bg-dim colors.green)}
+                 :DiffChange {:bg (for-bg-dim colors.yellow)}
+                 :DiffDelete {:bg (for-bg-dim colors.red)}
+                 ;; Used for word_diff
+                 :GitSignsAddInline {:bg (for-bg colors.green)}
+                 :GitSignsChangeInline {:bg (for-bg colors.yellow)}
+                 :GitSignsDeleteInline {:bg (for-bg colors.red)}})
+         :keymaps {[:n :v] {"]g" {:desc "Next Git Hunk"
+                                  :callback #(vim.cmd.Gitsigns :nav_hunk :next)}
+                            "[g" {:desc "Previous Git Hunk"
+                                  :callback #(vim.cmd.Gitsigns :nav_hunk :prev)}}
+                   [:o :x] {:ih {:desc "Select Git Hunk"
+                                 :callback #(vim.cmd.Gitsigns :select_hunk)}}
+                   :n (let [;; Unsure about e.g. "<leader>gu" vs.
+                            ;; "<leader>ug" yet, so factored out for easier
+                            ;; changing.
+                            ui {:s {:desc "Toggle Git Signcolumn"
+                                    :callback #(vim.cmd.Gitsigns :toggle_signs)}
+                                :n {:desc "Toggle Git NumHL"
+                                    :callback #(vim.cmd.Gitsigns :toggle_numhl)}
+                                ;; NOTE: No usecase?
+                                :l {:desc "Toggle Line Highlights"
+                                    :callback #(vim.cmd.Gitsigns :toggle_linehl)}
+                                :w {:desc "Toggle Git Word Diff"
+                                    :callback #(vim.cmd.Gitsigns :toggle_word_diff)}
+                                :b {:desc "Toggle Git Line Blame"
+                                    :callback #(vim.cmd.Gitsigns :toggle_current_line_blame)}}
+                            open {:B {:desc "Open Git Blame (Buffer)"
+                                      :callback #(vim.cmd.Gitsigns :blame)}
+                                  :b {:desc "Open Git Blame (Hover)"
+                                      :callback #(vim.cmd.Gitsigns :blame_line)}
+                                  :h {:desc "Open Hunk Preview"
+                                      :callback #(vim.cmd.Gitsigns :preview_hunk)}}]
+                        {L {:g {:u ui
+                                :o open
+                                ;; Operations
+                                :a {:desc "Stage Hunk"
+                                    :callback #(vim.cmd.Gitsigns :stage_hunk)}
+                                :<BS> {:desc "Undo Stage Hunk"
+                                       :callback #(vim.cmd.Gitsigns :undo_stage_hunk)}
+                                :RRR {:desc "Reset Hunk"
+                                      :callback #(vim.cmd.Gitsigns :reset_hunk)}
+                                :h {:desc "Preview Hunk Inline"
+                                    :callback #(vim.cmd.Gitsigns :preview_hunk_inline)}}}})
+                   :v {L {:g {:a {:desc "Stage Hunk"
+                                  :callback #(vim.cmd.Gitsigns :stage_hunk)}
+                              :RRR {:desc "Reset Hunk"
+                                    :callback #(vim.cmd.Gitsigns :reset_hunk)}}}}}}))
 
 ;; LSP & Co.
 
 (vim.diagnostic.config {:virtual_lines false
                         :virtual_text {:current_line true}
-                        :signs {:text {vim.diagnostic.severity.ERROR ""
-                                       vim.diagnostic.severity.WARN ""
-                                       vim.diagnostic.severity.INFO ""
-                                       vim.diagnostic.severity.HINT ""}}})
+                        :signs {:text (let [sym "›" ;; sym ""
+                                            ]
+                                        {vim.diagnostic.severity.ERROR sym
+                                         vim.diagnostic.severity.WARN sym
+                                         vim.diagnostic.severity.INFO sym
+                                         vim.diagnostic.severity.HINT sym})}})
 
 (keymaps! {:n {;; :K #(vim.lsp.buf.hover {:border :none})
                L {:a {:desc "Code Action" :callback :<Plug>lsp#code-action}
@@ -1021,6 +1075,7 @@
       setup (fn [prefix]
               "Fold at `PREFIX --- [...] ---` lines (presumably comments)"
               (set vim.wo.foldmethod :expr)
+              ;; FIXME: seems to need a buffer reload to discover new folds
               (set vim.wo.foldexpr
                    (.. "getline(v:lnum)=~'^" prefix " ---'?'>1':'='")))
       callback (fn [{: buf}]
@@ -1168,5 +1223,6 @@
 
 ;; TODOs
 ;; - heirline statuscolumn + git setups
+;; - run `:Hotpot sync` once during dotfile setup
 
 ;; - matchup/treesitter binds
