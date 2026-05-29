@@ -719,7 +719,7 @@
                      1 (let [nr-bg nil]
                          [;; Only visible when `foldcolumn` is set.
                           {:provider :%C}
-                          (sign-comp :other {:trim true})
+                          (sign-comp :other {:trim true :fallback NO-BREAK-SPC})
                           ;; NOTE: This causes neovim to pad until some
                           ;; internal minimum width, which can be too high if
                           ;; not using `signcolumn=number`. We also pad
@@ -727,7 +727,7 @@
                           HL-ALIGN-MARK
                           (if cfg.git_as_left_lnum_padding
                               [;; Replace left-padding of line-nr with gitsigns
-                               (sign-comp :git {:trim true :fallback " "})
+                               (sign-comp :git {:trim true})
                                (hl-line-nr {:pad-right true
                                             :pad-lnum false
                                             :hl {:bg nr-bg}})]

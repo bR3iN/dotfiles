@@ -9,15 +9,14 @@ utils.init()
 
 -- (Re)load config
 utils.reload('main')
-utils.reload('appearance')
 
--- (Re)load machine local config
+-- (Re)load machine local config (fnl/local.fnl)
 pcall(utils.reload, 'local')
 
 -- Sync declared plugins
 utils.sync()
 
--- exrc with added fennel implementation
+-- Load trusted `.nvim.lua` (vim.o.exrc) and `.nvim.fnl` (utils/exrc) files.
 vim.o.exrc = true
 utils.reload('utils/exrc')
 

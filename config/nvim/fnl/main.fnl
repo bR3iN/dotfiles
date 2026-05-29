@@ -2,6 +2,7 @@
         : put!
         : command!
         : get-cwd-override
+        : reload
         : opts!
         : use!
         : keymaps!
@@ -9,6 +10,7 @@
         : feed!} (require :utils))
 
 (local {: spawn-capture-output : spawn} (require :utils.async))
+
 (local {: mk-op!} (require :utils.operator))
 (local {: get-named : mix} (require :utils.colors))
 (import-macros {: with-saved : with-cleanup : input!} :utils.macros)
@@ -71,8 +73,7 @@
 
 ;; Aliases
 ;; (keymaps! {:n {"<CR>" "<C-]>"}} {:remap true})
-(keymaps! {:n {L {:w {:desc "Window Commands" :callback "<C-w>" :remap true}}
-               }})
+(keymaps! {:n {L {:w {:desc "Window Commands" :callback "<C-w>" :remap true}}}})
 
 ;; Insert mode keymaps
 (keymaps! {:i {;; FIXME: doesn't work inside tmux
@@ -393,17 +394,16 @@
 
 (use! [:nvim-mini/mini.nvim]
       {:setup {:mini.align {}
-               :mini.bracketed #(let [config {:yank {:suffix :y}
+               :mini.bracketed #(let [base-config ;; Disables everything by default
+                                      (collect [target opts (pairs (. (require :mini.bracketed)
+                                                                      :config))]
+                                        (when opts.suffix
+                                          (values target {:suffix ""})))
+                                      config {:yank {:suffix :y}
                                               :conflict {:suffix :x}
                                               :oldfile {:suffix :o
                                                         :options {:wrap false}}}]
-                                  (vim.tbl_deep_extend :force
-                                                       ;; Disables everything by default
-                                                       (collect [target opts (pairs (. (require :mini.bracketed)
-                                                                                       :config))]
-                                                         (when opts.suffix
-                                                           (values target
-                                                                   {:suffix ""})))
+                                  (vim.tbl_deep_extend :force base-config
                                                        config))
                :mini.files {:options {:use_as_default_file_explorer false}}}
        :keymaps {:n {"_" {:desc "Open Dir (MiniFiles)"
@@ -457,25 +457,25 @@
        :config (fn []
                  ;; Toggle things
                  (let [{: toggle} (require :snacks)
-                       {: lenses : diag-curr : diag-lines} (require :utils.toggle)
-                       keys {:ui (toggle.indent)
-                             :uh (toggle.inlay_hints)
-                             ;; :m (toggle.image)
-                             :tz (toggle.zen)
-                             :t- (toggle.dim)
-                             ;; :D (toggle.diagnostics)
-                             :ul (toggle.new diag-lines)
-                             :uL (toggle.new diag-curr)
-                             :uA (toggle.new lenses)
-                             :ur (toggle.words)
-                             :t+ (toggle.zoom)
-                             :ur (toggle.option :relativenumber
-                                                {:name "Relative Numbers"})
-                             :un (toggle.option :number {:name "Line Numbers"})
-                             :uw (toggle.option :wrap {:name "Wrap"})
-                             :us (toggle.option :spell {:name "Spellcheck"})}]
-                   (each [key bind (pairs keys)]
-                     (bind:map (.. L key)))))
+                       {: lenses : diag-curr : diag-lines} (require :utils.toggle)]
+                   (-> {:ui (toggle.indent)
+                        :uh (toggle.inlay_hints)
+                        ;; :m (toggle.image)
+                        :tz (toggle.zen)
+                        :t- (toggle.dim)
+                        ;; :D (toggle.diagnostics)
+                        :ul (toggle.new diag-lines)
+                        :uL (toggle.new diag-curr)
+                        :uA (toggle.new lenses)
+                        :ur (toggle.words)
+                        :t+ (toggle.zoom)
+                        :ur (toggle.option :relativenumber
+                                           {:name "Relative Numbers"})
+                        :un (toggle.option :number {:name "Line Numbers"})
+                        :uw (toggle.option :wrap {:name "Wrap"})
+                        :us (toggle.option :spell {:name "Spellcheck"})}
+                       (vim.iter)
+                       (: :each #($2:map (.. L $1))))))
        :keymaps #(let [{: scratch : notifier : bufdelete} (require :snacks)]
                    {:n {L {:u {:c #(vim.cmd.ToggleComments)}
                            "qb" {:desc "Kill buffer"
@@ -611,8 +611,8 @@
                                               ;;            :fallback]
                                               }
                                      :completion {:menu {:auto_show true}
-                                                  ;; :list {:selection {:preselect true :auto_insert false}}
-                                                  }}
+                                                  :list {:selection {:preselect false
+                                                                     :auto_insert true}}}}
                            :fuzzy {:sorts [:exact :score :sort_text]}
                            :keymap {;; Conflicts with tmux leader
                                     "<C-space>" false
@@ -1127,6 +1127,8 @@
            :pattern "*"
            :callback #(vim.hl.on_yank {:higroup :IncSearch :timeout 150})})
 
+(reload :appearance)
+
 ;; --- Experimental ---
 
 ;; (let [{: setup} (reload :plugin.visual-history)]
@@ -1222,7 +1224,4 @@
   (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
 
 ;; TODOs
-;; - heirline statuscolumn + git setups
-;; - run `:Hotpot sync` once during dotfile setup
-
 ;; - matchup/treesitter binds

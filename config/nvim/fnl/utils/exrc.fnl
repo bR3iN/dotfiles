@@ -1,17 +1,15 @@
 (local {: autocmd!} (require :utils))
 
 ;; Basically excr's implementation on .fnl files
-;; FIXME:
-;; (let [{: eval-string} (require :hotpot.api.eval)
-;;       files (vim.fs.find ".nvim.fnl"
-;;                          {:type :file
-;;                           :upward true
-;;                           :limit math.huge
-;;                           :path (vim.uv.cwd)})]
-;;   (each [_ file (ipairs files) &until (not vim.o.exrc)]
-;;     (case (vim.secure.read file)
-;;       nil nil
-;;       content (eval-string content))))
+(let [files (vim.fs.find ".nvim.fnl"
+                         {:type :file
+                          :upward true
+                          :limit math.huge
+                          :path (vim.uv.cwd)})]
+  (each [_ file (ipairs files) &until (not vim.o.exrc)]
+    (case (vim.secure.read file)
+      nil nil
+      content (_G._hotpot_ctx.eval content))))
 
 (autocmd! {:event :BufWritePost
            :pattern ".nvim.{lua,fnl}"
