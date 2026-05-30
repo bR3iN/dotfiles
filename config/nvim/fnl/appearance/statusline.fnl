@@ -22,6 +22,8 @@
 
 (local named (get-named))
 
+(local winbar-active-bg (mix named.blue named.fg0 0.85))
+
 (fn get-hl [name field]
   (. (vim.api.nvim_get_hl 0 {: name :link false}) field))
 
@@ -379,41 +381,50 @@
        (let [buf (vim.api.nvim_win_get_buf win)]
          (not= (. vim.bo buf :filetype) :incline))))
 
-(local tab-selected (darken named.bg3 0.1))
-(local tab-nonselected named.bg1)
-
-(local hl-tablist
-       {;;:condition #(< 1 (length (vim.api.nvim_list_tabpages)))
-        1 (make_tablist {:hl #{:bg (if $1.is_active tab-selected
-                                       tab-nonselected)
-                               :fg (if $1.is_active (lighten named.fg0 0.2)
-                                       (darken named.fg0 0.1))}
-                         ;; :condition #(vim.api.nvim_tabpage_is_valid $1.tabnr)
-                         1 [(forward-transition tabline-color
-                                                (if $1.is_active tab-selected
-                                                    tab-nonselected))
-                            {:provider #(.. "%" $1.tabnr "T ")}
-                            ;; Tab nr
-                            {:hl {:fg named.dark_yellow} :provider #$1.tabnr}
-                            ;; Separator
-                            {:hl {:fg named.fg0} :provider ":"}
-                            ;; Selected window
-                            {:provider #(-> $.tabpage
-                                            (vim.api.nvim_tabpage_get_win)
-                                            (vim.api.nvim_win_get_buf)
-                                            (get-bufname-shortest)
-                                            (truncated))}
-                            {:hl {:fg named.fg0} :provider "/"}
-                            ;; Number of windows
-                            {:hl {:fg named.fg0}
-                             :provider #(->> $1.tabpage
-                                             (vim.api.nvim_tabpage_list_wins)
-                                             (vim.tbl_filter is-not-incline-win)
-                                             (length))}
-                            {:provider " %T"}
-                            (backward-transition (if $1.is_active tab-selected
-                                                     tab-nonselected)
-                                                 tabline-color)]})})
+(local hl-tablist {;;:condition #(< 1 (length (vim.api.nvim_list_tabpages)))
+                   1 (make_tablist {:static {:fg-dim (darken named.dark_fg0 0.5)
+                                             :bg named.dark_bg1
+                                             :bg-selected named.bg2}
+                                    :hl #{:bg (if $1.is_active $1.bg-selected
+                                                  $1.bg)
+                                          :fg (if $1.is_active
+                                                  named.dark_green
+                                                  named.dark_fg0)}
+                                    :init (fn [self]
+                                            ;; :init is evaluated after :condition but seemingly before
+                                            ;; the :init of children, so we just keep it here to check
+                                            ;; it below.
+                                            (set self.nr-wins
+                                                 (->> self.tabpage
+                                                      (vim.api.nvim_tabpage_list_wins)
+                                                      (vim.tbl_filter is-not-incline-win)
+                                                      (length))))
+                                    ;; :condition #(vim.api.nvim_tabpage_is_valid $1.tabnr)
+                                    1 [;; Start Clickable Area
+                                       {:provider #(.. "%" $1.tabnr "T")}
+                                       {:provider "▏"
+                                        :hl {:fg named.transparent}}
+                                       ;; Tab nr
+                                       {:hl {:fg named.dark_yellow}
+                                        :provider #$1.tabnr}
+                                       ;; Separator
+                                       {:hl #{:fg $1.fg-dim} :provider ":"}
+                                       ;; Selected window
+                                       {:provider #(-> $1.tabpage
+                                                       (vim.api.nvim_tabpage_get_win)
+                                                       (vim.api.nvim_win_get_buf)
+                                                       (get-bufname-shortest)
+                                                       (truncated))}
+                                       ;; Number of windows
+                                       {:hl #{:fg $1.fg-dim}
+                                        :condition #(> $1.nr-wins 1)
+                                        1 {:provider #(string.format "+%s"
+                                                                     (- $1.nr-wins
+                                                                        1))}}
+                                       {:provider "▕"
+                                        :hl {:fg named.transparent}}
+                                       ;; End Clickable Area
+                                       {:provider "%T"}]})})
 
 ;; Top-level statusline definitions
 
@@ -501,8 +512,6 @@
 
 (fn curr-winbar-color []
   (if (is_active) winbar-active-color winbar-color))
-
-(local winbar-active-bg (mix named.blue named.fg0 0.85))
 
 (local winbar
        [;; left side
