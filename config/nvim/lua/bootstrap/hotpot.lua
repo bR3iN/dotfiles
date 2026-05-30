@@ -13,9 +13,9 @@ local ctx = api.context(vim.fn.stdpath 'config')
 _G._hotpot_ctx = ctx
 
 -- Initial compilation of config
-if not vim.uv.fs_stat(ctx.metadata().destination) then
-    ctx.sync()
-end
+-- if not vim.uv.fs_stat(ctx.metadata().destination) then
+ctx.sync()
+-- end
 
 -- Setup hotpot
 -- require('hotpot').setup{

@@ -1,6 +1,4 @@
-(local {: buf-opts!
-        : put!
-        : command!
+(local {: command!
         : get-cwd-override
         : reload
         : opts!
@@ -9,7 +7,7 @@
         : autocmd!
         : feed!} (require :utils))
 
-(local {: spawn-capture-output : spawn} (require :utils.async))
+(local {: spawn} (require :utils.async))
 
 (local {: mk-op!} (require :utils.operator))
 (local {: get-named : mix} (require :utils.colors))
@@ -60,12 +58,12 @@
         :expandtab true
         :conceallevel 3
         ;; Start with folds expanded
-        :foldlevelstart 99})
+        :foldlevelstart 99
+        :spelllang "en,de"})
 
 (set vim.g.editorconfig true)
 
 ;; set leader keys
-;; TODO: <space>x as LL and try <space>c for buffer local operations? Or not useful?
 (local L " ")
 (local LL " c")
 (set vim.g.mapleader L)
@@ -117,9 +115,7 @@
                                            (vim.cmd.edit :index.md))}}}}})
 
 ;; [Q]uit things
-(keymaps! {:n {L {:q {:V {:desc "Quit NeoVim" :callback ":<C-u>qall<CR>"}
-                      :w {:desc "Close Window" :callback ":q<CR>"}
-                      :q {:desc "Close Quickfix List" :callback vim.cmd.cclose}
+(keymaps! {:n {L {:q {:q {:desc "Close Quickfix List" :callback vim.cmd.cclose}
                       :l {:desc "Close Location List" :callback vim.cmd.lclose}
                       :p {:desc "Close Preview" :callback "<C-w>z"}}}}})
 
@@ -146,7 +142,6 @@
 
 ;; Navigation
 
-;; Leap with s/gs
 (use! :https://codeberg.org/andyg/leap.nvim
       {:setup {:leap {:safe_labels {}}}
        :keymaps {[:n :v] {:s {:desc "Jump in Buffer" :callback "<Plug>(leap)"}}
@@ -184,7 +179,7 @@
                                         :buffers {:mappings {:n {:<C-x> :delete_buffer}
                                                              :i {:<C-x> :delete_buffer}}}}})}
        :config #(let [{: load_extension} (require :telescope)
-                      {: pick-term : ensure-fzf-native} (require :utils.telescope)
+                      {: pick-term : ensure-fzf-native} (require :config.telescope)
                       builtin (require :telescope.builtin)]
                   (load_extension :ui-select)
                   ;; fzf-native needs `make` to be run, vim.pack.add currently does not support this
@@ -266,37 +261,31 @@
                      :callback #(vim.diagnostic.jump {:count 1
                                                       :severity vim.diagnostic.severity.ERROR})}}})
 
-;; Navigate tabs and windows
-(let [keys (let [res {}]
-             (for [i 1 9]
-               (set (. res (tostring i)) i))
-             res)]
-  (keymaps! {:n {L {;; <n>: go to window <n>
-                    "" (collect [as_str _ (pairs keys)]
-                         (values as_str
-                                 {:desc (.. "Focus Window " as_str)
-                                  :callback (.. as_str "<C-w>w")}))
-                    ;; q+<n>: delete window <n>
-                    :q (collect [as_str n (pairs keys)]
-                         (values as_str
-                                 {:desc (.. "Kill Window " as_str)
-                                  :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
-                                                                     false)}))}
-                 ;; Alt+<n> to go to tab <n>
-                 "" (collect [as_str _ (pairs keys)]
-                      (values (.. "<M-" as_str ">")
-                              {:desc (.. "Focus Tab " as_str)
-                               :callback (.. as_str "gt")}))}
-             ;; Same in insert mode
-             :i (collect [as_str _ (pairs keys)]
-                  (values (.. "<M-" as_str ">")
-                          {:desc (.. "Focus Tab " as_str)
-                           :callback (.. "<esc>" as_str "gt")}))
-             ;; Same in terminal mode
-             :t (collect [as_str _ (pairs keys)]
-                  (values (.. "<M-" as_str ">")
-                          {:desc (.. "Focus Tab " as_str)
-                           :callback (.. "<C-\\><C-n>" as_str "gt")}))}))
+;; Numbered tab and window navigation
+(let [{: digit-keys} (reload :config.nr-nav)]
+  (-> [;; <leader><n> to switch window
+       (digit-keys #(.. L $1)
+                   (fn [s _]
+                     {:desc (.. "Focus Window " s) :callback (.. s "<C-w>w")}))
+       ;; <leader>q<n> to kill window
+       (digit-keys #(.. L :q $1)
+                   (fn [s n]
+                     {:desc (.. "Kill Window " s)
+                      :callback #(vim.api.nvim_win_close (vim.fn.win_getid n)
+                                                         false)}))]
+      (vim.iter)
+      (: :map #{:n $1})
+      (: :each keymaps!))
+  ;; Alt+<n> to switch tabs
+  (-> {:n "" :i "<Esc>" :t "<C-\\><C-n>"}
+      (vim.iter)
+      (: :map
+         (fn [mode prefix]
+           {mode (digit-keys #(.. "<M-" $1 ">")
+                             (fn [s _]
+                               {:desc (.. "Focus Tab " s)
+                                :callback (.. prefix s "gt")}))}))
+      (: :each keymaps!)))
 
 (keymaps! {[:n :v] {"<C-j>" {:desc "Down (Display Line)" :callback "gj"}
                     "<C-k>" {:desc "Up (Display Line)" :callback "gk"}}})
@@ -310,20 +299,7 @@
 ;;        :setup {:matchparen {}}})
 
 ;; TODO:
-(fn selection-forward? []
-  (let [[cl cc] (vim.api.nvim_win_get_cursor 0)
-        [bl bc] (vim.api.nvim_buf_get_mark 0 "<")]
-    (and (= cl bl) (= cc bc))))
-
-(do
-  (fn ensure-forward [?forward]
-    (let [cursor-is-ahead (selection-forward?)]
-      (when (if (= ?forward false)
-                cursor-is-ahead
-                (not cursor-is-ahead))
-        (vim.api.nvim_feedkeys "o" "x" false))))
-  (keymaps! {:v {:<Plug> {"(ensure-backward)" #(ensure-forward true)
-                          "(ensure-forward)" #(ensure-forward)}}}))
+(reload :config.selection)
 
 ;; In particular replaces builtin matchpair plugin to support match-highlighting in comments.
 (use! :andymass/vim-matchup
@@ -457,7 +433,7 @@
        :config (fn []
                  ;; Toggle things
                  (let [{: toggle} (require :snacks)
-                       {: lenses : diag-curr : diag-lines} (require :utils.toggle)]
+                       {: lenses : diag-curr : diag-lines} (require :config.toggle)]
                    (-> {:ui (toggle.indent)
                         :uh (toggle.inlay_hints)
                         ;; :m (toggle.image)
@@ -512,76 +488,27 @@
 
 ;; Terminal
 
-(autocmd! {:event :TermOpen
-           :callback (fn [{: buf}]
-                       ;; (set vim.wo.number false)
-                       ;; (set vim.wo.relativenumber false)
-                       ;; FIXME: use when having separate picker
-                       ;; (set vim.bo.buflisted false)
-                       ;; Don't insert here as this doesn't have to be an active buffer
-                       (keymaps! {:opts {:buffer buf}
-                                  :n {;; Go to shell prompts
-                                      "[s" {:desc "Previous Shell Prompt"
-                                            :callback "[["}
-                                      "]s" {:desc "Next Shell Prompt"
-                                            :callback "]]"}
-                                      ;; "Forward" some keys directly in terminal mode
-                                      "" (let [keys ["<CR>"
-                                                     "<C-c>"
-                                                     "<C-n>"
-                                                     "<C-p>"]]
-                                           (collect [_ key (ipairs keys)]
-                                             (values key (.. "i" key))))}}))}
-          {:event :TermClose
-           :callback (fn [{: buf}]
-                       (when (vim.api.nvim_buf_is_valid buf)
-                         ;; Autoclose terminal buffers on clean exit; `default-autocmd` does something similar for simple shell buffers, but always closes the window in the process.
-                         ;; We keep this functionality as things like `:Cargo` rely on the auto-closing behavior (which is why we check for buffer validity) above but reimplement it for other buffers in a more granular way, not necessarily deleting the window.
-                         (when (= 0 vim.v.event.status)
-                           (case (. vim.b buf :term_autoclose)
-                             :window (vim.api.nvim_buf_delete buf {:force true})
-                             :buffer (_G.Snacks.bufdelete.delete buf)
-                             nil nil
-                             other (error (.. "value unknown: " other))))))}
-          {:event [:BufWinEnter :BufEnter]
-           :callback ;; Avoids triggering wrongly as startinsert will only happen after a sequence of commands and also catches more cases (for some reason).
-           (vim.schedule_wrap #(when (and (or (= vim.bo.buftype
-                                                           :terminal)
-                                                        (= vim.bo.buftype
-                                                           :prompt))
-                                                    (-?> (vim.api.nvim_get_mode)
-                                                         (. :mode)
-                                                         (vim.startswith :n))
-                                                    ;; NOTE: Don't do that in telescope prompts as this inserts a literal "A" in there
-                                                    (not= vim.bo.filetype
-                                                          :TelescopePrompt))
-                                           (vim.cmd :startinsert!)))})
-
-(fn open-term [{: autoclose}]
-  (let [cwd (get-cwd-override)
-        buf (vim.api.nvim_create_buf false true)]
-    (vim.api.nvim_set_current_buf buf)
-    (tset vim.b buf :term_autoclose autoclose)
-    (vim.fn.jobstart [:/usr/bin/fish] {:term true : cwd})))
-
-;; Terminal keymaps
-(keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
-               ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal"
-                                           :callback :<Esc>}}})
-
-(keymaps! {:t {[:<Esc> "<C-[>"] {:desc "Exit Terminal Mode"
-                                 :callback "<C-\\><C-n>"}}
-           :n {;; Open terminal
-               "<BS>" {:desc "Open Terminal"
-                       :callback #(open-term {:autoclose :buffer})}
-               "<C-w>" {"V" {:desc "Terminal in Vertical Split"
-                             :callback #(do
-                                          (vim.cmd.vsplit)
-                                          (open-term {:autoclose :window}))}
-                        "S" {:desc "Terminal in Horizontal Split"
-                             :callback #(do
-                                          (vim.cmd.split)
-                                          (open-term {:autoclose :window}))}}}})
+(let [{: open-term} (reload :config.term)]
+  ;; Terminal keymaps
+  (keymaps! {:t {:<Esc> {:desc "Exit Terminal Mode" :callback "<C-\\><C-n>"}
+                 ["<C-v><C-[>" :<C-v><Esc>] {:desc "Send Escape to Terminal"
+                                             :callback :<Esc>}}})
+  (keymaps! {:t {[:<Esc> "<C-[>"] {:desc "Exit Terminal Mode"
+                                   :callback "<C-\\><C-n>"}}
+             :n {;; Open terminal
+                 "<BS>" {:desc "Open Terminal"
+                         :callback #(open-term {:autoclose :buffer})}
+                 ;; TODO: experimental
+                 "<M-t>" {:desc "Open Terminal"
+                          :callback #(open-term {:autoclose :buffer})}
+                 "<C-w>" {"V" {:desc "Terminal in Vertical Split"
+                               :callback #(do
+                                            (vim.cmd.vsplit)
+                                            (open-term {:autoclose :window}))}
+                          "S" {:desc "Terminal in Horizontal Split"
+                               :callback #(do
+                                            (vim.cmd.split)
+                                            (open-term {:autoclose :window}))}}}}))
 
 ;; Flattens files opened in terminal into current instance
 (use! "willothy/flatten.nvim" {:setup {:flatten {}}})
@@ -761,23 +688,11 @@
                                           (_G.vim.lsp.codelens.enable true
                                                                       {:bufnr buf}))}}})
 
-(let [ts-setup (fn [buf]
-                 (let [{: start} (require :vim.treesitter)
-                       {: get_lang : add} (require :vim.treesitter.language)
-                       ft (. vim.bo buf :filetype)
-                       lang (get_lang ft)]
-                   (when (and lang (add lang))
-                     (when (not= vim.wo.foldmethod :expr)
-                       (set vim.wo.foldmethod :expr)
-                       (set vim.wo.foldexpr "v:lua.vim.treesitter.foldexpr()"))
-                     ;; (set (. vim.bo buf :indentexpr)
-                     ;;      "v:lua.require'nvmi-treesitter'.indentexpr()")
-                     ;; Enable treesitter
-                     (start buf lang))))]
+(let [{: setup-buf} (reload :config.treesitter)]
   (use! [{:src :nvim-treesitter/nvim-treesitter :version :main}
          :nvim-treesitter/nvim-treesitter-textobjects]
-        {:autocmds {:FileType {:pattern :* :callback #(ts-setup $.buf)}
-                    :BufReadPost {:pattern :* :callback #(ts-setup $.buf)}}
+        {:autocmds {:FileType {:pattern :* :callback #(setup-buf $.buf)}
+                    :BufReadPost {:pattern :* :callback #(setup-buf $.buf)}}
          :setup {:nvim-treesitter-textobjects {;; :select {:enable true
                                                ;;          :keymaps {:if "@function.inner"
                                                ;;                    :af "@function.outer"
@@ -832,113 +747,95 @@
                                               "console"]}}
                ;; :dap-python :python
                }
+       :config :dap
        :reload [:dap-configs]
        :ft {:dap-repl #(vim.cmd "abbreviate <buffer> e -exec")
             :dap-float (fn [{: buf}]
                          (keymaps! {:opts {:buffer buf}
                                     :n {[:q :<ESC>] {:desc "Close Float"
                                                      :callback vim.cmd.quit}}}))}
-       :keymaps #(let [dap (require :dap)
-                       {: run_last} (require :utils.dap)
-                       {: show_view :open open_view} (require :dap-view)
-                       widgets (require :dap.ui.widgets)
-                       ;; sidebar #(let [sidebar (->> $1
-                       ;;                             (. widgets)
-                       ;;                             (widgets.sidebar))]
-                       ;;            #(sidebar.toggle))
-                       ;; cfloat #(->> $1 (. widgets) (widgets.centered_float))
-                       interactive-breakpoint #(input! [cond
-                                                        {:prompt "Condition: "}
-                                                        count
-                                                        {:prompt "Count: "}
-                                                        log
-                                                        {:prompt "Log Message: "}]
-                                                       (dap.toggle_breakpoint cond
-                                                                              count
-                                                                              log))]
-                   {:v {L {:d {;; :k {:desc "Hover" :callback widgets.hover}
-                               :e {:desc "Eval Expression"
-                                   :callback #(-> (vim.fn.getregion (vim.fn.getpos ".")
-                                                                    (vim.fn.getpos "v"))
-                                                  (widgets.hover {}))}}}}
-                    :n {"[f" {:desc "Up Stack Frame" :callback dap.up}
-                        "]f" {:desc "Down Stack Frame" :callback dap.down}
-                        L {:d {:<CR> {:desc "Run to Cursor"
-                                      :callback #(dap.run_to_cursor)}
-                               :<Tab> {:desc "Toggle Breakpoint"
-                                       :callback dap.toggle_breakpoint}
-                               :<S-Tab> {:desc "Toggle Breakpoint (Interactive)"
-                                         :callback interactive-breakpoint}
-                               :k {:desc "Eval Expression"
-                                   :callback #(-> (vim.fn.expand :<cexpr>)
-                                                  (widgets.hover {}))}
-                               :K {:desc "Eval Expression (Interactive)"
-                                   :callback #(input! [expr
-                                                       {:prompt "Expr: "
-                                                        :default (vim.fn.expand :<cexpr>)}]
-                                                      (widgets.hover expr {}))}
-                               :q {:desc "Terminate" :callback dap.terminate}
-                               :c {:desc "Continue"
-                                   :callback dap.continue
-                                   :repeatable true}
-                               :s {:desc "Step Into"
-                                   :callback dap.step_into
-                                   :repeatable true}
-                               :p {:desc "Step Back"
-                                   :callback dap.step_back
-                                   :repeatable true}
-                               :P {:desc "Reverse Continue"
-                                   :callback dap.reverse_continue
-                                   :repeatable true}
-                               :n {:desc "Step Over"
-                                   :callback dap.step_over
-                                   :repeatable true}
-                               :o {:desc "Step Out"
-                                   :callback dap.step_out
-                                   :repeatable true}
-                               :r {:desc "Restart / Run Last"
-                                   :callback #(if (dap.session)
-                                                  (dap.restart)
-                                                  (do
-                                                    (vim.print "Rerunning last DAP session")
-                                                    (run_last)))}
-                               :<space> {:desc "Focus Frame"
-                                         :callback dap.focus_frame}
-                               ;; :l {:desc "List Breakpoints"
-                               ;;     :callback (fn []
-                               ;;                 (dap.list_breakpoints)
-                               ;;                 (vim.cmd.copen))}
-                               :H {:desc "Toggle Debug Virtual Text"
-                                   :callback vim.cmd.DapVirtualTextToggle}
-                               :N {:desc "New Session"
-                                   :callback vim.cmd.DapNew
-                                   :deprecated "handled by dap.continue"}
-                               ;; :L {:desc "Dap Logs"
-                               ;;     :callback vim.cmd.DapShowLog}
-                               :D {:desc "Clear Breakpoints"
-                                   :callback dap.clear_breakpoints}
-                               "" (collect [key view (pairs {:B :breakpoints
-                                                             :E :exceptions
-                                                             :W :watches
-                                                             :R :repl
-                                                             :T :threads
-                                                             :C :console
-                                                             :S :scopes})]
-                                    (values key
-                                            {:callback (fn []
-                                                         (open_view)
-                                                         (show_view view))
-                                             :desc (string.format "Open Dap-View: %s"
-                                                                  view)
-                                             ;; EXPERIMENTAL: should jump to the view after opening it
-                                             :repeatable true}))}
-                           :t {:d {:desc "Toggle DAP View"
-                                   :callback #(vim.cmd :DapViewToggle!)}}}}})
-       :signs {:DapBreakpoint {:text :B :texthl :DiagnosticHint}
-               :DapBreakpointCondition {:text :C :texthl :DiagnosticWarn}
-               :DapLogPoint {:text :L :texthl :DiagnosticInfo}
-               :DapStopped {:text :→ :texthl :DiagnosticOk}
-               :DapBreakpointRejected {:text :R :texthl :DiagnosticError}}})
+       :keymaps (fn [c]
+                  (let [dap (require :dap)
+                        {: show_view :open open_view} (require :dap-view)
+                        ;; sidebar #(let [sidebar (->> $1
+                        ;;                             (. widgets)
+                        ;;                             (widgets.sidebar))]
+                        ;;            #(sidebar.toggle))
+                        ;; cfloat #(->> $1 (. widgets) (widgets.centered_float))
+                        ]
+                    {:v {L {:d {;; :k {:desc "Hover" :callback widgets.hover}
+                                :e {:desc "Eval Expression"
+                                    :callback c.eval.visual}}}}
+                     :n {"[f" {:desc "Up Stack Frame" :callback dap.up}
+                         "]f" {:desc "Down Stack Frame" :callback dap.down}
+                         L {:d {:<CR> {:desc "Run to Cursor"
+                                       :callback #(dap.run_to_cursor)}
+                                :<Tab> {:desc "Toggle Breakpoint"
+                                        :callback dap.toggle_breakpoint}
+                                :<S-Tab> {:desc "Toggle Breakpoint (Interactive)"
+                                          :callback c.interactive-breakpoint}
+                                :k {:desc "Eval Expression"
+                                    :callback c.eval.word}
+                                :K {:desc "Eval Expression (Interactive)"
+                                    :callback c.eval.interactive}
+                                :q {:desc "Terminate" :callback dap.terminate}
+                                :c {:desc "Continue"
+                                    :callback dap.continue
+                                    :repeatable true}
+                                :s {:desc "Step Into"
+                                    :callback dap.step_into
+                                    :repeatable true}
+                                :p {:desc "Step Back"
+                                    :callback dap.step_back
+                                    :repeatable true}
+                                :P {:desc "Reverse Continue"
+                                    :callback dap.reverse_continue
+                                    :repeatable true}
+                                :n {:desc "Step Over"
+                                    :callback dap.step_over
+                                    :repeatable true}
+                                :o {:desc "Step Out"
+                                    :callback dap.step_out
+                                    :repeatable true}
+                                :r {:desc "Restart / Run Last"
+                                    :callback c.restart_or_run_last}
+                                :<space> {:desc "Focus Frame"
+                                          :callback dap.focus_frame}
+                                ;; :l {:desc "List Breakpoints"
+                                ;;     :callback (fn []
+                                ;;                 (dap.list_breakpoints)
+                                ;;                 (vim.cmd.copen))}
+                                :H {:desc "Toggle Debug Virtual Text"
+                                    :callback vim.cmd.DapVirtualTextToggle}
+                                :N {:desc "New Session"
+                                    :callback vim.cmd.DapNew
+                                    :deprecated "handled by dap.continue"}
+                                ;; :L {:desc "Dap Logs"
+                                ;;     :callback vim.cmd.DapShowLog}
+                                :D {:desc "Clear Breakpoints"
+                                    :callback dap.clear_breakpoints}
+                                "" (collect [key view (pairs {:B :breakpoints
+                                                              :E :exceptions
+                                                              :W :watches
+                                                              :R :repl
+                                                              :T :threads
+                                                              :C :console
+                                                              :S :scopes})]
+                                     (values key
+                                             {:callback (fn []
+                                                          (open_view)
+                                                          (show_view view))
+                                              :desc (string.format "Open Dap-View: %s"
+                                                                   view)
+                                              ;; EXPERIMENTAL: should jump to the view after opening it
+                                              :repeatable true}))}
+                            :t {:d {:desc "Toggle DAP View"
+                                    :callback #(vim.cmd :DapViewToggle!)}}}}}))
+       :signs {:DapBreakpoint {:text "" :texthl :DiagnosticHint}
+               :DapBreakpointCondition {:text "" :texthl :DiagnosticWarn}
+               :DapLogPoint {:text "" :texthl :DiagnosticInfo}
+               :DapStopped {:text : :texthl :DiagnosticOk}
+               :DapBreakpointRejected {:text "" :texthl :DiagnosticError}}})
 
 ;; Plugins for specific filetypes
 
@@ -1001,132 +898,45 @@
 
 (use! :zk-org/zk-nvim
       {:config #(let [zk (require :zk)
-                      util (require :zk.util)
-                      create-and-insert-link (fn []
-                                               (let [loc (util.get_lsp_location_from_caret)
-                                                     title (vim.fn.input "Title: ")]
-                                                 (when (not= title "")
-                                                   (zk.new {: title
-                                                            :edit false
-                                                            :insertLinkAtLocation loc}))))
-                      get-note #(vim.fn.bufname)
-                      open-results (fn [results]
-                                     (each [_ {: absPath} (ipairs results)]
-                                       (vim.cmd (.. "e " absPath))))
-                      open-backlinks #(zk.pick_notes {:linkTo [(get-note)]
-                                                      :maxDistance vim.v.count1
-                                                      :recursive true}
-                                                     {} open-results)
-                      open-links #(zk.pick_notes {:linkedBy [(get-note)]
-                                                  :maxDistance vim.v.count1
-                                                  :recursive true}
-                                                 {} open-results)
-                      create-note #(let [title (vim.fn.input "Title: ")]
-                                     (when (not= title "")
-                                       (zk.new {: title})))
-                      capture-with (fn [f]
-                                     ;; Screenshot -> f -> insert text at cursor
-                                     (spawn-capture-output :zk-screenshot nil
-                                                           (fn [code
-                                                                _signal
-                                                                stdout
-                                                                _stderr]
-                                                             (if (= 0 code)
-                                                                 (-> stdout f
-                                                                     put!)))))
-                      insert-screenshot #(capture-with #(.. "![[" $1 "]]"))
+                      c (reload :config.zk)
+                      maps {:n {LL {:n {:desc "Create new note"
+                                        :callback c.create-note}
+                                    ;; :N {:desc "Create new note and link it"
+                                    ;;     :callback create-and-insert-link}
+                                    :o {:desc "Edit note" :callback #(zk.edit)}
+                                    :b {:desc "Edit open note"
+                                        :callback ":<C-u>ZkBuffers<CR>"}
+                                    :l {:desc "Show links"
+                                        :callback c.open-links}
+                                    :L {:desc "Show backlinks"
+                                        :callback c.open-backlinks}}}
+                            :x {LL {:n {:desc "Into note as title"
+                                        :callback ":ZkNewFromTitleSelection<CR>"}
+                                    :N {:desc "Into note as content"
+                                        :callback ":ZkNewFromContentSelection<CR>"}}}
+                            :i {:<C-h> {:desc "Move to start of link"
+                                        :callback :<Esc>hcT|}
+                                :<C-l> {:desc "Move past link"
+                                        :callback :<Esc>2la}
+                                "<C-u>" {:desc "Select link text"
+                                         :callback "<Esc>2hvT|uf]2la"}
+                                ;; :<C-i> {:desc "Insert link"
+                                ;;         :callback "<C-o>:ZkInsertLink<CR>"}
+                                :<C-j> {:desc "Create and insert link"
+                                        :callback c.create-and-insert-link}
+                                :<C-p> {:desc "Insert screenshot"
+                                        :callback c.insert-screenshot}}}
                       on_attach (fn [_client bufnr]
-                                  (keymaps! {:opts {:buffer bufnr}
-                                             :n {LL {:n {:desc "Create new note"
-                                                         :callback create-note}
-                                                     ;; :N {:desc "Create new note and link it"
-                                                     ;;     :callback create-and-insert-link}
-                                                     :o {:desc "Edit note"
-                                                         :callback #(zk.edit)}
-                                                     :b {:desc "Edit open note"
-                                                         :callback ":<C-u>ZkBuffers<CR>"}
-                                                     :l {:desc "Show links"
-                                                         :callback open-links}
-                                                     :L {:desc "Show backlinks"
-                                                         :callback open-backlinks}}}
-                                             :x {LL {:n {:desc "Into note as title"
-                                                         :callback ":ZkNewFromTitleSelection<CR>"}
-                                                     :N {:desc "Into note as content"
-                                                         :callback ":ZkNewFromContentSelection<CR>"}}}
-                                             :i {:<C-h> {:desc "Move to start of link"
-                                                         :callback :<Esc>hcT|}
-                                                 :<C-l> {:desc "Move past link"
-                                                         :callback :<Esc>2la}
-                                                 "<C-u>" {:desc "Select link text"
-                                                          :callback "<Esc>2hvT|uf]2la"}
-                                                 ;; :<C-i> {:desc "Insert link"
-                                                 ;;         :callback "<C-o>:ZkInsertLink<CR>"}
-                                                 :<C-j> {:desc "Create and insert link"
-                                                         :callback create-and-insert-link}
-                                                 :<C-p> {:desc "Insert screenshot"
-                                                         :callback insert-screenshot}}}))]
+                                  (keymaps! (vim.tbl_extend :error maps
+                                                            {:opts {:buffer bufnr}})))]
                   (zk.setup {:picker :telescope :lsp {:config {: on_attach}}}))})
 
-;; Misc Autocmds
-
-(let [pattern (.. vim.env.HOME
-                  "/.{dotfiles/config,config}/nvim/*.{vim,lua,fnl}")
-      regpat (vim.fn.glob2regpat pattern)
-      setup (fn [prefix]
-              "Fold at `PREFIX --- [...] ---` lines (presumably comments)"
-              (set vim.wo.foldmethod :expr)
-              ;; FIXME: seems to need a buffer reload to discover new folds
-              (set vim.wo.foldexpr
-                   (.. "getline(v:lnum)=~'^" prefix " ---'?'>1':'='")))
-      callback (fn [{: buf}]
-                 (case (. vim.bo buf :filetype)
-                   :fennel (setup ";;")
-                   :lua (setup "--")))]
-  (autocmd! ;; Autoreload config files on save
-            {:event :BufWritePost
-             : pattern
-             ;; Schedule is needed a otherwise highlight groups become weirdly mixed up.
-             :callback #(vim.schedule #(dofile vim.env.MYVIMRC))}
-            {:event [:BufReadPost :FileReadPost] : pattern : callback}
-            {:event [:FileType]
-             :pattern [:vim :lua :fennel]
-             :callback (fn [ev]
-                         (when (>= (vim.fn.match (vim.fn.expand "%:p") regpat)
-                                   0)
-                           (callback ev)))}))
-
-(autocmd! ;; Autotrust our own changes to .hotpot.fnl
-          {:event :BufWritePre
-           :pattern (.. vim.env.HOME
-                        "/.{dotfiles/config,config}/nvim/.hotpot.fnl")
-           :callback (fn [{:buf bufnr}]
-                       (vim.secure.trust {:action :allow : bufnr}))}
-          ;; Autoreload tmux config on change
-          (when vim.env.TMUX
-            {:event :BufWritePost
-             :pattern (.. vim.env.HOME
-                          "/.{dotfiles/config,config}/tmux/tmux.conf")
-             :callback #(let [cmd [:tmux
-                                   :source-file
-                                   (.. vim.env.HOME "/.config/tmux/tmux.conf")]]
-                          (vim.system cmd {:text true}
-                                      (fn [res]
-                                        (if (not= 0 res.code)
-                                            (vim.schedule #(vim.notify (vim.inspect {: cmd
-                                                                                     : res})
-                                                                       vim.log.levels.ERROR))))))})
-          ;; Don't create undofiles for temporary files
-          {:event :BufWritePre
-           :pattern :/tmp/*
-           :callback #(buf-opts! {:undofile false})}
-          {:event :BufWritePre
-           :pattern "~/.crypt/*"
-           :callback #(buf-opts! {:undofile false})}
-          ;; Highlight on yank
-          {:event :TextYankPost
+;; Highlight on yank
+(autocmd! {:event :TextYankPost
            :pattern "*"
            :callback #(vim.hl.on_yank {:higroup :IncSearch :timeout 150})})
 
+(reload :config.dotfiles)
 (reload :appearance)
 
 ;; --- Experimental ---
@@ -1177,22 +987,6 @@
 
 (keymaps! {:n {"<M-o>" {:desc "Forward Jump" :callback "<C-i>"}}})
 
-;; FIXME: for debugging
-;; (keymaps! {:n (collect [_ key (ipairs [:<C-CR>
-;;                                        :<M-CR>
-;;                                        :<C-M-CR>
-;;                                        :<Tab>
-;;                                        :<C-i>
-;;                                        "<C-[>"
-;;                                        "<C-M-[>"
-;;                                        "<M-[>"
-;;                                        :<ESC>
-;;                                        :<C-ESC>
-;;                                        :<C-Left>
-;;                                        :<C-M-Left>
-;;                                        :<M-Left>])]
-;;                 (values key #(vim.print key)))})
-
 ;; TODO:
 (keymaps! {:n {L {[:k :oh] {:desc "Hover" :callback "K" :remap true}}}})
 
@@ -1210,7 +1004,9 @@
                               (values (.. "<M-" key ">")
                                       {:desc (.. "Window " desc)
                                        :callback (.. "<C-w>" key)}))
-                            {"<M-q>" {:desc "Close Window" :callback "<C-w>q"}
+                            {"<M-q>" {:desc "Close Tab"
+                                      :callback ":tabclose<CR>"}
+                             "<M-x>" {:desc "Close Window" :callback "<C-w>q"}
                              "<M-c>" {:desc "New Tab" :callback ":tabnew<CR>"}
                              ;; FIXME:
                              "<M-s>" {:callback "<C-w>s"}
@@ -1225,3 +1021,4 @@
 
 ;; TODOs
 ;; - matchup/treesitter binds
+;; - Use more Alt+ binds?

@@ -51,7 +51,9 @@
   (vim.api.nvim_replace_termcodes keys true false true))
 
 (fn M.feed! [keys ?remap]
-  (vim.api.nvim_feedkeys (parse-keys keys) (if ?remap :m :n) false))
+  ;; `i` flag inserts at front of typeahead so fed keys run before pending
+  ;; macro input; otherwise replay of e.g. `<C-r>"` reorders to `"<C-r><C-o>`.
+  (vim.api.nvim_feedkeys (parse-keys keys) (if ?remap :mi :ni) false))
 
 (var augroup nil)
 
@@ -254,8 +256,8 @@
 
 (var pkgs-pending [])
 
-(fn eval [obj]
-  (if (M.function? obj) (obj) obj))
+(fn eval [obj ?arg]
+  (if (M.function? obj) (obj ?arg) obj))
 
 (fn use-command [name spec]
   (let [create vim.api.nvim_create_user_command]
@@ -306,19 +308,22 @@
                 (when reload
                   (each [_ mod (ipairs (eval reload))]
                     (M.reload mod)))
-                (when config
-                  (config))
-                (when set-hls!
-                  (set-hls!))
-                (when signs
-                  (M.signs! (eval signs)))
-                (when ft
-                  (M.ft! (eval ft)))
-                (when command
-                  (each [name spec (pairs (eval command))]
-                    (use-command name spec)))
-                (when keymaps
-                  (M.keymaps! (eval keymaps))))]
+                (let [config (case (type config)
+                               :string (M.reload (.. :config. config))
+                               :function (config)
+                               _ config)
+                      eval #(eval $1 config)]
+                  (when set-hls!
+                    (set-hls!))
+                  (when signs
+                    (M.signs! (eval signs)))
+                  (when ft
+                    (M.ft! (eval ft)))
+                  (when command
+                    (each [name spec (pairs (eval command))]
+                      (use-command name spec)))
+                  (when keymaps
+                    (M.keymaps! (eval keymaps)))))]
     (if sync
         (do
           (before)
