@@ -1,1 +1,1 @@
-require('utils').reload('appearance.colorscheme')
+require('utils').reload('config.colorscheme')

@@ -10,10 +10,10 @@
 (local {: spawn} (require :utils.async))
 
 (local {: mk-op!} (require :utils.operator))
-(local {: get-named : mix} (require :utils.colors))
+(local {: mix} (require :utils.colors))
+(local {:named colors} (require :config.colors))
 (import-macros {: with-saved : with-cleanup : input!} :utils.macros)
 
-(local colors (get-named))
 
 (local hotpot (let [api (require :hotpot.api)]
                 (api.context (vim.fn.stdpath :config))))
@@ -59,7 +59,33 @@
         :conceallevel 3
         ;; Start with folds expanded
         :foldlevelstart 99
-        :spelllang "en,de"})
+        :spelllang "en,de"
+        ;; TODO: check
+        ;; Effectively `solid` as we set fg=bg in `hl-FloatBorder`, but
+        ;; allows hl-groups to override this e.g. for emphasis
+        ;; (e.g. orange border on warnings).
+        :winborder :rounded
+        ;; :signcolumn :auto
+        ;; TODO: Move closer to heirline setup
+        :signcolumn :number
+        :termguicolors true
+        :guicursor (table.concat [;; Added hl-group to first group, rest is from default value
+                                  "n-v-c-sm:block-Cursor"
+                                  "i-ci-ve:ver25"
+                                  "r-cr-o:hor20"
+                                  "t:block-blinkon500-blinkoff500-TermCursor"]
+                                 ",")
+        ;; Remove redundant mode prompt in insert area
+        :showmode true
+        :cmdheight 1
+        ;; Only show when having more than one tab
+        :showtabline 1
+        ;; Show statusline on all windows
+        :laststatus 3
+        :fillchars "vert:│,wbr: "
+        :scrolloff 2
+        :linebreak true
+        })
 
 (set vim.g.editorconfig true)
 
@@ -938,6 +964,15 @@
 
 (reload :config.dotfiles)
 (reload :appearance)
+(reload :config.colorscheme)
+
+(local c (require :config))
+(use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
+      {:setup {:nvim-navic {:highlight true
+                            :separator c.navic-sep
+                            :lsp {:auto_attach true}}}
+       :config :statusline})
+
 
 ;; --- Experimental ---
 

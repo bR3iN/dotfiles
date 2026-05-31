@@ -1,4 +1,5 @@
-(local {: darken : get-named : mix : lighten} (require :utils.colors))
+(local {: darken : mix : lighten} (require :utils.colors))
+(local {: named} (require :config.colors))
 (local {: empty?
         : hl!
         : remove-prefix
@@ -19,8 +20,6 @@
 
 (local {:get_location navic_get_location :is_available navic_available}
        (require :nvim-navic))
-
-(local named (get-named))
 
 (local winbar-active-bg (mix named.blue named.fg0 0.85))
 

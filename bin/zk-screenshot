@@ -2,5 +2,5 @@
 set -e
 
 filename=$(mktemp -u XXXXXX).png
-grim -g "$(slurp)" ~/Zettelkasten/screenshots/"$filename"
-echo -n "./screenshots/$filename"
+grim -g "$(slurp -x)" ~/Zettelkasten/screenshots/"$filename"
+echo -n "screenshots/$filename"

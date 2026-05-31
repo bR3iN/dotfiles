@@ -101,19 +101,6 @@
        (linear->rgb)
        (rgb->hex)))
 
-;; (fn lighten [color amount]
-;;   (let [[h s l] (-> color (hex->rgb) (rgb->hsl))
-;;         ;; new-l (-> l
-;;         ;;           (+ amount)
-;;         ;;           (clamp 0 1))
-;;         new-l (-> l
-;;                   (* (+ 1 amount))
-;;                   (clamp 0 1))
-;;         ]
-;;     (-> [h s new-l]
-;;         (hsl->rgb)
-;;         (rgb->hex))))
-;;
 (fn darken [color amount]
   (lighten color (- amount)))
 
@@ -128,43 +115,4 @@
     (encode (add (scale weight1 (decode color1))
                  (scale weight2 (decode color2))))))
 
-(fn mk-named []
-  (let [{: colors} (require :base16-colors)
-        ext {:error colors.base08
-             :hint colors.base0D
-             :info colors.base0B
-             :warn colors.base09
-             :transparent colors.terminal_bg
-             ;; FIXME: mid -> border?
-             :mid (mix colors.fg0 colors.bg0 0.5)
-             :border (mix colors.fg0 colors.bg0 0.5)
-             :statusline colors.base02}
-        colors (vim.tbl_extend :error colors ext)
-        ;; darkened (collect [name color (pairs colors)]
-        ;;            (values (.. "dark_" name) (darken color 0.2)))
-        ;; lightened (collect [name color (pairs colors)]
-        ;;             (values (.. "light_" name) (lighten color 0.2)))
-        ]
-    ;; FIXME: remove duplication
-    ;; (vim.tbl_extend :force colors darkened lightened)
-    colors))
-
-(local named-cache (mk-named))
-
-(fn colored-selection [accent-color]
-  (mix accent-color named-cache.bg1 0.03))
-
-(fn get-named []
-  ;; (when (not named-cache)
-  ;;   (set named-cache (mk-named)))
-  named-cache)
-
-{: lighten
- : darken
- ;; : scale
- : mix
- : colored-selection
- :dump (fn []
-         (vim.api.nvim_put (vim.split (vim.inspect (get-named)) "\n") :l true
-                           true))
- : get-named}
+{: lighten : darken : mix}

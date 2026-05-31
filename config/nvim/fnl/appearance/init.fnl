@@ -1,45 +1,11 @@
 (local {: hl! : use! : reload : opts! : setup} (require :utils))
 
-(local c (require :config))
-(local {: get-named : darken} (require :utils.colors))
+(local {: darken} (require :utils.colors))
+(local {:named colors} (require :config.colors))
 
 (local {: name} (require :base16-colors))
-(local colors (get-named))
 
-(opts! {;; TODO: check
-        ;; Effectively `solid` as we set fg=bg in `hl-FloatBorder`, but
-        ;; allows hl-groups to override this e.g. for emphasis
-        ;; (e.g. orange border on warnings).
-        :winborder :rounded
-        ;; :signcolumn :auto
-        ;; TODO: Move closer to heirline setup
-        :signcolumn :number
-        :termguicolors true
-        :guicursor (table.concat [;; Added hl-group to first group, rest is from default value
-                                  "n-v-c-sm:block-Cursor"
-                                  "i-ci-ve:ver25"
-                                  "r-cr-o:hor20"
-                                  "t:block-blinkon500-blinkoff500-TermCursor"]
-                                 ",")
-        ;; Remove redundant mode prompt in insert area
-        :showmode true
-        :cmdheight 1})
-
-(opts! {;; Only show when having more than one tab
-        :showtabline 1
-        ;; Show statusline on all windows
-        :laststatus 3
-        :fillchars "vert:│,wbr: "
-        :scrolloff 2
-        :linebreak true})
-
-(reload :appearance.colorscheme)
-
-(use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
-      {:setup {:nvim-navic {:highlight true
-                            :separator c.navic-sep
-                            :lsp {:auto_attach true}}}
-       :reload :appearance.statusline})
+;; (reload :appearance.colorscheme)
 
 ;; Custom color setup; load colorscheme description (name + base16 colors)
 (use! [;;:bR3iN/base16.nvim
@@ -50,24 +16,24 @@
        ;; :catppuccin/nvim
        ] {:autocmds #(let [cb (fn []
                                       ;; Highlights overrides and groups for local plugins
-                                      ;; (hl-ext! :LineNrAbove {:bg colors.base01}) 
-                                      ;; (hl-ext! :LineNrBelow {:bg colors.base01}) 
-                                      ;; (hl-ext! :CursorLineNr {:bg (darken colors.base02 0.1)})
+                                      ;; (hl-ext! :LineNrAbove {:bg colors.bg1}) 
+                                      ;; (hl-ext! :LineNrBelow {:bg colors.bg1}) 
+                                      ;; (hl-ext! :CursorLineNr {:bg (darken colors.bg2 0.1)})
                                       (hl! :Comment
-                                           {:extend true :fg colors.base03})
+                                           {:extend true :fg colors.bg3})
                                       (hl! :CommentHighlighted
-                                           {:extend true :fg colors.base0F})
+                                           {:extend true :fg colors.brown})
                                       (hl! :GitSignsCurrentLineBlame
                                            {:link :CommentHighlighted})
                                       (hl! :TrailingWhitespace
                                            {:extend true
-                                            :fg colors.base03
-                                            :bg colors.base03})
+                                            :fg colors.bg3
+                                            :bg colors.bg3})
                                       (hl! :LspInlayHint
                                            {:extend true :bg :NONE})
                                       ;; Toggle the color of comments TODO: For some reason doesn't work with external nord colorscheme
                                       (hl! :BqfPreviewTitle
-                                           {:fg colors.green :bg colors.base02})
+                                           {:fg colors.green :bg colors.bg2})
                                       ;; Load after setting `CommentHighlighted` above
                                       ;; Use <C-o><C-h> instead
                                       ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
@@ -95,8 +61,8 @@
                              ;; "Catppuccin"
                              ;; #(do
                              ;;    (vim.cmd.colorscheme :catppuccin-mocha)
-                             ;;    (hl! :Normal {:fg colors.base05 :bg :None})
-                             ;;    (hl! :NormalNC {:fg colors.base05 :bg :None}))
+                             ;;    (hl! :Normal {:fg colors.fg1 :bg :None})
+                             ;;    (hl! :NormalNC {:fg colors.fg1 :bg :None}))
                              ;; Fallback; derives colorscheme from base16 colors
                              _
                              (vim.cmd.colorscheme :base16)))})
@@ -108,8 +74,8 @@
                                         :callback vim.cmd.ColorizerToggle}}}}}})
 
 (use! :folke/which-key.nvim
-      {:hl {:WhichKeyDesc {:fg colors.base05}
-            :WhichKeySeparator {:fg (darken colors.base04 0.2)}}
+      {:hl {:WhichKeyDesc {:fg colors.fg1}
+            :WhichKeySeparator {:fg (darken colors.fg0 0.2)}}
        :setup {:which-key {:delay 300
                            :win {:width {:min 30 :max 60}
                                  :height {:min 4 :max 0.75}
