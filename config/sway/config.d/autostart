@@ -2,8 +2,8 @@ exec start-polkit-agent
 exec Thunar --daemon
 
 exec wlsunset -l 51.9 -L 9.9 -T 5000 -t 3200
-exec /usr/libexec/kdeconnectd
-exec kdeconnect-indicator
+# exec /usr/libexec/kdeconnectd
+# exec kdeconnect-indicator
 exec mako
 exec kanshi
 exec blueman-applet
@@ -12,6 +12,10 @@ exec keyd-application-mapper
 
 # XDG_SESSION_TYPE and XDG_CURRENT_DESKTOP are for xdg-desktop-portal, the rest to fix hanging gtk3 apps on start
 exec systemctl --user import-environment PATH WAYLAND_DISPLAY DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
 # Needed by gnome-keyring/seahorse
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY
-exec /usr/libexec/xdg-desktop-portal
+
+exec systemctl --user start sway-session.target
+# exec /usr/libexec/xdg-desktop-portal

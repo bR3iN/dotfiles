@@ -16,8 +16,9 @@ set notification-error-fg       "#E23434"
 set notification-warning-bg     "#202020"
 set notification-warning-fg     "#E23434"
 
-set highlight-color             "#FFCE51"
-set highlight-active-color      "#48B9C7"
+# Need transparency, but apparently not possible in hex string
+#set highlight-color             "#FFCE51"
+#set highlight-active-color      "#48B9C7"
 
 set completion-bg               "#2A2A2A"
 set completion-fg               "#48B9C7"

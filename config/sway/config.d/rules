@@ -1,5 +1,5 @@
 for_window {
-    [app_id="thunderbird"]           move window to workspace 5
+    [app_id="thunderbird"]           move window to workspace 10
     [class="GParted"]                floating enable
     [app_id="blueberry.py"]          floating enable
     [app_id="blueman-manager"]       floating enable

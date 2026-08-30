@@ -84,8 +84,7 @@
         :laststatus 3
         :fillchars "vert:│,wbr: "
         :scrolloff 2
-        :linebreak true
-        })
+        :linebreak true})
 
 (set vim.g.editorconfig true)
 
@@ -313,7 +312,9 @@
                                 :callback (.. prefix s "gt")}))}))
       (: :each keymaps!)))
 
-(keymaps! {[:n :v] {"<C-j>" {:desc "Down (Display Line)" :callback "gj"}
+(keymaps! {[:n :v] {"<Up>" "gk"
+                    "<Down>" "gj"
+                    "<C-j>" {:desc "Down (Display Line)" :callback "gj"}
                     "<C-k>" {:desc "Up (Display Line)" :callback "gk"}}})
 
 (use! :tpope/vim-repeat)
@@ -339,8 +340,9 @@
        :keymaps {:opts {:remap true}
                  :n {;; CTRL-L-default
                      ;; FIXME: good?
-                     :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>"
+                     :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<CR>"
                              :remap false}
+                     :g<C-l> {:callback "<C-l>" :remap false}
                      :<M-h> "<Plug>(matchup-[%)v%o"
                      :<M-l> "<Plug>(matchup-]%)v%o"
                      :<M-k> "v<M-k>"
@@ -973,7 +975,6 @@
                             :lsp {:auto_attach true}}}
        :config :statusline})
 
-
 ;; --- Experimental ---
 
 ;; (let [{: setup} (reload :plugin.visual-history)]
@@ -1057,3 +1058,4 @@
 ;; TODOs
 ;; - matchup/treesitter binds
 ;; - Use more Alt+ binds?
+;; - helpers to create project-local build keymaps?

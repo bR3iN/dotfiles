@@ -1,3 +1,5 @@
+;; FIXME: duplicates c.fnl
+
 (local {: buf-opts! : keymaps!} (require :utils))
 
 (buf-opts! {:shiftwidth 2})

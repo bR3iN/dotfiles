@@ -7,7 +7,8 @@ exec swayidle -w before-sleep "gtklock -d"
 bindsym $mod+Escape exec lock-wrapper gtklock
 
 
-focus_follows_mouse no
+focus_follows_mouse yes
+# focus_follows_mouse no
 show_marks yes
 
 
@@ -32,7 +33,7 @@ bindsym $mod+x exec rofi-scripts
 bindsym $mod+Control+o exec rofi-bookmarks
 
 # Make screenshot
-bindsym $mod+Control+p exec grim -g "$(slurp)" - | swappy -f -
+bindsym $mod+Control+p exec grim -g "$(slurp -x)" - | swappy -f -
 
 
 ## Appearance
@@ -83,7 +84,7 @@ include ~/.config/sway/base16
 # Property Name          Border        BG      Text    Indicator    Child Border
 client.focused           $base03_light $base03 $base05 $base0B_dark $base0B_dark
 client.focused_inactive  $base02_light $base02 $base04 $base01_dark $base01_dark
-client.focused_tab_title $base03_light $base03 $base05 $base01_dark $base01_dark
+client.focused_tab_title $base03_light $base03 $base05
 client.unfocused         $base01_light $base01 $base04 $base01_dark $base01_dark
 client.urgent            $base0A_light $base00 $base08 $base0A_dark $base0A_dark
 
@@ -96,6 +97,7 @@ input * {
     xkb_file ~/.config/sway/input/us.xkb
     tap enabled
 }
+
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
 
@@ -124,8 +126,8 @@ bindsym $mod+Control+r reload; exec killall -sSIGHUP kanshi
 bindsym $mod+q kill
 
 # Move to and show scratchpad
-bindsym $mod+Control+minus move scratchpad
-bindsym $mod+minus scratchpad show
+bindsym $mod+Backspace move scratchpad
+bindsym $mod+minus exec wlr-switcher --scratchpad --cycle-next "-" --cycle-prev "="
 
 # Toggle floating status of current client
 bindsym $mod+Control+space floating toggle

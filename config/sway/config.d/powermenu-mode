@@ -10,7 +10,7 @@ mode "powermenu" {
     bindsym l mode "default"; exec $lock_cmd
 
     # Suspend
-    bindsym --locked s mode "default"; exec systemctl suspend-then-hibernate
+    bindsym --locked s mode "default"; exec systemctl sleep
     # Hibernate
     bindsym --locked h mode "default"; exec systemctl hibernate
 

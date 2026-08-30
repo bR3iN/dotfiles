@@ -112,6 +112,9 @@ zathura: $(CONFIG_DIR)/zathura
 .PHONY: zellij
 zellij: $(CONFIG_DIR)/zellij
 
+.PHONY: xdg-desktop-portal-wlr
+xdg-desktop-portal-wlr: $(CONFIG_DIR)/xdg-desktop-portal-wlr
+
 
 $(FLATPAK_APP)/%: | /usr/bin/flatpak 
 	sudo flatpak install "$*"

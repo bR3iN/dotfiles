@@ -22,7 +22,7 @@
     border-radius: 8px;
 }
 
-window {
+#window {
     background-color: @base01;
     border-color: @base03;
     border-width: 2px;
@@ -32,6 +32,7 @@ window {
 #input {
     margin: 0 0 8px 0;
     background-color: @base03;
+    border-width: 0;
 }
 
 #outer-box {

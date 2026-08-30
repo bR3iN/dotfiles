@@ -1,4 +1,5 @@
 single_click=true
+use_search_box=false
 key_exit=Escape,Ctrl-bracketleft,Ctrl-bracketleft
 allow_images=true
 no_actions=true
