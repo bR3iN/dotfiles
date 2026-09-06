@@ -1,4 +1,4 @@
-SWAY_SCRATCHPAD_URL := https://github.com/bR3iN/sway-scratchpad-waybar/releases/download/v0.1.0/sway-scratchpad-waybar-0.1.0-x86_64-linux-gnu
+SWAY_SCRATCHPAD_URL := https://github.com/bR3iN/sway-scratchpad-waybar/releases/download/v0.2.0/sway-scratchpad-waybar-0.2.0-x86_64-linux-gnu
 
 .PHONY: sway
 sway: \

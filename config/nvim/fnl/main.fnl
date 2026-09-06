@@ -14,7 +14,6 @@
 (local {:named colors} (require :config.colors))
 (import-macros {: with-saved : with-cleanup : input!} :utils.macros)
 
-
 (local hotpot (let [api (require :hotpot.api)]
                 (api.context (vim.fn.stdpath :config))))
 
@@ -340,7 +339,7 @@
        :keymaps {:opts {:remap true}
                  :n {;; CTRL-L-default
                      ;; FIXME: good?
-                     :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<CR>"
+                     :<Esc> {:callback "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-l><CR>"
                              :remap false}
                      :g<C-l> {:callback "<C-l>" :remap false}
                      :<M-h> "<Plug>(matchup-[%)v%o"
@@ -582,8 +581,7 @@
                            :signature {:enabled true
                                        :trigger {;; Don't autoshow
                                                  :enabled false}
-                                       ;; :window {:border :none}
-                                       }}}
+                                       :window {:border :none}}}}
        :hl {:BlinkCmpLabelMatch {:link ;; Linking to `Normal` doesn't work for whatever reason
                                  :PmenuMatch}
             :BlinkCmpScrollBarThumb {:link :PmenuThumb}
@@ -766,7 +764,23 @@
        ;; :mfussenegger/nvim-dap-python
        ]
       {:setup {:nvim-dap-virtual-text {:virt_text_pos :inline}
-               :dap-view {:winbar {:sections ["watches"
+               :dap-view {:winbar {:base_sections {:breakpoints {:label "Breakpoints"
+                                                                 :keymap "B"}
+                                                   :scopes {:label "Scopes"
+                                                            :keymap "2"}
+                                                   :exceptions {:label "Exceptions"
+                                                                :keymap "E"}
+                                                   :watches {:label "Watches"
+                                                             :keymap "1"}
+                                                   :threads {:label "Threads"
+                                                             :keymap "T"}
+                                                   :repl {:label "REPL"
+                                                          :keymap "R"}
+                                                   :sessions {:label "Sessions"
+                                                              :keymap "K"}
+                                                   :console {:label "Console"
+                                                             :keymap "C"}}
+                                   :sections ["watches"
                                               "scopes"
                                               "exceptions"
                                               "breakpoints"
@@ -784,6 +798,7 @@
                                                      :callback vim.cmd.quit}}}))}
        :keymaps (fn [c]
                   (let [dap (require :dap)
+                        {:eval e :bindings b} c
                         {: show_view :open open_view} (require :dap-view)
                         ;; sidebar #(let [sidebar (->> $1
                         ;;                             (. widgets)
@@ -792,39 +807,24 @@
                         ;; cfloat #(->> $1 (. widgets) (widgets.centered_float))
                         ]
                     {:v {L {:d {;; :k {:desc "Hover" :callback widgets.hover}
-                                :e {:desc "Eval Expression"
-                                    :callback c.eval.visual}}}}
+                                :e {:desc "Eval Expression" :callback e.visual}}}}
                      :n {"[f" {:desc "Up Stack Frame" :callback dap.up}
                          "]f" {:desc "Down Stack Frame" :callback dap.down}
+                         "" {"<F9>" b.toggle-breakpoint}
                          L {:d {:<CR> {:desc "Run to Cursor"
                                        :callback #(dap.run_to_cursor)}
-                                :<Tab> {:desc "Toggle Breakpoint"
-                                        :callback dap.toggle_breakpoint}
-                                :<S-Tab> {:desc "Toggle Breakpoint (Interactive)"
-                                          :callback c.interactive-breakpoint}
-                                :k {:desc "Eval Expression"
-                                    :callback c.eval.word}
+                                :<Tab> b.toggle-breakpoint
+                                :<S-Tab> b.toggle-breakpoint-interactive
+                                :k {:desc "Eval Expression" :callback e.word}
                                 :K {:desc "Eval Expression (Interactive)"
-                                    :callback c.eval.interactive}
+                                    :callback e.interactive}
                                 :q {:desc "Terminate" :callback dap.terminate}
-                                :c {:desc "Continue"
-                                    :callback dap.continue
-                                    :repeatable true}
-                                :s {:desc "Step Into"
-                                    :callback dap.step_into
-                                    :repeatable true}
-                                :p {:desc "Step Back"
-                                    :callback dap.step_back
-                                    :repeatable true}
-                                :P {:desc "Reverse Continue"
-                                    :callback dap.reverse_continue
-                                    :repeatable true}
-                                :n {:desc "Step Over"
-                                    :callback dap.step_over
-                                    :repeatable true}
-                                :o {:desc "Step Out"
-                                    :callback dap.step_out
-                                    :repeatable true}
+                                :c b.continue
+                                :s b.step-into
+                                :p b.step-back
+                                :P b.reverse-continue
+                                :n b.step-over
+                                :o b.step-out
                                 :r {:desc "Restart / Run Last"
                                     :callback c.restart_or_run_last}
                                 :<space> {:desc "Focus Frame"
@@ -833,7 +833,7 @@
                                 ;;     :callback (fn []
                                 ;;                 (dap.list_breakpoints)
                                 ;;                 (vim.cmd.copen))}
-                                :H {:desc "Toggle Debug Virtual Text"
+                                :h {:desc "Toggle Debug Virtual Text"
                                     :callback vim.cmd.DapVirtualTextToggle}
                                 :N {:desc "New Session"
                                     :callback vim.cmd.DapNew

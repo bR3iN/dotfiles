@@ -46,7 +46,7 @@
     },
 
     "sway/mode": {
-        "format": "{short}"
+        "format": "{}"
     },
 
     "idle_inhibitor": {
@@ -139,7 +139,7 @@
 
     "custom/sway/scratchpad": {
         "return-type": "json",
-        "exec": "sway-scratchpad-waybar-0.1.0-x86_64-linux-gnu",
+        "exec": "sway-scratchpad-waybar",
         "hide-empty-text": true,
         "format": "{}",
     },

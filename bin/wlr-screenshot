@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+DATE_FMT="%Y%m%d_%H%M%S"
+OUT_DIR="$HOME/Pictures"
+
+mkdir -p "$OUT_DIR"
+wlr-shot screenshot "$@" "$OUT_DIR"/screenshot_$(date +"$DATE_FMT").png

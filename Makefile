@@ -6,6 +6,7 @@ SYSTEM_THEMES ?= /usr/share/themes
 STAMP = .tag
 OS_ID ?= $(shell source /etc/os-release && echo $$ID)
 FLATPAK_APP ?= /var/lib/flatpak/app
+CODELLDB_DIR ?= $(HOME)/.local/share/codelldb
 
 ###########
 # Targets #
@@ -27,9 +28,12 @@ cmus: $(CONFIG_DIR)/cmus/rc
 
 .PHONY: fish
 fish: $(CONFIG_DIR)/fish
+	@# xdg-mime default thunar.desktop inode/directory
+
+.PHONY: fish-root
+fish-root:
 	sudo mkdir -p /root/.config
-	# sudo cp -r config/fish /root/.config
-	xdg-mime default thunar.desktop inode/directory
+	sudo cp -r config/fish /root/.config
 
 .PHONY: git
 git: $(CONFIG_DIR)/git/config
@@ -57,6 +61,11 @@ $(STAMP)/npm:
 
 .PHONY: nvim
 nvim: $(CONFIG_DIR)/nvim
+
+.PHONY: nvim-extras
+nvim-extras: \
+	nvim \
+	$(CODELLDB_DIR)
 
 .PHONY: nvim-docsets
 nvim-docsets:
@@ -106,7 +115,8 @@ $(HOME)/.local/bin/wofi-emoji:
 .PHONY: zathura
 zathura: $(CONFIG_DIR)/zathura
 	xdg-mime default org.pwmt.zathura.desktop application/pdf
-	xdg-mime default org.pwmt.zathura.desktop application/epub+zip
+	# xdg-mime default org.pwmt.zathura.desktop application/epub+zip
+	xdg-mime default mupdf.desktop application/epub+zip
 	xdg-mime default org.pwmt.zathura.desktop image/vnd.djvu
 
 .PHONY: zellij
@@ -114,6 +124,9 @@ zellij: $(CONFIG_DIR)/zellij
 
 .PHONY: xdg-desktop-portal-wlr
 xdg-desktop-portal-wlr: $(CONFIG_DIR)/xdg-desktop-portal-wlr
+
+.PHONY: swappy
+swappy: $(CONFIG_DIR)/swappy
 
 
 $(FLATPAK_APP)/%: | /usr/bin/flatpak 

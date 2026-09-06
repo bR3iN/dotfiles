@@ -197,3 +197,14 @@ tooltip {
 }
 
 #clock { font-size: 110%; font-weight: bold; color: @foreground; }
+
+menu {
+    margin: 4px;
+    padding: 6px;
+    background-color: alpha(shade(@base02, 1.1), 0.99);
+    color: @base05;
+}
+
+menu menuitem:hover {
+    background-color: @base01;
+}

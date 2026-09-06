@@ -32,8 +32,8 @@ bindsym $mod+x exec rofi-scripts
 # Open bookmark selector
 bindsym $mod+Control+o exec rofi-bookmarks
 
-# Make screenshot
-bindsym $mod+Control+p exec grim -g "$(slurp -x)" - | swappy -f -
+# Make screenshot (c.f. config.d/screenshot-mode)
+# bindsym $mod+Control+p exec grim -g "$(slurp -x)" - | swappy -f -
 
 
 ## Appearance
@@ -126,8 +126,16 @@ bindsym $mod+Control+r reload; exec killall -sSIGHUP kanshi
 bindsym $mod+q kill
 
 # Move to and show scratchpad
-bindsym $mod+Backspace move scratchpad
+#bindsym $mod+minus scratchpad show
+
+# bindsym $mod+Backspace move scratchpad
+bindsym $mod+Control+minus move scratchpad
+
 bindsym $mod+minus exec wlr-switcher --scratchpad --cycle-next "-" --cycle-prev "="
+bindsym $mod+Tab exec wlr-switcher
+
+# Lazily starts the wlr-draw daemon
+bindsym $mod+Control+d exec wlr-draw-toggle
 
 # Toggle floating status of current client
 bindsym $mod+Control+space floating toggle

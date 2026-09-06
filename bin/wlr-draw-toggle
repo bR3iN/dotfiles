@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+SOCK=/run/user/1000/wlr-draw.sock
+
+if ! [ -e "$SOCK" ]; then
+    wlr-draw &
+    sleep 0.2
+fi
+
+wlr-draw toggle
