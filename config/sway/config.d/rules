@@ -28,5 +28,3 @@ for_window {
     [app_id="com.github.wwmm.easyeffects"] floating enable
     [app_id="com.github.GradienceTeam.Gradience"] floating enable
 }
-
-# vim: ft=conf

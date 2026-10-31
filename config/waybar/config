@@ -6,7 +6,7 @@
   "height": 28,
   "modules-left": [
         "sway/workspaces",
-        "custom/sway/scratchpad",
+        "sway/scratchpad",
         "sway/mode",
     ],
     "modules-center": [
@@ -19,7 +19,7 @@
         "disk",
         "backlight",
         "pulseaudio",
-        "sway/language",
+        // "sway/language",
         "custom/vpn",
         "network",
         "battery",
@@ -39,6 +39,11 @@
             "focused": "",
             "default": ""
         },
+    },
+
+    "sway/scratchpad": {
+        "format-icons": ["󰎚"],
+        // "on-click": "swaymsg scratchpad show"
     },
 
     "sway/language": {
@@ -135,13 +140,6 @@
             "default": ["󰕿", "󰖀", "󰕾"]
         },
         "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-    },
-
-    "custom/sway/scratchpad": {
-        "return-type": "json",
-        "exec": "sway-scratchpad-waybar",
-        "hide-empty-text": true,
-        "format": "{}",
     },
 
     "custom/separator": {

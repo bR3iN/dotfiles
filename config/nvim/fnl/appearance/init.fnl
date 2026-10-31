@@ -19,12 +19,12 @@
                                       ;; (hl-ext! :LineNrAbove {:bg colors.bg1}) 
                                       ;; (hl-ext! :LineNrBelow {:bg colors.bg1}) 
                                       ;; (hl-ext! :CursorLineNr {:bg (darken colors.bg2 0.1)})
-                                      (hl! :Comment
-                                           {:extend true :fg colors.bg3})
-                                      (hl! :CommentHighlighted
-                                           {:extend true :fg colors.brown})
+                                      ;; (hl! :Comment
+                                      ;;      {:extend true :fg colors.bg3})
+                                      ;; (hl! :CommentHighlighted
+                                      ;;      {:extend true :fg colors.brown})
                                       (hl! :GitSignsCurrentLineBlame
-                                           {:link :CommentHighlighted})
+                                           {:extend true :fg colors.brown})
                                       (hl! :TrailingWhitespace
                                            {:extend true
                                             :fg colors.bg3
@@ -37,7 +37,7 @@
                                       ;; Load after setting `CommentHighlighted` above
                                       ;; Use <C-o><C-h> instead
                                       ;; (imap! :<C-h> "<C-o>:ToggleComments<CR>")
-                                      (setup :plugin.toggle-comments))]
+                                      )]
                              (cb)
                              {:ColorScheme {:callback cb}})
                 :init #(set vim.g.nord_disable_background true)
@@ -66,6 +66,9 @@
                              ;; Fallback; derives colorscheme from base16 colors
                              _
                              (vim.cmd.colorscheme :base16)))})
+
+(setup :plugin.toggle-comments {; :extend true
+                                :fg colors.brown})
 
 (use! [;; Highlights hex color codes in their color
        :NvChad/nvim-colorizer.lua]

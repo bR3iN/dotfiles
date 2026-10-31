@@ -118,7 +118,7 @@
 
 ;; Syntax groups, c.f. `group-name`. The links should been default but don't
 ;; seem to be.
-(hl! :Comment {:fg (lighten named.bg3 0.2)})
+(hl! :Comment {:fg named.bg3})
 
 (hl! :Constant {:fg named.magenta})
 (hl! :String {:link :Constant})

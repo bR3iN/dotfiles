@@ -6,6 +6,7 @@ exec wlsunset -l 51.9 -L 9.9 -T 5000 -t 3200
 # exec kdeconnect-indicator
 exec mako
 exec kanshi
+exec wlr-overlayd
 exec blueman-applet
 
 exec keyd-application-mapper

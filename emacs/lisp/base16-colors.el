@@ -35,21 +35,21 @@
     :brown "#AD9B7F"
 
     ; Extension colors derived from the above
-    :dark_bg0 "#191919"
-    :dark_bg1 "#212121"
-    :dark_bg2 "#282828"
-    :dark_bg3 "#303030"
-    :dark_fg0 "#868686"
-    :dark_fg1 "#A4A4A4"
-    :dark_fg2 "#B5B5B5"
-    :dark_fg3 "#C2C2C2"
-    :dark_red "#B42929"
-    :dark_orange "#C0791B"
-    :dark_yellow "#CCA440"
-    :dark_green "#5C9C72"
-    :dark_cyan "#29B4B4"
-    :dark_blue "#39949F"
-    :dark_magenta "#8A6586"
-    :dark_brown "#8A7C65"))
+    :dark_bg0 "#1C1C1C"
+    :dark_bg1 "#252525"
+    :dark_bg2 "#2D2D2D"
+    :dark_bg3 "#363636"
+    :dark_fg0 "#989898"
+    :dark_fg1 "#BABABA"
+    :dark_fg2 "#CECECE"
+    :dark_fg3 "#DCDCDC"
+    :dark_red "#CD2E2E"
+    :dark_orange "#DA891E"
+    :dark_yellow "#E7BA49"
+    :dark_green "#68B181"
+    :dark_cyan "#2ECDCD"
+    :dark_blue "#40A7B4"
+    :dark_magenta "#9C7298"
+    :dark_brown "#9C8C72"))
 
 (provide 'base16-colors)

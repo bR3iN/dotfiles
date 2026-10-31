@@ -37,12 +37,14 @@
                (if (= (length bufs) 0)
                    (vim.notify "No terminal buffers")
                    (pick-bufs bufs)))
- :ensure-fzf-native #(let [path (-> [:telescope-fzf-native.nvim]
-                                    (vim.pack.get)
-                                    (. 1)
-                                    (. :path))]
-                       (spawn-capture-output :make {:cwd path}
-                                             (fn [code]
-                                               (if (= 0 code)
-                                                   (load_extension :fzf)
-                                                   (vim.print "Failed to compile fzf-native")))))}
+ :install-fzf-native #(let [path (-> [:telescope-fzf-native.nvim]
+                                     (vim.pack.get)
+                                     (. 1)
+                                     (. :path))]
+                        (vim.print "Building telescope-fzf-native extension...")
+                        (let [{: code : stderr} (: (vim.system [:make]
+                                                               {:cwd path})
+                                                   :wait)]
+                          (if (= 0 code)
+                              (vim.print "Build complete")
+                              (vim.print "Failed to compile fzf-native:" stderr))))}

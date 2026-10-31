@@ -4,6 +4,7 @@ dirs=(
     "$HOME/.cargo/bin"
     "$HOME/.ghcup/bin"
     "$HOME/.cabal/bin"
+    "$HOME/.elan/bin"
     "$HOME/.nix-profile/bin"
     "$HOME/.dotfiles/bin"
 )

@@ -22,5 +22,3 @@ mode "powermenu" {
     bindsym --locked Escape              mode "default"
     bindsym --locked Control+bracketleft mode "default"
 }
-
-# vim: ft=conf

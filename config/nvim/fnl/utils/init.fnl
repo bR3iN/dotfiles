@@ -97,7 +97,7 @@
   (let [val (. tbl key)]
     ;; Always clear, including explicit `false` values; normalize to nil
     (set (. tbl key) nil)
-    (or val nil)))
+    val))
 
 (fn auto-remap? [rhs]
   (and (M.string? rhs)
@@ -271,14 +271,14 @@
         opts (if (M.function? opts) (opts m) opts)]
     (m.setup opts)))
 
-(fn M.use! [spec ?opts]
+(fn parse-use-spec [spec ?opts]
   (let [;; Normalize list of specs
         specs (if (vim.islist spec) spec [spec])
         specs (vim.tbl_map expand-spec specs)
         {: setup
          : config
-         : sync
          : keymaps
+         : install
          : autocmds
          : init
          : reload
@@ -292,7 +292,9 @@
         before (fn []
                  (when init
                    (init)))
-        after (fn []
+        after (fn [changed]
+                (when (and changed install)
+                  (install))
                 ;; Some plugins (e.g. indent-blankline) require highlight groups to be set before setup.
                 (when set-hls!
                   (set-hls!)
@@ -324,35 +326,51 @@
                       (use-command name spec)))
                   (when keymaps
                     (M.keymaps! (eval keymaps)))))]
+    {: specs : before : after}))
+
+(fn run-parsed-use-specs [parsed-specs]
+  (let [existing-srcs (collect [_ {:spec {: src}} (pairs (vim.pack.get nil
+                                                                       {:info false}))]
+                        (values src true))
+        befores []
+        afters []
+        pkgs []]
+    (each [_ {: before : specs : after} (pairs parsed-specs)]
+      (table.insert befores before)
+      (each [_ spec (ipairs specs)]
+        (table.insert pkgs spec))
+      (let [changed (-> specs (vim.iter)
+                        (: :any #(not (. existing-srcs $1.src))))]
+        (table.insert afters #(after changed))))
+    ;; Execute
+    (each [_ cb (ipairs befores)]
+      (cb))
+    (vim.pack.add pkgs {:confirm false})
+    (each [_ cb (ipairs afters)]
+      (cb))
+    ))
+
+(fn M.use! [spec ?opts]
+  (let [sync (if (M.nil? ?opts)
+                 false
+                 (pop! ?opts :sync))
+        parsed-spec (parse-use-spec spec ?opts)]
     (if sync
-        (do
-          (before)
-          (vim.pack.add specs)
-          (after))
-        (table.insert pkgs-pending {: specs : before : after}))))
+        (run-parsed-use-specs [parsed-spec])
+        (table.insert pkgs-pending parsed-spec))))
 
 (fn M.sync []
-  (let [pkgs pkgs-pending]
+  (let [specs pkgs-pending]
     (set pkgs-pending [])
-    (each [_ {: before} (pairs pkgs)]
-      (before))
-    (-> pkgs
-        (vim.iter)
-        (: :map #(. $1 :specs))
-        (: :flatten)
-        (: :totable)
-        (vim.pack.add))
-    (each [_ {: after} (pairs pkgs)]
-      (after))))
+    (run-parsed-use-specs specs)))
 
 ;; FIXME: Explicitly splitting config & enabling allows the latter to be machine local
 (fn M.lsps! [tbl]
   (each [name config (pairs tbl)]
     ;; FIXME: backwards compatible but can opt-out
-    (let [enable (or (pop! config :enable) true)]
+    (let [enable (pop! config :enable)]
       (vim.lsp.config name config)
-      (when enable
-        (vim.lsp.enable name)))))
+      (vim.lsp.enable name enable))))
 
 (fn M.dispatchables! [mode actions]
   (let [var-tbl (. vim mode)

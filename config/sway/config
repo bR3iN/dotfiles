@@ -1,10 +1,11 @@
 #Set mod key
 set $mod Mod4
+set $alt Mod1
 
 # Set lock-screen
 # exec swayidle -w before-sleep "swaylock -f"
 exec swayidle -w before-sleep "gtklock -d"
-bindsym $mod+Escape exec lock-wrapper gtklock
+# bindsym $mod+Escape exec lock-wrapper gtklock
 
 
 focus_follows_mouse yes
@@ -101,6 +102,10 @@ input * {
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
 
+# seat * {
+#     hide_cursor 5000
+# }
+
 
 ### Navigation
 
@@ -126,13 +131,14 @@ bindsym $mod+Control+r reload; exec killall -sSIGHUP kanshi
 bindsym $mod+q kill
 
 # Move to and show scratchpad
-#bindsym $mod+minus scratchpad show
+# bindsym $mod+minus scratchpad show
 
 # bindsym $mod+Backspace move scratchpad
 bindsym $mod+Control+minus move scratchpad
 
-bindsym $mod+minus exec wlr-switcher --scratchpad --cycle-next "-" --cycle-prev "="
-bindsym $mod+Tab exec wlr-switcher
+bindsym $mod+minus exec wlr-switcher --scratchpad toggle --cycle-key "Minus:Equal" --move --hold
+# bindsym $mod+Tab exec wlr-switcher --hold --cycle-key "Tab:Grave"
+# bindsym $mod+Control+Tab exec wlr-switcher --move --hold --cycle-key "Tab:Grave"
 
 # Lazily starts the wlr-draw daemon
 bindsym $mod+Control+d exec wlr-draw-toggle
@@ -242,5 +248,3 @@ bindsym --locked XF86AudioPrev  exec playerctl previous
 
 
 include ~/.config/sway/config.d/*
-
-# vim: ft=conf

@@ -60,7 +60,10 @@
                           :callback dap.toggle_breakpoint}
       :toggler-breakpoint-interactive {:desc "Toggle Breakpoint (Interactive)"
                                        :callback M.interactive-breakpoint}
-      
-      })
+      :restart-or-run-last {:desc "Restart / Run Last"
+                            :callback M.restart_or_run_last}
+      :eval {:desc "Eval Expression" :callback M.eval.word}
+      :eval-interactive {:desc "Eval Expression (Interactive)"
+                         :callback M.eval.interactive}})
 
 M

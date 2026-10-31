@@ -1,3 +1,4 @@
+// Default `us` keymap with custom overrides
 xkb_keymap {
     xkb_keycodes { include "evdev+aliases(qwerty)" };
     xkb_types { include "complete" };
@@ -5,8 +6,10 @@ xkb_keymap {
 
     xkb_symbols {
         include "pc+us+inet(evdev)"
+        // Have `Print Screen" become a second windows key (thinkpad motivated).
         include "altwin(prtsc_rwin)"
 
+        // Caps as the compose key with caps lock moving to `Shift+Caps`.
         replace key <CAPS> {
             type= "TWO_LEVEL",
             symbols= [ Multi_key, Caps_Lock ]
@@ -14,13 +17,6 @@ xkb_keymap {
 
         // Don't have the caps key set the lock bit
         modifier_map None { Caps_Lock };
-
-        // By default bound to X86 tools, but we use it in Neovim as a (local)leader
-        replace key <FK13> { [ F13 ] };
-
-        // replace key <SPCE> {
-        //     symbols=[ space, Multi_key ]
-        // };
     };
 
     xkb_geometry { include "pc(pc105)" };

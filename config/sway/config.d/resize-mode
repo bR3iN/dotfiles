@@ -35,5 +35,3 @@ mode "resize" {
     bindsym Escape mode "default"
     bindsym Control+bracketleft mode "default"
 }
-
-# vim: ft=conf

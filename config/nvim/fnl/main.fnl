@@ -154,11 +154,11 @@
 (keymaps! {:n {;; :o {:desc "Open URL/file under cursor"
                ;;     :callback #(vim.cmd (.. "!xdg-open "
                ;;                             (vim.fn.shellescape (vim.fn.expand "<cfile>"))))}
-               L {:R {:desc "Reload Config"
-                      :callback #(do
-                                   (vim.print "Reloading config")
-                                   ;; TODO: Conflicts with vim.loader? Check docs
-                                   (dofile vim.env.MYVIMRC))}}}
+               L {:<C-r> {:desc "Reload Config"
+                          :callback #(do
+                                       (vim.print "Reloading config")
+                                       ;; TODO: Conflicts with vim.loader? Check docs
+                                       (dofile vim.env.MYVIMRC))}}}
            [:v :n] {L {:y {:desc "Yank to Clipboard" :callback "\"+y"}
                        :p {:desc "Paste from Clipboard" :callback "\"+p"}
                        :P {:desc "Paste from Clipboard before cursor"
@@ -189,12 +189,14 @@
                                                                   (actions.smart_send_to_qflist bufnr)
                                                                   (vim.cmd.cfirst))
                                                         "<C-]>" actions.select_default
+                                                        "<C-c>" #(vim.cmd.stopinsert)
                                                         "<C-x>" actions.drop_all
                                                         "<C-a>" actions.select_all
                                                         "<C-d>" actions.results_scrolling_down
                                                         "<C-u>" actions.results_scrolling_up
                                                         "<C-s>" actions.select_horizontal
-                                                        "<esc>" actions.close}}}
+                                                        "<esc>" actions.close}
+                                                    :n {"<C-c>" actions.close}}}
                               :extensions {:fzf {:fuzzy false
                                                  :override_generic_sorter true
                                                  :override_file_sorter true
@@ -202,14 +204,19 @@
                               :pickers {:diagnostics {:sort_by :severity}
                                         :buffers {:mappings {:n {:<C-x> :delete_buffer}
                                                              :i {:<C-x> :delete_buffer}}}}})}
+       :install #(let [{: install-fzf-native} (require :config.telescope)]
+                   (install-fzf-native))
        :config #(let [{: load_extension} (require :telescope)
-                      {: pick-term : ensure-fzf-native} (require :config.telescope)
+                      {: pick-term} (require :config.telescope)
                       builtin (require :telescope.builtin)]
                   (load_extension :ui-select)
-                  ;; fzf-native needs `make` to be run, vim.pack.add currently does not support this
-                  (ensure-fzf-native)
+                  (load_extension :fzf)
                   (keymaps! {:n {L {:f {:desc "Open File"
                                         :callback #(builtin.find_files {:follow true
+                                                                        :cwd (get-cwd-override)})}
+                                    :F {:desc "Open File (incl. gitignore)"
+                                        :callback #(builtin.find_files {:follow true
+                                                                        :no_ignore true
                                                                         :cwd (get-cwd-override)})}
                                     ";" {:desc "Resume Last Picker"
                                          :callback #(builtin.resume)}
@@ -238,6 +245,12 @@
                                     ;;                       :prompt_title "Workspace Errors"})}
                                     :o<C-h> {:desc "Help Tags"
                                              :callback #(builtin.help_tags)}
+                                    ;; Note: Mnemonic is [d]otfiles as `<C-c>` always interrupts key sequences.
+                                    :<C-c> #(vim.print "hello")
+                                    :o<C-d> {:desc "Config Files"
+                                             :callback #(builtin.find_files {:follow true
+                                                                             :cwd (vim.print (.. vim.env.HOME
+                                                                                                 "/.config/"))})}
                                     "<BS>" {:desc "Pick Terminal"
                                             :callback pick-term}
                                     :b {:desc "Find Buffers"
@@ -480,7 +493,8 @@
                        (vim.iter)
                        (: :each #($2:map (.. L $1))))))
        :keymaps #(let [{: scratch : notifier : bufdelete} (require :snacks)]
-                   {:n {L {:u {:c #(vim.cmd.ToggleComments)}
+                   {:i {"<C-c>" #(vim.cmd.ToggleComments)}
+                    :n {L {:u {:c #(vim.cmd.ToggleComments)}
                            "qb" {:desc "Kill buffer"
                                  :callback bufdelete.delete}
                            :- {:desc "Toggle scratch buffer"
@@ -494,6 +508,7 @@
 (use! {:src :stevearc/oil.nvim :version (vim.version.range :v2.*)}
       {:setup {:oil {:columns []
                      :use_default_keymaps false
+                     :win_options {:signcolumn :auto}
                      :keymaps {:g? :actions.show_help
                                "<C-]>" :actions.select
                                "<CR>" :actions.select
@@ -711,7 +726,7 @@
 (use! [:neovim/nvim-lspconfig]
       {:autocmds {:LspAttach {:callback (fn [{: buf}]
                                           ;; Initial displaying
-                                          (_G.vim.lsp.codelens.enable true
+                                          (_G.vim.lsp.codelens.enable false
                                                                       {:bufnr buf}))}}})
 
 (let [{: setup-buf} (reload :config.treesitter)]
@@ -719,6 +734,7 @@
          :nvim-treesitter/nvim-treesitter-textobjects]
         {:autocmds {:FileType {:pattern :* :callback #(setup-buf $.buf)}
                     :BufReadPost {:pattern :* :callback #(setup-buf $.buf)}}
+         :install #(vim.cmd.TSInstall :all)
          :setup {:nvim-treesitter-textobjects {;; :select {:enable true
                                                ;;          :keymaps {:if "@function.inner"
                                                ;;                    :af "@function.outer"
@@ -796,28 +812,19 @@
                          (keymaps! {:opts {:buffer buf}
                                     :n {[:q :<ESC>] {:desc "Close Float"
                                                      :callback vim.cmd.quit}}}))}
-       :keymaps (fn [c]
+       :keymaps (fn [{:eval e :bindings b}]
                   (let [dap (require :dap)
-                        {:eval e :bindings b} c
-                        {: show_view :open open_view} (require :dap-view)
-                        ;; sidebar #(let [sidebar (->> $1
-                        ;;                             (. widgets)
-                        ;;                             (widgets.sidebar))]
-                        ;;            #(sidebar.toggle))
-                        ;; cfloat #(->> $1 (. widgets) (widgets.centered_float))
-                        ]
+                        {: show_view :open open_view} (require :dap-view)]
                     {:v {L {:d {;; :k {:desc "Hover" :callback widgets.hover}
                                 :e {:desc "Eval Expression" :callback e.visual}}}}
                      :n {"[f" {:desc "Up Stack Frame" :callback dap.up}
                          "]f" {:desc "Down Stack Frame" :callback dap.down}
-                         "" {"<F9>" b.toggle-breakpoint}
                          L {:d {:<CR> {:desc "Run to Cursor"
                                        :callback #(dap.run_to_cursor)}
                                 :<Tab> b.toggle-breakpoint
                                 :<S-Tab> b.toggle-breakpoint-interactive
-                                :k {:desc "Eval Expression" :callback e.word}
-                                :K {:desc "Eval Expression (Interactive)"
-                                    :callback e.interactive}
+                                :k b.eval
+                                :K b.eval-interactive
                                 :q {:desc "Terminate" :callback dap.terminate}
                                 :c b.continue
                                 :s b.step-into
@@ -825,8 +832,7 @@
                                 :P b.reverse-continue
                                 :n b.step-over
                                 :o b.step-out
-                                :r {:desc "Restart / Run Last"
-                                    :callback c.restart_or_run_last}
+                                :r b.restart-or-run-last
                                 :<space> {:desc "Focus Frame"
                                           :callback dap.focus_frame}
                                 ;; :l {:desc "List Breakpoints"
@@ -913,7 +919,14 @@
                          :r {:desc "Run" :callback #(vim.cmd.RustLsp :run)}}}}})
 
 (use! [:Civitasv/cmake-tools.nvim]
-      {:setup {:cmake-tools {:cmake_regenerate_on_save false}}
+      {:setup {:cmake-tools {:cmake_regenerate_on_save false
+                             ;; FIXME: DRY up
+                             :cmake_dap_configuration {:name "Launch codelldb"
+                                                       :type :codelldb
+                                                       :request :launch
+                                                       :stopOnEntry false
+                                                       :runInTerminal false
+                                                       :cwd "${workspaceFolder}"}}}
        :keymaps {:opts {:ft :cpp}
                  :n {LL {:b {:desc "Build" :callback vim.cmd.CMakeBuild}
                          :B {:desc "Select Build Preset"
@@ -966,7 +979,9 @@
 
 (reload :config.dotfiles)
 (reload :appearance)
-(reload :config.colorscheme)
+
+;; TODO: Needed to pickup changes on reload?
+;; (reload :config.colorscheme)
 
 (local c (require :config))
 (use! [:rebelot/heirline.nvim :SmiteshP/nvim-navic :b0o/incline.nvim]
@@ -1055,7 +1070,15 @@
               (values lhs {:callback (.. "<C-\\><C-n>" callback)}))]
   (keymaps! {[:n :v :s :x] nmaps [:i :t] imaps}))
 
+;; (use! :coder/claudecode.nvim
+;;       {:setup {:claudecode {:terminal {:provider :none}}}})
+
+(use! [:Julian/lean.nvim :nvim-lua/plenary.nvim]
+      {:init #(set vim.g.lean_config {:mappings true})})
+
 ;; TODOs
-;; - matchup/treesitter binds
+;; - matchup/treesitter binds or Alt+vimkeys for navigation
 ;; - Use more Alt+ binds?
+;; - Put (nvim)-global things into `<C-..>` more consistently?
+
 ;; - helpers to create project-local build keymaps?

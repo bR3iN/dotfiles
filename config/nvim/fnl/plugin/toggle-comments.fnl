@@ -4,26 +4,35 @@
 (fn set_hl [name val]
   (vim.api.nvim_set_hl 0 name val))
 
-(var saved nil)
+(var highlight-enabled false)
 
-;; Replace saved value, returning previous value
-(fn replace-saved [new]
-  (let [tmp saved]
-    (set saved new)
-    tmp))
+(local hls {})
+
+(fn apply []
+  (->> highlight-enabled
+       (. hls)
+       (set_hl :Comment)))
+
+(fn toggle-state []
+  (set highlight-enabled (not highlight-enabled)))
+
+(fn on-colorscheme-change [_ev]
+  (let [hl (get_hl :Comment)]
+    (set (. hls false) hl))
+  (apply))
 
 (fn toggle []
-  (let [new (-> :Comment
-                (get_hl)
-                (replace-saved))]
-    (set_hl :Comment new)
-    (vim.cmd :redraw {:bang true})))
+  (toggle-state)
+  (apply))
 
-(fn setup []
+(fn setup [hl]
   (vim.api.nvim_create_user_command :ToggleComments toggle {})
-  ;; Lazily load initial value (i.e. the highlighted state) so we don't get the
-  ;; wrong one if loaded before the colorscheme.
-  (let [init (get_hl :CommentHighlighted)]
-    (set saved init)))
+  (set (. hls true) hl)
+  ;; Get the :Comment hl group on the first `setup` call and on colorscheme changes.
+  (when (not (. hls false))
+    (set (. hls false) (get_hl :Comment)))
+  (let [group (vim.api.nvim_create_augroup "user.toggle-comments" {:clear true})]
+    (vim.api.nvim_create_autocmd :Colorscheme
+                                 {: group :callback on-colorscheme-change})))
 
 {: setup}

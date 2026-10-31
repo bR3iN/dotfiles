@@ -9,13 +9,13 @@
     --zen-primary-color: #AD7FA8 !important;
 
     /* Checkbox backgrounds */
-    --zen-colors-primary: #29B4B4 !important;
+    --zen-colors-primary: #2ECDCD !important;
     /* current Tab, others are derived from primary-color; lock in the left of the url bar is derived? */
-    --zen-colors-secondary: #563F54 !important;
+    --zen-colors-secondary: #7E5C7A !important;
     /* default background; url bar when not selected */
     --zen-colors-tertiary: #2A2A2A !important;
 
-    --zen-colors-hover-bg: #B42929 !important;
+    --zen-colors-hover-bg: #CD2E2E !important;
     /* Foreground in printer dialog */
     --zen-colors-primary-foreground: #CECECE !important;
 

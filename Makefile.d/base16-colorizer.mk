@@ -1,6 +1,6 @@
-BASE16_COLORIZER_VERSION ?= 0.1.0
+BASE16_COLORIZER_VERSION ?= 0.2.0
 
-BASE16_COLORIZER_URL = https://github.com/bR3iN/base16-colorizer/releases/download/v0.1.0/base16-colorizer-v$(BASE16_COLORIZER_VERSION)-x86_64-linux
+BASE16_COLORIZER_URL = https://github.com/bR3iN/base16-colorizer/releases/download/v$(BASE16_COLORIZER_VERSION)/base16-colorizer-$(BASE16_COLORIZER_VERSION)-x86_64-linux-gnu
 
 .PHONY: base16-colorizer
 base16-colorizer: \
