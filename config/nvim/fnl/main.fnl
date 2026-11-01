@@ -204,7 +204,7 @@
                               :pickers {:diagnostics {:sort_by :severity}
                                         :buffers {:mappings {:n {:<C-x> :delete_buffer}
                                                              :i {:<C-x> :delete_buffer}}}}})}
-       :install #(let [{: install-fzf-native} (require :config.telescope)]
+       :build #(let [{: install-fzf-native} (require :config.telescope)]
                    (install-fzf-native))
        :config #(let [{: load_extension} (require :telescope)
                       {: pick-term} (require :config.telescope)
@@ -734,7 +734,7 @@
          :nvim-treesitter/nvim-treesitter-textobjects]
         {:autocmds {:FileType {:pattern :* :callback #(setup-buf $.buf)}
                     :BufReadPost {:pattern :* :callback #(setup-buf $.buf)}}
-         :install #(vim.cmd.TSInstall :all)
+         :build #(vim.schedule #(vim.cmd.TSInstall :all))
          :setup {:nvim-treesitter-textobjects {;; :select {:enable true
                                                ;;          :keymaps {:if "@function.inner"
                                                ;;                    :af "@function.outer"
@@ -1080,5 +1080,4 @@
 ;; - matchup/treesitter binds or Alt+vimkeys for navigation
 ;; - Use more Alt+ binds?
 ;; - Put (nvim)-global things into `<C-..>` more consistently?
-
 ;; - helpers to create project-local build keymaps?

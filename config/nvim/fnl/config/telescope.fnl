@@ -41,10 +41,8 @@
                                      (vim.pack.get)
                                      (. 1)
                                      (. :path))]
-                        (vim.print "Building telescope-fzf-native extension...")
-                        (let [{: code : stderr} (: (vim.system [:make]
-                                                               {:cwd path})
-                                                   :wait)]
-                          (if (= 0 code)
-                              (vim.print "Build complete")
+                        (let [{: code : stderr} (-> [:make]
+                                                    (vim.system {:cwd path})
+                                                    (: :wait))]
+                          (if (not= 0 code)
                               (vim.print "Failed to compile fzf-native:" stderr))))}

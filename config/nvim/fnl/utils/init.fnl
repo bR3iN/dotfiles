@@ -271,6 +271,18 @@
         opts (if (M.function? opts) (opts m) opts)]
     (m.setup opts)))
 
+(fn fs-touch [path]
+  ;; NOTE: (420 = 0o644)
+  (vim.uv.fs_open path :w 420))
+
+(fn fs-exists? [path]
+  (-> path
+      (vim.uv.fs_stat)
+      (M.nil?)
+      (not)))
+
+(local first-install-tag (.. (vim.fn.stdpath :cache) "/.run-init"))
+
 (fn parse-use-spec [spec ?opts]
   (let [;; Normalize list of specs
         specs (if (vim.islist spec) spec [spec])
@@ -278,7 +290,7 @@
         {: setup
          : config
          : keymaps
-         : install
+         : build
          : autocmds
          : init
          : reload
@@ -293,8 +305,10 @@
                  (when init
                    (init)))
         after (fn [changed]
-                (when (and changed install)
-                  (install))
+                ;; TODO: Can't work as intended, the vim.pack.get to retreive the preexisting plugins already syncs the lockfile
+                ;; and downloads the plugins, so plugins are never reported as `changed`.
+                (when (and changed build)
+                  (build))
                 ;; Some plugins (e.g. indent-blankline) require highlight groups to be set before setup.
                 (when set-hls!
                   (set-hls!)
@@ -329,26 +343,17 @@
     {: specs : before : after}))
 
 (fn run-parsed-use-specs [parsed-specs]
-  (let [existing-srcs (collect [_ {:spec {: src}} (pairs (vim.pack.get nil
-                                                                       {:info false}))]
-                        (values src true))
-        befores []
-        afters []
-        pkgs []]
-    (each [_ {: before : specs : after} (pairs parsed-specs)]
-      (table.insert befores before)
-      (each [_ spec (ipairs specs)]
-        (table.insert pkgs spec))
-      (let [changed (-> specs (vim.iter)
-                        (: :any #(not (. existing-srcs $1.src))))]
-        (table.insert afters #(after changed))))
-    ;; Execute
-    (each [_ cb (ipairs befores)]
-      (cb))
-    (vim.pack.add pkgs {:confirm false})
-    (each [_ cb (ipairs afters)]
-      (cb))
-    ))
+  ;; NOTE: A vim.pack.get already syncs the lockfile, so we can't use that to reliably detect the first installation on a new system.
+  ;; TODO: Add update helper that reruns `:install`s.
+  (let [is-first-install (not (fs-exists? first-install-tag))]
+    (each [_ {: before} (ipairs parsed-specs)]
+      (before))
+    (each [_ {: specs} (ipairs parsed-specs)]
+      (vim.pack.add specs {:confirm false}))
+    (each [_ {: after} (ipairs parsed-specs)]
+      (after is-first-install))
+    (when is-first-install
+      (fs-touch first-install-tag))))
 
 (fn M.use! [spec ?opts]
   (let [sync (if (M.nil? ?opts)
