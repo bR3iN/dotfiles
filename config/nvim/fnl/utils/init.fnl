@@ -271,9 +271,14 @@
         opts (if (M.function? opts) (opts m) opts)]
     (m.setup opts)))
 
+(fn checked! [res ?err]
+  (if (M.nil? res)
+      (error ?err)
+      res))
+
 (fn fs-touch [path]
   ;; NOTE: (420 = 0o644)
-  (vim.uv.fs_open path :w 420))
+  (checked! (vim.uv.fs_open path :w (tonumber :644 8))))
 
 (fn fs-exists? [path]
   (-> path
@@ -281,7 +286,16 @@
       (M.nil?)
       (not)))
 
-(local first-install-tag (.. (vim.fn.stdpath :cache) "/.run-init"))
+(local first-install-tag ".run-init")
+
+(fn first-install? []
+  (not (fs-exists? (.. (vim.fn.stdpath :cache) "/" first-install-tag))))
+
+(fn mark-first-install []
+  (let [dir (vim.fn.stdpath :cache)]
+    (when (not (fs-exists? dir))
+      (vim.fn.mkdir dir :p))
+    (fs-touch (.. dir "/" first-install-tag))))
 
 (fn parse-use-spec [spec ?opts]
   (let [;; Normalize list of specs
@@ -345,7 +359,7 @@
 (fn run-parsed-use-specs [parsed-specs]
   ;; NOTE: A vim.pack.get already syncs the lockfile, so we can't use that to reliably detect the first installation on a new system.
   ;; TODO: Add update helper that reruns `:install`s.
-  (let [is-first-install (not (fs-exists? first-install-tag))]
+  (let [is-first-install (first-install?)]
     (each [_ {: before} (ipairs parsed-specs)]
       (before))
     (each [_ {: specs} (ipairs parsed-specs)]
@@ -353,7 +367,7 @@
     (each [_ {: after} (ipairs parsed-specs)]
       (after is-first-install))
     (when is-first-install
-      (fs-touch first-install-tag))))
+      (mark-first-install))))
 
 (fn M.use! [spec ?opts]
   (let [sync (if (M.nil? ?opts)
