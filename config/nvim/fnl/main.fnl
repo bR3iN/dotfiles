@@ -205,7 +205,7 @@
                                         :buffers {:mappings {:n {:<C-x> :delete_buffer}
                                                              :i {:<C-x> :delete_buffer}}}}})}
        :build #(let [{: install-fzf-native} (require :config.telescope)]
-                   (install-fzf-native))
+                 (install-fzf-native))
        :config #(let [{: load_extension} (require :telescope)
                       {: pick-term} (require :config.telescope)
                       builtin (require :telescope.builtin)]
@@ -734,7 +734,7 @@
          :nvim-treesitter/nvim-treesitter-textobjects]
         {:autocmds {:FileType {:pattern :* :callback #(setup-buf $.buf)}
                     :BufReadPost {:pattern :* :callback #(setup-buf $.buf)}}
-         :build #(vim.schedule #(vim.cmd.TSInstall :all))
+         :build #(vim.schedule #(vim.cmd.TSInstall :unstable))
          :setup {:nvim-treesitter-textobjects {;; :select {:enable true
                                                ;;          :keymaps {:if "@function.inner"
                                                ;;                    :af "@function.outer"
@@ -744,19 +744,19 @@
                                                ;;                    :al "@loop.outer"
                                                ;;                    :ik "@conditional.inner"
                                                ;;                    :ak "@conditional.outer"}}
-                                               ;; :swap {:enable true
-                                               ;;        :swap_next {"<leader>." "@parameter.inner"
-                                               ;;                    :<Plug>edit#swap-param-next "@parameter.inner"}
-                                               ;;        :swap_previous {"<leader>," "@parameter.inner"
-                                               ;;                        :<Plug>edit#swap-param-prev "@parameter.inner"}}
                                                }}
          :keymaps #(let [{:select_textobject select_textobject} (require :nvim-treesitter-textobjects.select)
+                         {: swap_next : swap_previous} (require :nvim-treesitter-textobjects.swap)
                          select (fn [query ?module]
                                   (select_textobject query
                                                      (or ?module :textobjects)))]
                      ;; TODO: continue
                      {[:x :o] {:af #(select "@function.outer")
-                               :if #(select "@function.inner")}})}))
+                               :if #(select "@function.inner")}
+                      :n {L {"." {:desc "Swap with next parameter"
+                                  :callback #(swap_next "@parameter.inner")}
+                             "," {:desc "Swap with previous parameter"
+                                  :callback #(swap_previous "@parameter.inner")}}}})}))
 
 ;; (use! [:aaronik/treewalker.nvim]
 ;;       {:setup {:treewalker {}}

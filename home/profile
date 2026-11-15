@@ -29,7 +29,7 @@ export GHCUP_USE_XDG_DIRS=
 # fi
 
 for file in ~/.profile.d/*; do
-    source "$file" 2> /dev/null
+    [ -r "$file" ] && source "$file" 2> /dev/null
 done &> /dev/null
 
 # vim: ft=bash
